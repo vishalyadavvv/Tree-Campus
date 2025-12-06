@@ -1,4 +1,4 @@
-const cloudinary = require('../config/cloudinary');
+import cloudinary from '../config/cloudinary.js';
 
 /**
  * Generate certificate image and upload to Cloudinary
@@ -105,7 +105,7 @@ const generateCertificateData = (data) => {
   };
 };
 
-module.exports = {
+export {
   generateCertificate,
   generateCertificateData,
 };

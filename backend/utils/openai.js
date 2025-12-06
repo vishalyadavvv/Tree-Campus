@@ -1,4 +1,4 @@
-const OpenAI = require('openai');
+import OpenAI from 'openai';
 
 // Initialize OpenAI client
 const openai = new OpenAI({
@@ -97,7 +97,7 @@ const askAIWithContext = async (question, courseContext = '', lessonContext = ''
   }
 };
 
-module.exports = {
+export {
   askAI,
   askAIWithContext,
 };

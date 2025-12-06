@@ -97,12 +97,7 @@ const GamesSection = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                 </svg>
               </Link>
-              <Link 
-                to="/register" 
-                className="inline-flex items-center px-8 py-4 bg-white text-gray-700 rounded-xl border-2 border-gray-300 hover:border-[#FD5A00] hover:text-[#FD5A00] transition-all duration-300 font-semibold text-lg"
-              >
-                Start Free
-              </Link>
+              
             </div>
           </div>
         </div>

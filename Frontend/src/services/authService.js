@@ -45,7 +45,7 @@ export const authService = {
   login: async (email, password) => {
     try {
       const res = await api.post('/auth/login', { email, password });
-      return res.data; // MUST include accessToken, refreshToken, user
+      return res;// MUST include accessToken, refreshToken, user
     } catch (err) {
       throw err.response?.data || err;
     }
@@ -123,16 +123,16 @@ export const authService = {
   // LOGOUT
   // -------------------------
   logout: async () => {
-    try {
-      const token = localStorage.getItem('token');
-      if (token) {
-        await api.post('/auth/logout');
-      }
-    } catch (err) {
-      console.error('Logout error:', err);
-    } finally {
-      localStorage.removeItem('token');
-      localStorage.removeItem('refreshToken');
+  try {
+    const token = sessionStorage.getItem('token'); // Changed from localStorage
+    if (token) {
+      await api.post('/auth/logout');
     }
-  },
+  } catch (err) {
+    console.error('Logout error:', err);
+  } finally {
+    sessionStorage.removeItem('token'); // Changed from localStorage
+    sessionStorage.removeItem('refreshToken'); // Changed from localStorage
+  }
+},
 };

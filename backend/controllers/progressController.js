@@ -1,243 +1,166 @@
-const Progress = require('../models/Progress');
-const Course = require('../models/Course');
-const Lesson = require('../models/Lesson');
-const Certificate = require('../models/Certificate');
-const { generateCertificateData } = require('../utils/generateCertificate');
+// controllers/progressController.js
+import User from '../models/User.js';
+import Lesson from '../models/Lesson.js';
+import Certificate from '../models/Certificate.js';
+import Course from '../models/Course.js';
+import Progress from '../models/Progress.js'; // <-- use the Progress model
 
-/**
- * @desc    Mark lesson as completed
- * @route   POST /api/progress/lesson/:lessonId/complete
- * @access  Private (Student)
- */
-const markLessonComplete = async (req, res, next) => {
+// Helper: safely get ObjectId string
+const toId = (v) => (v ? v.toString() : v);
+
+// @desc    Mark lesson as complete
+// @route   POST /api/progress/lesson/:id/complete
+// @access  Private
+export const completeLesson = async (req, res) => {
   try {
-    const lesson = await Lesson.findById(req.params.lessonId);
+    const userId = req.user._id;
+    const lessonId = req.params.id;
 
+    const lesson = await Lesson.findById(lessonId);
     if (!lesson) {
-      return res.status(404).json({
-        success: false,
-        message: 'Lesson not found',
-      });
+      return res.status(404).json({ success: false, message: 'Lesson not found' });
     }
 
-    let progress = await Progress.findOne({
-      user: req.user._id,
-      course: lesson.course,
-    });
+    const courseId = lesson.courseId || lesson.course || lesson.courseId; // defensive
 
-    if (!progress) {
-      progress = await Progress.create({
-        user: req.user._id,
-        course: lesson.course,
-      });
+    // find or create Progress doc for this user+course
+    let progressDoc = await Progress.findOne({ user: userId, course: courseId });
+    if (!progressDoc) {
+      progressDoc = await Progress.create({ user: userId, course: courseId, completedLessons: [] });
     }
 
-    // Check if already completed
-    const alreadyCompleted = progress.completedLessons.some(
-      cl => cl.lesson.toString() === lesson._id.toString()
+    // Check if already marked completed in Progress doc (idempotent)
+    const alreadyCompleted = progressDoc.completedLessons.some(
+      (c) => toId(c.lesson) === toId(lessonId)
     );
 
     if (!alreadyCompleted) {
-      progress.completedLessons.push({
-        lesson: lesson._id,
-        completedAt: Date.now(),
-      });
-
-      // Update last accessed
-      progress.lastAccessedAt = Date.now();
-
-      await progress.save();
-
-      // Calculate progress
-      await progress.calculateProgress();
+      progressDoc.completedLessons.push({ lesson: lessonId, completedAt: new Date() });
+      // update lastAccessedAt
+      progressDoc.lastAccessedAt = new Date();
+      await progressDoc.save();
     }
 
-    res.status(200).json({
+    // Recalculate overallProgress using the schema method (which expects course populated lessons)
+    // If method uses populate('lessons') it may rely on Course.lessons - but we'll also compute reliably:
+    const totalLessons = await Lesson.countDocuments({ courseId });
+    const completedCount = progressDoc.completedLessons.length;
+    const newProgress = totalLessons > 0 ? Math.round((completedCount / totalLessons) * 100) : 0;
+
+    // Save computed overallProgress to progressDoc
+    progressDoc.overallProgress = newProgress;
+    await progressDoc.save();
+
+    // Also keep User.enrolledCourses in sync if present (best-effort)
+    const user = await User.findById(userId);
+    if (user) {
+      const enrollmentIndex = (user.enrolledCourses || []).findIndex(
+        (en) => toId(en.courseId) === toId(courseId)
+      );
+      if (enrollmentIndex !== -1) {
+        user.enrolledCourses[enrollmentIndex].progress = newProgress;
+      } else {
+        // If no enrollment exists, optionally add one (comment/uncomment based on your app logic)
+        // user.enrolledCourses = user.enrolledCourses || [];
+        // user.enrolledCourses.push({ courseId, progress: newProgress });
+      }
+
+      // Optionally keep a lightweight user.completedLessons array (if your app expects it)
+      // Add only if you actually have that field and it's used elsewhere.
+      if (Array.isArray(user.completedLessons)) {
+        const userAlready = user.completedLessons.some(c => toId(c.lessonId || c.lesson) === toId(lessonId));
+        if (!userAlready) {
+          // try to match existing user schema shape (lessonId used in your original code)
+          user.completedLessons.push({ lessonId, completedAt: new Date() });
+        }
+      }
+
+      await user.save();
+    }
+
+    // Certificate generation when reaching 100%
+    if (newProgress === 100) {
+      // Check if a certificate already exists
+      const existingCertificate = await Certificate.findOne({ userId, courseId });
+      if (!existingCertificate) {
+        const certificate = await Certificate.create({
+          userId,
+          courseId,
+          completionPercentage: 100
+        });
+
+        // Try to link certificate id to user (if user has certificates array)
+        if (user && Array.isArray(user.certificates)) {
+          user.certificates.push(certificate._id);
+          await user.save();
+        }
+
+        // mark certificateIssued in progressDoc
+        progressDoc.certificateIssued = true;
+        progressDoc.certificateUrl = certificate._id; // or certificate.url (update as needed)
+        await progressDoc.save();
+      }
+    }
+
+    return res.status(200).json({
       success: true,
-      message: 'Lesson marked as completed',
+      message: 'Lesson marked as complete',
       data: {
-        progress: progress.overallProgress,
-        completedLessons: progress.completedLessons.length,
-      },
+        progress: newProgress,
+        completedLessons: completedCount
+      }
     });
   } catch (error) {
-    next(error);
+    console.error('completeLesson error:', error);
+    return res.status(500).json({ success: false, message: error.message });
   }
 };
 
-/**
- * @desc    Get progress for a course
- * @route   GET /api/progress/course/:courseId
- * @access  Private (Student)
- */
-const getCourseProgress = async (req, res, next) => {
+// @desc    Get course progress
+// @route   GET /api/progress/course/:id
+// @access  Private
+export const getCourseProgress = async (req, res) => {
   try {
-    const progress = await Progress.findOne({
-      user: req.user._id,
-      course: req.params.courseId,
-    })
-      .populate('completedLessons.lesson')
-      .populate('quizScores.lesson')
-      .populate('quizScores.quiz');
+    const userId = req.user._id;
+    const courseId = req.params.id;
 
-    if (!progress) {
-      return res.status(404).json({
-        success: false,
-        message: 'No progress found for this course',
-      });
+    // Get or create progress doc
+    let progressDoc = await Progress.findOne({ user: userId, course: courseId });
+    if (!progressDoc) {
+      progressDoc = await Progress.create({ user: userId, course: courseId });
     }
 
-    res.status(200).json({
+    // Ensure progress is up-to-date (recompute using Lessons)
+    const totalLessons = await Lesson.countDocuments({ courseId });
+    const completedCount = progressDoc.completedLessons.length;
+    const progress = totalLessons > 0 ? Math.round((completedCount / totalLessons) * 100) : 0;
+
+    // Optionally update and save progressDoc.overallProgress if different
+    if (progressDoc.overallProgress !== progress) {
+      progressDoc.overallProgress = progress;
+      await progressDoc.save();
+    }
+
+    // Build lessonsWithStatus using lessons from DB (preserve sort/order)
+    const allLessons = await Lesson.find({ courseId }).sort('order');
+    const completedSet = new Set(progressDoc.completedLessons.map(c => toId(c.lesson)));
+
+    const lessonsWithStatus = allLessons.map(lesson => ({
+      ...lesson.toObject(),
+      isCompleted: completedSet.has(toId(lesson._id))
+    }));
+
+    return res.status(200).json({
       success: true,
-      data: progress,
-    });
-  } catch (error) {
-    next(error);
-  }
-};
-
-/**
- * @desc    Get user analytics (all courses)
- * @route   GET /api/progress/analytics
- * @access  Private (Student)
- */
-const getUserAnalytics = async (req, res, next) => {
-  try {
-    const progressRecords = await Progress.find({ user: req.user._id })
-      .populate('course', 'title thumbnail category');
-
-    const analytics = {
-      totalCourses: progressRecords.length,
-      completedCourses: progressRecords.filter(p => p.overallProgress === 100).length,
-      inProgressCourses: progressRecords.filter(p => p.overallProgress > 0 && p.overallProgress < 100).length,
-      certificatesEarned: progressRecords.filter(p => p.certificateIssued).length,
-      totalLessonsCompleted: progressRecords.reduce((sum, p) => sum + p.completedLessons.length, 0),
-      averageProgress: progressRecords.length > 0
-        ? Math.round(progressRecords.reduce((sum, p) => sum + p.overallProgress, 0) / progressRecords.length)
-        : 0,
-      courses: progressRecords.map(p => ({
-        course: p.course,
-        progress: p.overallProgress,
-        completedLessons: p.completedLessons.length,
-        certificateIssued: p.certificateIssued,
-        lastAccessed: p.lastAccessedAt,
-      })),
-    };
-
-    res.status(200).json({
-      success: true,
-      data: analytics,
-    });
-  } catch (error) {
-    next(error);
-  }
-};
-
-/**
- * @desc    Issue certificate
- * @route   POST /api/progress/course/:courseId/certificate
- * @access  Private (Student)
- */
-const issueCertificate = async (req, res, next) => {
-  try {
-    const progress = await Progress.findOne({
-      user: req.user._id,
-      course: req.params.courseId,
-    });
-
-    if (!progress) {
-      return res.status(404).json({
-        success: false,
-        message: 'No progress found for this course',
-      });
-    }
-
-    // Check if course is 100% complete
-    if (progress.overallProgress < 100) {
-      return res.status(400).json({
-        success: false,
-        message: 'Course must be 100% complete to receive certificate',
-        currentProgress: progress.overallProgress,
-      });
-    }
-
-    // Check if certificate already issued
-    if (progress.certificateIssued) {
-      const existingCertificate = await Certificate.findOne({
-        user: req.user._id,
-        course: req.params.courseId,
-      });
-
-      return res.status(200).json({
-        success: true,
-        message: 'Certificate already issued',
-        data: existingCertificate,
-      });
-    }
-
-    // Get course and user details
-    const course = await Course.findById(req.params.courseId).populate('instructor', 'name');
-    const user = req.user;
-
-    // Generate certificate
-    const certificateData = generateCertificateData({
-      userName: user.name,
-      courseName: course.title,
-      certificateId: '', // Will be auto-generated
-      completionDate: Date.now(),
-      instructorName: course.instructor.name,
-    });
-
-    // Create certificate record
-    const certificate = await Certificate.create({
-      user: user._id,
-      course: course._id,
-      certificateUrl: `https://treecampus.com/certificates/${certificateData.certificateId}`, // Placeholder
-      completionDate: Date.now(),
-    });
-
-    // Update progress
-    progress.certificateIssued = true;
-    progress.certificateUrl = certificate.certificateUrl;
-    await progress.save();
-
-    res.status(201).json({
-      success: true,
-      message: 'Certificate issued successfully',
       data: {
-        certificate,
-        certificateData, // For frontend to generate PDF
-      },
+        progress,
+        totalLessons,
+        completedLessons: completedCount,
+        lessons: lessonsWithStatus
+      }
     });
   } catch (error) {
-    next(error);
+    console.error('getCourseProgress error:', error);
+    return res.status(500).json({ success: false, message: error.message });
   }
-};
-
-/**
- * @desc    Get user certificates
- * @route   GET /api/progress/certificates
- * @access  Private (Student)
- */
-const getUserCertificates = async (req, res, next) => {
-  try {
-    const certificates = await Certificate.find({ user: req.user._id })
-      .populate('course', 'title thumbnail category')
-      .sort({ issuedDate: -1 });
-
-    res.status(200).json({
-      success: true,
-      data: certificates,
-    });
-  } catch (error) {
-    next(error);
-  }
-};
-
-module.exports = {
-  markLessonComplete,
-  getCourseProgress,
-  getUserAnalytics,
-  issueCertificate,
-  getUserCertificates,
 };

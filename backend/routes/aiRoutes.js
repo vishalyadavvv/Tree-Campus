@@ -1,14 +1,14 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const {
+import {
   askQuestion,
   getChatHistory,
   getConversation,
   deleteConversation,
-} = require('../controllers/aiController');
-const { protect } = require('../middleware/auth');
-const { body } = require('express-validator');
-const { validate } = require('../middleware/validate');
+} from '../controllers/aiController.js';
+import { protect } from '../middleware/auth.js';
+import { body } from 'express-validator';
+import { validate } from '../middleware/validate.js';
 
 // All routes are protected
 router.post('/ask', protect, [
@@ -20,4 +20,4 @@ router.get('/history', protect, getChatHistory);
 router.get('/conversation/:id', protect, getConversation);
 router.delete('/conversation/:id', protect, deleteConversation);
 
-module.exports = router;
+export default router;

@@ -1,10 +1,10 @@
 // client/src/App.js
 import React from 'react';
-import { Routes, Route } from 'react-router-dom'; // ✅ Remove BrowserRouter import
+import { useEffect } from 'react';
+import { Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { CourseProvider } from './context/CourseContext';
 import ScrollToTop from './components/ScrollToTop';
-import AdminDashboard from './pages/AdminDashboard';
 
 // Pages
 import Home from './pages/Home';
@@ -13,37 +13,61 @@ import CourseDetail from './pages/CourseDetail';
 import Games from './pages/Games';
 import LiveClasses from './pages/LiveClasses';
 import Spokee from './pages/Spokee';
-import Dashboard from './pages/Dashboard';
 import Login from './components/auth/Login';
 import Register from './components/auth/Register';
 import Profile from './components/auth/Profile';
 import HowItWorks from './pages/HowItWorks';
 import Volunteer from './pages/Volunteer';
 import AccountDeletionForm from './pages/UserAccountDeletion';
+import SchoolRegistration from './pages/SchoolRegistration';
+import LessonView from './pages/LessonView';
+import BlogList from './pages/BlogList';
+import BlogPost from './pages/BlogPost';
+import Quiz from './pages/Quiz';
+
+
+
+import ForgotPassword from './components/auth/ForgotPassword';
+import ResetPassword from './components/auth/ResetPassword';
+
+
+// Admin Pages
+import Dashboard from './pages/admin/Dashboard';
+import BlogManagement from './pages/admin/BlogManagement';
+import CourseManagement from './pages/admin/CourseManagement';
+import StudentAnalytics from './pages/admin/StudentAnalytics';
+import Analytics from './pages/admin/Analytics';
+import LiveClassManagement from './pages/admin/LiveClassManagement';
+import CourseBuilder from './pages/admin/CourseBuilder';
+import SchoolRegistrationManagement from './pages/admin/SchoolRegistrationManagement';
+import VolunteerManagement from './pages/admin/VolunteerManagement';
+import AccountDeletionManagement from './pages/admin/AccountDeletionManagement';
 
 // Layout
 import Navbar from './components/common/Navbar';
 import Footer from './components/common/Footer';
 import ProtectedRoute from './components/common/ProtectedRoute';
-import Loader from './components/common/Loader';
 
 import CoursePlayer from './pages/CoursePlayer';
 import VerifyOTP from './components/auth/VerifyOTP';
+import EnglishSpeaking from './pages/EnglishSpeaking';
+import StudentDashboard from './pages/student/StudentBoard';
 
 import './App.css';
-import EnglishSpeakingPlatform from './pages/EnglishSpeaking';
 
 function App() {
-
+   useEffect(() => {
+    if ("scrollRestoration" in window.history) {
+      window.history.scrollRestoration = "manual";
+    }
+  }, []);
   return (
-
     <AuthProvider>
       <CourseProvider>
-
-       
         <ScrollToTop />
         <div className="App">
           <Navbar />
+          
           <Routes>
             {/* Public Routes */}
             <Route path="/" element={<Home />} />
@@ -56,18 +80,116 @@ function App() {
             <Route path="/verify-otp" element={<VerifyOTP />} />
             <Route path="/howitworks" element={<HowItWorks />} />
             <Route path="/volunteer" element={<Volunteer />} />
-             <Route path="/englishspeaking" element={<EnglishSpeakingPlatform />} />
+            <Route path="/englishspeaking" element={<EnglishSpeaking />} />
             <Route path="/accountdeletion" element={<AccountDeletionForm />} />
-            
-            {/* Protected Routes */}
+            <Route path="/contest/schoolregistration" element={<SchoolRegistration />} />
+            <Route path="/courses/:courseId/lesson/:lessonId" element={<LessonView />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/blogs" element={<BlogList />} />
+            <Route path="/blogs/:id" element={<BlogPost />} />
+            <Route path="/courses/:courseId/section/:sectionId/quiz" element={<Quiz />} />
+
+            {/* ============ ADMIN ROUTES (Admin Only) ============ */}
             <Route 
               path="/admin" 
               element={
-                <ProtectedRoute>
-                  <AdminDashboard />
+                <ProtectedRoute adminOnly>
+                  <Dashboard />
                 </ProtectedRoute>
               } 
             />
+            <Route 
+              path="/admin/courses" 
+              element={
+                <ProtectedRoute adminOnly>
+                  <CourseManagement />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin/courses/:id/builder" 
+              element={
+                <ProtectedRoute adminOnly>
+                  <CourseBuilder />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin/studentanalytics" 
+              element={
+                <ProtectedRoute adminOnly>
+                  <StudentAnalytics />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin/analytics" 
+              element={
+                <ProtectedRoute adminOnly>
+                  <Analytics />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin/live-classes" 
+              element={
+                <ProtectedRoute adminOnly>
+                  <LiveClassManagement />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin/blogs" 
+              element={
+                <ProtectedRoute adminOnly>
+                  <BlogManagement />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+  path="/admin/schools" 
+  element={
+    <ProtectedRoute adminOnly>
+      <SchoolRegistrationManagement />
+    </ProtectedRoute>
+  } 
+/>
+<Route 
+  path="/admin/volunteers" 
+  element={
+    <ProtectedRoute adminOnly>
+      <VolunteerManagement />
+    </ProtectedRoute>
+  } 
+/>
+<Route 
+  path="/admin/account-deletions" 
+  element={
+    <ProtectedRoute adminOnly>
+      <AccountDeletionManagement />
+    </ProtectedRoute>
+  } 
+/>
+            {/* ============ STUDENT ROUTES (Student Only) ============ */}
+            <Route 
+              path="/dashboard" 
+              element={
+                <ProtectedRoute studentOnly>
+                  <StudentDashboard />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/profile" 
+              element={
+                <ProtectedRoute studentOnly>
+                  <Profile />
+                </ProtectedRoute>
+              } 
+            />
+
+            {/* ============ SHARED PROTECTED ROUTES (Any Authenticated User) ============ */}
             <Route 
               path="/spokee" 
               element={
@@ -77,42 +199,28 @@ function App() {
               } 
             />
             <Route 
-              path="/dashboard" 
+              path="/course/:courseId/player/:dayIndex/:lessonIndex" 
               element={
                 <ProtectedRoute>
-                  <Dashboard />
+                  <CoursePlayer />
                 </ProtectedRoute>
               } 
             />
             <Route 
-              path="/profile" 
+              path="/course/:courseId/player" 
               element={
                 <ProtectedRoute>
-                  <Profile />
+                  <CoursePlayer />
                 </ProtectedRoute>
               } 
             />
-
-            <Route path="/course/:courseId/player/:dayIndex/:lessonIndex" element={<CoursePlayer />} />
-            <Route path="/course/:courseId/player" element={<CoursePlayer />} />
           </Routes>
+          
           <Footer />
         </div>
-        {/* ✅ Remove closing </Router> tag */}
       </CourseProvider>
     </AuthProvider>
   );
 }
 
 export default App;
-
-
-
-// The correct hierarchy is now:
-// ```
-// main.jsx:
-//   BrowserRouter
-//     └── App
-//         └── AuthProvider
-//             └── CourseProvider
-//                 └── Routes/Components

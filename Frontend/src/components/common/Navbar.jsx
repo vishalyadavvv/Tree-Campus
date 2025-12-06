@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import { useAuth } from "../../context/AuthContext";
-import AccountDeletionForm from "../../pages/UserAccountDeletion";
+import { Link, useNavigate } from "react-router-dom"; // Added useNavigate
 
 export default function Navbar() {
   const [activeDropdown, setActiveDropdown] = useState(null);
@@ -12,6 +12,9 @@ export default function Navbar() {
   const [mobileContestOpen, setMobileContestOpen] = useState(false);
   const [mobileProfileOpen, setMobileProfileOpen] = useState(false);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
+  
+  // FIXED: Added useNavigate for proper navigation
+  const navigate = useNavigate();
   
   // FIXED: Enhanced auth state management
   const { user, loading, logout } = useAuth();
@@ -26,7 +29,7 @@ export default function Navbar() {
   const [userData, setUserData] = useState(null);
   const [userRole, setUserRole] = useState('student');
 
-  // Navigation links data
+  // Navigation links data - FIXED: Removed settings from navigation
   const navigation = {
     home: "/",
     login: "/login",
@@ -34,7 +37,6 @@ export default function Navbar() {
     profile: "/profile",
     dashboard: "/dashboard",
     myCourses: "/my-courses",
-    settings: "/settings",
     admin: "/admin",
     adminUsers: "/admin/users",
     adminCourses: "/admin/courses",
@@ -42,11 +44,12 @@ export default function Navbar() {
     courses: "/courses",
     certificate: "/certificate",
     liveClasses: "/live-classes",
-    freeSpeakingClasses: "/free-speaking-classes",
+    EnglishSpeaking: "/englishspeaking",
     dailyReading: "/daily-reading",
     volunteer: "/volunteer",
     AccountDeletionForm: "/accountdeletion",
     howItWorks: "/howitworks",
+    myblogs: "/myblogs",
     blogs: {
       main: "/blogs",
       posts: {
@@ -74,7 +77,7 @@ export default function Navbar() {
     },
     contest: {
       main: "/contest",
-      schoolRegistration: "/contest/school-registration",
+      SchoolRegistration: "/contest/schoolregistration",
       contestQuiz: "/contest/quiz"
     }
   };
@@ -85,7 +88,7 @@ export default function Navbar() {
         { label: "Courses", href: navigation.courses },
         { label: "Certificate", href: navigation.certificate },
         { label: "Live Classes", href: navigation.liveClasses },
-        { label: "English Speaking Classes Online Free", href: navigation.freeSpeakingClasses }
+        { label: "English Speaking Classes Online Free", href: navigation.EnglishSpeaking }
       ]
     },
     more: {
@@ -137,7 +140,7 @@ export default function Navbar() {
           label: "Contest",
           href: navigation.contest.main,
           items: [
-            { label: "School Registration", href: navigation.contest.schoolRegistration },
+            { label: "School Registration", href: navigation.contest.SchoolRegistration },
             { label: "Contest Quiz", href: navigation.contest.contestQuiz }
           ]
         },
@@ -150,21 +153,20 @@ export default function Navbar() {
     }
   };
 
-  // Student menu items
+  // Student menu items - FIXED: Removed settings option
   const studentMenuItems = [
     { label: "My Profile", href: navigation.profile, icon: "👤" },
     { label: "Dashboard", href: navigation.dashboard, icon: "📊" },
     { label: "My Courses", href: navigation.myCourses, icon: "📚" },
-    { label: "Settings", href: navigation.settings, icon: "⚙️" },
     { label: "Logout", href: "#", icon: "🚪", action: "logout" }
   ];
 
-  // Admin menu items
+  // Admin menu items - FIXED: Removed settings option
   const adminMenuItems = [
     { label: "Admin Dashboard", href: navigation.admin, icon: "🏠" },
     { label: "User Management", href: navigation.adminUsers, icon: "👥" },
     { label: "Course Management", href: navigation.adminCourses, icon: "📚" },
-    { label: "Settings", href: navigation.settings, icon: "⚙️" },
+    { label: "Profile", href: navigation.profile, icon: "👤" },
     { label: "Logout", href: "#", icon: "🚪", action: "logout" }
   ];
 
@@ -176,37 +178,37 @@ export default function Navbar() {
     return studentMenuItems;
   };
 
-  const defaultAvatar = "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face";
+  // FIXED: Use initials instead of default avatar
+  const getUserInitials = (name) => {
+    if (!name) return "U";
+    return name
+      .split(" ")
+      .map(part => part[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2);
+  };
 
   // FIXED: Enhanced auth state synchronization
   useEffect(() => {
     const checkAuthState = () => {
       try {
-        // Check both context and localStorage for auth state
-        const token = localStorage.getItem('token');
-        const userFromStorage = localStorage.getItem('user');
+        // Check both context and sessionStorage for auth state
+        const token = sessionStorage.getItem('token');
+        const userFromStorage = sessionStorage.getItem('user');
         
-        console.log('🔄 Navbar Auth Check:', {
-          contextUser: user,
-          token,
-          userFromStorage,
-          loading
-        });
-
         if (user && token) {
           // Use context user data
           setIsLoggedIn(true);
           setUserData(user);
           setUserRole(user.role || 'student');
-          console.log('✅ Using context user data');
         } else if (token && userFromStorage) {
-          // Fallback to localStorage if context is not updated
+          // Fallback to sessionStorage if context is not updated
           try {
             const parsedUser = JSON.parse(userFromStorage);
             setIsLoggedIn(true);
             setUserData(parsedUser);
             setUserRole(parsedUser.role || 'student');
-            console.log('✅ Using localStorage user data');
           } catch (parseError) {
             console.error('Error parsing user data:', parseError);
             setIsLoggedIn(false);
@@ -218,7 +220,6 @@ export default function Navbar() {
           setIsLoggedIn(false);
           setUserData(null);
           setUserRole('student');
-          console.log('❌ No auth data found');
         }
       } catch (error) {
         console.error('Error checking auth state:', error);
@@ -234,12 +235,8 @@ export default function Navbar() {
   // FIXED: Enhanced auth state change listener
   useEffect(() => {
     const handleAuthChange = () => {
-      console.log('📢 Auth state change event received in Navbar');
-      // Force re-check of auth state
-      const token = localStorage.getItem('token');
-      const userFromStorage = localStorage.getItem('user');
-      
-      console.log('🔄 Manual auth check after event:', { token, userFromStorage });
+      const token = sessionStorage.getItem('token');
+      const userFromStorage = sessionStorage.getItem('user');
       
       if (token && userFromStorage) {
         try {
@@ -247,7 +244,6 @@ export default function Navbar() {
           setIsLoggedIn(true);
           setUserData(parsedUser);
           setUserRole(parsedUser.role || 'student');
-          console.log('✅ Auth state updated from event');
         } catch (error) {
           console.error('Error parsing user data from event:', error);
         }
@@ -255,7 +251,6 @@ export default function Navbar() {
         setIsLoggedIn(false);
         setUserData(null);
         setUserRole('student');
-        console.log('❌ Auth state cleared from event');
       }
     };
 
@@ -265,23 +260,13 @@ export default function Navbar() {
     window.addEventListener('storage', handleAuthChange);
     window.addEventListener('authStateChanged', handleAuthChange);
 
-    // Check auth state periodically to catch any missed updates
-    const interval = setInterval(() => {
-      const token = localStorage.getItem('token');
-      if (token && !isLoggedIn) {
-        console.log('🔄 Periodic auth check: Found token, updating state');
-        handleAuthChange();
-      }
-    }, 1000);
-
     return () => {
       window.removeEventListener('userLoggedIn', handleAuthChange);
       window.removeEventListener('userLoggedOut', handleAuthChange);
       window.removeEventListener('storage', handleAuthChange);
       window.removeEventListener('authStateChanged', handleAuthChange);
-      clearInterval(interval);
     };
-  }, [isLoggedIn]);
+  }, []);
 
   const clearAllTimeouts = useCallback(() => {
     if (timeoutRef.current) {
@@ -392,18 +377,26 @@ export default function Navbar() {
     closeAllMenus();
   };
 
+  // FIXED: Enhanced navigation handler for mobile menu
+  const handleNavigation = (href) => {
+    if (href && href !== '#' && !href.startsWith('http')) {
+      closeAllMenus();
+      navigate(href);
+      return true;
+    }
+    return false;
+  };
+
   // FIXED: Enhanced logout function with better state management
   const handleLogout = async () => {
-    console.log('Logging out...');
-    
     try {
       await logout();
       closeAllMenus();
       
       // Clear all storage
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      localStorage.removeItem('userRole');
+      sessionStorage.removeItem('token');
+     sessionStorage.removeItem('user');
+      sessionStorage.removeItem('userRole');
       
       // Reset local state
       setIsLoggedIn(false);
@@ -416,27 +409,33 @@ export default function Navbar() {
       
       // Redirect to home
       setTimeout(() => {
-        window.location.href = navigation.home;
+        navigate(navigation.home);
+        window.location.reload(); // Force reload to clear any cached state
       }, 100);
     } catch (error) {
       console.error('Logout error:', error);
       // Fallback cleanup
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      localStorage.removeItem('userRole');
+      sessionStorage.removeItem('token');
+      sessionStorage.removeItem('user');
+      sessionStorage.removeItem('userRole');
       setIsLoggedIn(false);
       setUserData(null);
       setUserRole('student');
-      window.location.href = navigation.home;
+      navigate(navigation.home);
+      window.location.reload();
     }
   };
 
-  // FIXED: Enhanced menu item click handler
-  const handleMenuItemClick = (item) => {
+  // FIXED: Enhanced menu item click handler for mobile menu
+  const handleMobileMenuItemClick = (item) => {
+    console.log('Mobile menu item clicked:', item);
     if (item.action === 'logout') {
       handleLogout();
-    } else {
-      handleLinkClick();
+    } else if (item.href && item.href !== '#') {
+      if (!handleNavigation(item.href)) {
+        // If navigate didn't work (external link), use window.location
+        window.location.href = item.href;
+      }
     }
   };
 
@@ -466,10 +465,31 @@ export default function Navbar() {
     };
   }, [clearAllTimeouts]);
 
+  // FIXED: Enhanced NavLink component for better navigation
   const NavLink = ({ href, children, className = "", onClick, ...props }) => {
+    const isExternal = href && (href.startsWith('http') || href.startsWith('mailto:') || href.startsWith('tel:'));
+    
+    if (isExternal) {
+      return (
+        <a 
+          href={href} 
+          className={className}
+          onClick={(e) => {
+            if (onClick) onClick(e);
+            handleLinkClick();
+          }}
+          target="_blank"
+          rel="noopener noreferrer"
+          {...props}
+        >
+          {children}
+        </a>
+      );
+    }
+
     return (
-      <a 
-        href={href} 
+      <Link 
+        to={href || '#'}
         className={className}
         onClick={(e) => {
           if (onClick) onClick(e);
@@ -478,7 +498,7 @@ export default function Navbar() {
         {...props}
       >
         {children}
-      </a>
+      </Link>
     );
   };
 
@@ -506,6 +526,7 @@ export default function Navbar() {
               <div className="h-10 bg-gray-200 rounded w-32 animate-pulse"></div>
               <div className="h-10 bg-gray-200 rounded w-24 animate-pulse"></div>
               <div className="h-10 bg-gray-200 rounded w-20 animate-pulse"></div>
+              <div className="h-10 bg-gray-200 rounded w-20 animate-pulse"></div>
             </div>
             <div className="lg:hidden flex items-center gap-3">
               <div className="h-10 bg-gray-200 rounded w-20 animate-pulse"></div>
@@ -516,13 +537,6 @@ export default function Navbar() {
       </nav>
     );
   }
-
-  console.log('🎯 Final Navbar Render State:', {
-    isLoggedIn,
-    userData,
-    userRole,
-    loading
-  });
 
   return (
     <nav ref={navRef} className="w-full bg-white sticky top-0 z-50 shadow-sm">
@@ -652,6 +666,20 @@ export default function Navbar() {
               )}
             </div>
 
+            {/* ADDED: Blogs Button */}
+            <NavLink 
+              href={navigation.blogs.main}
+              className="bg-gradient-to-b from-orange-500 to-orange-600 px-8 flex items-center border-l border-orange-600 group relative overflow-hidden hover:from-orange-600 hover:to-orange-700 transition-all duration-200"
+            >
+              <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity"></div>
+              <div className="text-white font-bold tracking-wide text-sm relative z-10 flex items-center gap-2">
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M4 6h16v2H4zm2-4h12v2H6zm14 8H4c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2v-8c0-1.1-.9-2-2-2zm0 10H4v-8h16v8zm-10-7.27l1.18.63 1.82-1 1.82 1 1.18-.63-1-1.73 1-1.73-1.18-.63-1.82 1-1.82-1-1.18.63 1 1.73-1 1.73z"/>
+                </svg>
+                BLOGS
+              </div>
+            </NavLink>
+
             {/* More Dropdown */}
             <div 
               className="relative bg-white border-l border-gray-100 h-full"
@@ -771,11 +799,10 @@ export default function Navbar() {
                   className="h-full px-8 flex items-center gap-3 text-white font-bold tracking-wide text-sm cursor-pointer select-none hover:from-orange-600 hover:to-orange-700 transition-all duration-200"
                   onClick={toggleProfileDropdown}
                 >
-                  <img 
-                    src={userData?.avatar || defaultAvatar} 
-                    alt={userData?.name || 'User'}
-                    className="w-8 h-8 rounded-full border-2 border-white"
-                  />
+                  {/* FIXED: Use initials instead of default image */}
+                  <div className="w-8 h-8 rounded-full border-2 border-white bg-white text-orange-600 flex items-center justify-center font-bold text-sm">
+                    {getUserInitials(userData?.name)}
+                  </div>
                   <span className="max-w-24 truncate">
                     {userData?.name || 'User'} {userRole === 'admin' && '(Admin)'}
                   </span>
@@ -796,11 +823,9 @@ export default function Navbar() {
                   >
                     <div className="px-4 py-3 border-b border-gray-100 bg-orange-50">
                       <div className="flex items-center gap-3">
-                        <img 
-                          src={userData?.avatar || defaultAvatar} 
-                          alt={userData?.name || 'User'}
-                          className="w-10 h-10 rounded-full border-2 border-orange-200"
-                        />
+                        <div className="w-10 h-10 rounded-full border-2 border-orange-200 bg-white text-orange-600 flex items-center justify-center font-bold">
+                          {getUserInitials(userData?.name)}
+                        </div>
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-semibold text-gray-900 truncate">
                             {userData?.name || 'User'} {userRole === 'admin' && '(Admin)'}
@@ -814,7 +839,7 @@ export default function Navbar() {
                       item.action === "logout" ? (
                         <button
                           key={index}
-                          onClick={() => handleMenuItemClick(item)}
+                          onClick={() => handleMobileMenuItemClick(item)}
                           className="w-full text-left px-4 py-3 text-gray-700 hover:text-orange-600 hover:bg-orange-50 transition-all text-sm border-b border-gray-100 last:border-b-0 last:rounded-b-lg flex items-center gap-3"
                         >
                           <span className="text-base">{item.icon}</span>
@@ -824,6 +849,7 @@ export default function Navbar() {
                         <NavLink
                           key={index}
                           href={item.href}
+                          onClick={() => handleMobileMenuItemClick(item)}
                           className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:text-orange-600 hover:bg-orange-50 transition-all text-sm border-b border-gray-100 last:border-b-0 last:rounded-b-lg"
                         >
                           <span className="text-base">{item.icon}</span>
@@ -861,22 +887,19 @@ export default function Navbar() {
                   className="flex items-center gap-2 p-2 rounded-lg hover:bg-orange-50 transition-colors"
                   onClick={toggleProfileDropdown}
                 >
-                  <img 
-                    src={userData?.avatar || defaultAvatar} 
-                    alt={userData?.name || 'User'}
-                    className="w-8 h-8 rounded-full border-2 border-orange-500"
-                  />
+                  {/* FIXED: Use initials instead of default image */}
+                  <div className="w-8 h-8 rounded-full border-2 border-orange-500 bg-white text-orange-600 flex items-center justify-center font-bold">
+                    {getUserInitials(userData?.name)}
+                  </div>
                 </button>
 
                 {profileDropdownOpen && (
                   <div className="absolute top-full right-0 mt-2 w-56 bg-white shadow-xl rounded-lg border border-gray-200 z-50">
                     <div className="px-4 py-3 border-b border-gray-100 bg-orange-50 rounded-t-lg">
                       <div className="flex items-center gap-3">
-                        <img 
-                          src={userData?.avatar || defaultAvatar} 
-                          alt={userData?.name || 'User'}
-                          className="w-10 h-10 rounded-full border-2 border-orange-200"
-                        />
+                        <div className="w-10 h-10 rounded-full border-2 border-orange-200 bg-white text-orange-600 flex items-center justify-center font-bold">
+                          {getUserInitials(userData?.name)}
+                        </div>
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-semibold text-gray-900 truncate">
                             {userData?.name || 'User'} {userRole === 'admin' && '(Admin)'}
@@ -890,7 +913,7 @@ export default function Navbar() {
                       item.action === "logout" ? (
                         <button
                           key={index}
-                          onClick={() => handleMenuItemClick(item)}
+                          onClick={() => handleMobileMenuItemClick(item)}
                           className="w-full text-left px-4 py-3 text-gray-700 hover:text-orange-600 hover:bg-orange-50 transition-all text-sm border-b border-gray-100 last:border-b-0 last:rounded-b-lg flex items-center gap-3"
                         >
                           <span className="text-base">{item.icon}</span>
@@ -900,6 +923,7 @@ export default function Navbar() {
                         <NavLink
                           key={index}
                           href={item.href}
+                          onClick={() => handleMobileMenuItemClick(item)}
                           className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:text-orange-600 hover:bg-orange-50 transition-all text-sm border-b border-gray-100 last:border-b-0 last:rounded-b-lg"
                         >
                           <span className="text-base">{item.icon}</span>
@@ -913,6 +937,7 @@ export default function Navbar() {
             ) : (
               <NavLink 
                 href={navigation.login}
+                onClick={handleLinkClick}
                 className="bg-gradient-to-r from-orange-500 to-orange-600 text-white font-semibold px-5 py-2.5 rounded-lg text-sm shadow-sm hover:shadow-md transition-all hover:scale-105"
               >
                 LOGIN
@@ -936,13 +961,14 @@ export default function Navbar() {
           </div>
         </div>
 
-        {/* Mobile Menu */}
+        {/* Mobile Menu - FIXED: Profile section now works properly */}
         {isMobileMenuOpen && (
           <div className="lg:hidden mobile-menu-container bg-white border-t border-gray-200 shadow-xl">
             <div className="py-2 space-y-0 max-h-[70vh] overflow-y-auto custom-scrollbar">
               
               <NavLink 
                 href={navigation.home}
+                onClick={handleLinkClick}
                 className="block px-5 py-4 text-white bg-gradient-to-r from-orange-500 to-orange-600 font-bold text-sm border-b border-orange-400 hover:from-orange-600 hover:to-orange-700 transition-all"
               >
                 <div className="flex items-center gap-3">
@@ -953,10 +979,31 @@ export default function Navbar() {
                 </div>
               </NavLink>
 
+              {/* ADDED: Blogs Button in Mobile Menu */}
+              <NavLink 
+                href={navigation.blogs.main}
+                onClick={() => {
+                  handleLinkClick();
+                  handleNavigation(navigation.blogs.main);
+                }}
+                className="block px-5 py-4 text-white bg-gradient-to-r from-orange-500 to-orange-600 font-bold text-sm border-b border-orange-400 hover:from-orange-600 hover:to-orange-700 transition-all"
+              >
+                <div className="flex items-center gap-3">
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M4 6h16v2H4zm2-4h12v2H6zm14 8H4c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2v-8c0-1.1-.9-2-2-2zm0 10H4v-8h16v8zm-10-7.27l1.18.63 1.82-1 1.82 1 1.18-.63-1-1.73 1-1.73-1.18-.63-1.82 1-1.82-1-1.18.63 1 1.73-1 1.73z"/>
+                  </svg>
+                  BLOGS
+                </div>
+              </NavLink>
+
               {/* Admin Dashboard in Mobile Menu for Admin Users */}
               {isLoggedIn && userRole === 'admin' && (
                 <NavLink 
                   href={navigation.admin}
+                  onClick={() => {
+                    handleLinkClick();
+                    handleNavigation(navigation.admin);
+                  }}
                   className="block px-5 py-4 text-white bg-gradient-to-r from-purple-500 to-purple-600 font-bold text-sm border-b border-purple-400 hover:from-purple-600 hover:to-purple-700 transition-all"
                 >
                   <div className="flex items-center gap-3">
@@ -994,6 +1041,7 @@ export default function Navbar() {
                       <NavLink
                         key={index}
                         href={item.href}
+                        onClick={handleLinkClick}
                         className="block py-3 px-3 text-gray-700 hover:text-orange-600 hover:bg-white transition-colors text-sm rounded-lg border-l-2 border-transparent hover:border-orange-500"
                       >
                         {item.label}
@@ -1030,6 +1078,7 @@ export default function Navbar() {
                         {item.type === 'link' ? (
                           <NavLink
                             href={item.href}
+                            onClick={handleLinkClick}
                             className="block py-3 px-3 text-gray-700 hover:text-orange-600 hover:bg-white transition-colors text-sm rounded-lg border-l-2 border-transparent hover:border-orange-500 border-b border-gray-100 last:border-b-0"
                           >
                             {item.label}
@@ -1060,6 +1109,7 @@ export default function Navbar() {
                               <div className="pl-6 py-2 space-y-1 bg-white rounded-lg mt-1 max-h-60 overflow-y-auto custom-scrollbar border-l-2 border-orange-500 ml-3">
                                 <NavLink
                                   href={item.href}
+                                  onClick={handleLinkClick}
                                   className="block py-2 px-3 text-orange-600 hover:bg-orange-50 transition-colors text-xs rounded font-semibold mb-1"
                                 >
                                   View All {item.label} →
@@ -1068,6 +1118,7 @@ export default function Navbar() {
                                   <NavLink
                                     key={subIndex}
                                     href={subItem.href}
+                                    onClick={handleLinkClick}
                                     className="block py-2 px-3 text-gray-600 hover:text-orange-600 hover:bg-orange-50 transition-colors text-xs rounded border-l border-orange-200 hover:border-orange-300"
                                   >
                                     {subItem.label}
@@ -1083,7 +1134,7 @@ export default function Navbar() {
                 )}
               </div>
 
-              {/* Profile Section in Mobile Menu */}
+              {/* FIXED: Profile Section in Mobile Menu - Now works properly */}
               {isLoggedIn && (
                 <div className="border-b border-gray-100">
                   <button 
@@ -1091,10 +1142,10 @@ export default function Navbar() {
                     className="w-full text-left px-5 py-4 text-gray-800 hover:bg-orange-50 transition-colors font-semibold flex items-center justify-between text-sm border-b border-gray-50"
                   >
                     <div className="flex items-center gap-3">
-                      <svg className="w-4 h-4 text-orange-600" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-                      </svg>
-                      MY ACCOUNT {userRole === 'admin' && '(Admin)'}
+                      <div className="w-6 h-6 rounded-full border-2 border-orange-500 bg-white text-orange-600 flex items-center justify-center font-bold text-xs">
+                        {getUserInitials(userData?.name)}
+                      </div>
+                      <span>MY ACCOUNT {userRole === 'admin' && '(Admin)'}</span>
                     </div>
                     <svg 
                       className={`w-4 h-4 transition-transform ${mobileProfileOpen ? 'rotate-180 text-orange-600' : 'text-gray-500'}`} 
@@ -1110,25 +1161,47 @@ export default function Navbar() {
                         item.action === "logout" ? (
                           <button
                             key={index}
-                            onClick={() => handleMenuItemClick(item)}
+                            onClick={() => {
+                              console.log('Mobile menu logout clicked');
+                              handleMobileMenuItemClick(item);
+                            }}
                             className="w-full text-left py-3 px-3 text-gray-700 hover:text-orange-600 hover:bg-white transition-colors text-sm rounded-lg border-l-2 border-transparent hover:border-orange-500 flex items-center gap-3"
                           >
                             <span className="text-base">{item.icon}</span>
                             <span>{item.label}</span>
                           </button>
                         ) : (
-                          <NavLink
+                          <button
                             key={index}
-                            href={item.href}
-                            className="flex items-center gap-3 py-3 px-3 text-gray-700 hover:text-orange-600 hover:bg-white transition-colors text-sm rounded-lg border-l-2 border-transparent hover:border-orange-500"
+                            onClick={() => {
+                              console.log('Mobile menu item clicked:', item.label);
+                              handleMobileMenuItemClick(item);
+                            }}
+                            className="w-full text-left py-3 px-3 text-gray-700 hover:text-orange-600 hover:bg-white transition-colors text-sm rounded-lg border-l-2 border-transparent hover:border-orange-500 flex items-center gap-3"
                           >
                             <span className="text-base">{item.icon}</span>
                             <span>{item.label}</span>
-                          </NavLink>
+                          </button>
                         )
                       ))}
                     </div>
                   )}
+                </div>
+              )}
+
+              {/* Login button for non-logged in users in mobile menu */}
+              {!isLoggedIn && (
+                <div className="px-5 py-4 border-b border-gray-100">
+                  <NavLink
+                    href={navigation.login}
+                    onClick={() => {
+                      handleLinkClick();
+                      handleNavigation(navigation.login);
+                    }}
+                    className="w-full bg-gradient-to-r from-orange-500 to-orange-600 text-white font-semibold py-3 px-4 rounded-lg text-center block hover:opacity-90 transition-opacity"
+                  >
+                    LOGIN / REGISTER
+                  </NavLink>
                 </div>
               )}
             </div>

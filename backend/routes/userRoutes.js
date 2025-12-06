@@ -1,6 +1,6 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const {
+import {
   getProfile,
   updateProfile,
   changePassword,
@@ -8,10 +8,10 @@ const {
   getUserById,
   updateUserRole,
   deleteUser,
-} = require('../controllers/userController');
-const { protect, authorize } = require('../middleware/auth');
-const { body } = require('express-validator');
-const { validate, validateObjectId } = require('../middleware/validate');
+} from '../controllers/userController.js';
+import { protect, authorize } from '../middleware/auth.js';
+import { body } from 'express-validator';
+import { validate, validateObjectId } from '../middleware/validate.js';
 
 // Protected routes - All users
 router.get('/profile', protect, getProfile);
@@ -40,4 +40,4 @@ router.put('/:id/role', protect, authorize('admin'), [
 ], updateUserRole);
 router.delete('/:id', protect, authorize('admin'), validateObjectId, deleteUser);
 
-module.exports = router;
+export default router;

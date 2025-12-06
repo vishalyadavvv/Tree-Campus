@@ -1,286 +1,170 @@
-import Volunteer from '../models/Volunteer';
-import { sendAdminNotification, sendConfirmationEmail } from '../services/emailService';
-import { validateVolunteerData } from '../utils/validation';
+import { validationResult } from 'express-validator';
+import Volunteer from '../models/Volunteer.js';
 
-export class VolunteerController {
-  /**
-   * Submit a new volunteer application
-   */
-  static async submitApplication(req, res) {
-    try {
-      const { name, email, phone, address, motivation } = req.body;
-
-      // Validate input data
-      const validation = validateVolunteerData(req.body);
-      if (!validation.isValid) {
-        return res.status(400).json({
-          success: false,
-          message: 'Validation failed',
-          errors: validation.errors
-        });
-      }
-
-      // Check for existing application
-      const existingApplication = await Volunteer.findOne({ email });
-      if (existingApplication) {
-        return res.status(409).json({
-          success: false,
-          message: 'An application with this email already exists',
-          code: 'DUPLICATE_EMAIL'
-        });
-      }
-
-      // Create new volunteer application
-      const volunteerData = {
-        name: name.trim(),
-        email: email.toLowerCase().trim(),
-        phone: phone.trim(),
-        address: address.trim(),
-        motivation: motivation.trim(),
-        status: 'pending',
-        applicationDate: new Date()
-      };
-
-      const volunteer = new Volunteer(volunteerData);
-      await volunteer.save();
-
-      // Send emails asynchronously (don't await to speed up response)
-      Promise.all([
-        sendAdminNotification(volunteer),
-        sendConfirmationEmail(volunteer)
-      ]).catch(error => {
-        console.error('Email sending error:', error);
-        // Don't fail the request if email fails
-      });
-
-      res.status(201).json({
-        success: true,
-        message: 'Volunteer application submitted successfully',
-        data: {
-          id: volunteer._id,
-          name: volunteer.name,
-          email: volunteer.email,
-          status: volunteer.status
-        }
-      });
-
-    } catch (error) {
-      console.error('Error submitting volunteer application:', error);
-      res.status(500).json({
+// @desc    Submit volunteer application
+// @route   POST /api/volunteer
+// @access  Public
+export const createVolunteer = async (req, res, next) => {
+  try {
+    // Check for validation errors
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
         success: false,
-        message: 'Internal server error',
-        code: 'SERVER_ERROR'
+        message: 'Validation failed',
+        errors: errors.array().map(err => err.msg)
       });
     }
-  }
 
-  /**
-   * Get all volunteer applications (for admin)
-   */
-  static async getApplications(req, res) {
-    try {
-      const { page = 1, limit = 10, status, search } = req.query;
-      const skip = (page - 1) * limit;
+    const { name, email, phone, address, motivation } = req.body;
 
-      // Build filter object
-      const filter = {};
-      if (status) filter.status = status;
-      if (search) {
-        filter.$or = [
-          { name: { $regex: search, $options: 'i' } },
-          { email: { $regex: search, $options: 'i' } },
-          { phone: { $regex: search, $options: 'i' } }
-        ];
-      }
-
-      const volunteers = await Volunteer.find(filter)
-        .sort({ createdAt: -1 })
-        .skip(skip)
-        .limit(parseInt(limit))
-        .select('-__v');
-
-      const total = await Volunteer.countDocuments(filter);
-      const totalPages = Math.ceil(total / limit);
-
-      res.json({
-        success: true,
-        data: volunteers,
-        pagination: {
-          page: parseInt(page),
-          limit: parseInt(limit),
-          total,
-          totalPages,
-          hasNext: page < totalPages,
-          hasPrev: page > 1
-        }
-      });
-
-    } catch (error) {
-      console.error('Error fetching volunteer applications:', error);
-      res.status(500).json({
+    // Check if volunteer with this email already exists
+    const existingVolunteer = await Volunteer.findOne({ email });
+    if (existingVolunteer) {
+      return res.status(400).json({
         success: false,
-        message: 'Internal server error'
+        message: 'A volunteer application with this email already exists.'
       });
     }
+
+    // Create new volunteer
+    const volunteer = await Volunteer.create({
+      name,
+      email,
+      phone,
+      address,
+      motivation
+    });
+
+    res.status(201).json({
+      success: true,
+      message: 'Volunteer application submitted successfully!',
+      data: {
+        id: volunteer._id,
+        name: volunteer.name,
+        email: volunteer.email,
+        createdAt: volunteer.createdAt
+      }
+    });
+  } catch (error) {
+    next(error);
   }
+};
 
-  /**
-   * Get single volunteer application by ID
-   */
-  static async getApplicationById(req, res) {
-    try {
-      const { id } = req.params;
+// @desc    Get all volunteer applications
+// @route   GET /api/volunteers
+// @access  Public (should be protected in production)
+export const getAllVolunteers = async (req, res, next) => {
+  try {
+    const { status, page = 1, limit = 10 } = req.query;
 
-      if (!id.match(/^[0-9a-fA-F]{24}$/)) {
-        return res.status(400).json({
-          success: false,
-          message: 'Invalid application ID'
-        });
-      }
+    // Build query
+    const query = status ? { status } : {};
 
-      const volunteer = await Volunteer.findById(id);
-      if (!volunteer) {
-        return res.status(404).json({
-          success: false,
-          message: 'Volunteer application not found'
-        });
-      }
+    // Calculate pagination
+    const skip = (page - 1) * limit;
 
-      res.json({
-        success: true,
-        data: volunteer
-      });
+    // Fetch volunteers with pagination
+    const volunteers = await Volunteer.find(query)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(parseInt(limit));
 
-    } catch (error) {
-      console.error('Error fetching volunteer application:', error);
-      res.status(500).json({
+    // Get total count for pagination
+    const total = await Volunteer.countDocuments(query);
+
+    res.status(200).json({
+      success: true,
+      count: volunteers.length,
+      total,
+      page: parseInt(page),
+      pages: Math.ceil(total / limit),
+      data: volunteers
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Get single volunteer by ID
+// @route   GET /api/volunteer/:id
+// @access  Public (should be protected in production)
+export const getVolunteerById = async (req, res, next) => {
+  try {
+    const volunteer = await Volunteer.findById(req.params.id);
+
+    if (!volunteer) {
+      return res.status(404).json({
         success: false,
-        message: 'Internal server error'
+        message: 'Volunteer not found'
       });
     }
+
+    res.status(200).json({
+      success: true,
+      data: volunteer
+    });
+  } catch (error) {
+    next(error);
   }
+};
 
-  /**
-   * Update volunteer application status (for admin)
-   */
-  static async updateApplicationStatus(req, res) {
-    try {
-      const { id } = req.params;
-      const { status, notes } = req.body;
+// @desc    Update volunteer application status
+// @route   PATCH /api/volunteer/:id/status
+// @access  Public (should be protected/admin only in production)
+export const updateVolunteerStatus = async (req, res, next) => {
+  try {
+    const { status } = req.body;
 
-      const validStatuses = ['pending', 'approved', 'rejected', 'active', 'inactive'];
-      if (!validStatuses.includes(status)) {
-        return res.status(400).json({
-          success: false,
-          message: 'Invalid status value'
-        });
-      }
-
-      const volunteer = await Volunteer.findByIdAndUpdate(
-        id,
-        { 
-          status,
-          ...(notes && { notes }),
-          updatedAt: new Date()
-        },
-        { new: true, runValidators: true }
-      );
-
-      if (!volunteer) {
-        return res.status(404).json({
-          success: false,
-          message: 'Volunteer application not found'
-        });
-      }
-
-      res.json({
-        success: true,
-        message: 'Application status updated successfully',
-        data: volunteer
-      });
-
-    } catch (error) {
-      console.error('Error updating volunteer application:', error);
-      res.status(500).json({
+    if (!['pending', 'approved', 'rejected'].includes(status)) {
+      return res.status(400).json({
         success: false,
-        message: 'Internal server error'
+        message: 'Invalid status. Must be: pending, approved, or rejected'
       });
     }
-  }
 
-  /**
-   * Get application statistics (for admin dashboard)
-   */
-  static async getStatistics(req, res) {
-    try {
-      const stats = await Volunteer.aggregate([
-        {
-          $group: {
-            _id: '$status',
-            count: { $sum: 1 }
-          }
-        }
-      ]);
+    const volunteer = await Volunteer.findByIdAndUpdate(
+      req.params.id,
+      { status },
+      { new: true, runValidators: true }
+    );
 
-      const total = await Volunteer.countDocuments();
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      
-      const applicationsToday = await Volunteer.countDocuments({
-        createdAt: { $gte: today }
-      });
-
-      const statistics = {
-        total,
-        applicationsToday,
-        byStatus: stats.reduce((acc, curr) => {
-          acc[curr._id] = curr.count;
-          return acc;
-        }, {})
-      };
-
-      res.json({
-        success: true,
-        data: statistics
-      });
-
-    } catch (error) {
-      console.error('Error fetching statistics:', error);
-      res.status(500).json({
+    if (!volunteer) {
+      return res.status(404).json({
         success: false,
-        message: 'Internal server error'
+        message: 'Volunteer not found'
       });
     }
+
+    res.status(200).json({
+      success: true,
+      message: 'Status updated successfully',
+      data: volunteer
+    });
+  } catch (error) {
+    next(error);
   }
+};
 
-  /**
-   * Delete volunteer application (for admin)
-   */
-  static async deleteApplication(req, res) {
-    try {
-      const { id } = req.params;
+// @desc    Delete volunteer application
+// @route   DELETE /api/volunteer/:id
+// @access  Public (should be protected/admin only in production)
+export const deleteVolunteer = async (req, res, next) => {
+  try {
+    const volunteer = await Volunteer.findByIdAndDelete(req.params.id);
 
-      const volunteer = await Volunteer.findByIdAndDelete(id);
-      if (!volunteer) {
-        return res.status(404).json({
-          success: false,
-          message: 'Volunteer application not found'
-        });
-      }
-
-      res.json({
-        success: true,
-        message: 'Volunteer application deleted successfully'
-      });
-
-    } catch (error) {
-      console.error('Error deleting volunteer application:', error);
-      res.status(500).json({
+    if (!volunteer) {
+      return res.status(404).json({
         success: false,
-        message: 'Internal server error'
+        message: 'Volunteer not found'
       });
     }
-  }
-}
 
-export default VolunteerController;
+    res.status(200).json({
+      success: true,
+      message: 'Volunteer application deleted successfully'
+    });
+  } catch (error) {
+    next(error);
+  }
+};

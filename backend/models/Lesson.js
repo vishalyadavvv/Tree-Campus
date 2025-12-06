@@ -1,54 +1,50 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const lessonSchema = new mongoose.Schema({
+  sectionId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Section',
+    required: true
+  },
+  courseId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Course',
+    required: true
+  },
   title: {
     type: String,
-    required: [true, 'Lesson title is required'],
-    trim: true,
+    required: [true, 'Please provide a lesson title'],
+    trim: true
   },
   description: {
     type: String,
-    required: [true, 'Lesson description is required'],
-  },
-  course: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Course',
-    required: true,
+    default: ''
   },
   videoUrl: {
     type: String,
-    default: '',
+    required: [true, 'Please provide a video URL']
   },
   duration: {
-    type: Number, // Duration in minutes
-    default: 0,
+    type: String,
+    default: '0:00'
   },
   order: {
     type: Number,
     required: true,
-    default: 0,
-  },
-  quiz: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Quiz',
+    default: 0
   },
   resources: [{
     title: String,
-    url: String,
-    type: {
-      type: String,
-      enum: ['pdf', 'video', 'link', 'other'],
-    },
+    url: String
   }],
   isFree: {
     type: Boolean,
-    default: false,
-  },
+    default: false
+  }
 }, {
-  timestamps: true,
+  timestamps: true
 });
 
-// Index for efficient querying
-lessonSchema.index({ course: 1, order: 1 });
+const Lesson = mongoose.model('Lesson', lessonSchema);
 
-module.exports = mongoose.model('Lesson', lessonSchema);
+export default Lesson;

@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import CourseList from '../components/courses/CourseList';
 import CourseFilter from '../components/courses/CourseFilter';
+import axios from 'axios';
 
 const Courses = () => {
   const [courses, setCourses] = useState([]);
   const [filteredCourses, setFilteredCourses] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [filters, setFilters] = useState({
     level: 'all',
     category: 'all',
@@ -13,6 +15,9 @@ const Courses = () => {
   });
   const [isVisible, setIsVisible] = useState(false);
   const [visibleStats, setVisibleStats] = useState([]);
+
+  // API Base URL - adjust this to match your backend
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
 
   useEffect(() => {
     // Trigger animations
@@ -24,107 +29,33 @@ const Courses = () => {
         setVisibleStats(prev => [...prev, index]);
       }, 300 + (index * 150));
     });
-
-    // Mock data - replace with API call
-    const mockCourses = [
-      {
-        _id: '1',
-        title: 'Spoken English Basics',
-        description: 'Learn to speak English confidently in 90 days with our comprehensive beginner course',
-        thumbnail: 'https://images.unsplash.com/photo-1546410531-bb4caa6b424d?w=400',
-        level: 'beginner',
-        category: 'spoken-english',
-        duration: '90 days',
-        totalEnrollments: 15234,
-        rating: 4.8,
-        lessons: 45,
-        price: 'Free',
-        instructor: 'Sarah Johnson',
-        features: ['Live Classes', 'Daily Practice', 'Certificate']
-      },
-      {
-        _id: '2',
-        title: 'Grammar Mastery',
-        description: 'Master English grammar rules and improve your writing skills with expert guidance',
-        thumbnail: 'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=400',
-        level: 'intermediate',
-        category: 'grammar',
-        duration: '60 days',
-        totalEnrollments: 12456,
-        rating: 4.7,
-        lessons: 30,
-        price: 'Free',
-        instructor: 'Michael Brown',
-        features: ['Interactive Exercises', 'Quizzes', 'Progress Tracking']
-      },
-      {
-        _id: '3',
-        title: 'Business English',
-        description: 'Professional English for workplace communication, meetings, and presentations',
-        thumbnail: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=400',
-        level: 'advanced',
-        category: 'business-english',
-        duration: '45 days',
-        totalEnrollments: 8934,
-        rating: 4.9,
-        lessons: 25,
-        price: 'Free',
-        instructor: 'Emily Davis',
-        features: ['Role Plays', 'Case Studies', 'Industry Vocabulary']
-      },
-      {
-        _id: '4',
-        title: 'Vocabulary Building',
-        description: 'Expand your English vocabulary with 1000+ essential words and phrases',
-        thumbnail: 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=400',
-        level: 'beginner',
-        category: 'vocabulary',
-        duration: '30 days',
-        totalEnrollments: 18500,
-        rating: 4.6,
-        lessons: 35,
-        price: 'Free',
-        instructor: 'David Wilson',
-        features: ['Flashcards', 'Memory Games', 'Daily Challenges']
-      },
-      {
-        _id: '5',
-        title: 'Pronunciation & Accent',
-        description: 'Improve your pronunciation and reduce accent with speech recognition technology',
-        thumbnail: 'https://images.unsplash.com/photo-1577896851231-70ef18881754?w=400',
-        level: 'intermediate',
-        category: 'pronunciation',
-        duration: '40 days',
-        totalEnrollments: 9678,
-        rating: 4.8,
-        lessons: 28,
-        price: 'Free',
-        instructor: 'Lisa Anderson',
-        features: ['Voice Analysis', 'Tongue Twisters', 'Native Speaker Audio']
-      },
-      {
-        _id: '6',
-        title: 'Conversation Practice',
-        description: 'Build confidence in real-life conversations with our AI speaking partner',
-        thumbnail: 'https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=400',
-        level: 'intermediate',
-        category: 'conversation',
-        duration: '50 days',
-        totalEnrollments: 11234,
-        rating: 4.7,
-        lessons: 32,
-        price: 'Free',
-        instructor: 'Robert Garcia',
-        features: ['AI Partner', 'Real Scenarios', 'Instant Feedback']
-      }
-    ];
-
-    setTimeout(() => {
-      setCourses(mockCourses);
-      setFilteredCourses(mockCourses);
-      setLoading(false);
-    }, 500);
   }, []);
+
+  useEffect(() => {
+    fetchCourses();
+  }, []);
+
+  const fetchCourses = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const response = await axios.get(`${API_URL}/courses`);
+      
+      console.log('API Response:', response.data);
+      
+      // Handle the response based on your API structure
+      const coursesData = response.data.data || response.data.courses || response.data;
+      
+      setCourses(coursesData);
+      setFilteredCourses(coursesData);
+      setLoading(false);
+    } catch (err) {
+      console.error('Error fetching courses:', err);
+      setError(err.response?.data?.message || 'Failed to fetch courses');
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     filterCourses();
@@ -160,9 +91,6 @@ const Courses = () => {
           backgroundImage: `linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)),url('https://plus.unsplash.com/premium_photo-1664474619075-644dd191935f?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8aW1hZ2V8ZW58MHx8MHx8fDA%3D')`,
         }}
       >
-        {/* Dark Overlay for better text readability */}
-        {/* <div className="absolute inset-0 bg-gradient-to-r from-[#FD5A00]/25 "></div> */}
-        
         {/* Animated Background Elements */}
         <div className="absolute inset-0 overflow-hidden">
           <div className={`absolute top-10 left-10 w-20 h-20 bg-white/10 rounded-full blur-xl transition-all duration-1000 delay-500 ${isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-50'}`}></div>
@@ -228,6 +156,25 @@ const Courses = () => {
           ))}
         </div>
 
+        {/* Error Message */}
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-700 px-6 py-4 rounded-xl mb-6">
+            <div className="flex items-center">
+              <span className="text-2xl mr-3">⚠️</span>
+              <div>
+                <h3 className="font-bold">Error Loading Courses</h3>
+                <p className="text-sm">{error}</p>
+              </div>
+            </div>
+            <button 
+              onClick={fetchCourses}
+              className="mt-3 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+            >
+              Retry
+            </button>
+          </div>
+        )}
+
         {/* Course Filter with Animation */}
         <div className={`transition-all duration-700 delay-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
           <CourseFilter filters={filters} setFilters={setFilters} />
@@ -239,7 +186,7 @@ const Courses = () => {
         </div>
 
         {/* No Results Message */}
-        {!loading && filteredCourses.length === 0 && (
+        {!loading && !error && filteredCourses.length === 0 && (
           <div className={`text-center py-12 transition-all duration-700 ${isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}>
             <div className="text-gray-400 text-6xl mb-4">🔍</div>
             <h3 className="text-2xl font-bold text-gray-600 mb-2">No courses found</h3>

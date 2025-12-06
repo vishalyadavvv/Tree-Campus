@@ -1,53 +1,48 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const certificateSchema = new mongoose.Schema({
-  user: {
+  userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
-    required: true,
+    required: true
   },
-  course: {
+  courseId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Course',
-    required: true,
+    required: true
   },
-  certificateId: {
+  certificateNumber: {
     type: String,
     required: true,
-    unique: true,
+    unique: true
   },
-  certificateUrl: {
-    type: String,
-    required: true,
+  completionPercentage: {
+    type: Number,
+    default: 100
   },
-  issuedDate: {
+  issuedAt: {
     type: Date,
-    default: Date.now,
-  },
-  completionDate: {
-    type: Date,
-    default: Date.now,
+    default: Date.now
   },
   grade: {
     type: String,
-    enum: ['A+', 'A', 'B+', 'B', 'C+', 'C', 'Pass'],
-    default: 'Pass',
-  },
+    enum: ['A+', 'A', 'B+', 'B', 'C', 'Pass'],
+    default: 'Pass'
+  }
 }, {
-  timestamps: true,
+  timestamps: true
 });
 
-// Compound index
-certificateSchema.index({ user: 1, course: 1 }, { unique: true });
-
-// Generate unique certificate ID
-certificateSchema.pre('save', function(next) {
-  if (!this.certificateId) {
-    const timestamp = Date.now().toString(36);
-    const random = Math.random().toString(36).substring(2, 8);
-    this.certificateId = `TC-${timestamp}-${random}`.toUpperCase();
+// Generate certificate number before saving
+certificateSchema.pre('save', async function(next) {
+  if (!this.certificateNumber) {
+    const timestamp = Date.now();
+    const random = Math.floor(Math.random() * 10000);
+    this.certificateNumber = `CERT-${timestamp}-${random}`;
   }
   next();
 });
 
-module.exports = mongoose.model('Certificate', certificateSchema);
+const Certificate = mongoose.model('Certificate', certificateSchema);
+
+export default Certificate;

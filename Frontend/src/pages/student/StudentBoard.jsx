@@ -1,0 +1,661 @@
+import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import api from '../../services/api';
+import { 
+  FiBook, 
+  FiAward, 
+  FiCheckCircle, 
+  FiTrendingUp, 
+  FiClock,
+  FiVideo,
+  FiArrowRight,
+  FiCalendar,
+  FiAlertCircle,
+  FiRefreshCw,
+  FiUsers,
+  FiZap,
+  FiMessageCircle,
+  FiMic,
+  FiGlobe
+} from 'react-icons/fi';
+
+const StudentDashboard = () => {
+  const [dashboardData, setDashboardData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [showAllCourses, setShowAllCourses] = useState(false);
+
+  useEffect(() => {
+    fetchDashboardData();
+    
+    const interval = setInterval(fetchDashboardData, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const fetchDashboardData = async () => {
+    try {
+      setIsRefreshing(true);
+      const response = await api.get('/students/dashboard');
+      
+      if (response.data.success) {
+        setDashboardData(response.data.data);
+        setError(null);
+      } else {
+        setError('Failed to load dashboard data');
+      }
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error);
+      setError(error.response?.data?.message || error.message || 'Failed to load dashboard');
+    } finally {
+      setLoading(false);
+      setIsRefreshing(false);
+    }
+  };
+
+  // Loading skeleton
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4 md:p-6 animate-fadeIn">
+        {/* Header Skeleton */}
+        <div className="mb-8">
+          <div className="h-10 w-64 bg-gray-200 rounded-lg animate-pulse mb-2"></div>
+          <div className="h-4 w-48 bg-gray-200 rounded animate-pulse"></div>
+        </div>
+
+        {/* Stats Cards Skeleton */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8">
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="bg-white rounded-2xl shadow-lg p-6 animate-pulse">
+              <div className="flex items-center space-x-4">
+                <div className="h-12 w-12 bg-gray-200 rounded-xl"></div>
+                <div className="flex-1">
+                  <div className="h-4 w-24 bg-gray-200 rounded mb-2"></div>
+                  <div className="h-8 w-16 bg-gray-200 rounded"></div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Content Skeleton */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2 space-y-6">
+            <div className="bg-white rounded-2xl shadow-lg p-6 animate-pulse">
+              <div className="h-6 w-32 bg-gray-200 rounded mb-4"></div>
+              {[...Array(3)].map((_, i) => (
+                <div key={i} className="flex items-center space-x-4 mb-4 last:mb-0">
+                  <div className="h-20 w-20 bg-gray-200 rounded-xl"></div>
+                  <div className="flex-1">
+                    <div className="h-4 w-48 bg-gray-200 rounded mb-2"></div>
+                    <div className="h-3 w-32 bg-gray-200 rounded mb-2"></div>
+                    <div className="h-2 w-full bg-gray-200 rounded"></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="space-y-6">
+            <div className="bg-white rounded-2xl shadow-lg p-6 animate-pulse">
+              <div className="h-6 w-40 bg-gray-200 rounded mb-4"></div>
+              {[...Array(2)].map((_, i) => (
+                <div key={i} className="flex items-center space-x-4 mb-4 last:mb-0">
+                  <div className="h-12 w-12 bg-gray-200 rounded-lg"></div>
+                  <div className="flex-1">
+                    <div className="h-4 w-56 bg-gray-200 rounded mb-1"></div>
+                    <div className="h-3 w-32 bg-gray-200 rounded"></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 p-4">
+        <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full text-center animate-fadeInUp">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-red-100 rounded-full mb-4">
+            <FiAlertCircle className="w-8 h-8 text-red-500" />
+          </div>
+          <h2 className="text-2xl font-bold text-gray-800 mb-2">Error Loading Dashboard</h2>
+          <p className="text-gray-600 mb-6">{error}</p>
+          <button
+            onClick={() => {
+              setLoading(true);
+              setError(null);
+              fetchDashboardData();
+            }}
+            className="w-full bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold py-3 px-6 rounded-lg hover:opacity-90 transition-all duration-300 transform hover:-translate-y-0.5 shadow-lg hover:shadow-xl"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // No data state
+  if (!dashboardData) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 p-4">
+        <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full text-center animate-fadeInUp">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-gray-100 rounded-full mb-4">
+            <FiAlertCircle className="w-8 h-8 text-gray-500" />
+          </div>
+          <h2 className="text-2xl font-bold text-gray-800 mb-2">No Data Available</h2>
+          <p className="text-gray-600 mb-6">Unable to load dashboard data</p>
+          <button
+            onClick={fetchDashboardData}
+            className="w-full bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold py-3 px-6 rounded-lg hover:opacity-90 transition-all duration-300 transform hover:-translate-y-0.5 shadow-lg hover:shadow-xl"
+          >
+            Reload Dashboard
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  const { stats, recentActivity, courseProgress, upcomingLiveClasses, recommendedCourses, studentInfo } = dashboardData;
+
+  // Check if there are enrolled courses
+  const hasCourses = courseProgress && courseProgress.length > 0;
+  const hasRecentActivity = recentActivity && recentActivity.length > 0;
+  const hasUpcomingClasses = upcomingLiveClasses && upcomingLiveClasses.length > 0;
+  const hasRecommendedCourses = recommendedCourses && recommendedCourses.length > 0;
+
+  // Get courses to display (show first 3 by default, all if toggled)
+  const displayedCourses = showAllCourses ? courseProgress : (courseProgress || []).slice(0, 3);
+  const hasMoreCourses = hasCourses && courseProgress.length > 3;
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4 md:p-6 animate-fadeIn">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8 animate-slideDown">
+        <div>
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
+            Welcome back, <span className="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">{studentInfo.name}</span>! 👋
+          </h1>
+          <p className="text-gray-600 text-lg">Here's your learning progress overview</p>
+        </div>
+        <button
+          onClick={fetchDashboardData}
+          disabled={isRefreshing}
+          className="mt-4 md:mt-0 inline-flex items-center space-x-2 bg-white text-gray-700 font-semibold py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-0.5"
+        >
+          <FiRefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+          <span>{isRefreshing ? 'Refreshing...' : 'Refresh'}</span>
+        </button>
+      </div>
+
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8">
+        <StatCard
+          icon={<FiBook className="w-6 h-6" />}
+          title="Enrolled Courses"
+          value={stats.totalEnrolledCourses}
+          color="indigo"
+          delay="100"
+        />
+        <StatCard
+          icon={<FiCheckCircle className="w-6 h-6" />}
+          title="Completed Lessons"
+          value={stats.totalCompletedLessons}
+          color="emerald"
+          delay="200"
+        />
+        <StatCard
+          icon={<FiAward className="w-6 h-6" />}
+          title="Certificates Earned"
+          value={stats.totalCertificates}
+          color="amber"
+          delay="300"
+        />
+        <StatCard
+          icon={<FiTrendingUp className="w-6 h-6" />}
+          title="Overall Progress"
+          value={`${stats.totalProgress}%`}
+          color="purple"
+          delay="400"
+        />
+      </div>
+
+      {/* Spokee AI Quick Access Card */}
+      <div className="mb-8 animate-fadeInUp" style={{ animationDelay: '100ms' }}>
+        <Link to="/spokee">
+          <div className="bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600 rounded-2xl shadow-xl p-6 text-white hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer group">
+            <div className="flex flex-col md:flex-row md:items-center justify-between">
+              <div className="flex items-center space-x-4 mb-4 md:mb-0">
+                <div className="relative">
+                  <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm">
+                    <div className="text-3xl">🤖</div>
+                    <div className="absolute -top-2 -right-2 w-8 h-8 bg-emerald-400 rounded-full flex items-center justify-center animate-pulse">
+                      <span className="w-2 h-2 bg-white rounded-full"></span>
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <h2 className="text-2xl font-bold mb-1">Spokee AI Assistant</h2>
+                  <p className="text-blue-100 opacity-90">Your personal AI English learning companion</p>
+                </div>
+              </div>
+              
+              <div className="flex items-center space-x-6">
+                <div className="hidden md:flex items-center space-x-4">
+                  <div className="text-center">
+                    <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mx-auto mb-1 backdrop-blur-sm">
+                      <FiMic className="w-5 h-5" />
+                    </div>
+                    <p className="text-xs font-medium">Pronunciation</p>
+                  </div>
+                  <div className="text-center">
+                    <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mx-auto mb-1 backdrop-blur-sm">
+                      <FiGlobe className="w-5 h-5" />
+                    </div>
+                    <p className="text-xs font-medium">Grammar</p>
+                  </div>
+                  <div className="text-center">
+                    <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mx-auto mb-1 backdrop-blur-sm">
+                      <FiMessageCircle className="w-5 h-5" />
+                    </div>
+                    <p className="text-xs font-medium">Chat</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-center space-x-2 bg-white/20 px-4 py-3 rounded-xl group-hover:bg-white/30 transition-all duration-300">
+                  <span className="font-semibold">Start Chatting</span>
+                  <FiArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </Link>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+        {/* Left Column - Course Progress */}
+        <div className="lg:col-span-2">
+          <div className="bg-white rounded-2xl shadow-lg p-6 h-full animate-fadeInUp" style={{ animationDelay: '200ms' }}>
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h2 className="text-xl font-bold text-gray-900">My Courses</h2>
+                <p className="text-gray-600 text-sm mt-1">
+                  {hasCourses 
+                    ? `${stats.totalEnrolledCourses} enrolled courses` 
+                    : 'No courses yet'}
+                </p>
+              </div>
+              {hasMoreCourses && (
+                <button
+                  onClick={() => setShowAllCourses(!showAllCourses)}
+                  className="inline-flex items-center space-x-2 text-indigo-600 hover:text-indigo-700 font-semibold transition-colors duration-300 group"
+                >
+                  <span>{showAllCourses ? 'Show Less' : `View All (${stats.totalEnrolledCourses})`}</span>
+                  <FiArrowRight className={`w-4 h-4 group-hover:translate-x-1 transition-transform duration-300 ${showAllCourses ? 'rotate-180' : ''}`} />
+                </button>
+              )}
+            </div>
+            
+            {hasCourses ? (
+              <div className="space-y-4">
+                {/* Show courses based on toggle state */}
+                {displayedCourses.map((course, index) => (
+                  <CourseProgressCard 
+                    key={course.courseId || course._id || index} 
+                    course={course}
+                    index={index}
+                  />
+                ))}
+                
+                {/* Show message when all courses are displayed */}
+                {showAllCourses && hasMoreCourses && (
+                  <div className="text-center py-4">
+                    <p className="text-gray-500 text-sm">
+                      Showing all {stats.totalEnrolledCourses} enrolled courses
+                    </p>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-gray-100 rounded-full mb-4">
+                  <FiBook className="w-8 h-8 text-gray-400" />
+                </div>
+                <p className="text-gray-500 mb-4">No enrolled courses yet</p>
+                <Link
+                  to="/courses"
+                  className="inline-flex items-center bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold py-2 px-6 rounded-lg hover:opacity-90 transition-all duration-300 transform hover:-translate-y-0.5 shadow-lg hover:shadow-xl"
+                >
+                  Browse Courses
+                </Link>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Right Column */}
+        <div className="space-y-6">
+          {/* Recent Activity */}
+          <div className="bg-white rounded-2xl shadow-lg p-6 animate-fadeInUp" style={{ animationDelay: '300ms' }}>
+            <h2 className="text-xl font-bold text-gray-900 mb-6">Recent Activity</h2>
+            {hasRecentActivity ? (
+              <div className="space-y-4">
+                {recentActivity.map((activity, index) => (
+                  <div
+                    key={index}
+                    className="group flex items-start space-x-4 p-4 bg-gray-50 hover:bg-indigo-50 rounded-xl transition-all duration-300 cursor-pointer"
+                  >
+                    <div className="flex-shrink-0">
+                      <div className="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center">
+                        <FiCheckCircle className="w-5 h-5 text-emerald-600" />
+                      </div>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold text-gray-900 text-sm truncate">
+                        {activity.lessonTitle || 'Completed Lesson'}
+                      </p>
+                      <p className="text-gray-600 text-xs mt-1 truncate">
+                        {activity.courseTitle || 'Course'}
+                      </p>
+                      <div className="flex items-center space-x-1 text-gray-500 text-xs mt-2">
+                        <FiClock className="w-3 h-3" />
+                        <span>{activity.completedAt ? new Date(activity.completedAt).toLocaleDateString() : 'Recently'}</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-gray-100 rounded-full mb-4">
+                  <FiClock className="w-8 h-8 text-gray-400" />
+                </div>
+                <p className="text-gray-500">No recent activity</p>
+              </div>
+            )}
+          </div>
+
+          {/* Upcoming Live Classes */}
+          <div className="bg-white rounded-2xl shadow-lg p-6 animate-fadeInUp" style={{ animationDelay: '400ms' }}>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-bold text-gray-900">Upcoming Classes</h2>
+              <Link
+                to="/live-classes"
+                className="inline-flex items-center space-x-2 text-indigo-600 hover:text-indigo-700 font-semibold transition-colors duration-300 text-sm"
+              >
+                <span>View All</span>
+              </Link>
+            </div>
+            
+            {hasUpcomingClasses ? (
+              <div className="space-y-4">
+                {upcomingLiveClasses.map((liveClass, index) => (
+                  <div
+                    key={liveClass._id || index}
+                    className="group flex items-center space-x-4 p-4 bg-gray-50 hover:bg-indigo-50 rounded-xl transition-all duration-300"
+                  >
+                    <div className="flex-shrink-0">
+                      <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
+                        <FiVideo className="w-5 h-5 text-indigo-600" />
+                      </div>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold text-gray-900 text-sm truncate">
+                        {liveClass.title || 'Live Class'}
+                      </p>
+                      <div className="flex items-center space-x-1 text-gray-600 text-xs mt-1">
+                        <FiCalendar className="w-3 h-3" />
+                        <span>{liveClass.scheduledAt ? new Date(liveClass.scheduledAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Soon'}</span>
+                      </div>
+                    </div>
+                    <div className="flex-shrink-0">
+                      <div className="px-3 py-1 bg-indigo-100 text-indigo-600 text-xs font-semibold rounded-full">
+                        Join
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-gray-100 rounded-full mb-4">
+                  <FiVideo className="w-8 h-8 text-gray-400" />
+                </div>
+                <p className="text-gray-500">No upcoming classes</p>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Bottom Section - Games & Recommended Courses */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Learning Games */}
+        <div className="bg-white rounded-2xl shadow-lg p-6 animate-fadeInUp" style={{ animationDelay: '500ms' }}>
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center space-x-3">
+              <div className="p-2 bg-gradient-to-r from-orange-500 to-orange-600 rounded-lg">
+                <FiZap className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <h2 className="text-xl font-bold text-gray-900">Learning Games</h2>
+                <p className="text-gray-600 text-sm">Earn points while learning</p>
+              </div>
+            </div>
+            <Link
+              to="/games"
+              className="inline-flex items-center space-x-2 text-orange-600 hover:text-orange-700 font-semibold transition-colors duration-300 group text-sm"
+            >
+              <span>View All</span>
+              <FiArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
+            </Link>
+          </div>
+          
+          <div className="grid grid-cols-3 gap-4 mb-4">
+            <div className="text-center group cursor-pointer hover:bg-orange-50 p-3 rounded-xl transition-all duration-300">
+              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center text-2xl mx-auto mb-2 shadow-sm">
+                🐦
+              </div>
+              <h3 className="font-bold text-gray-900 text-sm">Bird Saver</h3>
+              <p className="text-gray-500 text-xs mt-1">50 pts</p>
+            </div>
+            <div className="text-center group cursor-pointer hover:bg-purple-50 p-3 rounded-xl transition-all duration-300">
+              <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center text-2xl mx-auto mb-2 shadow-sm">
+                🔐
+              </div>
+              <h3 className="font-bold text-gray-900 text-sm">Lock & Key</h3>
+              <p className="text-gray-500 text-xs mt-1">100 pts</p>
+            </div>
+            <div className="text-center group cursor-pointer hover:bg-red-50 p-3 rounded-xl transition-all duration-300">
+              <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-red-500 rounded-xl flex items-center justify-center text-2xl mx-auto mb-2 shadow-sm">
+                📚
+              </div>
+              <h3 className="font-bold text-gray-900 text-sm">Word Builder</h3>
+              <p className="text-gray-500 text-xs mt-1">75 pts</p>
+            </div>
+          </div>
+          
+          <div className="pt-6 border-t border-gray-100">
+            <div className="grid grid-cols-3 gap-4">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-gray-900">3</div>
+                <div className="text-xs text-gray-500">Games</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-gray-900">225</div>
+                <div className="text-xs text-gray-500">Points</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-gray-900">12</div>
+                <div className="text-xs text-gray-500">Levels</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Recommended Courses */}
+        {hasRecommendedCourses && (
+          <div className="bg-white rounded-2xl shadow-lg p-6 animate-fadeInUp" style={{ animationDelay: '600ms' }}>
+            <h2 className="text-xl font-bold text-gray-900 mb-6">Recommended for You</h2>
+            <div className="space-y-4">
+              {recommendedCourses.map((course, index) => (
+                <Link
+                  key={course._id || index}
+                  to={`/courses/${course._id}`}
+                  className="block group"
+                >
+                  <div className="flex items-center space-x-4 p-3 hover:bg-gray-50 rounded-xl transition-all duration-300">
+                    <div className="flex-shrink-0">
+                      <img
+                        src={course.thumbnail || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'}
+                        alt={course.title}
+                        className="w-16 h-16 rounded-lg object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-semibold text-gray-900 text-sm line-clamp-2 group-hover:text-indigo-600 transition-colors duration-300">
+                        {course.title || 'Course Title'}
+                      </h3>
+                      <div className="flex items-center justify-between mt-2">
+                        <div className="flex items-center space-x-1">
+                          <span className="text-amber-500 text-xs">⭐</span>
+                          <span className="text-xs font-semibold">{course.rating || '4.5'}</span>
+                        </div>
+                        <div className="flex items-center space-x-1 text-gray-500 text-xs">
+                          <FiUsers className="w-3 h-3" />
+                          <span>{course.enrollmentCount || 0}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+            <div className="mt-6 text-center">
+              <Link
+                to="/courses"
+                className="inline-flex items-center text-indigo-600 hover:text-indigo-700 font-medium text-sm"
+              >
+                View all recommendations
+                <FiArrowRight className="w-4 h-4 ml-1" />
+              </Link>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+// Stat Card Component
+const StatCard = ({ icon, title, value, color, delay }) => {
+  const colorClasses = {
+    indigo: 'from-indigo-500 to-indigo-600',
+    emerald: 'from-emerald-500 to-emerald-600',
+    amber: 'from-amber-500 to-amber-600',
+    purple: 'from-purple-500 to-purple-600',
+  };
+
+  const bgClasses = {
+    indigo: 'bg-indigo-100',
+    emerald: 'bg-emerald-100',
+    amber: 'bg-amber-100',
+    purple: 'bg-purple-100',
+  };
+
+  const textClasses = {
+    indigo: 'text-indigo-600',
+    emerald: 'text-emerald-600',
+    amber: 'text-amber-600',
+    purple: 'text-purple-600',
+  };
+
+  return (
+    <div 
+      className={`bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 animate-fadeInUp`}
+      style={{ animationDelay: delay }}
+    >
+      <div className="flex items-center space-x-4">
+        <div className={`${bgClasses[color]} w-12 h-12 rounded-xl flex items-center justify-center ${textClasses[color]} group-hover:scale-110 transition-transform duration-300`}>
+          {icon}
+        </div>
+        <div>
+          <p className="text-gray-600 text-sm font-medium">{title}</p>
+          <h3 className={`text-3xl font-bold bg-gradient-to-r ${colorClasses[color]} bg-clip-text text-transparent mt-1`}>
+            {value}
+          </h3>
+        </div>
+      </div>
+      <div className="mt-4">
+        <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+          <div 
+            className={`h-full bg-gradient-to-r ${colorClasses[color]} rounded-full transition-all duration-1000`}
+            style={{ 
+              width: typeof value === 'string' && value.includes('%') 
+                ? value.replace('%', '') + '%' 
+                : '100%' 
+            }}
+          />
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Course Progress Card Component
+const CourseProgressCard = ({ course, index }) => {
+  const progress = course.progress || 0;
+  const getProgressColor = (progress) => {
+    if (progress < 30) return 'from-red-500 to-red-600';
+    if (progress < 70) return 'from-amber-500 to-amber-600';
+    return 'from-emerald-500 to-emerald-600';
+  };
+
+  return (
+    <Link
+      to={`/courses/${course.courseId || course._id}`}
+      className="block group"
+    >
+      <div 
+        className="flex flex-col sm:flex-row items-center sm:items-start space-y-4 sm:space-y-0 sm:space-x-4 p-4 bg-gray-50 hover:bg-indigo-50 rounded-xl transition-all duration-300 transform hover:-translate-y-1 animate-fadeInUp"
+        style={{ animationDelay: `${index * 100}ms` }}
+      >
+        <div className="flex-shrink-0">
+          <img
+            src={course.thumbnail || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'}
+            alt={course.title}
+            className="w-20 h-20 sm:w-16 sm:h-16 rounded-lg object-cover group-hover:scale-105 transition-transform duration-300"
+          />
+        </div>
+        <div className="flex-1 min-w-0 w-full">
+          <h3 className="font-semibold text-gray-900 truncate group-hover:text-indigo-600 transition-colors duration-300">
+            {course.title || 'Course Title'}
+          </h3>
+          <p className="text-gray-600 text-sm mt-1">
+            {course.completedLessons || 0} / {course.totalLessons || 10} lessons completed
+          </p>
+          <div className="mt-3">
+            <div className="flex items-center justify-between text-sm mb-1">
+              <span className="font-semibold">Progress</span>
+              <span className={`font-bold bg-gradient-to-r ${getProgressColor(progress)} bg-clip-text text-transparent`}>
+                {progress}%
+              </span>
+            </div>
+            <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+              <div 
+                className={`h-full bg-gradient-to-r ${getProgressColor(progress)} rounded-full transition-all duration-1000`}
+                style={{ width: `${progress}%` }}
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </Link>
+  );
+};
+
+export default StudentDashboard;

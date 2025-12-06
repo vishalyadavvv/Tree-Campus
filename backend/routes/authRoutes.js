@@ -1,8 +1,8 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const { body } = require('express-validator');
+import { body } from 'express-validator';
 
-const {
+import {
   signup,
   verifyOTP,
   resendOTP,
@@ -11,10 +11,11 @@ const {
   forgotPassword,
   resetPassword,
   logout,
-} = require('../controllers/authController');
+  getProfile, // ✅ Import getProfile
+} from '../controllers/authController.js';
 
-const { validateSignup, validateLogin, validateOTP, validate } = require('../middleware/validate');
-const { protect } = require('../middleware/auth');
+import { validateSignup, validateLogin, validateOTP, validate } from '../middleware/validate.js';
+import { protect } from '../middleware/auth.js';
 
 // ----------------- Public Routes -----------------
 
@@ -39,22 +40,28 @@ router.post('/refresh-token', [
   validate
 ], refreshToken);
 
-// Forgot password
+
+// ✅ Forgot password - Clean route, logic in controller
 router.post('/forgot-password', [
   body('email').isEmail().withMessage('Valid email is required'),
   validate
 ], forgotPassword);
 
-// Reset password
+// ✅ Reset password - Clean route, logic in controller  
 router.post('/reset-password', [
-  body('token').notEmpty().withMessage('Reset token is required'),
-  body('newPassword').isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
+  body('email').isEmail().withMessage('Valid email is required'),
+  body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
   validate
 ], resetPassword);
 
+
+
 // ----------------- Protected Routes -----------------
+
+// Get user profile
+router.get('/profile', protect, getProfile); // ✅ Add this route
 
 // Logout
 router.post('/logout', protect, logout);
 
-module.exports = router;
+export default router;

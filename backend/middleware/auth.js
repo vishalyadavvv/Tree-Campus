@@ -1,10 +1,10 @@
-const jwt = require('jsonwebtoken');
-const User = require('../models/User');
+import jwt from 'jsonwebtoken';
+import User from '../models/User.js';
 
 /**
  * Protect routes - Verify JWT token
  */
-const protect = async (req, res, next) => {
+export const protect = async (req, res, next) => {
   try {
     let token;
 
@@ -52,7 +52,7 @@ const protect = async (req, res, next) => {
 /**
  * Verify refresh token
  */
-const verifyRefreshToken = (token) => {
+export const verifyRefreshToken = (token) => {
   try {
     return jwt.verify(token, process.env.JWT_REFRESH_SECRET);
   } catch (error) {
@@ -64,7 +64,7 @@ const verifyRefreshToken = (token) => {
  * Role-based authorization
  * @param  {...string} roles - Allowed roles
  */
-const authorize = (...roles) => {
+export const authorize = (...roles) => {
   return (req, res, next) => {
     if (!req.user) {
       return res.status(401).json({
@@ -87,7 +87,7 @@ const authorize = (...roles) => {
 /**
  * Check if user is verified
  */
-const requireVerified = (req, res, next) => {
+export const requireVerified = (req, res, next) => {
   if (!req.user.isVerified) {
     return res.status(403).json({
       success: false,
@@ -97,9 +97,4 @@ const requireVerified = (req, res, next) => {
   next();
 };
 
-module.exports = {
-  protect,
-  verifyRefreshToken,
-  authorize,
-  requireVerified,
-};
+

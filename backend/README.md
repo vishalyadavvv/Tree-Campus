@@ -47,7 +47,7 @@ A comprehensive backend API for the Tree Campus learning platform built with Nod
    # JWT
    JWT_ACCESS_SECRET=your_access_secret
    JWT_REFRESH_SECRET=your_refresh_secret
-   JWT_ACCESS_EXPIRE=15m
+   JWT_ACCESS_EXPIRE=1d
    JWT_REFRESH_EXPIRE=7d
    
    # Email

@@ -4,92 +4,92 @@ import { Play, ChevronDown, ChevronRight, Lock, CheckCircle, Clock, BookOpen, Ho
 // STEP 1: Save this as 'courseData.js' in the same folder as your component
 // Then import it: import { courseData } from './courseData';
 
-const courseData = {
-  courseInfo: {
-    title: '30-Day English Speaking Course',
-    totalSections: 30,
-    totalLessons: 148,
-    description: 'Master English in 30 days with structured lessons'
-  },
-  sections: [
-    {
-      id: 1,
-      dayNumber: 1,
-      title: 'परिचय + अभिवादन',
-      titleEn: 'Introduction + Greetings',
-      lessons: [
-        { id: 1, title: 'Introduction', duration: '10:30', videoId: 'dQw4w9WgXcQ' },
-        { id: 2, title: 'Greeting Part 1', duration: '8:45', videoId: 'dQw4w9WgXcQ' },
-        { id: 3, title: 'Greeting Part 2', duration: '9:15', videoId: 'dQw4w9WgXcQ' },
-        { id: 4, title: 'Synopsis', duration: '5:20', videoId: 'dQw4w9WgXcQ' },
-        { id: 5, title: 'Word of the Day', duration: '3:10', videoId: 'dQw4w9WgXcQ' },
-        { id: 6, title: 'Introduction Practice', duration: '12:00', videoId: 'dQw4w9WgXcQ' },
-        { id: 7, title: 'Greetings Practice', duration: '7:30', videoId: 'dQw4w9WgXcQ' },
-        { id: 8, title: 'Quiz – Day 1', duration: '15:00', type: 'quiz' }
-      ]
-    },
-    {
-      id: 2,
-      dayNumber: 2,
-      title: 'भाषा के भाग और इसका महत्व + बातचीत',
-      titleEn: 'Parts of Speech & Conversation',
-      lessons: [
-        { id: 9, title: 'Parts of Speech', duration: '15:20', videoId: 'dQw4w9WgXcQ' },
-        { id: 10, title: 'Conversation', duration: '10:30', videoId: 'dQw4w9WgXcQ' },
-        { id: 11, title: 'Word of the Day', duration: '3:45', videoId: 'dQw4w9WgXcQ' },
-        { id: 12, title: 'Parts of Speech Importance', duration: '12:15', videoId: 'dQw4w9WgXcQ' },
-        { id: 13, title: 'Use in Conversations', duration: '14:00', videoId: 'dQw4w9WgXcQ' },
-        { id: 14, title: 'Quiz – Day 2', duration: '20:00', type: 'quiz' }
-      ]
-    },
-    {
-      id: 3,
-      dayNumber: 3,
-      title: 'वाक्य और उसके प्रकार + वास्तविक जीवन',
-      titleEn: 'Sentences & Types + Real-life',
-      lessons: [
-        { id: 15, title: 'Sentences and Types', duration: '13:30', videoId: 'dQw4w9WgXcQ' },
-        { id: 16, title: 'Synopsis of Types', duration: '8:20', videoId: 'dQw4w9WgXcQ' },
-        { id: 17, title: 'Word of the Day', duration: '3:10', videoId: 'dQw4w9WgXcQ' },
-        { id: 18, title: 'Sentence Types Explained', duration: '11:45', videoId: 'dQw4w9WgXcQ' },
-        { id: 19, title: 'Real-life Application', duration: '9:30', videoId: 'dQw4w9WgXcQ' },
-        { id: 20, title: 'Quiz – Day 3', duration: '10:00', type: 'quiz' }
-      ]
-    },
-    {
-      id: 4,
-      dayNumber: 4,
-      title: 'प्रयोग इस/एम/आर + नाउन',
-      titleEn: 'Use of Is/Am/Are + Noun',
-      lessons: [
-        { id: 21, title: 'Is/Am/Are Introduction', duration: '12:30', videoId: 'dQw4w9WgXcQ' },
-        { id: 22, title: 'Noun', duration: '10:45', videoId: 'dQw4w9WgXcQ' },
-        { id: 23, title: 'Synopsis Is/Am/Are', duration: '8:20', videoId: 'dQw4w9WgXcQ' },
-        { id: 24, title: 'Noun Synopsis', duration: '7:15', videoId: 'dQw4w9WgXcQ' },
-        { id: 25, title: 'Word of the Day', duration: '3:10', videoId: 'dQw4w9WgXcQ' },
-        { id: 26, title: 'Use of Is/Am/Are', duration: '14:00', videoId: 'dQw4w9WgXcQ' },
-        { id: 27, title: 'Noun Practice', duration: '11:30', videoId: 'dQw4w9WgXcQ' },
-        { id: 28, title: 'Quiz – Day 4', duration: '15:00', type: 'quiz' }
-      ]
-    },
-    {
-      id: 5,
-      dayNumber: 5,
-      title: 'काउंटेबल व अनकाउंटेबल + प्रोनाउन',
-      titleEn: 'Countable & Uncountable + Pronouns',
-      lessons: [
-        { id: 29, title: 'Countable Noun Part 1', duration: '14:20', videoId: 'dQw4w9WgXcQ' },
-        { id: 30, title: 'Countable Noun Part 2', duration: '12:30', videoId: 'dQw4w9WgXcQ' },
-        { id: 31, title: 'Pronoun', duration: '10:45', videoId: 'dQw4w9WgXcQ' },
-        { id: 32, title: 'Singular & Plural Pronoun', duration: '9:20', videoId: 'dQw4w9WgXcQ' },
-        { id: 33, title: 'Word of the Day', duration: '3:10', videoId: 'dQw4w9WgXcQ' },
-        { id: 34, title: 'Countable Practice', duration: '13:00', videoId: 'dQw4w9WgXcQ' },
-        { id: 35, title: 'Pronouns Practice', duration: '11:30', videoId: 'dQw4w9WgXcQ' },
-        { id: 36, title: 'Quiz – Day 5', duration: '15:00', type: 'quiz' }
-      ]
-    }
-  ]
-};
+// const courseData = {
+//   courseInfo: {
+//     title: '30-Day English Speaking Course',
+//     totalSections: 30,
+//     totalLessons: 148,
+//     description: 'Master English in 30 days with structured lessons'
+//   },
+//   sections: [
+//     {
+//       id: 1,
+//       dayNumber: 1,
+//       title: 'परिचय + अभिवादन',
+//       titleEn: 'Introduction + Greetings',
+//       lessons: [
+//         { id: 1, title: 'Introduction', duration: '10:30', videoId: 'dQw4w9WgXcQ' },
+//         { id: 2, title: 'Greeting Part 1', duration: '8:45', videoId: 'dQw4w9WgXcQ' },
+//         { id: 3, title: 'Greeting Part 2', duration: '9:15', videoId: 'dQw4w9WgXcQ' },
+//         { id: 4, title: 'Synopsis', duration: '5:20', videoId: 'dQw4w9WgXcQ' },
+//         { id: 5, title: 'Word of the Day', duration: '3:10', videoId: 'dQw4w9WgXcQ' },
+//         { id: 6, title: 'Introduction Practice', duration: '12:00', videoId: 'dQw4w9WgXcQ' },
+//         { id: 7, title: 'Greetings Practice', duration: '7:30', videoId: 'dQw4w9WgXcQ' },
+//         { id: 8, title: 'Quiz – Day 1', duration: '15:00', type: 'quiz' }
+//       ]
+//     },
+//     {
+//       id: 2,
+//       dayNumber: 2,
+//       title: 'भाषा के भाग और इसका महत्व + बातचीत',
+//       titleEn: 'Parts of Speech & Conversation',
+//       lessons: [
+//         { id: 9, title: 'Parts of Speech', duration: '15:20', videoId: 'dQw4w9WgXcQ' },
+//         { id: 10, title: 'Conversation', duration: '10:30', videoId: 'dQw4w9WgXcQ' },
+//         { id: 11, title: 'Word of the Day', duration: '3:45', videoId: 'dQw4w9WgXcQ' },
+//         { id: 12, title: 'Parts of Speech Importance', duration: '12:15', videoId: 'dQw4w9WgXcQ' },
+//         { id: 13, title: 'Use in Conversations', duration: '14:00', videoId: 'dQw4w9WgXcQ' },
+//         { id: 14, title: 'Quiz – Day 2', duration: '20:00', type: 'quiz' }
+//       ]
+//     },
+//     {
+//       id: 3,
+//       dayNumber: 3,
+//       title: 'वाक्य और उसके प्रकार + वास्तविक जीवन',
+//       titleEn: 'Sentences & Types + Real-life',
+//       lessons: [
+//         { id: 15, title: 'Sentences and Types', duration: '13:30', videoId: 'dQw4w9WgXcQ' },
+//         { id: 16, title: 'Synopsis of Types', duration: '8:20', videoId: 'dQw4w9WgXcQ' },
+//         { id: 17, title: 'Word of the Day', duration: '3:10', videoId: 'dQw4w9WgXcQ' },
+//         { id: 18, title: 'Sentence Types Explained', duration: '11:45', videoId: 'dQw4w9WgXcQ' },
+//         { id: 19, title: 'Real-life Application', duration: '9:30', videoId: 'dQw4w9WgXcQ' },
+//         { id: 20, title: 'Quiz – Day 3', duration: '10:00', type: 'quiz' }
+//       ]
+//     },
+//     {
+//       id: 4,
+//       dayNumber: 4,
+//       title: 'प्रयोग इस/एम/आर + नाउन',
+//       titleEn: 'Use of Is/Am/Are + Noun',
+//       lessons: [
+//         { id: 21, title: 'Is/Am/Are Introduction', duration: '12:30', videoId: 'dQw4w9WgXcQ' },
+//         { id: 22, title: 'Noun', duration: '10:45', videoId: 'dQw4w9WgXcQ' },
+//         { id: 23, title: 'Synopsis Is/Am/Are', duration: '8:20', videoId: 'dQw4w9WgXcQ' },
+//         { id: 24, title: 'Noun Synopsis', duration: '7:15', videoId: 'dQw4w9WgXcQ' },
+//         { id: 25, title: 'Word of the Day', duration: '3:10', videoId: 'dQw4w9WgXcQ' },
+//         { id: 26, title: 'Use of Is/Am/Are', duration: '14:00', videoId: 'dQw4w9WgXcQ' },
+//         { id: 27, title: 'Noun Practice', duration: '11:30', videoId: 'dQw4w9WgXcQ' },
+//         { id: 28, title: 'Quiz – Day 4', duration: '15:00', type: 'quiz' }
+//       ]
+//     },
+//     {
+//       id: 5,
+//       dayNumber: 5,
+//       title: 'काउंटेबल व अनकाउंटेबल + प्रोनाउन',
+//       titleEn: 'Countable & Uncountable + Pronouns',
+//       lessons: [
+//         { id: 29, title: 'Countable Noun Part 1', duration: '14:20', videoId: 'dQw4w9WgXcQ' },
+//         { id: 30, title: 'Countable Noun Part 2', duration: '12:30', videoId: 'dQw4w9WgXcQ' },
+//         { id: 31, title: 'Pronoun', duration: '10:45', videoId: 'dQw4w9WgXcQ' },
+//         { id: 32, title: 'Singular & Plural Pronoun', duration: '9:20', videoId: 'dQw4w9WgXcQ' },
+//         { id: 33, title: 'Word of the Day', duration: '3:10', videoId: 'dQw4w9WgXcQ' },
+//         { id: 34, title: 'Countable Practice', duration: '13:00', videoId: 'dQw4w9WgXcQ' },
+//         { id: 35, title: 'Pronouns Practice', duration: '11:30', videoId: 'dQw4w9WgXcQ' },
+//         { id: 36, title: 'Quiz – Day 5', duration: '15:00', type: 'quiz' }
+//       ]
+//     }
+//   ]
+// };
 
 const VideoPlayer = ({ videoId, title }) => {
   if (!videoId) {

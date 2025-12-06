@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const chatHistorySchema = new mongoose.Schema({
   user: {
@@ -36,4 +36,4 @@ const chatHistorySchema = new mongoose.Schema({
 // Index for efficient querying
 chatHistorySchema.index({ user: 1, createdAt: -1 });
 
-module.exports = mongoose.model('ChatHistory', chatHistorySchema);
+export default mongoose.model('ChatHistory', chatHistorySchema);

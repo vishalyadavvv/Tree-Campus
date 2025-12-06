@@ -131,7 +131,7 @@ const  Login = () => {
     setError('');
   };
 
-  const handleSubmit = async (e) => {
+const handleSubmit = async (e) => {
   e.preventDefault();
   e.stopPropagation();
   
@@ -147,25 +147,25 @@ const  Login = () => {
   setLoading(true);
 
   try {
-    // Call login with email and password
     const result = await login(formData.email, formData.password);
     
-    console.log('Login result:', result); // Debug log
+    console.log('Login result:', result);
     
-    // FIXED: Check if login was successful
     if (result && result.success) {
-      // Get user role from result
-      const userRole = result.user?.role || formData.role;
-      const redirectPath = userRole === 'Admin' ? '/admin' : '/dashboard';
+      // Get user role from server response
+      const userRole = result.user?.role;
       
-      // IMPORTANT: Small delay to ensure state updates
-      setTimeout(() => {
-        navigate(redirectPath, { replace: true });
-      }, 100);
+      // Route based on role
+      const redirectPath = userRole === 'admin' ? '/admin' : '/dashboard';
+      
+      console.log('Navigating to:', redirectPath);
+      
+      // Use navigate for SPA routing
+      navigate(redirectPath, { replace: true });
       
     } else {
-      // Login failed
       setError(result?.message || t.loginFailed);
+      setLoading(false);
     }
   } catch (err) {
     console.error('Login error:', err);
@@ -186,7 +186,6 @@ const  Login = () => {
     }
     
     setError(errorMessage);
-  } finally {
     setLoading(false);
   }
 };
@@ -302,8 +301,8 @@ const  Login = () => {
                   required
                 >
                   <option value="">{t.selectRole}</option>
-                  <option value="Student">{t.student}</option>
-                  <option value="Admin">{t.admin}</option>
+                  <option value="student">{t.student}</option>
+                  <option value="admin">{t.admin}</option>
                 </select>
               </div>
 

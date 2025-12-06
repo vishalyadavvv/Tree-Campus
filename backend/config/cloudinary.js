@@ -1,4 +1,4 @@
-const cloudinary = require('cloudinary').v2;
+import { v2 as cloudinary } from 'cloudinary';
 
 // Configure Cloudinary
 cloudinary.config({
@@ -19,4 +19,4 @@ const testConnection = async () => {
 
 testConnection();
 
-module.exports = cloudinary;
+export default cloudinary;

@@ -1,7 +1,7 @@
-const ChatHistory = require('../models/ChatHistory');
-const Course = require('../models/Course');
-const Lesson = require('../models/Lesson');
-const { askAI, askAIWithContext } = require('../utils/openai');
+import ChatHistory from '../models/ChatHistory.js';
+import Course from '../models/Course.js';
+import Lesson from '../models/Lesson.js';
+import { askAI, askAIWithContext } from '../utils/openai.js';
 
 /**
  * @desc    Ask AI assistant a question
@@ -200,7 +200,7 @@ const deleteConversation = async (req, res, next) => {
   }
 };
 
-module.exports = {
+export {
   askQuestion,
   getChatHistory,
   getConversation,

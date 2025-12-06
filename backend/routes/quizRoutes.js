@@ -1,18 +1,18 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const {
+import {
   createQuiz,
-  getQuizByLesson,
+  getSectionQuiz,
   updateQuiz,
   submitQuiz,
   deleteQuiz,
-} = require('../controllers/quizController');
-const { protect, authorize } = require('../middleware/auth');
-const { body } = require('express-validator');
-const { validate } = require('../middleware/validate');
+} from '../controllers/quizController.js';
+import { protect, authorize } from '../middleware/auth.js';
+import { body } from 'express-validator';
+import { validate } from '../middleware/validate.js';
 
 // Protected routes - Student
-router.get('/lesson/:lessonId', protect, getQuizByLesson);
+router.get('/lesson/:lessonId', protect, getSectionQuiz);
 router.post('/:id/submit', protect, [
   body('answers').isArray().withMessage('Answers must be an array'),
 ], submitQuiz);
@@ -28,4 +28,4 @@ router.post('/', protect, authorize('instructor', 'admin'), [
 router.put('/:id', protect, authorize('instructor', 'admin'), updateQuiz);
 router.delete('/:id', protect, authorize('instructor', 'admin'), deleteQuiz);
 
-module.exports = router;
+export default router;

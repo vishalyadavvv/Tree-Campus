@@ -1,65 +1,85 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const courseSchema = new mongoose.Schema({
   title: {
     type: String,
-    required: [true, 'Course title is required'],
-    trim: true,
+    required: [true, 'Please provide a course title'],
+    trim: true
   },
   description: {
     type: String,
-    required: [true, 'Course description is required'],
-  },
-  instructor: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true,
+    required: [true, 'Please provide a course description']
   },
   thumbnail: {
     type: String,
-    default: '',
+    default: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800'
   },
-  category: {
+  instructor: {
     type: String,
-    required: [true, 'Category is required'],
-    enum: ['Programming', 'Design', 'Business', 'Marketing', 'Data Science', 'AI/ML', 'Other'],
+    required: [true, 'Please provide instructor name']
   },
+ category: {
+  type: String,
+  enum: [
+    'Spoken English',  // Add this simpler option
+    'Spoken English Part-1', 
+    'Spoken English Part-2', 
+    'Spoken English Part-3',
+    'Other'
+  ],
+},
+level: {
+  type: String,
+  enum: ['All levels', 'Beginner', 'Intermediate', 'Advanced'],  // Change to lowercase 'levels'
+  default: 'All levels'  
+},
   level: {
     type: String,
-    enum: ['Beginner', 'Intermediate', 'Advanced'],
-    default: 'Beginner',
+    enum: ['All Levels','Beginner', 'Intermediate', 'Advanced'],
+    default: 'All Levels'
   },
-  lessons: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Lesson',
-  }],
-  students: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-  }],
+  // price: {
+  //   type: Number,
+  //   default: 0
+  // },
   duration: {
-    type: Number, // Total duration in minutes
+    type: String,
+    default: '0 hours'
+  },
+  enrollmentCount: {
+    type: Number,
+    default: 0
+  },
+  rating: {
+    type: Number,
     default: 0,
+    min: 0,
+    max: 5
+  },
+  totalLessons: {
+    type: Number,
+    default: 0
+  },
+  certificateTemplate: {
+    type: String,
+    default: '' // URL to custom certificate template uploaded by admin
+  },
+  totalSections: {
+    type: Number,
+    default: 0
+  },
+  totalQuizzes: {
+    type: Number,
+    default: 0
   },
   isPublished: {
     type: Boolean,
-    default: false,
-  },
-  tags: [{
-    type: String,
-  }],
+    default: true
+  }
 }, {
-  timestamps: true,
+  timestamps: true
 });
 
-// Virtual for student count
-courseSchema.virtual('studentCount').get(function() {
-  return this.students.length;
-});
+const Course = mongoose.model('Course', courseSchema);
 
-// Virtual for lesson count
-courseSchema.virtual('lessonCount').get(function() {
-  return this.lessons.length;
-});
-
-module.exports = mongoose.model('Course', courseSchema);
+export default Course;

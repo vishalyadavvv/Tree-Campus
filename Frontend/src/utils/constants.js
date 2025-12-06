@@ -2,12 +2,14 @@
 export const API_URL = process.env.VITE_API_URL || 'http://localhost:4000/api';
 
 export const COURSE_LEVELS = {
+  alllevels:'All Levels',
   beginner: 'Beginner',
   intermediate: 'Intermediate',
   advanced: 'Advanced'
 };
 
 export const COURSE_LEVELS_HINDI = {
+  alllevels:'सभी_स्तर',
   beginner: 'शुरुआती',
   intermediate: 'मध्यम',
   advanced: 'उन्नत'
@@ -43,6 +45,7 @@ export const ROUTES = {
   LIVE_CLASSES: '/live-classes',
   SPOKEE: '/spokee',
   DASHBOARD: '/dashboard',
+  
   PROFILE: '/profile',
   LOGIN: '/login',
   REGISTER: '/register'

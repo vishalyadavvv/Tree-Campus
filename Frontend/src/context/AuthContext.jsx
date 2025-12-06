@@ -1,6 +1,7 @@
 // client/src/context/AuthContext.jsx
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import { authService } from '../services/authService';
+import api from '../services/api';
 
 export const AuthContext = createContext();
 
@@ -8,6 +9,7 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
 
   // Check if user is logged in on mount
   useEffect(() => {
@@ -17,10 +19,11 @@ export const AuthProvider = ({ children }) => {
   // Fetch fresh user data from server
   const fetchUserProfile = async () => {
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
+
       if (!token) return null;
 
-      const response = await fetch('http://localhost:5000/api/auth/profile', {
+      const response = await fetch('http://localhost:4000/api/auth/profile', {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -42,7 +45,7 @@ export const AuthProvider = ({ children }) => {
 
   const checkAuth = async () => {
     try {
-      const token = localStorage.getItem('token');
+      const token = sessionStorage.getItem('token');
 
       if (!token) {
         setUser(null);
@@ -55,10 +58,10 @@ export const AuthProvider = ({ children }) => {
 
       if (freshUser) {
         setUser(freshUser);
-        localStorage.setItem('user', JSON.stringify(freshUser));
+         sessionStorage.setItem('user', JSON.stringify(freshUser));
       } else {
         // If fetch failed, try localStorage as fallback
-        const rawUser = localStorage.getItem('user');
+          const rawUser = sessionStorage.getItem('user');
         
         if (rawUser && rawUser !== "null" && rawUser !== "undefined") {
           try {
@@ -92,62 +95,66 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const login = async (email, password) => {
-    try {
-      setError(null);
-      setLoading(true);
+const login = async (email, password) => {
+  try {
+    setError(null);
+    setLoading(true);
 
-      const response = await authService.login(email, password);
+    const response = await authService.login(email, password);
 
-      // FIXED: Check response properly
-      if (!response.data || response.data.success === false) {
-        throw new Error(response.data?.message || "Invalid email or password");
-      }
+    console.log('✅ Full API response:', response);
+    console.log('✅ Response data:', response.data);
 
-      // Save tokens
-      if (response.data?.accessToken) {
-        localStorage.setItem('token', response.data.accessToken);
-      }
-      if (response.data?.refreshToken) {
-        localStorage.setItem('refreshToken', response.data.refreshToken);
-      }
-
-      // FIXED: Set user immediately for instant UI update
-      if (response.data?.user) {
-        const userData = response.data.user;
-        localStorage.setItem('user', JSON.stringify(userData));
-        setUser(userData); // This triggers re-render
-
-        // FIXED: Add role-based redirection here
-        setTimeout(() => {
-          if (userData.role === 'admin') {
-            window.location.href = '/admin';
-          } else {
-            window.location.href = '/dashboard';
-          }
-        }, 100);
-      }
-
-      // FIXED: Return the data in the format Login.jsx expects
-      return {
-        success: true,
-        user: response.data.user,
-        message: response.data.message
-      };
-
-    } catch (err) {
-      setError(err.message || "Login failed");
-      setLoading(false);
-      
-      // FIXED: Return error in correct format
-      return {
-        success: false,
-        message: err.message || "Login failed"
-      };
-    } finally {
-      setLoading(false);
+    // authService returns the FULL axios response object
+    // So backend data is at: response.data
+    // Backend structure: response.data = { success, message, data: { user, accessToken, refreshToken } }
+    
+    const apiData = response.data; // This is your backend's response
+    
+    if (!apiData || apiData.success === false) {
+      throw new Error(apiData?.message || "Invalid email or password");
     }
-  };
+
+    // Save tokens - they're inside apiData.data (backend's nested "data" key)
+    if (apiData.data?.accessToken) {
+      sessionStorage.setItem('token', apiData.data.accessToken);
+      console.log('✅ Token saved');
+    }
+    if (apiData.data?.refreshToken) {
+      sessionStorage.setItem('refreshToken', apiData.data.refreshToken);
+      console.log('✅ Refresh token saved');
+    }
+
+    // Save user - also inside apiData.data
+    if (apiData.data?.user) {
+      const userData = apiData.data.user;
+      sessionStorage.setItem('user', JSON.stringify(userData));
+      setUser(userData);
+      
+      console.log('✅ User saved:', userData);
+    }
+
+    setLoading(false);
+
+    // Return in the format Login.jsx expects
+    return {
+      success: apiData.success,
+      user: apiData.data.user,
+      message: apiData.message
+    };
+
+  } catch (err) {
+    console.error('❌ Login error in AuthContext:', err);
+    
+    setError(err.message || "Login failed");
+    setLoading(false);
+    
+    return {
+      success: false,
+      message: err.message || "Login failed"
+    };
+  }
+};
 
   const register = async (userData) => {
     try {
@@ -160,39 +167,22 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const verifyOTP = async (email, otp) => {
-    try {
-      setError(null);
-      const response = await authService.verifyOTP(email, otp);
-      
-      if (response.data?.accessToken) {
-        localStorage.setItem('token', response.data.accessToken);
-      }
-      if (response.data?.refreshToken) {
-        localStorage.setItem('refreshToken', response.data.refreshToken);
-      }
-      
-      if (response.data?.user) {
-        const userData = response.data.user;
-        localStorage.setItem('user', JSON.stringify(userData));
-        setUser(userData);
+ const verifyOTP = async (email, otp) => {
+  try {
+    setError(null);
 
-        // FIXED: Add role-based redirection for OTP verification too
-        setTimeout(() => {
-          if (userData.role === 'admin') {
-            window.location.href = '/admin';
-          } else {
-            window.location.href = '/dashboard';
-          }
-        }, 100);
-      }
-      
-      return response;
-    } catch (err) {
-      setError(err.message || 'OTP verification failed');
-      throw err;
-    }
-  };
+    const response = await authService.verifyOTP(email, otp);
+
+    // MUST return response.data
+    return response.data;
+
+  } catch (err) {
+    throw new Error(
+      err.response?.data?.message || "OTP verification failed"
+    );
+  }
+};
+
 
   const resendOTP = async (email) => {
     try {
@@ -211,9 +201,9 @@ export const AuthProvider = ({ children }) => {
     } catch (err) {
       console.error('Logout error:', err);
     } finally {
-      localStorage.removeItem('token');
-      localStorage.removeItem('refreshToken');
-      localStorage.removeItem('user');
+      sessionStorage.removeItem('token');
+      sessionStorage.removeItem('refreshToken');
+      sessionStorage.removeItem('user');
       setUser(null);
       setError(null);
     }
@@ -228,7 +218,7 @@ export const AuthProvider = ({ children }) => {
         ...userData
       };
       
-      localStorage.setItem('user', JSON.stringify(updatedUser));
+      sessionStorage.setItem('user', JSON.stringify(updatedUser));
       return updatedUser;
     });
   };
@@ -238,7 +228,7 @@ export const AuthProvider = ({ children }) => {
       const freshUser = await fetchUserProfile();
       if (freshUser) {
         setUser(freshUser);
-        localStorage.setItem('user', JSON.stringify(freshUser));
+       sessionStorage.setItem('user', JSON.stringify(freshUser));
         return freshUser;
       }
     } catch (err) {

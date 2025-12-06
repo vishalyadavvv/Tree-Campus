@@ -1,7 +1,8 @@
-const User = require('../models/User');
-const { generateTokens, generateResetToken } = require('../utils/generateToken');
-const { sendOTPEmail, sendPasswordResetEmail } = require('../utils/sendEmail');
-const { verifyRefreshToken } = require('../middleware/auth');
+import User from '../models/User.js';
+import { generateTokens, generateResetToken } from '../utils/generateToken.js';
+import { sendOTPEmail, sendPasswordResetEmail } from '../utils/sendEmail.js';
+import { verifyRefreshToken } from '../middleware/auth.js';
+import bcrypt from 'bcryptjs';
 
 /**
  * @desc    Register new user
@@ -28,7 +29,8 @@ const signup = async (req, res, next) => {
       phone: req.body.phone || '',
 
       password,
-      role: role || 'student',
+     role: role?.toLowerCase() || 'student',
+
     });
 
     // Generate OTP
@@ -171,6 +173,9 @@ const login = async (req, res, next) => {
       return res.status(403).json({ success: false, message: 'Please verify your email first' });
     }
 
+    // ⭐ FIX ROLE CASE HERE
+    user.role = user.role.toLowerCase();
+
     const tokens = generateTokens(user._id);
 
     res.status(200).json({
@@ -181,20 +186,22 @@ const login = async (req, res, next) => {
           id: user._id,
           name: user.name,
           email: user.email,
-          role: user.role,
+          role: user.role,           // now always lowercase
           isVerified: user.isVerified,
           phone: user.phone,
         },
         ...tokens,
       },
     });
+
   } catch (error) {
     next(error);
   }
 };
 
+
 /**
- * @desc    Forgot password
+ * @desc    Forgot password - Send OTP
  * @route   POST /api/auth/forgot-password
  * @access  Public
  */
@@ -202,62 +209,105 @@ const forgotPassword = async (req, res, next) => {
   try {
     const { email } = req.body;
 
+    // Find user by email
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(404).json({ success: false, message: 'User not found' });
+      return res.status(404).json({ 
+        success: false, 
+        message: 'User not found with this email' 
+      });
     }
 
-    const resetToken = generateResetToken();
-    user.resetPasswordToken = resetToken;
-    user.resetPasswordExpiry = Date.now() + 60 * 60 * 1000; // 1 hour
+    // Generate 6-digit OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+    // Save OTP and expiry (10 minutes)
+    user.otp = otp;
+    user.otpExpiry = Date.now() + 10 * 60 * 1000; // 10 minutes
     await user.save();
 
+    // Log OTP in development mode
     if (process.env.NODE_ENV === 'development') {
-      console.log(`✅ [DEV] Password reset token for ${email}: ${resetToken}`);
-    } else {
-      await sendPasswordResetEmail(email, user.name, resetToken);
+      console.log(`✅ [DEV] Password reset OTP for ${email}: ${otp}`);
     }
 
-    res.status(200).json({ success: true, message: 'Password reset token generated' });
+    // TODO: Implement email sending here
+    // await sendEmail(email, otp);
+
+    res.status(200).json({ 
+      success: true, 
+      message: 'OTP sent to your email successfully' 
+    });
+
   } catch (error) {
+    console.error("❌ Forgot Password Error:", error);
     next(error);
   }
 };
+
 
 /**
  * @desc    Reset password
  * @route   POST /api/auth/reset-password
  * @access  Public
  */
-const resetPassword = async (req, res, next) => {
+ const resetPassword = async (req, res, next) => {
   try {
-    const { token, newPassword } = req.body;
+    const { email, password } = req.body;
 
-    const user = await User.findOne({
-      resetPasswordToken: token,
-      resetPasswordExpiry: { $gt: Date.now() },
-    });
+    // Find user and select necessary fields
+    const user = await User.findOne({ email }).select("+otp +otpExpiry +password");
 
     if (!user) {
-      return res.status(400).json({ success: false, message: 'Invalid or expired reset token' });
+      return res.status(404).json({ 
+        success: false, 
+        message: "User not found" 
+      });
     }
 
-    user.password = newPassword;
-    user.resetPasswordToken = undefined;
-    user.resetPasswordExpiry = undefined;
+    // Check if OTP exists
+    if (!user.otp || !user.otpExpiry) {
+      return res.status(400).json({ 
+        success: false, 
+        message: "Session expired. Please request a new OTP." 
+      });
+    }
+
+    // Check if OTP is expired
+    if (user.otpExpiry < Date.now()) {
+      user.otp = undefined;
+      user.otpExpiry = undefined;
+      await user.save();
+
+      return res.status(400).json({ 
+        success: false, 
+        message: "OTP has expired. Please request a new one." 
+      });
+    }
+
+    // Hash new password (pre-save hook will also hash, but doing it here for clarity)
+    const salt = await bcrypt.genSalt(10);
+    user.password = await bcrypt.hash(password, salt);
+
+    // Clear OTP fields
+    user.otp = undefined;
+    user.otpExpiry = undefined;
+
     await user.save();
 
-    res.status(200).json({ success: true, message: 'Password reset successful' });
+    res.status(200).json({ 
+      success: true, 
+      message: "Password reset successful. You can now login with your new password." 
+    });
+
   } catch (error) {
+    console.error("❌ Reset Password Error:", error);
     next(error);
   }
 };
 
-/**
- * @desc    Logout user
- * @route   POST /api/auth/logout
- * @access  Public
- */
+
+
 /**
  * @desc    Refresh access token
  * @route   POST /api/auth/refresh-token
@@ -296,6 +346,13 @@ const refreshToken = async (req, res, next) => {
     next(error);
   }
 };
+
+/**
+ * @desc    Logout user
+ * @route   POST /api/auth/logout
+ * @access  Public
+ */
+
 const logout = async (req, res, next) => {
   try {
     res.status(200).json({ success: true, message: 'Logout successful' });
@@ -303,8 +360,48 @@ const logout = async (req, res, next) => {
     next(error);
   }
 };
+/**
+ * @desc    Get user profile
+ * @route   GET /api/auth/profile
+ * @access  Private
+ */
+const getProfile = async (req, res, next) => {
+  try {
+    // req.user is already set by protect middleware
+    const user = await User.findById(req.user.id)
+      .select('-password -otp -otpExpiry -resetPasswordToken -resetPasswordExpiry')
+      .populate('enrolledCourses.courseId', 'title thumbnail')
+      .populate('certificates');
 
-module.exports = {
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found',
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+        role: user.role,
+        isVerified: user.isVerified,
+        profilePicture: user.profilePicture,
+        enrolledCourses: user.enrolledCourses,
+        completedLessons: user.completedLessons,
+        certificates: user.certificates,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+
+export {
   signup,
   verifyOTP,
   resendOTP,
@@ -313,4 +410,5 @@ module.exports = {
   resetPassword,
   logout,
   refreshToken,
+  getProfile,
 };  

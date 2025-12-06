@@ -1,72 +1,54 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const liveClassSchema = new mongoose.Schema({
   title: {
     type: String,
-    required: [true, 'Live class title is required'],
-    trim: true,
+    required: [true, 'Please provide a class title'],
+    trim: true
   },
   description: {
     type: String,
-    required: [true, 'Description is required'],
-  },
-  course: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Course',
-  },
-  instructor: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true,
-  },
-  scheduledTime: {
-    type: Date,
-    required: [true, 'Scheduled time is required'],
-  },
-  duration: {
-    type: Number, // Duration in minutes
-    required: true,
-    default: 60,
+    required: [true, 'Please provide a description']
   },
   platform: {
     type: String,
-    enum: ['Zoom', 'YouTube', 'Other'],
-    required: true,
+    enum: ['Zoom', 'Google Meet', 'YouTube'],
+    required: [true, 'Please select a platform']
   },
-  meetingLink: {
+  link: {
     type: String,
-    required: [true, 'Meeting link is required'],
+    required: [true, 'Please provide a meeting link']
   },
-  meetingId: {
-    type: String,
-    default: '',
+  scheduledAt: {
+    type: Date,
+    required: [true, 'Please provide a scheduled time']
   },
-  passcode: {
-    type: String,
-    default: '',
+  duration: {
+    type: Number,
+    required: [true, 'Please provide duration in minutes'],
+    default: 60
   },
-  isActive: {
-    type: Boolean,
-    default: true,
-  },
-  participants: [{
+  courseId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-  }],
-  recordingUrl: {
-    type: String,
-    default: '',
+    ref: 'Course'
   },
-  resources: [{
-    title: String,
-    url: String,
-  }],
+  instructor: {
+    type: String,
+    required: [true, 'Please provide instructor name']
+  },
+  maxParticipants: {
+    type: Number,
+    default: 100
+  },
+  status: {
+    type: String,
+    enum: ['scheduled', 'live', 'completed', 'cancelled'],
+    default: 'scheduled'
+  }
 }, {
-  timestamps: true,
+  timestamps: true
 });
 
-// Index for efficient querying
-liveClassSchema.index({ scheduledTime: 1, isActive: 1 });
-liveClassSchema.index({ course: 1 });
+const LiveClass = mongoose.model('LiveClass', liveClassSchema);
 
-module.exports = mongoose.model('LiveClass', liveClassSchema);
+export default LiveClass;

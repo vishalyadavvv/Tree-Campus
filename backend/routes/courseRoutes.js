@@ -1,43 +1,80 @@
-const express = require('express');
-const router = express.Router();
-const {
-  createCourse,
+import express from 'express';
+import {
   getCourses,
-  getCourseById,
+  getCourse,
+  createCourse,
   updateCourse,
   deleteCourse,
-  uploadThumbnail,
-  enrollCourse,
-  getInstructorCourses,
-  getEnrolledCourses,
+  getCourseSections,
+  createSection,
+  getSectionLessons,
   createLesson,
+  enrollCourse,
+  checkEnrollmentStatus,
+  getCourseStructure,
+  updateSection,
+  deleteSection,
   updateLesson,
-  deleteLesson,
-  uploadLessonVideo,
-} = require('../controllers/courseController');
-const { protect, authorize } = require('../middleware/auth');
-const { uploadImage, uploadVideo } = require('../middleware/upload');
-const { validateCourse, validateLesson, validateObjectId } = require('../middleware/validate');
+  deleteLesson
+} from '../controllers/courseController.js';
+import {
+  createQuiz,
+  getQuiz,
+  getSectionQuiz,
+  updateQuiz,
+  deleteQuiz,
+  submitQuiz
+} from '../controllers/quizController.js';
+import { protect } from '../middleware/auth.js';
+import { adminOnly } from '../middleware/adminMiddleware.js';
 
-// Public routes
-router.get('/', getCourses);
-router.get('/:id', validateObjectId, getCourseById);
+const router = express.Router();
 
-// Protected routes - Student
-router.post('/:id/enroll', protect, enrollCourse);
-router.get('/enrolled/my-courses', protect, getEnrolledCourses);
+router.route('/')
+  .get(getCourses)
+  .post(protect, adminOnly, createCourse);
 
-// Protected routes - Instructor/Admin
-router.post('/', protect, authorize('instructor', 'admin'), validateCourse, createCourse);
-router.put('/:id', protect, authorize('instructor', 'admin'), validateObjectId, updateCourse);
-router.delete('/:id', protect, authorize('instructor', 'admin'), validateObjectId, deleteCourse);
-router.post('/:id/thumbnail', protect, authorize('instructor', 'admin'), uploadImage.single('thumbnail'), uploadThumbnail);
-router.get('/instructor/my-courses', protect, authorize('instructor', 'admin'), getInstructorCourses);
+router.route('/:id')
+  .get(getCourse)
+  .put(protect, adminOnly, updateCourse)
+  .delete(protect, adminOnly, deleteCourse);
 
-// Lesson routes
-router.post('/:id/lessons', protect, authorize('instructor', 'admin'), validateLesson, createLesson);
-router.put('/lessons/:lessonId', protect, authorize('instructor', 'admin'), updateLesson);
-router.delete('/lessons/:lessonId', protect, authorize('instructor', 'admin'), deleteLesson);
-router.post('/lessons/:lessonId/video', protect, authorize('instructor', 'admin'), uploadVideo.single('video'), uploadLessonVideo);
+router.route('/:id/structure')
+  .get(getCourseStructure);
 
-module.exports = router;
+router.route('/:id/sections')
+  .get(getCourseSections)
+  .post(protect, adminOnly, createSection);
+
+router.route('/:id/enroll')
+  .post(protect, enrollCourse);
+
+router.route('/:id/enrollment-status')
+  .get(protect, checkEnrollmentStatus);
+
+router.route('/sections/:id')
+  .put(protect, adminOnly, updateSection)
+  .delete(protect, adminOnly, deleteSection);
+
+router.route('/sections/:id/lessons')
+  .get(getSectionLessons)
+  .post(protect, adminOnly, createLesson);
+
+router.route('/sections/:id/quiz')
+  .get(getSectionQuiz)
+  .post(protect, adminOnly, createQuiz);
+
+router.route('/lessons/:id')
+  .put(protect, adminOnly, updateLesson)
+  .delete(protect, adminOnly, deleteLesson);
+
+router.route('/quiz/:id')
+  .get(getQuiz)
+  .put(protect, adminOnly, updateQuiz)
+  .delete(protect, adminOnly, deleteQuiz);
+
+router.route('/quiz/:id/submit')
+  .post(protect, submitQuiz);
+
+export default router;
+

@@ -1,50 +1,69 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const quizSchema = new mongoose.Schema({
-  lesson: {
+  courseId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Lesson',
-    required: true,
+    ref: 'Course',
+    required: [true, 'Course ID is required']
+  },
+  sectionId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Section',
+    required: [true, 'Section ID is required']
   },
   title: {
     type: String,
     required: [true, 'Quiz title is required'],
+    trim: true
+  },
+  description: {
+    type: String,
+    default: ''
   },
   questions: [{
-    question: {
+    questionText: {
       type: String,
-      required: true,
+      required: true
     },
     options: [{
       type: String,
-      required: true,
+      required: true
     }],
     correctAnswer: {
-      type: Number, // Index of correct option (0-based)
+      type: Number,
       required: true,
+      min: 0
     },
     explanation: {
       type: String,
-      default: '',
+      default: ''
     },
+    points: {
+      type: Number,
+      default: 1
+    }
   }],
   passingScore: {
     type: Number,
-    default: 70, // Percentage
+    default: 70,
     min: 0,
-    max: 100,
+    max: 100
   },
   timeLimit: {
-    type: Number, // Time limit in minutes
-    default: 0, // 0 means no time limit
+    type: Number,
+    default: 30
   },
+  isPublished: {
+    type: Boolean,
+    default: true
+  }
 }, {
-  timestamps: true,
+  timestamps: true
 });
 
-// Virtual for question count
-quizSchema.virtual('questionCount').get(function() {
-  return this.questions.length;
-});
+// Index for faster queries
+quizSchema.index({ courseId: 1, sectionId: 1 });
 
-module.exports = mongoose.model('Quiz', quizSchema);
+const Quiz = mongoose.model('Quiz', quizSchema);
+
+export default Quiz;

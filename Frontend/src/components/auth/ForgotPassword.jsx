@@ -1,0 +1,193 @@
+import React, { useState } from "react";
+import axios from "../../services/api";
+import { useNavigate } from "react-router-dom"; // ✅ Add useNavigate
+
+const ForgotPassword = () => {
+  const [email, setEmail] = useState("");
+  const [message, setMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate(); // ✅ Initialize navigate
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setMessage(""); // Clear previous messages
+
+    try {
+      const res = await axios.post("/auth/forgot-password", { email });
+      setMessage(res.data.message);
+
+      // ✅ Navigate to reset password page with email
+      setTimeout(() => {
+        navigate(`/reset-password?email=${email}`);
+      }, 1500);
+
+    } catch (err) {
+      setMessage(err.response?.data?.message || "Something went wrong");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50 px-4 sm:px-6 lg:px-8">
+      <div className="w-full max-w-md">
+        <div className="bg-white rounded-2xl shadow-xl p-6 sm:p-8 md:p-10">
+          {/* Header */}
+          <div className="text-center mb-8">
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-4">
+              <svg
+                className="w-8 h-8 text-blue-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"
+                />
+              </svg>
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-2">
+              Forgot Password?
+            </h2>
+            <p className="text-sm sm:text-base text-gray-600">
+              Enter your email and we'll send you an OTP to reset your password
+            </p>
+          </div>
+
+          {/* Form */}
+          <div className="space-y-6">
+            <div>
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
+                Email Address
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <svg
+                    className="h-5 w-5 text-gray-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"
+                    />
+                  </svg>
+                </div>
+                <input
+                  id="email"
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Enter your registered email"
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-sm sm:text-base"
+                />
+              </div>
+            </div>
+
+            <button
+              onClick={handleSubmit}
+              disabled={isLoading || !email}
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 shadow-lg hover:shadow-xl text-sm sm:text-base"
+            >
+              {isLoading ? (
+                <span className="flex items-center justify-center">
+                  <svg
+                    className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
+                  </svg>
+                  Sending OTP...
+                </span>
+              ) : (
+                "Send OTP"
+              )}
+            </button>
+          </div>
+
+          {/* Message */}
+          {message && (
+            <div
+              className={`mt-6 p-4 rounded-lg text-sm sm:text-base ${
+                message.includes("Success") || message.includes("sent")
+                  ? "bg-green-50 text-green-800 border border-green-200"
+                  : "bg-red-50 text-red-800 border border-red-200"
+              }`}
+            >
+              <p className="flex items-start">
+                <svg
+                  className="w-5 h-5 mr-2 flex-shrink-0 mt-0.5"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  {message.includes("Success") || message.includes("sent") ? (
+                    <path
+                      fillRule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                      clipRule="evenodd"
+                    />
+                  ) : (
+                    <path
+                      fillRule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                      clipRule="evenodd"
+                    />
+                  )}
+                </svg>
+                {message}
+              </p>
+            </div>
+          )}
+
+          {/* Back to Login */}
+          <div className="mt-6 text-center">
+            <a
+              href="/login"
+              className="text-sm sm:text-base text-blue-600 hover:text-blue-700 font-medium transition-colors duration-200"
+            >
+              ← Back to Login
+            </a>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <p className="text-center text-xs sm:text-sm text-gray-500 mt-6">
+          Remember your password?{" "}
+          <a
+            href="/login"
+            className="text-blue-600 hover:text-blue-700 font-medium"
+          >
+            Sign in
+          </a>
+        </p>
+      </div>
+    </div>
+  );
+};
+
+export default ForgotPassword;

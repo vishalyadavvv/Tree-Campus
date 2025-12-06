@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const progressSchema = new mongoose.Schema({
   user: {
@@ -88,4 +88,4 @@ progressSchema.methods.calculateProgress = async function() {
   return this.overallProgress;
 };
 
-module.exports = mongoose.model('Progress', progressSchema);
+export default mongoose.model('Progress', progressSchema);

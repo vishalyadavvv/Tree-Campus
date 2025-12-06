@@ -1,4 +1,4 @@
-const { body, param, validationResult } = require('express-validator');
+import { body, param, validationResult } from 'express-validator';
 
 /**
  * Validation result handler
@@ -176,7 +176,7 @@ const validateObjectId = [
   validate,
 ];
 
-module.exports = {
+export {
   validate,
   validateSignup,
   validateLogin,

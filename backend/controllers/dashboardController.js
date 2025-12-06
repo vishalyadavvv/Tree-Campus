@@ -1,12 +1,12 @@
-const User = require('../models/User');
-const Course = require('../models/Course');
-const Progress = require('../models/Progress');
-const Quiz = require('../models/Quiz');
+import User from '../models/User.js';
+import Course from '../models/Course.js';
+import Progress from '../models/Progress.js';
+import Quiz from '../models/Quiz.js';
 
 // @desc    Get user dashboard data
 // @route   GET /api/dashboard
 // @access  Private
-exports.getDashboardData = async (req, res) => {
+export const getDashboardData = async (req, res) => {
   try {
     const userId = req.user.id; // From auth middleware
 

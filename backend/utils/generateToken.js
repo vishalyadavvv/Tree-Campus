@@ -1,4 +1,5 @@
-const jwt = require('jsonwebtoken');
+import jwt from 'jsonwebtoken';
+import crypto from 'crypto';
 
 /**
  * Generate JWT access token
@@ -9,7 +10,7 @@ const generateAccessToken = (userId) => {
   return jwt.sign(
     { id: userId },
     process.env.JWT_ACCESS_SECRET,
-    { expiresIn: process.env.JWT_ACCESS_EXPIRE || '15m' }
+    { expiresIn: process.env.JWT_ACCESS_EXPIRE || '1d' }
   );
 };
 
@@ -51,10 +52,10 @@ const generateOTP = () => {
  * @returns {string} Random token
  */
 const generateResetToken = () => {
-  return require('crypto').randomBytes(32).toString('hex');
+  return crypto.randomBytes(32).toString('hex');
 };
 
-module.exports = {
+export {
   generateAccessToken,
   generateRefreshToken,
   generateTokens,
