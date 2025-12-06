@@ -2,6 +2,27 @@ import Course from '../models/Course.js';
 import Section from '../models/Section.js';
 import Lesson from '../models/Lesson.js';
 import User from '../models/User.js';
+import cloudinary from '../config/cloudinary.js';
+import multer from 'multer';
+import { Readable } from 'stream'; 
+
+
+const storage = multer.memoryStorage();
+
+const upload = multer({
+  storage: storage,
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = /jpeg|jpg|png|gif|webp/;
+    const mimetype = allowedTypes.test(file.mimetype);
+    
+    if (mimetype) {
+      return cb(null, true);
+    } else {
+      cb(new Error('Only image files are allowed!'));
+    }
+  }
+});
 
 // @desc    Get all courses
 // @route   GET /api/courses
@@ -526,4 +547,81 @@ export const deleteLesson = async (req, res) => {
     });
   }
 };
+// @desc    Upload course thumbnail
+// @route   POST /api/courses/:id/thumbnail
+// @access  Private/Admin
+// @desc    Upload course thumbnail
+// @route   POST /api/courses/:id/thumbnail
+// @access  Private/Admin
+export const uploadCourseThumbnail = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please upload a file'
+      });
+    }
 
+    const course = await Course.findById(req.params.id);
+
+    if (!course) {
+      return res.status(404).json({
+        success: false,
+        message: 'Course not found'
+      });
+    }
+
+    // ✅ Delete old thumbnail from Cloudinary if it exists
+    if (course.thumbnailPublicId) {
+      try {
+        await cloudinary.uploader.destroy(course.thumbnailPublicId);
+      } catch (deleteError) {
+        console.error('Error deleting old thumbnail:', deleteError);
+      }
+    }
+
+    // Upload to Cloudinary
+    const uploadStream = cloudinary.uploader.upload_stream(
+      {
+        folder: 'courses/thumbnails',
+        resource_type: 'image',
+        transformation: [
+          { width: 800, height: 450, crop: 'fill' },
+          { quality: 'auto' }
+        ]
+      },
+      async (error, result) => {
+        if (error) {
+          console.error('Cloudinary upload error:', error);
+          return res.status(500).json({
+            success: false,
+            message: 'Error uploading to Cloudinary'
+          });
+        }
+
+        course.thumbnail = result.secure_url;
+        course.thumbnailPublicId = result.public_id;
+        await course.save();
+
+        res.status(200).json({
+          success: true,
+          message: 'Thumbnail uploaded successfully',
+          data: {
+            thumbnail: result.secure_url
+          }
+        });
+      }
+    );
+
+    const bufferStream = Readable.from(req.file.buffer);
+    bufferStream.pipe(uploadStream);
+
+  } catch (error) {
+    console.error('Error in uploadCourseThumbnail:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+export{upload}

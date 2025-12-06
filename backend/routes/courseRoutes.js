@@ -15,7 +15,9 @@ import {
   updateSection,
   deleteSection,
   updateLesson,
-  deleteLesson
+  deleteLesson,
+  uploadCourseThumbnail,  // ✅ Add this import
+  upload  // ✅ Add this import
 } from '../controllers/courseController.js';
 import {
   createQuiz,
@@ -38,6 +40,10 @@ router.route('/:id')
   .get(getCourse)
   .put(protect, adminOnly, updateCourse)
   .delete(protect, adminOnly, deleteCourse);
+
+// ✅ Add this BEFORE /:id/structure to avoid route conflicts
+router.route('/:id/thumbnail')
+  .post(protect, adminOnly, upload.single('thumbnail'), uploadCourseThumbnail);
 
 router.route('/:id/structure')
   .get(getCourseStructure);
@@ -77,4 +83,3 @@ router.route('/quiz/:id/submit')
   .post(protect, submitQuiz);
 
 export default router;
-

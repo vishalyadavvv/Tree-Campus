@@ -111,30 +111,31 @@ const CourseBuilder = () => {
     }
   };
 
-  const handleThumbnailUpload = async (file) => {
-    try {
-      setUploadingThumbnail(true);
-      const formData = new FormData();
-      formData.append('thumbnail', file);
-      
-      const response = await api.post(`/courses/${id}/thumbnail`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
-      });
-      
-      if (response.data.success) {
-        await fetchCourseStructure();
-      } else {
-        alert('Failed to upload thumbnail');
+ const handleThumbnailUpload = async (file) => {
+  try {
+    setUploadingThumbnail(true);
+    const formData = new FormData();
+    formData.append('thumbnail', file);
+    
+    const response = await api.post(`/courses/${id}/thumbnail`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
       }
-    } catch (error) {
-      console.error('Error uploading thumbnail:', error);
-      alert('Error uploading thumbnail');
-    } finally {
-      setUploadingThumbnail(false);
+    });
+    
+    if (response.data.success) {
+      await fetchCourseStructure();
+      alert('Thumbnail uploaded successfully!');
+    } else {
+      alert('Failed to upload thumbnail');
     }
-  };
+  } catch (error) {
+    console.error('Error uploading thumbnail:', error);
+    alert(error.response?.data?.message || 'Error uploading thumbnail');
+  } finally {
+    setUploadingThumbnail(false);
+  }
+};
 
   // Section Management
   const handleAddSection = () => {
@@ -831,80 +832,33 @@ const CourseEditModal = ({ course, onSave, onClose, onThumbnailUpload, uploading
     tags: Array.isArray(course?.tags) ? course.tags : []
   });
 
-  const [newRequirement, setNewRequirement] = useState('');
-  const [newOutcome, setNewOutcome] = useState('');
-  const [newTag, setNewTag] = useState('');
 
   const handleSubmit = (e) => {
     e.preventDefault();
     onSave(formData);
   };
 
-  const handleThumbnailChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      if (file.size > 5 * 1024 * 1024) {
-        alert('File size should be less than 5MB');
-        return;
-      }
-      if (!file.type.startsWith('image/')) {
-        alert('Please upload an image file');
-        return;
-      }
-      onThumbnailUpload(file);
-    }
-  };
 
-  const addRequirement = () => {
-    if (newRequirement.trim()) {
-      setFormData(prev => ({
-        ...prev,
-        requirements: [...prev.requirements, newRequirement.trim()]
-      }));
-      setNewRequirement('');
-    }
-  };
+// 2️⃣ handleThumbnailChange function (just calls onThumbnailUpload)
+const handleThumbnailChange = (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
 
-  const removeRequirement = (oIndex) => {
-    setFormData(prev => ({
-      ...prev,
-      requirements: prev.requirements.filter((_, i) => i !== oIndex)
-    }));
-  };
+  if (file.size > 5 * 1024 * 1024) {
+    alert("File size should be less than 5MB");
+    return;
+  }
+  if (!file.type.startsWith("image/")) {
+    alert("Please upload an image file");
+    return;
+  }
 
-  const addOutcome = () => {
-    if (newOutcome.trim()) {
-      setFormData(prev => ({
-        ...prev,
-        learningOutcomes: [...prev.learningOutcomes, newOutcome.trim()]
-      }));
-      setNewOutcome('');
-    }
-  };
+  onThumbnailUpload(file); // ✅ call the prop function// ✅ call existing function
+};
 
-  const removeOutcome = (oIndex) => {
-    setFormData(prev => ({
-      ...prev,
-      learningOutcomes: prev.learningOutcomes.filter((_, i) => i !== oIndex)
-    }));
-  };
 
-  const addTag = () => {
-    if (newTag.trim()) {
-      setFormData(prev => ({
-        ...prev,
-        tags: [...prev.tags, newTag.trim()]
-      }));
-      setNewTag('');
-    }
-  };
 
-  const removeTag = (oIndex) => {
-    setFormData(prev => ({
-      ...prev,
-      tags: prev.tags.filter((_, i) => i !== oIndex)
-    }));
-  };
+ 
 
   return (
    
@@ -1032,6 +986,46 @@ const CourseEditModal = ({ course, onSave, onClose, onThumbnailUpload, uploading
                 placeholder="e.g., 8 weeks, 30 hours"
               />
             </div>
+{/* Thumbnail Upload Section */}
+<div className="md:col-span-2">
+  <label className="block text-sm font-semibold text-gray-700 mb-2">
+    Course Thumbnail
+  </label>
+
+  <div className="flex items-center space-x-4">
+    
+    {/* Thumbnail Preview */}
+    <div className="w-32 h-20 border rounded-lg overflow-hidden bg-gray-100 flex items-center justify-center">
+      {course?.thumbnail ? (
+        <img 
+          src={course.thumbnail} 
+          alt="Thumbnail" 
+          className="w-full h-full object-cover"
+        />
+      ) : (
+        <span className="text-gray-500 text-sm">No Image</span>
+      )}
+    </div>
+
+    {/* Upload Button */}
+    <div>
+      <label className="cursor-pointer bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg transition-all text-sm">
+        {uploadingThumbnail ? "Uploading..." : "Change Thumbnail"}
+        <input 
+          type="file" 
+          accept="image/*" 
+          className="hidden" 
+          onChange={handleThumbnailChange} 
+          disabled={uploadingThumbnail}
+        />
+      </label>
+
+      <p className="text-xs text-gray-500 mt-2">
+        Supported formats: JPG, PNG — Max size: 5MB
+      </p>
+    </div>
+  </div>
+</div>
 
            
           </div>

@@ -12,8 +12,12 @@ const courseSchema = new mongoose.Schema({
   },
   thumbnail: {
     type: String,
-    default: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800'
+   default:''
   },
+  thumbnailPublicId: {  
+  type: String,
+  default: ''
+},
   instructor: {
     type: String,
     required: [true, 'Please provide instructor name']

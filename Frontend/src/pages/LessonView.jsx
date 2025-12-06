@@ -322,7 +322,7 @@ const LessonView = () => {
             <div className="p-4 lg:p-6 max-w-4xl mx-auto">
               {/* Course and Section Info */}
               <div className="space-y-1">
-                <h2 className="text-base font-medium text-gray-600">
+                <h2 className="text-base font-medium text-orange-600">
                   {courseName}
                 </h2>
                 
