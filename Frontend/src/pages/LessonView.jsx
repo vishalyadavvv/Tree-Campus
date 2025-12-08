@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import api from '../services/api';
-import { FiCheck, FiChevronLeft, FiChevronRight, FiMenu, FiX, FiClock, FiBookOpen, FiChevronDown } from 'react-icons/fi';
+import { FiCheck, FiChevronLeft, FiChevronRight, FiMenu, FiX, FiClock, FiBookOpen, FiChevronDown, FiFileText, FiDownload } from 'react-icons/fi';
 
 const PopupMessage = ({ isOpen, onClose, title, message }) => {
   if (!isOpen) return null;
@@ -46,6 +46,7 @@ const LessonView = () => {
   const [loading, setLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [courseName, setCourseName] = useState('');
+  const [expandedText, setExpandedText] = useState({});
   const [popupMessage, setPopupMessage] = useState({
     isOpen: false,
     title: '',
@@ -108,6 +109,10 @@ const LessonView = () => {
           sectionTitle: section.title,
           isCompleted: completionMap.get(String(lesson._id)) || false
         }));
+
+        // Fetch quizzes for this section
+        const quizzesRes = await api.get(`/quizzes/section/${section._id}`).catch(() => ({ data: { data: [] } }));
+        const sectionQuizzes = quizzesRes.data.data || [];
         
         allCourseLessons = [...allCourseLessons, ...sectionLessons];
         
@@ -123,6 +128,7 @@ const LessonView = () => {
           _id: section._id,
           title: section.title,
           lessons: sectionLessons,
+          quizzes: sectionQuizzes,
           totalLessons: sectionLessons.length,
           completedLessons: completedInSection
         });
@@ -338,11 +344,6 @@ const LessonView = () => {
                 <h1 className="text-base lg:text-lg font-bold text-gray-900 mb-1">
                   {lesson?.title}
                 </h1>
-                {lesson?.description && (
-                  <p className="text-gray-600 text-xs leading-relaxed line-clamp-2">
-                    {lesson.description}
-                  </p>
-                )}
               </div>
 
               {/* Progress and Actions - Compact */}
@@ -536,11 +537,88 @@ const LessonView = () => {
                                         </span>
                                       )}
                                     </div>
+
+                                    {/* Text Content Preview - Shows only for current lesson */}
+                                    {isCurrent && l.textContent && (
+                                      <div className="mt-2 bg-blue-50 border border-blue-200 rounded p-2">
+                                        <p className="text-xs text-gray-700 leading-relaxed">
+                                          📖 {expandedText[l._id] ? l.textContent : l.textContent.substring(0, 100)}
+                                        </p>
+                                        {l.textContent.length > 100 && (
+                                          <button
+                                            onClick={(e) => {
+                                              e.preventDefault();
+                                              setExpandedText(prev => ({
+                                                ...prev,
+                                                [l._id]: !prev[l._id]
+                                              }));
+                                            }}
+                                            className="text-blue-600 hover:text-blue-700 text-xs font-medium mt-1"
+                                          >
+                                            {expandedText[l._id] ? 'Show Less' : 'View Full'}
+                                          </button>
+                                        )}
+                                      </div>
+                                    )}
+
+                                    {/* PDF Link - Shows only for current lesson */}
+                                    {isCurrent && l.pdfUrl && (
+                                      <div className="mt-2">
+                                        <a 
+                                          href={l.pdfUrl} 
+                                          target="_blank" 
+                                          rel="noopener noreferrer"
+                                          className="flex items-center space-x-1 text-orange-600 hover:text-orange-700 text-xs font-medium"
+                                        >
+                                          <FiFileText size={12} />
+                                          <span className="truncate">{l.pdfFileName || 'PDF'}</span>
+                                          <FiDownload size={10} />
+                                        </a>
+                                      </div>
+                                    )}
                                   </div>
                                 </div>
                               </Link>
                             );
                           })}
+                          
+                          {/* Quizzes for this section */}
+                          {section.quizzes && section.quizzes.length > 0 && (
+                            <div className="space-y-1.5 mt-3 pt-3 border-t border-gray-200">
+                              {section.quizzes.map((quiz) => (
+                                <div
+                                  key={quiz._id}
+                                  className="block p-2.5 rounded-lg hover:bg-gray-50 border border-transparent hover:border-purple-200 transition-all cursor-pointer bg-purple-50"
+                                >
+                                  <div className="flex items-start space-x-2">
+                                    <div className="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium mt-0.5 bg-purple-500 text-white">
+                                      📋
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                      <h5 className="text-sm font-medium text-gray-900 truncate">
+                                        {quiz.title}
+                                      </h5>
+                                      <div className="flex items-center mt-0.5 space-x-2">
+                                        <span className="text-xs text-gray-500">
+                                          {quiz.questions?.length || 0} Qs
+                                        </span>
+                                        {quiz.passingScore && (
+                                          <span className="text-xs text-purple-600 font-medium">
+                                            {quiz.passingScore}% pass
+                                          </span>
+                                        )}
+                                      </div>
+                                      {quiz.description && (
+                                        <p className="text-xs text-gray-600 line-clamp-2 mt-1">
+                                          {quiz.description}
+                                        </p>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          )}
                         </div>
                       )}
                     </div>

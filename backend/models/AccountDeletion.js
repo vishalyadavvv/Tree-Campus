@@ -58,12 +58,28 @@ const accountDeletionSchema = new mongoose.Schema(
     },
     userAgent: {
       type: String
+    },
+    otp: {
+      type: String,
+      select: false,
+    },
+    otpExpiry: {
+      type: Date,
+      select: false,
     }
   },
   {
     timestamps: true
   }
 );
+
+// Generate OTP method
+accountDeletionSchema.methods.generateOTP = function () {
+  const otp = Math.floor(100000 + Math.random() * 900000).toString();
+  this.otp = otp;
+  this.otpExpiry = Date.now() + 10 * 60 * 1000;
+  return otp;
+};
 
 // Index for faster email lookups
 accountDeletionSchema.index({ email: 1 });

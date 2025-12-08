@@ -16,10 +16,6 @@ const lessonSchema = new mongoose.Schema({
     required: [true, 'Please provide a lesson title'],
     trim: true
   },
-  description: {
-    type: String,
-    default: ''
-  },
   videoUrl: {
     type: String,
     required: [true, 'Please provide a video URL']
@@ -40,6 +36,22 @@ const lessonSchema = new mongoose.Schema({
   isFree: {
     type: Boolean,
     default: false
+  },
+  textContent: {
+    type: String,
+    default: ''
+  },
+  pdfUrl: {
+    type: String,
+    default: ''
+  },
+  pdfFileName: {
+    type: String,
+    default: ''
+  },
+  content: {
+    type: String,
+    default: ''
   }
 }, {
   timestamps: true

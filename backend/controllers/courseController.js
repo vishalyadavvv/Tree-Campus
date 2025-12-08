@@ -237,8 +237,18 @@ export const createLesson = async (req, res) => {
       });
     }
 
+    // If a file was uploaded via multer/uploadMiddleware
+    const pdfUrl = req.file ? req.file.path : '';
+    const pdfFileName = req.file ? req.file.originalname : '';
+
     const lesson = await Lesson.create({
-      ...req.body,
+      title: req.body.title,
+      videoUrl: req.body.videoUrl,
+      duration: req.body.duration,
+      content: req.body.content || '',
+      textContent: req.body.textContent || '',
+      pdfUrl,
+      pdfFileName,
       sectionId: req.params.id,
       courseId: section.courseId
     });
@@ -487,9 +497,23 @@ export const deleteSection = async (req, res) => {
 // @access  Private/Admin
 export const updateLesson = async (req, res) => {
   try {
+    let updateData = {
+      title: req.body.title,
+      videoUrl: req.body.videoUrl,
+      duration: req.body.duration,
+      content: req.body.content || '',
+      textContent: req.body.textContent || ''
+    };
+
+    // If a new file was uploaded via multer/uploadMiddleware
+    if (req.file) {
+      updateData.pdfUrl = req.file.path;
+      updateData.pdfFileName = req.file.originalname;
+    }
+
     const lesson = await Lesson.findByIdAndUpdate(
       req.params.id,
-      req.body,
+      updateData,
       {
         new: true,
         runValidators: true

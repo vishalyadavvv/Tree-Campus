@@ -38,11 +38,9 @@ const signup = async (req, res, next) => {
     await user.save();
 
     // Send OTP email or log for dev
-    if (process.env.NODE_ENV === 'development') {
-      console.log(`✅ [DEV] OTP for ${email}: ${otp}`);
-    } else {
+    
       await sendOTPEmail(email, name, otp);
-    }
+    
 
     res.status(201).json({
       success: true,

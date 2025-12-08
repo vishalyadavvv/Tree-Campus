@@ -74,14 +74,34 @@ const schoolRegistrationSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ['pending', 'approved', 'rejected'],
+      enum: ['pending', 'verified', 'approved', 'rejected'],
       default: 'pending'
+    },
+    otp: {
+      type: String,
+      select: false,
+    },
+    otpExpiry: {
+      type: Date,
+      select: false,
+    },
+    isVerified: {
+      type: Boolean,
+      default: false,
     }
   },
   {
     timestamps: true // Automatically adds createdAt and updatedAt fields
   }
 );
+
+// Generate OTP method
+schoolRegistrationSchema.methods.generateOTP = function () {
+  const otp = Math.floor(100000 + Math.random() * 900000).toString();
+  this.otp = otp;
+  this.otpExpiry = Date.now() + 10 * 60 * 1000;
+  return otp;
+};
 
 // Index for faster email lookups
 schoolRegistrationSchema.index({ schoolEmail: 1 });

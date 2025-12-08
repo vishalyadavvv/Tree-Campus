@@ -5,7 +5,8 @@ import {
   getAllDeletionRequests,
   getDeletionRequestById,
   updateDeletionStatus,
-  cancelDeletionRequest
+  cancelDeletionRequest,
+  verifyAccountDeletionOTP
 } from '../controllers/accountDeletion.js';
 
 
@@ -13,6 +14,9 @@ const router = express.Router();
 
 // POST /api/account-deletion-request - Submit deletion request
 router.post('/', createDeletionRequest);
+
+// POST /api/account-deletion-request/verify-otp - Verify deletion OTP
+router.post('/verify-otp', verifyAccountDeletionOTP);
 
 // GET /api/account-deletion-request/verify/:token - Verify email
 router.get('/verify/:token', verifyDeletionRequest);

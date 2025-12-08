@@ -256,3 +256,23 @@ export const submitQuiz = async (req, res) => {
   }
 };
 
+// @desc    Get all quizzes for a section
+// @route   GET /api/courses/sections/:id/quizzes
+// @access  Private
+export const getSectionQuizzes = async (req, res) => {
+  try {
+    const quizzes = await Quiz.find({ sectionId: req.params.id });
+
+    res.status(200).json({
+      success: true,
+      data: quizzes || []
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
+

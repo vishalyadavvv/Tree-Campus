@@ -4,8 +4,6 @@ import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import compression from 'compression';
-import path from 'path';
-import { fileURLToPath } from 'url';
 import connectDB from './config/db.js';
 import { errorHandler, notFound } from './middleware/errorHandler.js';
 import dashboardRoutes from './routes/dashboard.js';
@@ -25,12 +23,6 @@ import enrollmentRoutes from './routes/enrollmentRoutes.js';
 import volunteerRoutes from './routes/volunteerRoutes.js'
 import accountDeletion from './routes/accountDeletion.js';
 import registerSchool from'./routes/schoolRegistration.js';
-
-
-
-// ES Module fix for __dirname
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 // Initialize Express app
 const app = express();
@@ -55,14 +47,9 @@ app.use(
 );
 
 app.use(compression());
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use(morgan('dev')); // Logging
 app.use(express.json()); // Parse JSON bodies
 app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies
-
-// ✅ Serve static files from uploads folder
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-console.log('📁 Serving static files from:', path.join(__dirname, 'uploads'));
 
 // Health check route
 app.get('/', (req, res) => {
@@ -102,7 +89,6 @@ app.use('/api/volunteer', volunteerRoutes);
 app.use('/api/account-deletion-request', accountDeletion);
 app.use('/api/registerschool',registerSchool);
 
-
 // 404 handler
 app.use(notFound);
 
@@ -120,7 +106,7 @@ const server = app.listen(PORT, () => {
 ║  ✅ Server running on port ${PORT}                       ║
 ║  🌍 Environment: ${process.env.NODE_ENV || 'development'}                      ║
 ║  🔗 API Base URL: http://localhost:${PORT}/api           ║
-║  📁 Static files: /uploads                           ║
+║  ☁️  Using Cloudinary for media storage              ║
 ║                                                      ║
 ╚══════════════════════════════════════════════════════╝
   `);

@@ -3,6 +3,7 @@ const router = express.Router();
 import {
   createQuiz,
   getSectionQuiz,
+  getSectionQuizzes,
   updateQuiz,
   submitQuiz,
   deleteQuiz,
@@ -13,6 +14,7 @@ import { validate } from '../middleware/validate.js';
 
 // Protected routes - Student
 router.get('/lesson/:lessonId', protect, getSectionQuiz);
+router.get('/section/:id', protect, getSectionQuizzes);
 router.post('/:id/submit', protect, [
   body('answers').isArray().withMessage('Answers must be an array'),
 ], submitQuiz);

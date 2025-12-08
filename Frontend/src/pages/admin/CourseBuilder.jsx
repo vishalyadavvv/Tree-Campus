@@ -207,18 +207,27 @@ const CourseBuilder = () => {
 
   const handleSaveLesson = async (lessonData) => {
     try {
-      const formattedData = {
-        title: lessonData.title,
-        videoUrl: lessonData.videoUrl,
-        duration: lessonData.duration,
-        description: lessonData.description || '',
-        content: lessonData.content || ''
-      };
+      const formData = new FormData();
+      formData.append('title', lessonData.title);
+      formData.append('videoUrl', lessonData.videoUrl);
+      formData.append('duration', lessonData.duration);
+      formData.append('description', lessonData.description || '');
+      formData.append('content', lessonData.content || '');
+      formData.append('textContent', lessonData.textContent || '');
+
+      // Add PDF file if present
+      if (lessonData.pdfFile) {
+        formData.append('pdf', lessonData.pdfFile);
+      }
 
       if (lessonData._id) {
-        await api.put(`/courses/lessons/${lessonData._id}`, formattedData);
+        await api.put(`/courses/lessons/${lessonData._id}`, formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
       } else {
-        await api.post(`/courses/sections/${currentSectionId}/lessons`, formattedData);
+        await api.post(`/courses/sections/${currentSectionId}/lessons`, formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
       }
       await fetchCourseStructure();
       setShowLessonModal(false);
@@ -613,50 +622,50 @@ const handleSaveQuiz = async (quizData) => {
                         {section.lessons.map((lesson, lessonIndex) => (
                           <div 
                             key={lesson._id}
-                            className="bg-white rounded-xl border border-blue-200 p-5 hover:shadow-lg transition-all duration-300 hover:border-blue-300 group"
+                            className="bg-white rounded-xl border border-blue-200 p-4 hover:shadow-lg transition-all duration-300 hover:border-blue-300 group"
                           >
                             <div className="flex flex-col h-full">
                               <div className="flex-1">
-                                <div className="flex items-start justify-between mb-3">
-                                  <div className="flex items-center space-x-3">
-                                    <span className="flex items-center justify-center w-8 h-8 bg-blue-100 text-blue-600 rounded-lg text-sm font-bold">
+                                <div className="flex items-start justify-between mb-2">
+                                  <div className="flex items-center space-x-2">
+                                    <span className="flex items-center justify-center w-7 h-7 bg-blue-100 text-blue-600 rounded-lg text-xs font-bold">
                                       {lessonIndex + 1}
                                     </span>
-                                    <h5 className="font-bold text-gray-900 group-hover:text-blue-600 transition-colors">
+                                    <h5 className="font-bold text-gray-900 group-hover:text-blue-600 transition-colors text-sm">
                                       {lesson.title}
                                     </h5>
                                   </div>
                                   <div className="flex items-center space-x-1">
                                     <button 
-                                      className="p-2 text-blue-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-300"
+                                      className="p-1.5 text-blue-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-300"
                                       onClick={() => handleEditLesson(lesson, section._id)}
                                       title="Edit Lesson"
                                     >
-                                      <FiEdit2 className="w-4 h-4" />
+                                      <FiEdit2 className="w-3 h-3" />
                                     </button>
                                     <button 
-                                      className="p-2 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all duration-300"
+                                      className="p-1.5 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all duration-300"
                                       onClick={() => handleDeleteLesson(lesson._id)}
                                       title="Delete Lesson"
                                     >
-                                      <FiTrash2 className="w-4 h-4" />
+                                      <FiTrash2 className="w-3 h-3" />
                                     </button>
                                   </div>
                                 </div>
                                 
-                                <div className="space-y-3">
+                                <div className="space-y-2 text-xs">
                                   {lesson.duration && (
-                                    <div className="flex items-center space-x-2 text-sm text-gray-600">
+                                    <div className="flex items-center space-x-1.5 text-gray-600">
                                       <FiClock className="w-3 h-3 flex-shrink-0" />
                                       <span>{lesson.duration}</span>
                                     </div>
                                   )}
                                   
                                   {lesson.videoUrl && (
-                                    <div className="text-xs">
-                                      <div className="flex items-center space-x-1 text-gray-500 mb-1">
+                                    <div>
+                                      <div className="flex items-center space-x-1 text-gray-500 mb-0.5">
                                         <FiYoutube className="w-3 h-3" />
-                                        <span className="font-medium">Video URL:</span>
+                                        <span className="font-medium">Video</span>
                                       </div>
                                       <a 
                                         href={lesson.videoUrl} 
@@ -664,19 +673,30 @@ const handleSaveQuiz = async (quizData) => {
                                         rel="noopener noreferrer"
                                         className="text-blue-600 hover:text-blue-700 hover:underline truncate block flex items-center space-x-1"
                                       >
-                                        <span>{lesson.videoUrl.length > 40 ? `${lesson.videoUrl.substring(0, 40)}...` : lesson.videoUrl}</span>
-                                        <FiExternalLink className="w-3 h-3" />
+                                        <span>{lesson.videoUrl.length > 30 ? `${lesson.videoUrl.substring(0, 30)}...` : lesson.videoUrl}</span>
+                                        <FiExternalLink className="w-2.5 h-2.5" />
                                       </a>
                                     </div>
                                   )}
                                   
-                                  {lesson.description && (
-                                    <p className="text-gray-600 text-sm line-clamp-2">{lesson.description}</p>
+                                  {lesson.textContent && (
+                                    <div className="bg-blue-50 p-2 rounded-lg">
+                                      <p className="text-gray-700 line-clamp-2">{lesson.textContent}</p>
+                                    </div>
                                   )}
                                   
-                                  {lesson.content && (
-                                    <div className="text-xs text-gray-500 mt-2">
-                                      <span>Content: {lesson.content.length} characters</span>
+                                  {lesson.pdfUrl && (
+                                    <div>
+                                      <a 
+                                        href={lesson.pdfUrl} 
+                                        target="_blank" 
+                                        rel="noopener noreferrer"
+                                        className="flex items-center space-x-1.5 text-red-600 hover:text-red-700 hover:underline"
+                                      >
+                                        <FiFileText className="w-3 h-3" />
+                                        <span className="truncate">{lesson.pdfFileName || 'Download PDF'}</span>
+                                        <FiExternalLink className="w-2.5 h-2.5" />
+                                      </a>
                                     </div>
                                   )}
                                 </div>
@@ -704,84 +724,84 @@ const handleSaveQuiz = async (quizData) => {
                   </div>
 
                   {/* Quiz Section Card */}
-                  <div className="bg-gradient-to-br from-white to-green-50 rounded-2xl border border-green-100 shadow-lg p-6">
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
-                      <div className="flex items-center space-x-3 mb-4 sm:mb-0">
-                        <div className="p-3 bg-gradient-to-br from-green-500 to-green-600 rounded-xl">
-                          <FiFileText className="w-6 h-6 text-white" />
+                  <div className="bg-gradient-to-br from-white to-green-50 rounded-xl border border-green-100 shadow-md p-4">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3">
+                      <div className="flex items-center space-x-2 mb-3 sm:mb-0">
+                        <div className="p-2 bg-gradient-to-br from-green-500 to-green-600 rounded-lg">
+                          <FiFileText className="w-4 h-4 text-white" />
                         </div>
                         <div>
-                          <h4 className="text-xl font-bold text-gray-900">Quiz</h4>
-                          <p className="text-sm text-gray-500">Add a quiz to test student knowledge</p>
+                          <h4 className="text-lg font-bold text-gray-900">Quiz</h4>
+                          <p className="text-xs text-gray-500">Test student knowledge</p>
                         </div>
                       </div>
                       {!section.quiz && (
                         <button 
-                          className="flex items-center space-x-2 bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-3 rounded-xl hover:from-green-600 hover:to-green-700 transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl"
+                          className="flex items-center space-x-2 bg-gradient-to-r from-green-500 to-green-600 text-white px-4 py-2 rounded-lg text-sm hover:from-green-600 hover:to-green-700 transition-all duration-300 hover:scale-105"
                           onClick={() => handleAddQuiz(section._id)}
                         >
-                          <FiPlus className="w-4 h-4" />
+                          <FiPlus className="w-3 h-3" />
                           <span>Add Quiz</span>
                         </button>
                       )}
                     </div>
                     
                     {section.quiz ? (
-                      <div className="bg-white rounded-2xl border border-green-200 p-6 hover:shadow-lg transition-all duration-300 hover:border-green-300">
+                      <div className="bg-white rounded-lg border border-green-200 p-3 hover:shadow-md transition-all duration-300 hover:border-green-300">
                         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between">
                           <div className="flex-1">
-                            <div className="flex items-center space-x-3 mb-3">
-                              <h5 className="text-xl font-bold text-gray-900">{section.quiz.title}</h5>
-                              <span className="px-3 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded-full">
-                                {section.quiz.questions?.length || 0} Questions
+                            <div className="flex items-center space-x-2 mb-2">
+                              <h5 className="text-base font-bold text-gray-900">{section.quiz.title}</h5>
+                              <span className="px-2 py-0.5 bg-green-100 text-green-700 text-xs font-semibold rounded-full">
+                                {section.quiz.questions?.length || 0}Q
                               </span>
                             </div>
                             
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                              <div className="flex items-center space-x-2 text-sm text-gray-600">
-                                <FiBarChart2 className="w-4 h-4" />
-                                <span>Passing Score: <strong>{section.quiz.passingScore}%</strong></span>
+                            <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mb-2 text-xs">
+                              <div className="flex items-center space-x-1 text-gray-600">
+                                <FiBarChart2 className="w-3 h-3" />
+                                <span><strong>{section.quiz.passingScore}%</strong> pass</span>
                               </div>
-                              <div className="flex items-center space-x-2 text-sm text-gray-600">
-                                <FiClock className="w-4 h-4" />
-                                <span>Time Limit: <strong>{section.quiz.timeLimit || 30} mins</strong></span>
+                              <div className="flex items-center space-x-1 text-gray-600">
+                                <FiClock className="w-3 h-3" />
+                                <span><strong>{section.quiz.timeLimit || 30}</strong>m</span>
                               </div>
                             </div>
                             
                             {section.quiz.description && (
-                              <p className="text-gray-600 mb-4">{section.quiz.description}</p>
+                              <p className="text-gray-600 text-xs line-clamp-1">{section.quiz.description}</p>
                             )}
                           </div>
-                          <div className="flex items-center space-x-2 mt-4 lg:mt-0 lg:ml-4">
+                          <div className="flex items-center space-x-1 mt-2 lg:mt-0 lg:ml-3">
                             <button 
-                              className="flex items-center space-x-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white px-5 py-2.5 rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-300 hover:scale-105"
+                              className="flex items-center space-x-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white px-3 py-1.5 rounded-lg text-xs hover:from-blue-600 hover:to-blue-700 transition-all duration-300"
                               onClick={() => handleEditQuiz(section.quiz, section._id)}
                             >
-                              <FiEdit2 className="w-4 h-4" />
-                              <span>Edit Quiz</span>
+                              <FiEdit2 className="w-3 h-3" />
+                              <span>Edit</span>
                             </button>
                             <button 
-                              className="p-2.5 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all duration-300"
+                              className="p-1.5 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all duration-300"
                               onClick={() => handleDeleteQuiz(section.quiz._id)}
                               title="Delete Quiz"
                             >
-                              <FiTrash2 className="w-4 h-4" />
+                              <FiTrash2 className="w-3 h-3" />
                             </button>
                           </div>
                         </div>
                       </div>
                     ) : (
-                      <div className="text-center py-8 bg-gradient-to-br from-green-50 to-white rounded-2xl border-2 border-dashed border-green-300">
-                        <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                          <FiFileText className="w-10 h-10 text-green-500" />
+                      <div className="text-center py-4 bg-gradient-to-br from-green-50 to-white rounded-lg border-2 border-dashed border-green-300">
+                        <div className="w-14 h-14 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                          <FiFileText className="w-7 h-7 text-green-500" />
                         </div>
-                        <h5 className="text-lg font-semibold text-gray-700 mb-2">No Quiz Yet</h5>
-                        <p className="text-gray-500 mb-6">Add a quiz to test your students' knowledge</p>
+                        <h5 className="text-sm font-semibold text-gray-700 mb-1">No Quiz</h5>
+                        <p className="text-gray-500 mb-3 text-xs">Add a quiz to test knowledge</p>
                         <button 
-                          className="inline-flex items-center space-x-2 bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-3 rounded-xl hover:from-green-600 hover:to-green-700 transition-all duration-300 hover:scale-105"
+                          className="inline-flex items-center space-x-1 bg-gradient-to-r from-green-500 to-green-600 text-white px-4 py-2 rounded-lg text-xs hover:from-green-600 hover:to-green-700 transition-all duration-300 hover:scale-105"
                           onClick={() => handleAddQuiz(section._id)}
                         >
-                          <FiPlus className="w-4 h-4" />
+                          <FiPlus className="w-3 h-3" />
                           <span>Create Quiz</span>
                         </button>
                       </div>
@@ -1140,19 +1160,37 @@ const LessonModal = ({ lesson, onSave, onClose }) => {
     title: lesson?.title || '',
     videoUrl: lesson?.videoUrl || '',
     duration: lesson?.duration || '',
-    description: lesson?.description || '',
-    content: lesson?.content || ''
+    content: lesson?.content || '',
+    textContent: lesson?.textContent || '',
+    pdfUrl: lesson?.pdfUrl || '',
+    pdfFileName: lesson?.pdfFileName || ''
   });
+  const [pdfFile, setPdfFile] = useState(null);
+  const [uploadingPdf, setUploadingPdf] = useState(false);
+
+  const handlePdfChange = (e) => {
+    const file = e.target.files?.[0];
+    if (file && file.type === 'application/pdf') {
+      setPdfFile(file);
+      setFormData({ ...formData, pdfFileName: file.name });
+    } else {
+      alert('Please select a valid PDF file');
+    }
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSave({ ...lesson, ...formData });
+    const submitData = { ...lesson, ...formData };
+    if (pdfFile) {
+      submitData.pdfFile = pdfFile;
+    }
+    onSave(submitData);
   };
 
   return (
   <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 z-[9999]">
       <div 
-        className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[85vh] flex flex-col" 
+        className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col" 
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header - Fixed */}
@@ -1171,9 +1209,9 @@ const LessonModal = ({ lesson, onSave, onClose }) => {
 
         {/* Form - Scrollable */}
         <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0">
-          <div className="flex-1 overflow-y-auto p-6 space-y-5">
+          <div className="flex-1 overflow-y-auto p-4 space-y-3">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-xs font-medium text-gray-700 mb-1.5">
                 Lesson Title *
               </label>
               <input
@@ -1218,37 +1256,49 @@ const LessonModal = ({ lesson, onSave, onClose }) => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Description (Optional)
+              <label className="block text-xs font-medium text-gray-700 mb-1.5">
+                Text Content (Optional)
               </label>
               <textarea
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
-                value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                rows="3"
-                placeholder="Brief description of this lesson..."
+                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
+                value={formData.textContent}
+                onChange={(e) => setFormData({ ...formData, textContent: e.target.value })}
+                rows="2"
+                placeholder="Add text notes, lecture content..."
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Content (Optional)
+              <label className="block text-sm font-medium text-red-700 mb-2">
+                Upload PDF (Optional)
               </label>
-              <textarea
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
-                value={formData.content}
-                onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-                rows="4"
-                placeholder="Detailed lesson content, notes, or additional information..."
-              />
+              <div className="flex items-center space-x-3">
+                <input
+                  type="file"
+                  accept=".pdf"
+                  onChange={handlePdfChange}
+                 className="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg 
+focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent 
+transition-all cursor-pointer hover:bg-red-100"
+
+                />
+              </div>
+              {formData.pdfFileName && (
+                <div className="mt-2 flex items-center space-x-2 text-sm text-green-600">
+                  <FiCheckCircle className="w-4 h-4" />
+                  <span>{formData.pdfFileName}</span>
+                </div>
+              )}
             </div>
+
+            
           </div>
 
           {/* Footer - Fixed */}
-          <div className="flex space-x-3 p-6 border-t border-gray-200 bg-gray-50 flex-shrink-0">
+          <div className="flex space-x-3 p-4 border-t border-gray-200 bg-gray-50 flex-shrink-0">
             <button 
               type="submit" 
-              className="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white py-3 px-4 rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-300 hover:scale-[1.02] flex items-center justify-center space-x-2 font-medium"
+              className="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white py-2 px-4 rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-300 hover:scale-[1.02] flex items-center justify-center space-x-2 font-medium text-sm"
             >
               <FiSave className="w-4 h-4" />
 
@@ -1256,7 +1306,7 @@ const LessonModal = ({ lesson, onSave, onClose }) => {
             </button>
             <button 
               type="button" 
-              className="flex-1 bg-white border border-gray-300 text-gray-700 py-3 px-4 rounded-xl hover:bg-gray-50 transition-all duration-300 font-medium" 
+              className="flex-1 bg-white border border-gray-300 text-gray-700 py-2 px-4 rounded-xl hover:bg-gray-50 transition-all duration-300 font-medium text-sm" 
               onClick={onClose}
             >
               Cancel

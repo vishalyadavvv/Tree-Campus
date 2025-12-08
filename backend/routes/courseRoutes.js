@@ -16,8 +16,8 @@ import {
   deleteSection,
   updateLesson,
   deleteLesson,
-  uploadCourseThumbnail,  // ✅ Add this import
-  upload  // ✅ Add this import
+  uploadCourseThumbnail,
+  upload
 } from '../controllers/courseController.js';
 import {
   createQuiz,
@@ -29,6 +29,7 @@ import {
 } from '../controllers/quizController.js';
 import { protect } from '../middleware/auth.js';
 import { adminOnly } from '../middleware/adminMiddleware.js';
+import uploadMiddleware from '../middleware/uploadMiddleware.js';
 
 const router = express.Router();
 
@@ -64,14 +65,14 @@ router.route('/sections/:id')
 
 router.route('/sections/:id/lessons')
   .get(getSectionLessons)
-  .post(protect, adminOnly, createLesson);
+  .post(protect, adminOnly, uploadMiddleware.single('pdf'), createLesson);
 
 router.route('/sections/:id/quiz')
   .get(getSectionQuiz)
   .post(protect, adminOnly, createQuiz);
 
 router.route('/lessons/:id')
-  .put(protect, adminOnly, updateLesson)
+  .put(protect, adminOnly, uploadMiddleware.single('pdf'), updateLesson)
   .delete(protect, adminOnly, deleteLesson);
 
 router.route('/quiz/:id')

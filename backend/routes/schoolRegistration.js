@@ -4,7 +4,8 @@ import {
   getAllSchoolRegistrations,
   getSchoolRegistrationById,
   updateSchoolRegistrationStatus,
-  deleteSchoolRegistration
+  deleteSchoolRegistration,
+  verifySchoolOTP
 } from '../controllers/schoolRegistration.js';
 // import { validateSchoolRegistration } from '../middleware/schoolRegistrationValidator.js';
 
@@ -12,6 +13,9 @@ const router = express.Router();
 
 // POST /api/registerSchool - Submit school registration
 router.post('/',  createSchoolRegistration);
+
+// POST /api/registerSchool/verify-otp - Verify school OTP
+router.post('/verify-otp', verifySchoolOTP);
 
 // GET /api/registerSchool - Get all school registrations
 router.get('/', getAllSchoolRegistrations);

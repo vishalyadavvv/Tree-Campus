@@ -4,15 +4,18 @@ import {
   getAllVolunteers,
   getVolunteerById,
   updateVolunteerStatus,
-  deleteVolunteer
+  deleteVolunteer,
+  verifyVolunteerOTP
 } from '../controllers/volunteerController.js';
 
 
 const router = express.Router();
 
 // POST /api/volunteer - Submit volunteer application
-
 router.post('/', createVolunteer);
+
+// POST /api/volunteer/verify-otp - Verify volunteer OTP
+router.post('/verify-otp', verifyVolunteerOTP);
 
 // GET /api/volunteers - Get all volunteers
 router.get('/', getAllVolunteers);
