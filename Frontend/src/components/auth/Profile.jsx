@@ -33,36 +33,36 @@ const Profile = () => {
     });
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setMessage('');
+ const handleSubmit = async (e) => {
+  e.preventDefault();
+  setLoading(true);
+  setMessage('');
 
-    try {
-      const response = await authService.updateProfile(formData);
+  try {
+    const response = await authService.updateProfile(formData);
 
-      // Update context with new user data
-      updateUser(response);
+    // Update context with new user data
+    updateUser(response);
 
-      // Update localStorage if language changed
-      if (formData.preferredLanguage !== user.preferredLanguage) {
-        localStorage.setItem('preferredLanguage', formData.preferredLanguage);
-      }
-
-      setEditing(false);
-      setMessage('Profile updated successfully!');
-
-      // Optional: refresh the page to reflect changes
-      setTimeout(() => {
-        window.location.reload();
-      }, 1000);
-
-    } catch (error) {
-      setMessage(error.message || 'Failed to update profile');
-    } finally {
-      setLoading(false);
+    // Update localStorage if language changed
+    if (formData.preferredLanguage !== user.preferredLanguage) {
+      localStorage.setItem('preferredLanguage', formData.preferredLanguage);
     }
-  };
+
+    setEditing(false);
+    setMessage('Profile updated successfully!');
+
+    // REMOVE THIS When - it's causing the issue and is unnecessary:
+    // setTimeout(() => {
+    //   window.location.reload();
+    // }, 1000);
+
+  } catch (error) {
+    setMessage(error.message || 'Failed to update profile');
+  } finally {
+    setLoading(false);
+  }
+};
 
   const handleCancel = () => {
     setFormData({

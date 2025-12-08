@@ -29,91 +29,95 @@
   // @route   PUT /api/users/profile
   // @access  Private
   const updateProfile = async (req, res) => {
-    try {
-      console.log('Update profile request received:', req.body);
-      console.log('User ID:', req.user.id);
+  try {
+    console.log('Update profile request received:', req.body);
+    console.log('User ID:', req.user.id);
 
-      const { name, email, phone, preferredLanguage } = req.body;
+    const { name, email, phone, preferredLanguage } = req.body;
 
-      // Check if email already exists for other users
-      if (email && email !== req.user.email) {
-        const existingUser = await User.findOne({
-          email,
-          _id: { $ne: req.user.id }
-        });
-
-        if (existingUser) {
-          return res.status(400).json({
-            success: false,
-            message: 'Email already exists'
-          });
-        }
-      }
-
-      // Check if phone already exists for other users
-      if (phone && phone !== req.user.phone) {
-        const existingUser = await User.findOne({
-          phone,
-          _id: { $ne: req.user.id }
-        });
-
-        if (existingUser) {
-          return res.status(400).json({
-            success: false,
-            message: 'Phone number already exists'
-          });
-        }
-      }
-
-      // Build update object
-      const updateFields = { updatedAt: new Date() };
-      if (name) updateFields.name = name;
-      if (email) updateFields.email = email;
-      if (phone !== undefined) updateFields.phone = phone;
-      if (preferredLanguage) updateFields.preferredLanguage = preferredLanguage;
-
-      console.log('Update fields:', updateFields);
-
-      // Update user in database
-      const updatedUser = await User.findByIdAndUpdate(
-        req.user.id,
-        updateFields,
-        { new: true, runValidators: true }
-      ).select('-password');
-
-      console.log('Updated user from DB:', updatedUser);
-
-      if (!updatedUser) {
-        return res.status(404).json({
-          success: false,
-          message: 'User not found'
-        });
-      }
-
-      res.json({
-        success: true,
-        message: 'Profile updated successfully',
-        data: updatedUser
+    // Check if email already exists for other users
+    if (email && email !== req.user.email) {
+      const existingUser = await User.findOne({
+        email,
+        _id: { $ne: req.user.id }
       });
 
-    } catch (error) {
-      console.error('Update profile error:', error);
-
-      if (error.name === 'ValidationError') {
+      if (existingUser) {
         return res.status(400).json({
           success: false,
-          message: 'Validation error',
-          error: error.message
+          message: 'Email already exists'
         });
       }
+    }
 
-      res.status(500).json({
+    // Check if phone already exists for other users
+    if (phone && phone !== req.user.phone) {
+      const existingUser = await User.findOne({
+        phone,
+        _id: { $ne: req.user.id }
+      });
+
+      if (existingUser) {
+        return res.status(400).json({
+          success: false,
+          message: 'Phone number already exists'
+        });
+      }
+    }
+
+    // Build update object - REMOVE updatedAt: new Date()
+    const updateFields = {};
+    if (name) updateFields.name = name;
+    if (email) updateFields.email = email;
+    if (phone !== undefined) updateFields.phone = phone;
+    if (preferredLanguage) updateFields.preferredLanguage = preferredLanguage;
+
+    console.log('Update fields:', updateFields);
+
+    // Update user in database
+    const updatedUser = await User.findByIdAndUpdate(
+      req.user.id,
+      updateFields,
+      { 
+        new: true, 
+        runValidators: true,
+        timestamps: true  // ← ADD THIS to ensure timestamps are handled properly
+      }
+    ).select('-password');
+
+    console.log('Updated user from DB:', updatedUser);
+
+    if (!updatedUser) {
+      return res.status(404).json({
         success: false,
-        message: 'Server error',
+        message: 'User not found'
+      });
+    }
+
+    res.json({
+      success: true,
+      message: 'Profile updated successfully',
+      data: updatedUser
+    });
+
+  } catch (error) {
+    console.error('Update profile error:', error);
+
+    if (error.name === 'ValidationError') {
+      return res.status(400).json({
+        success: false,
+        message: 'Validation error',
         error: error.message
       });
     }
-  };
+
+    res.status(500).json({
+      success: false,
+      message: 'Server error',
+      error: error.message
+    });
+  }
+};
 
   /**
    * @desc    Change password

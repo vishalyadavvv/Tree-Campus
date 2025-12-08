@@ -215,7 +215,8 @@ const login = async (email, password) => {
     setUser(prevUser => {
       const updatedUser = {
         ...prevUser,
-        ...userData
+        ...userData,
+        createdAt: prevUser?.createdAt || userData.createdAt  // ← Preserve original
       };
       
       sessionStorage.setItem('user', JSON.stringify(updatedUser));
