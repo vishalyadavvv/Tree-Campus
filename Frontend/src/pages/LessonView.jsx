@@ -263,22 +263,6 @@ const LessonView = () => {
         message={popupMessage.message}
       />
 
-      {/* Mobile Header */}
-      <div className="lg:hidden sticky top-0 z-20 bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between">
-        <button
-          onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-        >
-          {sidebarOpen ? <FiX size={20} /> : <FiMenu size={20} />}
-        </button>
-        <Link 
-          to={`/courses/${courseId}`}
-          className="text-sm text-orange-600 hover:text-orange-700 font-medium"
-        >
-          Exit Lesson
-        </Link>
-      </div>
-
       {/* Mobile Overlay */}
       {sidebarOpen && (
         <div 
@@ -293,13 +277,21 @@ const LessonView = () => {
           {/* Top Bar with Back to Course */}
           <div className="bg-white border-b border-gray-200 px-4 lg:px-6 py-3 flex-shrink-0">
             <div className="flex items-center justify-between">
-              <Link 
-                to={`/courses/${courseId}`}
-                className="inline-flex items-center text-sm text-orange-600 hover:text-orange-700 font-medium"
-              >
-                <FiChevronLeft className="mr-1" size={16} />
-                Back to Course
-              </Link>
+              <div className="flex items-center space-x-2">
+                <button
+                  onClick={() => setSidebarOpen(!sidebarOpen)}
+                  className="lg:hidden p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                >
+                  {sidebarOpen ? <FiX size={20} /> : <FiMenu size={20} />}
+                </button>
+                <Link 
+                  to={`/courses/${courseId}`}
+                  className="inline-flex items-center text-sm text-orange-600 hover:text-orange-700 font-medium"
+                >
+                  <FiChevronLeft className="mr-1" size={16} />
+                  Back to Course
+                </Link>
+              </div>
               <div className="hidden lg:flex items-center space-x-2">
                 <span className="text-xs text-gray-500">Progress:</span>
                 <span className="text-sm font-bold text-orange-600">{progress?.progress || 0}%</span>
@@ -472,7 +464,7 @@ const LessonView = () => {
               </div>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-4">
+            <div className="flex-1 overflow-y-auto p-8">
               <div className="space-y-3">
                 {sectionsWithLessons.map((section) => {
                   const isExpanded = expandedSections[section._id];
@@ -612,9 +604,11 @@ const LessonView = () => {
                           {section.quizzes && section.quizzes.length > 0 && (
                             <div className="space-y-1.5 mt-3 pt-3 border-t border-gray-200">
                               {section.quizzes.map((quiz) => (
-                                <div
+                                <Link
                                   key={quiz._id}
-                                  className="block p-2.5 rounded-lg hover:bg-gray-50 border border-transparent hover:border-purple-200 transition-all cursor-pointer bg-purple-50"
+                                  to={`/courses/${courseId}/section/${section._id}/quiz`}
+                                  onClick={() => setSidebarOpen(false)}
+                                  className="block p-2.5 rounded-lg hover:bg-purple-100 border border-transparent hover:border-purple-300 transition-all cursor-pointer bg-purple-50 active:bg-purple-200"
                                 >
                                   <div className="flex items-start space-x-2">
                                     <div className="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium mt-0.5 bg-purple-500 text-white">
@@ -641,7 +635,7 @@ const LessonView = () => {
                                       )}
                                     </div>
                                   </div>
-                                </div>
+                                </Link>
                               ))}
                             </div>
                           )}

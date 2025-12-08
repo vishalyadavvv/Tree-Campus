@@ -37,10 +37,11 @@ const signup = async (req, res, next) => {
     const otp = user.generateOTP();
     await user.save();
 
-    // Send OTP email or log for dev
-    
-      await sendOTPEmail(email, name, otp);
-    
+    // Send OTP email in background (non-blocking)
+    sendOTPEmail(email, name, otp).catch(err => {
+      console.error('❌ Failed to send OTP email:', err.message);
+      // Don't fail the signup if email fails
+    });
 
     res.status(201).json({
       success: true,
@@ -138,7 +139,10 @@ const resendOTP = async (req, res, next) => {
     if (process.env.NODE_ENV === 'development') {
       console.log(`✅ [DEV] Resent OTP for ${email}: ${otp}`);
     } else {
-      await sendOTPEmail(email, user.name, otp);
+      // Send OTP email in background (non-blocking)
+      sendOTPEmail(email, user.name, otp).catch(err => {
+        console.error('❌ Failed to send OTP email:', err.message);
+      });
     }
 
     res.status(200).json({ success: true, message: 'OTP sent successfully' });
@@ -227,10 +231,12 @@ const forgotPassword = async (req, res, next) => {
     // Log OTP in development mode
     if (process.env.NODE_ENV === 'development') {
       console.log(`✅ [DEV] Password reset OTP for ${email}: ${otp}`);
+    } else {
+      // Send password reset email in background (non-blocking)
+      sendOTPEmail(email, user.name, otp, 'Password Reset').catch(err => {
+        console.error('❌ Failed to send password reset email:', err.message);
+      });
     }
-
-    // TODO: Implement email sending here
-    // await sendEmail(email, otp);
 
     res.status(200).json({ 
       success: true, 

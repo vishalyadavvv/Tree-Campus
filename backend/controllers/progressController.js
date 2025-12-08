@@ -18,105 +18,77 @@ export const completeLesson = async (req, res) => {
 
     console.log(`✅ Marking lesson ${lessonId} complete for user ${userId}`);
 
+    // Validate IDs
+    if (!userId || !lessonId) {
+      console.error('❌ Invalid userId or lessonId');
+      return res.status(400).json({ success: false, message: 'Invalid user or lesson ID' });
+    }
+
     const lesson = await Lesson.findById(lessonId);
     if (!lesson) {
       console.error(`❌ Lesson not found: ${lessonId}`);
       return res.status(404).json({ success: false, message: 'Lesson not found' });
     }
 
-    const courseId = lesson.courseId || lesson.course || lesson.courseId; // defensive
-    console.log(`📚 Lesson belongs to course: ${courseId}`);
-
-    // find or create Progress doc for this user+course
-    let progressDoc = await Progress.findOne({ user: userId, course: courseId });
-    if (!progressDoc) {
-      progressDoc = await Progress.create({ user: userId, course: courseId, completedLessons: [] });
+    const courseId = lesson.courseId;
+    if (!courseId) {
+      console.error(`❌ Course not found for lesson: ${lessonId}`);
+      return res.status(400).json({ success: false, message: 'Lesson has no associated course' });
     }
 
-    // Check if already marked completed in Progress doc (idempotent)
+    console.log(`📚 Lesson belongs to course: ${courseId}`);
+
+    // Find or create Progress document
+    let progressDoc = await Progress.findOne({ user: userId, course: courseId });
+    if (!progressDoc) {
+      console.log(`📝 Creating new progress document for user ${userId} in course ${courseId}`);
+      progressDoc = await Progress.create({ 
+        user: userId, 
+        course: courseId, 
+        completedLessons: [] 
+      });
+    }
+
+    // Check if already completed
     const alreadyCompleted = progressDoc.completedLessons.some(
-      (c) => toId(c.lesson) === toId(lessonId)
+      (c) => c.lesson.toString() === lessonId.toString()
     );
 
     if (!alreadyCompleted) {
       progressDoc.completedLessons.push({ lesson: lessonId, completedAt: new Date() });
-      // update lastAccessedAt
       progressDoc.lastAccessedAt = new Date();
       await progressDoc.save();
+      console.log(`✅ Added lesson ${lessonId} to completed lessons`);
+    } else {
+      console.log(`⏭️  Lesson ${lessonId} already completed, skipping`);
     }
 
-    // Recalculate overallProgress using the schema method (which expects course populated lessons)
-    // If method uses populate('lessons') it may rely on Course.lessons - but we'll also compute reliably:
+    // Recalculate progress
     const totalLessons = await Lesson.countDocuments({ courseId });
     const completedCount = progressDoc.completedLessons.length;
     const newProgress = totalLessons > 0 ? Math.round((completedCount / totalLessons) * 100) : 0;
 
-    // Save computed overallProgress to progressDoc
     progressDoc.overallProgress = newProgress;
     await progressDoc.save();
 
-    // Also keep User.enrolledCourses in sync if present (best-effort)
-    const user = await User.findById(userId);
-    if (user) {
-      const enrollmentIndex = (user.enrolledCourses || []).findIndex(
-        (en) => toId(en.courseId) === toId(courseId)
-      );
-      if (enrollmentIndex !== -1) {
-        user.enrolledCourses[enrollmentIndex].progress = newProgress;
-      } else {
-        // If no enrollment exists, optionally add one (comment/uncomment based on your app logic)
-        // user.enrolledCourses = user.enrolledCourses || [];
-        // user.enrolledCourses.push({ courseId, progress: newProgress });
-      }
-
-      // Optionally keep a lightweight user.completedLessons array (if your app expects it)
-      // Add only if you actually have that field and it's used elsewhere.
-      if (Array.isArray(user.completedLessons)) {
-        const userAlready = user.completedLessons.some(c => toId(c.lessonId || c.lesson) === toId(lessonId));
-        if (!userAlready) {
-          // try to match existing user schema shape (lessonId used in your original code)
-          user.completedLessons.push({ lessonId, completedAt: new Date() });
-        }
-      }
-
-      await user.save();
-    }
-
-    // Certificate generation when reaching 100%
-    if (newProgress === 100) {
-      // Check if a certificate already exists
-      const existingCertificate = await Certificate.findOne({ userId, courseId });
-      if (!existingCertificate) {
-        const certificate = await Certificate.create({
-          userId,
-          courseId,
-          completionPercentage: 100
-        });
-
-        // Try to link certificate id to user (if user has certificates array)
-        if (user && Array.isArray(user.certificates)) {
-          user.certificates.push(certificate._id);
-          await user.save();
-        }
-
-        // mark certificateIssued in progressDoc
-        progressDoc.certificateIssued = true;
-        progressDoc.certificateUrl = certificate._id; // or certificate.url (update as needed)
-        await progressDoc.save();
-      }
-    }
+    console.log(`📊 Progress updated: ${completedCount}/${totalLessons} = ${newProgress}%`);
 
     return res.status(200).json({
       success: true,
       message: 'Lesson marked as complete',
       data: {
         progress: newProgress,
-        completedLessons: completedCount
+        completedLessons: completedCount,
+        totalLessons
       }
     });
   } catch (error) {
-    console.error('completeLesson error:', error);
-    return res.status(500).json({ success: false, message: error.message });
+    console.error('❌ completeLesson error:', error.message);
+    console.error('Stack:', error.stack);
+    return res.status(500).json({ 
+      success: false, 
+      message: error.message || 'Failed to mark lesson as complete'
+    });
   }
 };
 

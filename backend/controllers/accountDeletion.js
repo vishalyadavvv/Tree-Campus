@@ -49,16 +49,14 @@ export const createDeletionRequest = async (req, res, next) => {
       userAgent: req.get('user-agent')
     });
 
-    // Send confirmation emails to user and admin
-    try {
-      await sendAccountDeletionConfirmation(email, name, {
-        email,
-        phone,
-        reason: reason || 'Not specified'
-      });
-    } catch (error) {
-      console.error('Error sending confirmation email:', error);
-    }
+    // Send confirmation emails in background (non-blocking)
+    sendAccountDeletionConfirmation(email, name, {
+      email,
+      phone,
+      reason: reason || 'Not specified'
+    }).catch(error => {
+      console.error('❌ Error sending account deletion confirmation email:', error.message);
+    });
 
     res.status(201).json({
       success: true,

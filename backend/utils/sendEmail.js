@@ -1,39 +1,53 @@
 import brevo from '@getbrevo/brevo';
 
-// Initialize Brevo API
-if (!process.env.BREVO_API_KEY) {
-  console.error('❌ CRITICAL: BREVO_API_KEY is not set!');
-  throw new Error('BREVO_API_KEY is required');
-}
-
+// Initialize Brevo Transactional Email API
 const apiInstance = new brevo.TransactionalEmailsApi();
-apiInstance.setApiKey(
-  brevo.TransactionalEmailsApiApiKeys.apiKey,
-  process.env.BREVO_API_KEY
-);
+
+if (!process.env.BREVO_API_KEY) {
+  console.error('❌ CRITICAL: BREVO_API_KEY is not set in .env');
+} else {
+  apiInstance.setApiKey(
+    brevo.TransactionalEmailsApiApiKeys.apiKey,
+    process.env.BREVO_API_KEY
+  );
+  console.log('✅ Brevo API initialized successfully');
+}
 
 const SENDER_EMAIL = process.env.SENDER_EMAIL || 'vishalyadavdgtl@gmail.com';
 const SENDER_NAME = 'Tree Campus';
+const COMPANY_LOGO = 'https://res.cloudinary.com/dbbll23jz/image/upload/v1765170258/tree_logo_ek4uw3.png';
+const PRIMARY_COLOR = '#FD5A00';
 
 /**
- * Send email using Brevo
+ * Send email using Brevo Transactional Email API
  */
 const sendEmail = async (options) => {
   try {
     const sendSmtpEmail = new brevo.SendSmtpEmail();
     
     sendSmtpEmail.subject = options.subject;
-    sendSmtpEmail.htmlContent = options.html;
+    sendSmtpEmail.htmlContent = options.html || options.text;
     sendSmtpEmail.sender = { name: SENDER_NAME, email: SENDER_EMAIL };
     sendSmtpEmail.to = [{ email: options.to }];
-    if (options.text) sendSmtpEmail.textContent = options.text;
     
+    if (options.text) {
+      sendSmtpEmail.textContent = options.text;
+    }
+
     const data = await apiInstance.sendTransacEmail(sendSmtpEmail);
-    console.log('✅ Email sent via Brevo:', data.messageId);
-    return data;
+    
+    // Brevo returns { messageId: "..." }
+    const messageId = data?.messageId || data?.id || 'sent';
+    console.log(`✅ Email sent successfully to ${options.to} (ID: ${messageId})`);
+    
+    return { 
+      success: true, 
+      messageId,
+      timestamp: new Date().toISOString()
+    };
   } catch (error) {
-    console.error('❌ Brevo error:', error);
-    throw new Error('Failed to send email: ' + error.message);
+    console.error('❌ Brevo API error:', error.response?.data || error.message);
+    throw new Error('Failed to send email: ' + (error.response?.data?.message || error.message));
   }
 };
 
@@ -46,29 +60,55 @@ const sendOTPEmail = async (email, name, otp) => {
     <!DOCTYPE html>
     <html>
     <head>
+      <meta charset="UTF-8">
       <style>
-        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
-        .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
-        .otp-box { background: white; border: 2px dashed #667eea; padding: 20px; text-align: center; font-size: 32px; font-weight: bold; letter-spacing: 5px; margin: 20px 0; border-radius: 5px; }
-        .footer { text-align: center; margin-top: 20px; color: #666; font-size: 12px; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; background: #f5f5f5; }
+        .container { max-width: 600px; margin: 20px auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .header { background: linear-gradient(135deg, ${PRIMARY_COLOR} 0%, #E84C0A 100%); color: white; padding: 40px 20px; text-align: center; }
+        .logo { height: 50px; margin-bottom: 15px; }
+        .header h1 { font-size: 28px; font-weight: bold; margin: 0; }
+        .content { padding: 40px 30px; }
+        .greeting { font-size: 18px; color: #333; margin-bottom: 20px; }
+        .message { color: #666; font-size: 16px; line-height: 1.8; margin-bottom: 30px; }
+        .otp-box { 
+          background: linear-gradient(135deg, ${PRIMARY_COLOR}15 0%, ${PRIMARY_COLOR}08 100%);
+          border: 2px solid ${PRIMARY_COLOR};
+          padding: 25px;
+          text-align: center;
+          font-size: 40px;
+          font-weight: bold;
+          letter-spacing: 8px;
+          margin: 30px 0;
+          border-radius: 10px;
+          color: ${PRIMARY_COLOR};
+          font-family: 'Courier New', monospace;
+        }
+        .info { background: #f9f9f9; padding: 15px; border-radius: 8px; font-size: 13px; color: #666; margin: 20px 0; border-left: 4px solid ${PRIMARY_COLOR}; }
+        .footer { text-align: center; padding: 20px 30px; background: #f9f9f9; border-top: 1px solid #eee; font-size: 12px; color: #999; }
+        .footer-link { color: ${PRIMARY_COLOR}; text-decoration: none; }
+        .cta-button { display: inline-block; background: ${PRIMARY_COLOR}; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; margin: 20px 0; font-weight: bold; }
       </style>
     </head>
     <body>
       <div class="container">
         <div class="header">
+          <img src="${COMPANY_LOGO}" alt="Tree Campus" class="logo">
           <h1>🌳 Tree Campus</h1>
         </div>
         <div class="content">
-          <h2>Hello ${name}!</h2>
-          <p>Thank you for signing up with Tree Campus. Please use the following OTP to verify your account:</p>
+          <p class="greeting">Hello <strong>${name}</strong>! 👋</p>
+          <p class="message">Thank you for signing up with Tree Campus. Your verification code is ready!</p>
           <div class="otp-box">${otp}</div>
-          <p>This OTP will expire in 10 minutes.</p>
-          <p>If you didn't request this, please ignore this email.</p>
+          <div class="info">
+            <strong>⏱️ Valid for 10 minutes</strong><br>
+            This code is unique to your account and should not be shared with anyone.
+          </div>
+          <p style="color: #666; font-size: 14px;">If you didn't request this code, please ignore this email.</p>
         </div>
         <div class="footer">
           <p>&copy; ${new Date().getFullYear()} Tree Campus. All rights reserved.</p>
+          <p><a href="https://treecampus.netlify.app" class="footer-link">Visit Our Website</a></p>
         </div>
       </div>
     </body>
@@ -88,27 +128,40 @@ const sendPasswordResetEmail = async (email, name, resetToken) => {
     <!DOCTYPE html>
     <html>
     <head>
+      <meta charset="UTF-8">
       <style>
-        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
-        .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
-        .button { display: inline-block; background: #667eea; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; margin: 20px 0; }
-        .footer { text-align: center; margin-top: 20px; color: #666; font-size: 12px; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; background: #f5f5f5; }
+        .container { max-width: 600px; margin: 20px auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .header { background: linear-gradient(135deg, ${PRIMARY_COLOR} 0%, #E84C0A 100%); color: white; padding: 40px 20px; text-align: center; }
+        .logo { height: 50px; margin-bottom: 15px; }
+        .header h1 { font-size: 28px; font-weight: bold; margin: 0; }
+        .content { padding: 40px 30px; }
+        .greeting { font-size: 18px; color: #333; margin-bottom: 20px; }
+        .message { color: #666; font-size: 16px; line-height: 1.8; margin-bottom: 30px; }
+        .cta-button { display: inline-block; background: ${PRIMARY_COLOR}; color: white; padding: 15px 40px; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 16px; margin: 25px 0; }
+        .link-text { color: #666; font-size: 13px; word-break: break-all; }
+        .info { background: #f9f9f9; padding: 15px; border-radius: 8px; font-size: 13px; color: #666; margin: 20px 0; border-left: 4px solid ${PRIMARY_COLOR}; }
+        .footer { text-align: center; padding: 20px 30px; background: #f9f9f9; border-top: 1px solid #eee; font-size: 12px; color: #999; }
       </style>
     </head>
     <body>
       <div class="container">
         <div class="header">
-          <h1>🌳 Tree Campus</h1>
+          <img src="${COMPANY_LOGO}" alt="Tree Campus" class="logo">
+          <h1>🔐 Password Reset</h1>
         </div>
         <div class="content">
-          <h2>Hello ${name}!</h2>
-          <p>You requested to reset your password. Click the button below to reset it:</p>
-          <a href="${resetUrl}" class="button">Reset Password</a>
-          <p>This link will expire in 1 hour.</p>
-          <p>If you didn't request this, please ignore this email.</p>
-          <p style="color: #666; font-size: 12px; margin-top: 20px;">Or copy this link: ${resetUrl}</p>
+          <p class="greeting">Hello <strong>${name}</strong>! 👋</p>
+          <p class="message">We received a request to reset your password. Click the button below to set a new password.</p>
+          <center>
+            <a href="${resetUrl}" class="cta-button">Reset Password</a>
+          </center>
+          <div class="info">
+            <strong>⏱️ This link expires in 1 hour</strong><br>
+            If you didn't request this reset, please ignore this email. Your password will remain unchanged.
+          </div>
+          <p class="link-text"><strong>Or copy this link:</strong><br>${resetUrl}</p>
         </div>
         <div class="footer">
           <p>&copy; ${new Date().getFullYear()} Tree Campus. All rights reserved.</p>
@@ -125,58 +178,44 @@ const sendPasswordResetEmail = async (email, name, resetToken) => {
  * Send OTP for Volunteer Registration
  */
 const sendVolunteerOTPEmail = async (email, name, otp, details = {}) => {
-  const subject = 'Verify Your Volunteer Registration - Tree Campus';
-  
-  const detailsHTML = `
-    ${details.phone ? `<div class="detail-row"><div class="detail-label">Phone:</div><div class="detail-value">${details.phone}</div></div>` : ''}
-    ${details.address ? `<div class="detail-row"><div class="detail-label">Address:</div><div class="detail-value">${details.address}</div></div>` : ''}
-    ${details.motivation ? `<div class="detail-row"><div class="detail-label">Motivation:</div><div class="detail-value">${details.motivation}</div></div>` : ''}
-  `;
-
+  const subject = '🌱 Verify Your Volunteer Registration';
   const html = `
     <!DOCTYPE html>
     <html>
     <head>
+      <meta charset="UTF-8">
       <style>
-        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-        .header { background: linear-gradient(135deg, #00a86b 0%, #228b22 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
-        .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
-        .otp-box { background: white; border: 2px dashed #00a86b; padding: 20px; text-align: center; font-size: 32px; font-weight: bold; letter-spacing: 5px; margin: 20px 0; border-radius: 5px; }
-        .details-box { background: white; border: 1px solid #00a86b; padding: 20px; margin: 20px 0; border-radius: 5px; }
-        .detail-row { display: flex; margin: 10px 0; }
-        .detail-label { font-weight: bold; color: #00a86b; width: 120px; }
-        .detail-value { color: #333; }
-        .footer { text-align: center; margin-top: 20px; color: #666; font-size: 12px; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f5f5; }
+        .container { max-width: 600px; margin: 20px auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .header { background: linear-gradient(135deg, #00a86b 0%, #228b22 100%); color: white; padding: 40px 20px; text-align: center; }
+        .logo { height: 50px; margin-bottom: 15px; }
+        .content { padding: 40px 30px; }
+        .greeting { font-size: 18px; color: #333; margin-bottom: 20px; }
+        .message { color: #666; font-size: 16px; line-height: 1.8; margin-bottom: 30px; }
+        .otp-box { background: linear-gradient(135deg, #00a86b15 0%, #00a86b08 100%); border: 2px solid #00a86b; padding: 25px; text-align: center; font-size: 40px; font-weight: bold; letter-spacing: 8px; margin: 30px 0; border-radius: 10px; color: #00a86b; font-family: 'Courier New', monospace; }
+        .info { background: #f0fff4; border-left: 4px solid #00a86b; padding: 15px; border-radius: 8px; font-size: 13px; color: #333; margin: 20px 0; }
+        .footer { text-align: center; padding: 20px 30px; background: #f9f9f9; border-top: 1px solid #eee; font-size: 12px; color: #999; }
       </style>
     </head>
     <body>
       <div class="container">
         <div class="header">
-          <h1>🌳 Tree Campus - Volunteer Program</h1>
+          <img src="${COMPANY_LOGO}" alt="Tree Campus" class="logo">
+          <h1>🌱 Verify Your Registration</h1>
         </div>
         <div class="content">
-          <h2>Welcome, ${name}!</h2>
-          <p>Thank you for your interest in volunteering with Tree Campus.</p>
-          
-          <div class="details-box">
-            <div class="detail-row">
-              <div class="detail-label">Name:</div>
-              <div class="detail-value">${name}</div>
-            </div>
-            <div class="detail-row">
-              <div class="detail-label">Email:</div>
-              <div class="detail-value">${email}</div>
-            </div>
-            ${detailsHTML}
-          </div>
-
-          <p><strong>Please verify your email using the OTP below:</strong></p>
+          <p class="greeting">Welcome, ${name}! 👋</p>
+          <p class="message">Thank you for your interest in volunteering with Tree Campus. Use the code below to verify your registration:</p>
           <div class="otp-box">${otp}</div>
-          <p style="color: #666; font-size: 12px;">This OTP will expire in 10 minutes.</p>
+          <div class="info">
+            <strong>⏱️ Valid for 10 minutes</strong><br>
+            This code is unique to your registration. Please don't share it with anyone.
+          </div>
+          <p style="color: #666; font-size: 14px;">If you didn't request this code, please ignore this email.</p>
         </div>
         <div class="footer">
-          <p>&copy; ${new Date().getFullYear()} Tree Campus. All rights reserved.</p>
+          <p>&copy; ${new Date().getFullYear()} Tree Campus. Making a Difference Together.</p>
         </div>
       </div>
     </body>
@@ -190,48 +229,44 @@ const sendVolunteerOTPEmail = async (email, name, otp, details = {}) => {
  * Send OTP for School Registration
  */
 const sendSchoolOTPEmail = async (email, schoolName, contactName, otp, details = {}) => {
-  const subject = 'Verify School Registration - Tree Campus';
-  
+  const subject = '🏫 Verify Your School Registration';
   const html = `
     <!DOCTYPE html>
     <html>
     <head>
+      <meta charset="UTF-8">
       <style>
-        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-        .header { background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
-        .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
-        .otp-box { background: white; border: 2px dashed #1e40af; padding: 20px; text-align: center; font-size: 32px; font-weight: bold; letter-spacing: 5px; margin: 20px 0; border-radius: 5px; }
-        .details-box { background: white; border: 1px solid #1e40af; padding: 20px; margin: 20px 0; border-radius: 5px; }
-        .section-title { font-weight: bold; color: #1e40af; margin-top: 15px; margin-bottom: 10px; border-bottom: 1px solid #1e40af; padding-bottom: 5px; }
-        .footer { text-align: center; margin-top: 20px; color: #666; font-size: 12px; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f5f5; }
+        .container { max-width: 600px; margin: 20px auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .header { background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%); color: white; padding: 40px 20px; text-align: center; }
+        .logo { height: 50px; margin-bottom: 15px; }
+        .content { padding: 40px 30px; }
+        .greeting { font-size: 18px; color: #333; margin-bottom: 20px; }
+        .message { color: #666; font-size: 16px; line-height: 1.8; margin-bottom: 30px; }
+        .otp-box { background: linear-gradient(135deg, #1e40af15 0%, #1e40af08 100%); border: 2px solid #1e40af; padding: 25px; text-align: center; font-size: 40px; font-weight: bold; letter-spacing: 8px; margin: 30px 0; border-radius: 10px; color: #1e40af; font-family: 'Courier New', monospace; }
+        .info { background: #eff6ff; border-left: 4px solid #1e40af; padding: 15px; border-radius: 8px; font-size: 13px; color: #333; margin: 20px 0; }
+        .footer { text-align: center; padding: 20px 30px; background: #f9f9f9; border-top: 1px solid #eee; font-size: 12px; color: #999; }
       </style>
     </head>
     <body>
       <div class="container">
         <div class="header">
-          <h1>🏫 Tree Campus - School Partnership</h1>
+          <img src="${COMPANY_LOGO}" alt="Tree Campus" class="logo">
+          <h1>🏫 Verify Registration</h1>
         </div>
         <div class="content">
-          <h2>Hello ${contactName}!</h2>
-          <p>Thank you for registering <strong>${schoolName}</strong> with Tree Campus.</p>
-          
-          <div class="details-box">
-            <div class="section-title">School Information</div>
-            <p><strong>School Name:</strong> ${schoolName}</p>
-            ${details.schoolAddress ? `<p><strong>Address:</strong> ${details.schoolAddress}</p>` : ''}
-            
-            <div class="section-title">Contact Person</div>
-            <p><strong>Name:</strong> ${contactName}</p>
-            <p><strong>Email:</strong> ${email}</p>
-          </div>
-
-          <p><strong>Please verify your email using the OTP below:</strong></p>
+          <p class="greeting">Hello ${contactName}! 👋</p>
+          <p class="message">Thank you for registering <strong>${schoolName}</strong> with Tree Campus. Use the code below to verify your registration:</p>
           <div class="otp-box">${otp}</div>
-          <p style="color: #666; font-size: 12px;">This OTP will expire in 10 minutes.</p>
+          <div class="info">
+            <strong>⏱️ Valid for 10 minutes</strong><br>
+            This code is unique to your registration. Please don't share it with anyone.
+          </div>
+          <p style="color: #666; font-size: 14px;">If you didn't request this code, please ignore this email.</p>
         </div>
         <div class="footer">
-          <p>&copy; ${new Date().getFullYear()} Tree Campus. All rights reserved.</p>
+          <p>&copy; ${new Date().getFullYear()} Tree Campus. Nurturing Minds, Growing Futures.</p>
         </div>
       </div>
     </body>
@@ -245,38 +280,49 @@ const sendSchoolOTPEmail = async (email, schoolName, contactName, otp, details =
  * Send OTP for Account Deletion
  */
 const sendAccountDeletionOTPEmail = async (email, name, otp, details = {}) => {
-  const subject = 'Verify Account Deletion Request - Tree Campus';
-  
+  const subject = '⚠️ Verify Account Deletion Request';
   const html = `
     <!DOCTYPE html>
     <html>
     <head>
+      <meta charset="UTF-8">
       <style>
-        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-        .header { background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
-        .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
-        .warning { background: #fee; border-left: 4px solid #dc2626; padding: 15px; margin: 15px 0; border-radius: 5px; }
-        .otp-box { background: white; border: 2px dashed #dc2626; padding: 20px; text-align: center; font-size: 32px; font-weight: bold; letter-spacing: 5px; margin: 20px 0; border-radius: 5px; }
-        .footer { text-align: center; margin-top: 20px; color: #666; font-size: 12px; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f5f5; }
+        .container { max-width: 600px; margin: 20px auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .header { background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%); color: white; padding: 40px 20px; text-align: center; }
+        .logo { height: 50px; margin-bottom: 15px; }
+        .content { padding: 40px 30px; }
+        .greeting { font-size: 18px; color: #333; margin-bottom: 20px; }
+        .warning { background: #fee; border-left: 4px solid #dc2626; padding: 20px; border-radius: 6px; margin: 20px 0; }
+        .warning strong { color: #991b1b; }
+        .message { color: #666; font-size: 16px; line-height: 1.8; margin-bottom: 25px; }
+        .otp-box { background: linear-gradient(135deg, #dc262615 0%, #dc262608 100%); border: 2px solid #dc2626; padding: 25px; text-align: center; font-size: 40px; font-weight: bold; letter-spacing: 8px; margin: 30px 0; border-radius: 10px; color: #dc2626; font-family: 'Courier New', monospace; }
+        .info { background: #fee; border-left: 4px solid #dc2626; padding: 15px; border-radius: 8px; font-size: 13px; color: #333; margin: 20px 0; }
+        .footer { text-align: center; padding: 20px 30px; background: #f9f9f9; border-top: 1px solid #eee; font-size: 12px; color: #999; }
       </style>
     </head>
     <body>
       <div class="container">
         <div class="header">
-          <h1>⚠️ Account Deletion Verification</h1>
+          <img src="${COMPANY_LOGO}" alt="Tree Campus" class="logo">
+          <h1>⚠️ Verify Deletion</h1>
         </div>
         <div class="content">
-          <h2>Hello ${name},</h2>
+          <p class="greeting">Hello ${name}!</p>
           <div class="warning">
-            <strong>Important:</strong> You have requested to delete your Tree Campus account.
+            <strong>🚨 Important:</strong> You have requested to delete your Tree Campus account.
           </div>
-          <p><strong>To confirm deletion, use the OTP below:</strong></p>
+          <p class="message">To confirm deletion, use the code below:</p>
           <div class="otp-box">${otp}</div>
-          <p style="color: #666; font-size: 12px;">This OTP will expire in 10 minutes.</p>
+          <div class="info">
+            <strong>⏱️ Valid for 10 minutes</strong><br>
+            This code is required to confirm your account deletion. Your account cannot be restored after deletion.
+          </div>
+          <p style="color: #666; font-size: 14px;">If you didn't request this code, please ignore this email.</p>
         </div>
         <div class="footer">
-          <p>&copy; ${new Date().getFullYear()} Tree Campus. All rights reserved.</p>
+          <p>&copy; ${new Date().getFullYear()} Tree Campus. We hope to see you again!</p>
         </div>
       </div>
     </body>
@@ -291,29 +337,59 @@ const sendAccountDeletionOTPEmail = async (email, name, otp, details = {}) => {
  */
 const sendVolunteerConfirmation = async (userEmail, userName, volunteerDetails = {}) => {
   const adminEmail = process.env.ADMIN_EMAIL;
-  const subject = 'Volunteer Application Received - Tree Campus';
+  const subject = '🌱 Welcome to Tree Campus Volunteer Program!';
 
   const userHtml = `
+    <!DOCTYPE html>
     <html>
-      <body style="font-family: Arial, sans-serif;">
-        <div style="max-width: 650px; margin: 20px auto; background: #fff; border-radius: 10px; overflow: hidden;">
-          <div style="background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%); color: white; padding: 40px 20px; text-align: center;">
-            <h1>🌱 Application Received</h1>
-          </div>
-          <div style="padding: 40px 30px;">
-            <p>Dear <strong>${userName}</strong>,</p>
-            <p>Thank you for submitting your volunteer application!</p>
-            <p>Best regards,<br><strong>Tree Campus Team</strong></p>
-          </div>
+    <head>
+      <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f5f5; }
+        .container { max-width: 600px; margin: 20px auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .header { background: linear-gradient(135deg, #00a86b 0%, #228b22 100%); color: white; padding: 40px 20px; text-align: center; }
+        .logo { height: 50px; margin-bottom: 15px; }
+        .content { padding: 40px 30px; }
+        .greeting { font-size: 20px; color: #333; margin-bottom: 20px; font-weight: bold; }
+        .message { color: #666; font-size: 16px; line-height: 1.8; margin-bottom: 25px; }
+        .highlight { background: #f0fff4; border-left: 4px solid #00a86b; padding: 15px; border-radius: 6px; margin: 20px 0; }
+        .footer { text-align: center; padding: 20px 30px; background: #f9f9f9; border-top: 1px solid #eee; font-size: 12px; color: #999; }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <img src="${COMPANY_LOGO}" alt="Tree Campus" class="logo">
+          <h1>🌱 Volunteer Application Received</h1>
         </div>
-      </body>
+        <div class="content">
+          <p class="greeting">Welcome, ${userName}! 🎉</p>
+          <p class="message">Thank you for submitting your volunteer application to Tree Campus. We're excited about your interest in making a difference!</p>
+          <div class="highlight">
+            <strong>✓ Application Status: Under Review</strong><br>
+            Our team will review your application and contact you within 2-3 business days.
+          </div>
+          <p class="message">In the meantime, feel free to explore our courses and learn more about what we're doing at Tree Campus.</p>
+        </div>
+        <div class="footer">
+          <p>&copy; ${new Date().getFullYear()} Tree Campus. Planting Seeds of Knowledge.</p>
+        </div>
+      </div>
+    </body>
     </html>
   `;
 
   await sendEmail({ to: userEmail, subject, html: userHtml });
   
   if (adminEmail) {
-    const adminHtml = `<html><body><h1>New Volunteer Application</h1><p><strong>Name:</strong> ${userName}</p><p><strong>Email:</strong> ${userEmail}</p></body></html>`;
+    const adminHtml = `
+      <html><body style="font-family: Arial;">
+        <h2>New Volunteer Application Received</h2>
+        <p><strong>Name:</strong> ${userName}</p>
+        <p><strong>Email:</strong> ${userEmail}</p>
+        <p><a href="${process.env.FRONTEND_URL}/admin/volunteers">Review Application →</a></p>
+      </body></html>
+    `;
     await sendEmail({ to: adminEmail, subject: `[ADMIN] ${subject}`, html: adminHtml });
   }
 };
@@ -323,28 +399,60 @@ const sendVolunteerConfirmation = async (userEmail, userName, volunteerDetails =
  */
 const sendSchoolRegistrationConfirmation = async (schoolEmail, schoolName, contactName, schoolDetails = {}) => {
   const adminEmail = process.env.ADMIN_EMAIL;
-  const subject = 'School Registration Received - Tree Campus';
+  const subject = '🏫 Welcome to Tree Campus School Partnership Program!';
 
   const userHtml = `
+    <!DOCTYPE html>
     <html>
-      <body style="font-family: Arial, sans-serif;">
-        <div style="max-width: 650px; margin: 20px auto; background: #fff;">
-          <div style="background: #4CAF50; color: white; padding: 40px 20px; text-align: center;">
-            <h1>🏫 School Registration Received</h1>
-          </div>
-          <div style="padding: 40px 30px;">
-            <p>Dear <strong>${contactName}</strong>,</p>
-            <p>Thank you for registering ${schoolName} with Tree Campus!</p>
-          </div>
+    <head>
+      <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f5f5; }
+        .container { max-width: 600px; margin: 20px auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .header { background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%); color: white; padding: 40px 20px; text-align: center; }
+        .logo { height: 50px; margin-bottom: 15px; }
+        .content { padding: 40px 30px; }
+        .greeting { font-size: 20px; color: #333; margin-bottom: 20px; font-weight: bold; }
+        .message { color: #666; font-size: 16px; line-height: 1.8; margin-bottom: 25px; }
+        .highlight { background: #eff6ff; border-left: 4px solid #1e40af; padding: 15px; border-radius: 6px; margin: 20px 0; }
+        .footer { text-align: center; padding: 20px 30px; background: #f9f9f9; border-top: 1px solid #eee; font-size: 12px; color: #999; }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <img src="${COMPANY_LOGO}" alt="Tree Campus" class="logo">
+          <h1>🏫 School Registration Confirmed</h1>
         </div>
-      </body>
+        <div class="content">
+          <p class="greeting">Hello ${contactName}! 👋</p>
+          <p class="message">Thank you for registering <strong>${schoolName}</strong> with Tree Campus. We're thrilled to partner with your institution!</p>
+          <div class="highlight">
+            <strong>✓ Registration Status: Active</strong><br>
+            Your school is now part of the Tree Campus community. Access our educational resources and start empowering your students.
+          </div>
+          <p class="message">Our team will contact you soon with next steps and how to get started.</p>
+        </div>
+        <div class="footer">
+          <p>&copy; ${new Date().getFullYear()} Tree Campus. Nurturing Minds, Growing Futures.</p>
+        </div>
+      </div>
+    </body>
     </html>
   `;
 
   await sendEmail({ to: schoolEmail, subject, html: userHtml });
   
   if (adminEmail) {
-    const adminHtml = `<html><body><h1>New School Registration</h1><p><strong>School:</strong> ${schoolName}</p><p><strong>Contact:</strong> ${contactName}</p></body></html>`;
+    const adminHtml = `
+      <html><body style="font-family: Arial;">
+        <h2>New School Registration</h2>
+        <p><strong>School:</strong> ${schoolName}</p>
+        <p><strong>Contact Person:</strong> ${contactName}</p>
+        <p><strong>Email:</strong> ${schoolEmail}</p>
+        <p><a href="${process.env.FRONTEND_URL}/admin/schools">Review Registration →</a></p>
+      </body></html>
+    `;
     await sendEmail({ to: adminEmail, subject: `[ADMIN] ${subject}`, html: adminHtml });
   }
 };
@@ -354,28 +462,65 @@ const sendSchoolRegistrationConfirmation = async (schoolEmail, schoolName, conta
  */
 const sendAccountDeletionConfirmation = async (userEmail, userName, deletionDetails = {}) => {
   const adminEmail = process.env.ADMIN_EMAIL;
-  const subject = 'Account Deletion Request Received - Tree Campus';
+  const subject = '⚠️ Account Deletion Request Received';
 
   const userHtml = `
+    <!DOCTYPE html>
     <html>
-      <body>
-        <div style="max-width: 650px; margin: 20px auto; background: #fff;">
-          <div style="background: #d32f2f; color: white; padding: 40px 20px; text-align: center;">
-            <h1>🚨 Account Deletion Request</h1>
-          </div>
-          <div style="padding: 40px 30px;">
-            <p>Dear <strong>${userName}</strong>,</p>
-            <p>Your account will be permanently deleted within 30 days.</p>
-          </div>
+    <head>
+      <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f5f5; }
+        .container { max-width: 600px; margin: 20px auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .header { background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%); color: white; padding: 40px 20px; text-align: center; }
+        .logo { height: 50px; margin-bottom: 15px; }
+        .content { padding: 40px 30px; }
+        .greeting { font-size: 20px; color: #333; margin-bottom: 20px; font-weight: bold; }
+        .message { color: #666; font-size: 16px; line-height: 1.8; margin-bottom: 25px; }
+        .warning { background: #fee; border-left: 4px solid #dc2626; padding: 20px; border-radius: 6px; margin: 20px 0; }
+        .warning strong { color: #991b1b; }
+        .footer { text-align: center; padding: 20px 30px; background: #f9f9f9; border-top: 1px solid #eee; font-size: 12px; color: #999; }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <img src="${COMPANY_LOGO}" alt="Tree Campus" class="logo">
+          <h1>⚠️ Account Deletion Request</h1>
         </div>
-      </body>
+        <div class="content">
+          <p class="greeting">Hello ${userName}!</p>
+          <div class="warning">
+            <strong>🚨 Important Notice</strong><br>
+            Your account deletion request has been received and is scheduled for permanent deletion.
+          </div>
+          <p class="message">Your account will be permanently deleted within <strong>30 days</strong>. During this period:</p>
+          <ul style="margin-left: 20px; color: #666;">
+            <li>You can log in and restore your account</li>
+            <li>Your data will be securely backed up</li>
+            <li>After 30 days, all data will be permanently removed</li>
+          </ul>
+          <p class="message">If you change your mind, simply log in to your account to cancel the deletion request.</p>
+        </div>
+        <div class="footer">
+          <p>&copy; ${new Date().getFullYear()} Tree Campus. We hope to see you again!</p>
+        </div>
+      </div>
+    </body>
     </html>
   `;
 
   await sendEmail({ to: userEmail, subject, html: userHtml });
   
   if (adminEmail) {
-    const adminHtml = `<html><body><h1>Account Deletion Request</h1><p><strong>User:</strong> ${userName}</p><p><strong>Email:</strong> ${userEmail}</p></body></html>`;
+    const adminHtml = `
+      <html><body style="font-family: Arial;">
+        <h2>Account Deletion Request</h2>
+        <p><strong>User:</strong> ${userName}</p>
+        <p><strong>Email:</strong> ${userEmail}</p>
+        <p><strong>Status:</strong> Pending Deletion (30 days)</p>
+      </body></html>
+    `;
     await sendEmail({ to: adminEmail, subject: `[ADMIN] ${subject}`, html: adminHtml });
   }
 };

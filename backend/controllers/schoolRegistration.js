@@ -54,20 +54,18 @@ export const createSchoolRegistration = async (req, res, next) => {
       status: status || 'pending'
     });
 
-    // Send confirmation emails to user and admin
-    try {
-      await sendSchoolRegistrationConfirmation(schoolEmail, schoolName, contactPersonName, {
-        schoolName,
-        schoolEmail,
-        schoolAddress,
-        schoolPhone,
-        contactPersonName,
-        contactPersonEmail,
-        contactPersonPhone
-      });
-    } catch (error) {
-      console.error('Error sending confirmation email:', error);
-    }
+    // Send confirmation emails in background (non-blocking)
+    sendSchoolRegistrationConfirmation(schoolEmail, schoolName, contactPersonName, {
+      schoolName,
+      schoolEmail,
+      schoolAddress,
+      schoolPhone,
+      contactPersonName,
+      contactPersonEmail,
+      contactPersonPhone
+    }).catch(error => {
+      console.error('❌ Error sending school registration confirmation email:', error.message);
+    });
 
     res.status(201).json({
       success: true,

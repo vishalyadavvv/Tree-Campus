@@ -72,8 +72,7 @@ volunteerSchema.methods.generateOTP = function () {
   return otp;
 };
 
-// Index for faster email lookups
-volunteerSchema.index({ email: 1 });
+
 
 // Index for status filtering
 volunteerSchema.index({ status: 1, createdAt: -1 });

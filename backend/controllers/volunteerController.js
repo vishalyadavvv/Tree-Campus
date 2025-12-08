@@ -37,18 +37,16 @@ export const createVolunteer = async (req, res, next) => {
       motivation
     });
 
-    // Send confirmation emails to user and admin
-    try {
-      await sendVolunteerConfirmation(email, name, {
-        name,
-        email,
-        phone,
-        address,
-        motivation
-      });
-    } catch (error) {
-      console.error('Error sending confirmation email:', error);
-    }
+    // Send confirmation emails in background (non-blocking)
+    sendVolunteerConfirmation(email, name, {
+      name,
+      email,
+      phone,
+      address,
+      motivation
+    }).catch(error => {
+      console.error('❌ Error sending volunteer confirmation email:', error.message);
+    });
 
     res.status(201).json({
       success: true,
