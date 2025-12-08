@@ -3,7 +3,7 @@ import nodemailer from 'nodemailer';
 // Create transporter with proper error handling
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST || 'smtp.gmail.com',
-  port: parseInt(process.env.SMTP_PORT || '465'),
+  port: parseInt(process.env.SMTP_PORT || '587'),
   secure: false, // Use TLS (not SSL)
   auth: {
     user: process.env.SMTP_USER,
