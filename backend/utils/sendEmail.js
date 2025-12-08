@@ -1,29 +1,13 @@
-import nodemailer from 'nodemailer';
+import { Resend } from 'resend';
 
-// Create transporter with proper error handling
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST || 'smtp.gmail.com',
-  port: parseInt(process.env.SMTP_PORT || '587'),
-  secure: false, // Use TLS (not SSL)
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
-  },
-  connectionTimeout: 10000,
-  socketTimeout: 10000,
-});
+// Initialize Resend with API key
+const resend = new Resend(process.env.RESEND_API_KEY);
 
-// Verify transporter configuration on startup
-transporter.verify(function (error, success) {
-  if (error) {
-    console.error('❌ Email transporter configuration error:', error);
-  } else {
-    console.log('✅ Email server is ready to send messages');
-  }
-});
+// Sender email - use your verified domain or Resend's test domain
+const SENDER_EMAIL = process.env.SENDER_EMAIL || 'Tree Campus <onboarding@resend.dev>';
 
 /**
- * Send email
+ * Send email using Resend
  * @param {object} options - Email options
  * @param {string} options.to - Recipient email
  * @param {string} options.subject - Email subject
@@ -32,17 +16,21 @@ transporter.verify(function (error, success) {
  */
 const sendEmail = async (options) => {
   try {
-    const mailOptions = {
-      from: `"Tree Campus" <${process.env.SMTP_USER}>`,
-      to: options.to,
+    const { data, error } = await resend.emails.send({
+      from: SENDER_EMAIL,
+      to: [options.to],
       subject: options.subject,
-      text: options.text,
       html: options.html,
-    };
+      text: options.text,
+    });
 
-    const info = await transporter.sendMail(mailOptions);
-    console.log('✅ Email sent:', info.messageId);
-    return info;
+    if (error) {
+      console.error('❌ Error sending email:', error);
+      throw new Error('Failed to send email: ' + error.message);
+    }
+
+    console.log('✅ Email sent successfully:', data.id);
+    return data;
   } catch (error) {
     console.error('❌ Error sending email:', error.message);
     throw new Error('Failed to send email: ' + error.message);
@@ -51,9 +39,6 @@ const sendEmail = async (options) => {
 
 /**
  * Send OTP email
- * @param {string} email - Recipient email
- * @param {string} name - Recipient name
- * @param {string} otp - OTP code
  */
 const sendOTPEmail = async (email, name, otp) => {
   const subject = 'Verify Your Tree Campus Account';
@@ -95,9 +80,6 @@ const sendOTPEmail = async (email, name, otp) => {
 
 /**
  * Send password reset email
- * @param {string} email - Recipient email
- * @param {string} name - Recipient name
- * @param {string} resetToken - Reset token
  */
 const sendPasswordResetEmail = async (email, name, resetToken) => {
   const resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`;
@@ -141,14 +123,10 @@ const sendPasswordResetEmail = async (email, name, resetToken) => {
 
 /**
  * Send OTP for Volunteer Registration
- * @param {string} email - Recipient email
- * @param {string} name - Recipient name
- * @param {string} otp - OTP code
- * @param {object} details - Volunteer details (phone, address, motivation)
  */
 const sendVolunteerOTPEmail = async (email, name, otp, details = {}) => {
   const subject = 'Verify Your Volunteer Registration - Tree Campus';
-  console.log('📧 Sending volunteer email with details:', { name, email, phone: details.phone, address: details.address, motivation: details.motivation });
+  console.log('📧 Sending volunteer email:', { name, email });
   
   const detailsHTML = `
     ${details.phone ? `<div class="detail-row"><div class="detail-label">Phone:</div><div class="detail-value">${details.phone}</div></div>` : ''}
@@ -197,7 +175,6 @@ const sendVolunteerOTPEmail = async (email, name, otp, details = {}) => {
           <p><strong>Please verify your email using the OTP below:</strong></p>
           <div class="otp-box">${otp}</div>
           <p style="color: #666; font-size: 12px;">This OTP will expire in 10 minutes.</p>
-          <p>If you didn't request this, please ignore this email.</p>
         </div>
         <div class="footer">
           <p>&copy; ${new Date().getFullYear()} Tree Campus. All rights reserved.</p>
@@ -212,15 +189,10 @@ const sendVolunteerOTPEmail = async (email, name, otp, details = {}) => {
 
 /**
  * Send OTP for School Registration
- * @param {string} email - Recipient email
- * @param {string} schoolName - School name
- * @param {string} contactName - Contact person name
- * @param {string} otp - OTP code
- * @param {object} details - School details
  */
 const sendSchoolOTPEmail = async (email, schoolName, contactName, otp, details = {}) => {
   const subject = 'Verify School Registration - Tree Campus';
-  console.log('📧 Sending school email with details:', { schoolName, email, schoolPhone: details.schoolPhone, schoolAddress: details.schoolAddress });
+  console.log('📧 Sending school email:', { schoolName, email });
   
   const html = `
     <!DOCTYPE html>
@@ -247,7 +219,7 @@ const sendSchoolOTPEmail = async (email, schoolName, contactName, otp, details =
         </div>
         <div class="content">
           <h2>Hello ${contactName}!</h2>
-          <p>Thank you for registering <strong>${schoolName}</strong> with Tree Campus. Here are your submitted details:</p>
+          <p>Thank you for registering <strong>${schoolName}</strong> with Tree Campus.</p>
           
           <div class="details-box">
             <div class="section-title">School Information</div>
@@ -257,7 +229,6 @@ const sendSchoolOTPEmail = async (email, schoolName, contactName, otp, details =
             </div>
             ${details.schoolAddress ? `<div class="detail-row"><div class="detail-label">Address:</div><div class="detail-value">${details.schoolAddress}</div></div>` : ''}
             ${details.schoolPhone ? `<div class="detail-row"><div class="detail-label">Phone:</div><div class="detail-value">${details.schoolPhone}</div></div>` : ''}
-            ${details.schoolEmail ? `<div class="detail-row"><div class="detail-label">School Email:</div><div class="detail-value">${details.schoolEmail}</div></div>` : ''}
 
             <div class="section-title">Contact Person</div>
             <div class="detail-row">
@@ -268,13 +239,11 @@ const sendSchoolOTPEmail = async (email, schoolName, contactName, otp, details =
               <div class="detail-label">Email:</div>
               <div class="detail-value">${email}</div>
             </div>
-            ${details.contactPersonPhone ? `<div class="detail-row"><div class="detail-label">Phone:</div><div class="detail-value">${details.contactPersonPhone}</div></div>` : ''}
           </div>
 
           <p><strong>Please verify your email using the OTP below:</strong></p>
           <div class="otp-box">${otp}</div>
           <p style="color: #666; font-size: 12px;">This OTP will expire in 10 minutes.</p>
-          <p>If you didn't request this, please ignore this email.</p>
         </div>
         <div class="footer">
           <p>&copy; ${new Date().getFullYear()} Tree Campus. All rights reserved.</p>
@@ -288,15 +257,10 @@ const sendSchoolOTPEmail = async (email, schoolName, contactName, otp, details =
 };
 
 /**
- * Send OTP for Account Deletion Verification
- * @param {string} email - Recipient email
- * @param {string} name - Recipient name
- * @param {string} otp - OTP code
- * @param {object} details - Deletion request details
+ * Send OTP for Account Deletion
  */
 const sendAccountDeletionOTPEmail = async (email, name, otp, details = {}) => {
   const subject = 'Verify Account Deletion Request - Tree Campus';
-  console.log('📧 Sending deletion email with details:', { name, email, phone: details.phone, reason: details.reason });
   
   const html = `
     <!DOCTYPE html>
@@ -309,10 +273,6 @@ const sendAccountDeletionOTPEmail = async (email, name, otp, details = {}) => {
         .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
         .warning { background: #fee; border-left: 4px solid #dc2626; padding: 15px; margin: 15px 0; border-radius: 5px; }
         .otp-box { background: white; border: 2px dashed #dc2626; padding: 20px; text-align: center; font-size: 32px; font-weight: bold; letter-spacing: 5px; margin: 20px 0; border-radius: 5px; }
-        .details-box { background: white; border: 1px solid #dc2626; padding: 20px; margin: 20px 0; border-radius: 5px; }
-        .detail-row { display: flex; margin: 10px 0; }
-        .detail-label { font-weight: bold; color: #dc2626; width: 120px; }
-        .detail-value { color: #333; }
         .footer { text-align: center; margin-top: 20px; color: #666; font-size: 12px; }
       </style>
     </head>
@@ -324,27 +284,11 @@ const sendAccountDeletionOTPEmail = async (email, name, otp, details = {}) => {
         <div class="content">
           <h2>Hello ${name},</h2>
           <div class="warning">
-            <strong>Important:</strong> You have requested to delete your Tree Campus account. This action is irreversible and all your data will be permanently removed.
+            <strong>Important:</strong> You have requested to delete your Tree Campus account. This action is irreversible.
           </div>
-
-          <p><strong>Request Details:</strong></p>
-          <div class="details-box">
-            <div class="detail-row">
-              <div class="detail-label">Name:</div>
-              <div class="detail-value">${name}</div>
-            </div>
-            <div class="detail-row">
-              <div class="detail-label">Email:</div>
-              <div class="detail-value">${email}</div>
-            </div>
-            ${details.phone ? `<div class="detail-row"><div class="detail-label">Phone:</div><div class="detail-value">${details.phone}</div></div>` : ''}
-            ${details.reason ? `<div class="detail-row"><div class="detail-label">Reason:</div><div class="detail-value">${details.reason}</div></div>` : ''}
-          </div>
-
-          <p><strong>To confirm your account deletion, please use the OTP below:</strong></p>
+          <p><strong>To confirm deletion, use the OTP below:</strong></p>
           <div class="otp-box">${otp}</div>
           <p style="color: #666; font-size: 12px;">This OTP will expire in 10 minutes.</p>
-          <p>If you didn't request this, please ignore this email and your account will remain active.</p>
         </div>
         <div class="footer">
           <p>&copy; ${new Date().getFullYear()} Tree Campus. All rights reserved.</p>
@@ -358,496 +302,178 @@ const sendAccountDeletionOTPEmail = async (email, name, otp, details = {}) => {
 };
 
 /**
- * Send volunteer submission confirmation to user and admin
+ * Send volunteer confirmation emails
  */
 const sendVolunteerConfirmation = async (userEmail, userName, volunteerDetails = {}) => {
-  const adminEmail = process.env.SMTP_USER;
+  const adminEmail = process.env.ADMIN_EMAIL;
   const subject = 'Volunteer Application Received - Tree Campus';
   const logoUrl = 'https://res.cloudinary.com/dbbll23jz/image/upload/v1765170258/tree_logo_ek4uw3.png';
 
   const userHtml = `
     <html>
-      <head>
-        <style>
-          body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; background-color: #f5f5f5; }
-          .container { max-width: 650px; margin: 20px auto; background-color: #ffffff; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); overflow: hidden; }
-          .header { background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%); color: white; padding: 40px 20px; text-align: center; }
-          .header img { height: 60px; margin-bottom: 15px; }
-          .header h1 { margin: 0; font-size: 24px; font-weight: 600; }
-          .content { padding: 40px 30px; }
-          .content p { margin: 15px 0; line-height: 1.6; color: #333; font-size: 15px; }
-          .details-box { background-color: #f9f9f9; border-left: 4px solid #4CAF50; padding: 20px; margin: 25px 0; border-radius: 5px; }
-          .details-box h3 { margin: 0 0 15px 0; color: #4CAF50; font-size: 16px; }
-          .detail-row { margin: 10px 0; padding: 8px 0; border-bottom: 1px solid #eee; }
-          .detail-row:last-child { border-bottom: none; }
-          .detail-label { font-weight: 600; color: #555; display: inline-block; width: 120px; }
-          .detail-value { color: #333; }
-          .footer { background-color: #f5f5f5; padding: 20px; text-align: center; border-top: 1px solid #ddd; font-size: 12px; color: #666; }
-          .footer p { margin: 5px 0; }
-        </style>
-      </head>
-      <body>
-        <div class="container">
-          <div class="header">
-            <img src="${logoUrl}" alt="Tree Campus Logo">
-            <h1>🌱 Volunteer Application Received</h1>
+      <body style="font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f5f5f5;">
+        <div style="max-width: 650px; margin: 20px auto; background: #fff; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+          <div style="background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%); color: white; padding: 40px 20px; text-align: center;">
+            <img src="${logoUrl}" alt="Tree Campus" style="height: 60px; margin-bottom: 15px;">
+            <h1 style="margin: 0; font-size: 24px;">🌱 Application Received</h1>
           </div>
-          
-          <div class="content">
+          <div style="padding: 40px 30px;">
             <p>Dear <strong>${userName}</strong>,</p>
-            
-            <p>Thank you for submitting your volunteer application to Tree Campus! We're excited to learn more about your passion for education and community service.</p>
-            
-            <p>We have successfully received your application and details. Our team will review your submission and get back to you within 3-5 business days.</p>
-            
-            <div class="details-box">
-              <h3>📋 Application Details:</h3>
-              <div class="detail-row">
-                <span class="detail-label">Name:</span>
-                <span class="detail-value">${volunteerDetails.name || 'N/A'}</span>
-              </div>
-              <div class="detail-row">
-                <span class="detail-label">Email:</span>
-                <span class="detail-value">${volunteerDetails.email || 'N/A'}</span>
-              </div>
-              <div class="detail-row">
-                <span class="detail-label">Phone:</span>
-                <span class="detail-value">${volunteerDetails.phone || 'N/A'}</span>
-              </div>
-              <div class="detail-row">
-                <span class="detail-label">Address:</span>
-                <span class="detail-value">${volunteerDetails.address || 'N/A'}</span>
-              </div>
-              <div class="detail-row">
-                <span class="detail-label">Motivation:</span>
-                <span class="detail-value">${volunteerDetails.motivation || 'N/A'}</span>
-              </div>
+            <p>Thank you for submitting your volunteer application! We'll review it and get back to you within 3-5 business days.</p>
+            <div style="background: #f9f9f9; border-left: 4px solid #4CAF50; padding: 20px; margin: 25px 0; border-radius: 5px;">
+              <h3 style="margin: 0 0 15px 0; color: #4CAF50;">📋 Application Details:</h3>
+              <p style="margin: 10px 0;"><strong>Name:</strong> ${volunteerDetails.name || 'N/A'}</p>
+              <p style="margin: 10px 0;"><strong>Email:</strong> ${volunteerDetails.email || 'N/A'}</p>
+              <p style="margin: 10px 0;"><strong>Phone:</strong> ${volunteerDetails.phone || 'N/A'}</p>
+              <p style="margin: 10px 0;"><strong>Address:</strong> ${volunteerDetails.address || 'N/A'}</p>
             </div>
-            
-            <p>If you have any questions, feel free to reach out to us. We look forward to hearing from you!</p>
-            
             <p>Best regards,<br><strong>Tree Campus Team</strong></p>
           </div>
-          
-          <div class="footer">
+          <div style="background: #f5f5f5; padding: 20px; text-align: center; font-size: 12px; color: #666;">
             <p>&copy; ${new Date().getFullYear()} Tree Campus. All rights reserved.</p>
-            <p>Empowering Education, Inspiring Change</p>
           </div>
         </div>
       </body>
     </html>
   `;
 
-  const adminHtml = `
-    <html>
-      <head>
-        <style>
-          body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; background-color: #f5f5f5; }
-          .container { max-width: 650px; margin: 20px auto; background-color: #ffffff; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); overflow: hidden; }
-          .header { background: linear-gradient(135deg, #FF9800 0%, #FB8C00 100%); color: white; padding: 40px 20px; text-align: center; }
-          .header img { height: 60px; margin-bottom: 15px; }
-          .header h1 { margin: 0; font-size: 24px; font-weight: 600; }
-          .content { padding: 40px 30px; }
-          .content p { margin: 15px 0; line-height: 1.6; color: #333; font-size: 15px; }
-          .alert-box { background-color: #fff3e0; border-left: 4px solid #FF9800; padding: 15px; margin: 20px 0; border-radius: 5px; }
-          .alert-box strong { color: #FF9800; }
-          .details-box { background-color: #f9f9f9; border-left: 4px solid #FF9800; padding: 20px; margin: 25px 0; border-radius: 5px; }
-          .details-box h3 { margin: 0 0 15px 0; color: #FF9800; font-size: 16px; }
-          .detail-row { margin: 10px 0; padding: 8px 0; border-bottom: 1px solid #eee; }
-          .detail-row:last-child { border-bottom: none; }
-          .detail-label { font-weight: 600; color: #555; display: inline-block; width: 120px; }
-          .detail-value { color: #333; }
-          .action-btn { display: inline-block; background-color: #FF9800; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; margin: 15px 0; }
-          .footer { background-color: #f5f5f5; padding: 20px; text-align: center; border-top: 1px solid #ddd; font-size: 12px; color: #666; }
-          .footer p { margin: 5px 0; }
-        </style>
-      </head>
-      <body>
-        <div class="container">
-          <div class="header">
-            <img src="${logoUrl}" alt="Tree Campus Logo">
-            <h1>🌱 New Volunteer Application</h1>
-          </div>
-          
-          <div class="content">
-            <div class="alert-box">
-              <strong>⚡ New Action Required:</strong> A volunteer application has been submitted and is awaiting your review.
-            </div>
-            
-            <p>A new volunteer has applied to Tree Campus. Please review the details below and take appropriate action.</p>
-            
-            <div class="details-box">
-              <h3>👤 Applicant Details:</h3>
-              <div class="detail-row">
-                <span class="detail-label">Name:</span>
-                <span class="detail-value">${volunteerDetails.name || 'N/A'}</span>
-              </div>
-              <div class="detail-row">
-                <span class="detail-label">Email:</span>
-                <span class="detail-value">${volunteerDetails.email || 'N/A'}</span>
-              </div>
-              <div class="detail-row">
-                <span class="detail-label">Phone:</span>
-                <span class="detail-value">${volunteerDetails.phone || 'N/A'}</span>
-              </div>
-              <div class="detail-row">
-                <span class="detail-label">Address:</span>
-                <span class="detail-value">${volunteerDetails.address || 'N/A'}</span>
-              </div>
-              <div class="detail-row">
-                <span class="detail-label">Motivation:</span>
-                <span class="detail-value">${volunteerDetails.motivation || 'N/A'}</span>
-              </div>
-            </div>
-            
-            <p>Please review this application and send a response to the applicant.</p>
-          </div>
-          
-          <div class="footer">
-            <p>&copy; ${new Date().getFullYear()} Tree Campus Admin Panel</p>
-            <p>Empowering Education, Inspiring Change</p>
-          </div>
-        </div>
-      </body>
-    </html>
-  `;
-
-  // Send to user
   await sendEmail({ to: userEmail, subject, html: userHtml });
   
-  // Send to admin
-  await sendEmail({ to: adminEmail, subject: `[ADMIN] ${subject}`, html: adminHtml });
+  if (adminEmail) {
+    const adminHtml = `
+      <html>
+        <body style="font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f5f5f5;">
+          <div style="max-width: 650px; margin: 20px auto; background: #fff; border-radius: 10px; overflow: hidden;">
+            <div style="background: linear-gradient(135deg, #FF9800 0%, #FB8C00 100%); color: white; padding: 40px 20px; text-align: center;">
+              <h1 style="margin: 0;">🌱 New Volunteer Application</h1>
+            </div>
+            <div style="padding: 40px 30px;">
+              <div style="background: #fff3e0; border-left: 4px solid #FF9800; padding: 15px; margin: 20px 0;">
+                <strong style="color: #FF9800;">⚡ Action Required:</strong> Review volunteer application
+              </div>
+              <div style="background: #f9f9f9; padding: 20px; margin: 25px 0; border-radius: 5px;">
+                <h3 style="color: #FF9800;">👤 Applicant Details:</h3>
+                <p><strong>Name:</strong> ${volunteerDetails.name || 'N/A'}</p>
+                <p><strong>Email:</strong> ${volunteerDetails.email || 'N/A'}</p>
+                <p><strong>Phone:</strong> ${volunteerDetails.phone || 'N/A'}</p>
+                <p><strong>Motivation:</strong> ${volunteerDetails.motivation || 'N/A'}</p>
+              </div>
+            </div>
+          </div>
+        </body>
+      </html>
+    `;
+    await sendEmail({ to: adminEmail, subject: `[ADMIN] ${subject}`, html: adminHtml });
+  }
 };
 
 /**
- * Send school registration confirmation to user and admin
+ * Send school registration confirmation
  */
 const sendSchoolRegistrationConfirmation = async (schoolEmail, schoolName, contactName, schoolDetails = {}) => {
-  const adminEmail = process.env.SMTP_USER;
+  const adminEmail = process.env.ADMIN_EMAIL;
   const subject = 'School Registration Received - Tree Campus';
   const logoUrl = 'https://res.cloudinary.com/dbbll23jz/image/upload/v1765170258/tree_logo_ek4uw3.png';
 
   const userHtml = `
     <html>
-      <head>
-        <style>
-          body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; background-color: #f5f5f5; }
-          .container { max-width: 650px; margin: 20px auto; background-color: #ffffff; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); overflow: hidden; }
-          .header { background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%); color: white; padding: 40px 20px; text-align: center; }
-          .header img { height: 60px; margin-bottom: 15px; }
-          .header h1 { margin: 0; font-size: 24px; font-weight: 600; }
-          .content { padding: 40px 30px; }
-          .content p { margin: 15px 0; line-height: 1.6; color: #333; font-size: 15px; }
-          .details-box { background-color: #f9f9f9; border-left: 4px solid #4CAF50; padding: 20px; margin: 25px 0; border-radius: 5px; }
-          .details-box h3 { margin: 0 0 15px 0; color: #4CAF50; font-size: 16px; }
-          .detail-row { margin: 10px 0; padding: 8px 0; border-bottom: 1px solid #eee; }
-          .detail-row:last-child { border-bottom: none; }
-          .detail-label { font-weight: 600; color: #555; display: inline-block; width: 140px; }
-          .detail-value { color: #333; }
-          .footer { background-color: #f5f5f5; padding: 20px; text-align: center; border-top: 1px solid #ddd; font-size: 12px; color: #666; }
-          .footer p { margin: 5px 0; }
-        </style>
-      </head>
-      <body>
-        <div class="container">
-          <div class="header">
-            <img src="${logoUrl}" alt="Tree Campus Logo">
-            <h1>🏫 School Registration Received</h1>
+      <body style="font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f5f5f5;">
+        <div style="max-width: 650px; margin: 20px auto; background: #fff; border-radius: 10px; overflow: hidden;">
+          <div style="background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%); color: white; padding: 40px 20px; text-align: center;">
+            <img src="${logoUrl}" alt="Tree Campus" style="height: 60px; margin-bottom: 15px;">
+            <h1 style="margin: 0;">🏫 School Registration Received</h1>
           </div>
-          
-          <div class="content">
+          <div style="padding: 40px 30px;">
             <p>Dear <strong>${contactName}</strong>,</p>
-            
-            <p>Thank you for registering your school with Tree Campus! We're thrilled to partner with ${schoolName} in our mission to transform education.</p>
-            
-            <p>We have successfully received your registration. Our team will verify your school details and reach out within 3-5 business days to provide you with access and next steps.</p>
-            
-            <div class="details-box">
-              <h3>🏢 School Registration Details:</h3>
-              <div class="detail-row">
-                <span class="detail-label">School Name:</span>
-                <span class="detail-value">${schoolName || 'N/A'}</span>
-              </div>
-              <div class="detail-row">
-                <span class="detail-label">School Email:</span>
-                <span class="detail-value">${schoolDetails.schoolEmail || 'N/A'}</span>
-              </div>
-              <div class="detail-row">
-                <span class="detail-label">School Address:</span>
-                <span class="detail-value">${schoolDetails.schoolAddress || 'N/A'}</span>
-              </div>
-              <div class="detail-row">
-                <span class="detail-label">School Phone:</span>
-                <span class="detail-value">${schoolDetails.schoolPhone || 'N/A'}</span>
-              </div>
-              <div class="detail-row">
-                <span class="detail-label">Contact Person:</span>
-                <span class="detail-value">${contactName || 'N/A'}</span>
-              </div>
-              <div class="detail-row">
-                <span class="detail-label">Contact Email:</span>
-                <span class="detail-value">${schoolDetails.contactPersonEmail || 'N/A'}</span>
-              </div>
+            <p>Thank you for registering ${schoolName} with Tree Campus! We'll verify your details and reach out within 3-5 business days.</p>
+            <div style="background: #f9f9f9; border-left: 4px solid #4CAF50; padding: 20px; margin: 25px 0;">
+              <h3 style="color: #4CAF50;">🏢 School Details:</h3>
+              <p><strong>School:</strong> ${schoolName}</p>
+              <p><strong>Contact:</strong> ${contactName}</p>
+              <p><strong>Email:</strong> ${schoolEmail}</p>
             </div>
-            
-            <p>If you have any questions before we contact you, please don't hesitate to reach out.</p>
-            
             <p>Best regards,<br><strong>Tree Campus Team</strong></p>
           </div>
-          
-          <div class="footer">
-            <p>&copy; ${new Date().getFullYear()} Tree Campus. All rights reserved.</p>
-            <p>Empowering Education, Inspiring Change</p>
-          </div>
         </div>
       </body>
     </html>
   `;
 
-  const adminHtml = `
-    <html>
-      <head>
-        <style>
-          body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; background-color: #f5f5f5; }
-          .container { max-width: 650px; margin: 20px auto; background-color: #ffffff; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); overflow: hidden; }
-          .header { background: linear-gradient(135deg, #FF9800 0%, #FB8C00 100%); color: white; padding: 40px 20px; text-align: center; }
-          .header img { height: 60px; margin-bottom: 15px; }
-          .header h1 { margin: 0; font-size: 24px; font-weight: 600; }
-          .content { padding: 40px 30px; }
-          .content p { margin: 15px 0; line-height: 1.6; color: #333; font-size: 15px; }
-          .alert-box { background-color: #fff3e0; border-left: 4px solid #FF9800; padding: 15px; margin: 20px 0; border-radius: 5px; }
-          .alert-box strong { color: #FF9800; }
-          .details-box { background-color: #f9f9f9; border-left: 4px solid #FF9800; padding: 20px; margin: 25px 0; border-radius: 5px; }
-          .details-box h3 { margin: 0 0 15px 0; color: #FF9800; font-size: 16px; }
-          .detail-row { margin: 10px 0; padding: 8px 0; border-bottom: 1px solid #eee; }
-          .detail-row:last-child { border-bottom: none; }
-          .detail-label { font-weight: 600; color: #555; display: inline-block; width: 140px; }
-          .detail-value { color: #333; }
-          .footer { background-color: #f5f5f5; padding: 20px; text-align: center; border-top: 1px solid #ddd; font-size: 12px; color: #666; }
-          .footer p { margin: 5px 0; }
-        </style>
-      </head>
-      <body>
-        <div class="container">
-          <div class="header">
-            <img src="${logoUrl}" alt="Tree Campus Logo">
-            <h1>🌱 New School Registration</h1>
-          </div>
-          
-          <div class="content">
-            <div class="alert-box">
-              <strong>⚡ New Action Required:</strong> A school has registered and is awaiting your verification.
-            </div>
-            
-            <p>A new school has registered with Tree Campus. Please review the details below and verify their information.</p>
-            
-            <div class="details-box">
-              <h3>🏢 School Details:</h3>
-              <div class="detail-row">
-                <span class="detail-label">School Name:</span>
-                <span class="detail-value">${schoolName || 'N/A'}</span>
-              </div>
-              <div class="detail-row">
-                <span class="detail-label">School Email:</span>
-                <span class="detail-value">${schoolDetails.schoolEmail || 'N/A'}</span>
-              </div>
-              <div class="detail-row">
-                <span class="detail-label">School Address:</span>
-                <span class="detail-value">${schoolDetails.schoolAddress || 'N/A'}</span>
-              </div>
-              <div class="detail-row">
-                <span class="detail-label">School Phone:</span>
-                <span class="detail-value">${schoolDetails.schoolPhone || 'N/A'}</span>
-              </div>
-              <div class="detail-row">
-                <span class="detail-label">Contact Person:</span>
-                <span class="detail-value">${contactName || 'N/A'}</span>
-              </div>
-              <div class="detail-row">
-                <span class="detail-label">Contact Email:</span>
-                <span class="detail-value">${schoolDetails.contactPersonEmail || 'N/A'}</span>
-              </div>
-              <div class="detail-row">
-                <span class="detail-label">Contact Phone:</span>
-                <span class="detail-value">${schoolDetails.contactPersonPhone || 'N/A'}</span>
-              </div>
-            </div>
-            
-            <p>Please verify this school and send them their login credentials.</p>
-          </div>
-          
-          <div class="footer">
-            <p>&copy; ${new Date().getFullYear()} Tree Campus Admin Panel</p>
-            <p>Empowering Education, Inspiring Change</p>
-          </div>
-        </div>
-      </body>
-    </html>
-  `;
-
-  // Send to user
   await sendEmail({ to: schoolEmail, subject, html: userHtml });
   
-  // Send to admin
-  await sendEmail({ to: adminEmail, subject: `[ADMIN] ${subject}`, html: adminHtml });
+  if (adminEmail) {
+    const adminHtml = `
+      <html>
+        <body style="font-family: Arial, sans-serif;">
+          <div style="max-width: 650px; margin: 20px auto; background: #fff; border-radius: 10px; overflow: hidden;">
+            <div style="background: linear-gradient(135deg, #FF9800 0%, #FB8C00 100%); color: white; padding: 40px 20px; text-align: center;">
+              <h1>🏫 New School Registration</h1>
+            </div>
+            <div style="padding: 40px 30px;">
+              <div style="background: #fff3e0; border-left: 4px solid #FF9800; padding: 15px; margin: 20px 0;">
+                <strong style="color: #FF9800;">⚡ Action Required:</strong> Verify school registration
+              </div>
+              <p><strong>School:</strong> ${schoolName}</p>
+              <p><strong>Contact:</strong> ${contactName}</p>
+              <p><strong>Email:</strong> ${schoolEmail}</p>
+            </div>
+          </div>
+        </body>
+      </html>
+    `;
+    await sendEmail({ to: adminEmail, subject: `[ADMIN] ${subject}`, html: adminHtml });
+  }
 };
 
 /**
- * Send account deletion confirmation to user and admin
+ * Send account deletion confirmation
  */
 const sendAccountDeletionConfirmation = async (userEmail, userName, deletionDetails = {}) => {
-  const adminEmail = process.env.SMTP_USER;
+  const adminEmail = process.env.ADMIN_EMAIL;
   const subject = 'Account Deletion Request Received - Tree Campus';
-  const logoUrl = 'https://res.cloudinary.com/dbbll23jz/image/upload/v1765170258/tree_logo_ek4uw3.png';
 
   const userHtml = `
     <html>
-      <head>
-        <style>
-          body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; background-color: #f5f5f5; }
-          .container { max-width: 650px; margin: 20px auto; background-color: #ffffff; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); overflow: hidden; }
-          .header { background: linear-gradient(135deg, #d32f2f 0%, #c62828 100%); color: white; padding: 40px 20px; text-align: center; }
-          .header img { height: 60px; margin-bottom: 15px; filter: brightness(0) invert(1); }
-          .header h1 { margin: 0; font-size: 24px; font-weight: 600; }
-          .content { padding: 40px 30px; }
-          .content p { margin: 15px 0; line-height: 1.6; color: #333; font-size: 15px; }
-          .warning-box { background-color: #ffebee; border-left: 4px solid #d32f2f; padding: 20px; margin: 25px 0; border-radius: 5px; }
-          .warning-box h3 { margin: 0 0 10px 0; color: #d32f2f; font-size: 16px; }
-          .warning-box p { margin: 5px 0; color: #c62828; font-size: 14px; }
-          .details-box { background-color: #f9f9f9; border-left: 4px solid #d32f2f; padding: 20px; margin: 25px 0; border-radius: 5px; }
-          .details-box h3 { margin: 0 0 15px 0; color: #d32f2f; font-size: 16px; }
-          .detail-row { margin: 10px 0; padding: 8px 0; border-bottom: 1px solid #eee; }
-          .detail-row:last-child { border-bottom: none; }
-          .detail-label { font-weight: 600; color: #555; display: inline-block; width: 120px; }
-          .detail-value { color: #333; }
-          .footer { background-color: #f5f5f5; padding: 20px; text-align: center; border-top: 1px solid #ddd; font-size: 12px; color: #666; }
-          .footer p { margin: 5px 0; }
-        </style>
-      </head>
-      <body>
-        <div class="container">
-          <div class="header">
-            <img src="${logoUrl}" alt="Tree Campus Logo">
+      <body style="font-family: Arial, sans-serif;">
+        <div style="max-width: 650px; margin: 20px auto; background: #fff; border-radius: 10px; overflow: hidden;">
+          <div style="background: linear-gradient(135deg, #d32f2f 0%, #c62828 100%); color: white; padding: 40px 20px; text-align: center;">
             <h1>🚨 Account Deletion Request</h1>
           </div>
-          
-          <div class="content">
+          <div style="padding: 40px 30px;">
             <p>Dear <strong>${userName}</strong>,</p>
-            
-            <p>We have received your account deletion request. We understand your decision and respect your choice.</p>
-            
-            <div class="warning-box">
-              <h3>⚠️ Important Notice:</h3>
+            <div style="background: #ffebee; border-left: 4px solid #d32f2f; padding: 20px; margin: 20px 0;">
               <p><strong>Your account will be permanently deleted within 30 days.</strong></p>
-              <p>This action cannot be undone. All your data, progress, and achievements will be permanently removed from our system.</p>
+              <p>This action cannot be undone.</p>
             </div>
-            
-            <div class="details-box">
-              <h3>📋 Deletion Request Details:</h3>
-              <div class="detail-row">
-                <span class="detail-label">Email:</span>
-                <span class="detail-value">${deletionDetails.email || 'N/A'}</span>
-              </div>
-              <div class="detail-row">
-                <span class="detail-label">Phone:</span>
-                <span class="detail-value">${deletionDetails.phone || 'N/A'}</span>
-              </div>
-              <div class="detail-row">
-                <span class="detail-label">Reason:</span>
-                <span class="detail-value">${deletionDetails.reason || 'Not specified'}</span>
-              </div>
-            </div>
-            
-            <p>If you have any questions or wish to cancel this request, please contact us immediately at ${process.env.SMTP_USER}.</p>
-            
-            <p>Thank you for being part of the Tree Campus community.</p>
-            
+            <p>If you wish to cancel this request, please contact us immediately.</p>
             <p>Best regards,<br><strong>Tree Campus Team</strong></p>
           </div>
-          
-          <div class="footer">
-            <p>&copy; ${new Date().getFullYear()} Tree Campus. All rights reserved.</p>
-            <p>Empowering Education, Inspiring Change</p>
-          </div>
         </div>
       </body>
     </html>
   `;
 
-  const adminHtml = `
-    <html>
-      <head>
-        <style>
-          body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; background-color: #f5f5f5; }
-          .container { max-width: 650px; margin: 20px auto; background-color: #ffffff; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); overflow: hidden; }
-          .header { background: linear-gradient(135deg, #d32f2f 0%, #c62828 100%); color: white; padding: 40px 20px; text-align: center; }
-          .header img { height: 60px; margin-bottom: 15px; filter: brightness(0) invert(1); }
-          .header h1 { margin: 0; font-size: 24px; font-weight: 600; }
-          .content { padding: 40px 30px; }
-          .content p { margin: 15px 0; line-height: 1.6; color: #333; font-size: 15px; }
-          .alert-box { background-color: #ffebee; border-left: 4px solid #d32f2f; padding: 15px; margin: 20px 0; border-radius: 5px; }
-          .alert-box strong { color: #d32f2f; }
-          .details-box { background-color: #f9f9f9; border-left: 4px solid #d32f2f; padding: 20px; margin: 25px 0; border-radius: 5px; }
-          .details-box h3 { margin: 0 0 15px 0; color: #d32f2f; font-size: 16px; }
-          .detail-row { margin: 10px 0; padding: 8px 0; border-bottom: 1px solid #eee; }
-          .detail-row:last-child { border-bottom: none; }
-          .detail-label { font-weight: 600; color: #555; display: inline-block; width: 120px; }
-          .detail-value { color: #333; }
-          .footer { background-color: #f5f5f5; padding: 20px; text-align: center; border-top: 1px solid #ddd; font-size: 12px; color: #666; }
-          .footer p { margin: 5px 0; }
-        </style>
-      </head>
-      <body>
-        <div class="container">
-          <div class="header">
-            <img src="${logoUrl}" alt="Tree Campus Logo">
-            <h1>🚨 Account Deletion Request</h1>
-          </div>
-          
-          <div class="content">
-            <div class="alert-box">
-              <strong>⚠️ Alert:</strong> A user has requested account deletion. The account will be permanently deleted in 30 days unless cancelled.
-            </div>
-            
-            <p>A user has submitted an account deletion request. Please review the details below.</p>
-            
-            <div class="details-box">
-              <h3>👤 User Details:</h3>
-              <div class="detail-row">
-                <span class="detail-label">Name:</span>
-                <span class="detail-value">${userName || 'N/A'}</span>
-              </div>
-              <div class="detail-row">
-                <span class="detail-label">Email:</span>
-                <span class="detail-value">${deletionDetails.email || 'N/A'}</span>
-              </div>
-              <div class="detail-row">
-                <span class="detail-label">Phone:</span>
-                <span class="detail-value">${deletionDetails.phone || 'N/A'}</span>
-              </div>
-              <div class="detail-row">
-                <span class="detail-label">Reason:</span>
-                <span class="detail-value">${deletionDetails.reason || 'Not specified'}</span>
-              </div>
-            </div>
-            
-            <p>The account will be automatically deleted after 30 days if not cancelled. Consider reaching out to the user to understand their concerns.</p>
-          </div>
-          
-          <div class="footer">
-            <p>&copy; ${new Date().getFullYear()} Tree Campus Admin Panel</p>
-            <p>Empowering Education, Inspiring Change</p>
-          </div>
-        </div>
-      </body>
-    </html>
-  `;
-
-  // Send to user
   await sendEmail({ to: userEmail, subject, html: userHtml });
   
-  // Send to admin
-  await sendEmail({ to: adminEmail, subject: `[ADMIN] ${subject}`, html: adminHtml });
+  if (adminEmail) {
+    const adminHtml = `
+      <html>
+        <body style="font-family: Arial, sans-serif;">
+          <div style="max-width: 650px; margin: 20px auto; background: #fff;">
+            <div style="background: #d32f2f; color: white; padding: 40px 20px; text-align: center;">
+              <h1>🚨 Account Deletion Request</h1>
+            </div>
+            <div style="padding: 40px 30px;">
+              <p><strong>User:</strong> ${userName}</p>
+              <p><strong>Email:</strong> ${userEmail}</p>
+              <p><strong>Reason:</strong> ${deletionDetails.reason || 'Not specified'}</p>
+            </div>
+          </div>
+        </body>
+      </html>
+    `;
+    await sendEmail({ to: adminEmail, subject: `[ADMIN] ${subject}`, html: adminHtml });
+  }
 };
 
 export {
