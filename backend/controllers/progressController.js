@@ -16,12 +16,16 @@ export const completeLesson = async (req, res) => {
     const userId = req.user._id;
     const lessonId = req.params.id;
 
+    console.log(`✅ Marking lesson ${lessonId} complete for user ${userId}`);
+
     const lesson = await Lesson.findById(lessonId);
     if (!lesson) {
+      console.error(`❌ Lesson not found: ${lessonId}`);
       return res.status(404).json({ success: false, message: 'Lesson not found' });
     }
 
     const courseId = lesson.courseId || lesson.course || lesson.courseId; // defensive
+    console.log(`📚 Lesson belongs to course: ${courseId}`);
 
     // find or create Progress doc for this user+course
     let progressDoc = await Progress.findOne({ user: userId, course: courseId });

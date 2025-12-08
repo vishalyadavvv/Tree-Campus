@@ -47,6 +47,7 @@ const LessonView = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [courseName, setCourseName] = useState('');
   const [expandedText, setExpandedText] = useState({});
+  const [completingLesson, setCompletingLesson] = useState(false);
   const [popupMessage, setPopupMessage] = useState({
     isOpen: false,
     title: '',
@@ -157,11 +158,23 @@ const LessonView = () => {
 
   const markAsComplete = async () => {
     try {
-      await api.post(`/progress/lesson/${lessonId}/complete`);
-      fetchLessonData(true);
+      setCompletingLesson(true);
+      const response = await api.post(`/progress/lesson/${lessonId}/complete`);
+      console.log('✅ Lesson completion response:', response.data);
+      // Optimistic update - immediately show as completed
+      setProgress(prev => ({
+        ...prev,
+        progress: Math.min(100, (prev?.progress || 0) + 5) // Increment progress
+      }));
+      // Then fetch fresh data to confirm
+      await fetchLessonData(true);
+      showPopupMessage('Success', '✓ Lesson marked as complete!');
     } catch (error) {
-      console.error('Error marking lesson complete:', error);
-      showPopupMessage('Error', 'Unable to mark lesson as complete. Please try again.');
+      console.error('❌ Error marking lesson complete:', error);
+      const errorMsg = error.response?.data?.message || error.message || 'Failed to mark lesson as complete';
+      showPopupMessage('Error', errorMsg);
+    } finally {
+      setCompletingLesson(false);
     }
   };
 
@@ -384,10 +397,23 @@ const LessonView = () => {
                     {!isCompleted ? (
                       <button
                         onClick={markAsComplete}
-                        className="w-full py-2 rounded-lg font-medium transition-all flex items-center justify-center bg-orange-500 hover:bg-orange-600 text-white shadow-sm hover:shadow-md cursor-pointer text-sm"
+                        disabled={completingLesson}
+                        className="w-full py-2 rounded-lg font-medium transition-all flex items-center justify-center bg-orange-500 hover:bg-orange-600 text-white shadow-sm hover:shadow-md cursor-pointer text-sm disabled:opacity-60 disabled:cursor-not-allowed"
                       >
-                        <FiCheck className="mr-2" size={16} />
-                        Mark as Complete
+                        {completingLesson ? (
+                          <>
+                            <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            Marking...
+                          </>
+                        ) : (
+                          <>
+                            <FiCheck className="mr-2" size={16} />
+                            Mark as Complete
+                          </>
+                        )}
                       </button>
                     ) : (
                       <div className="w-full py-2 bg-green-500 text-white rounded-lg font-medium flex items-center justify-center shadow-sm text-sm">
