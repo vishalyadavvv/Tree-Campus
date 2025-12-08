@@ -2,11 +2,15 @@ import nodemailer from 'nodemailer';
 
 // Create transporter with proper error handling
 const transporter = nodemailer.createTransport({
-  service: 'gmail', // Use Gmail service
+  host: process.env.SMTP_HOST || 'smtp.gmail.com',
+  port: parseInt(process.env.SMTP_PORT || '587'),
+  secure: false, // Use TLS (not SSL)
   auth: {
     user: process.env.SMTP_USER,
     pass: process.env.SMTP_PASS,
   },
+  connectionTimeout: 10000,
+  socketTimeout: 10000,
 });
 
 // Verify transporter configuration on startup
