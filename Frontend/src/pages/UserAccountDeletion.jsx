@@ -67,7 +67,7 @@ const AccountDeletionForm = () => {
     setSubmitStatus(null);
 
     try {
-      const response = await axios.post('http://localhost:4000/api/account-deletion-request', {
+      const response = await axios.post(import.meta.env.VITE_API_URL + '/account-deletion-request', {
         ...formData,
         phone: formData.phone.replace(/\D/g, ''),
         submittedAt: new Date().toISOString(),

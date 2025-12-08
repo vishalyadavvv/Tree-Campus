@@ -64,7 +64,8 @@
         });
 
         // ✅ FIXED: Construct full URL properly
-        const thumbnailUrl = `http://localhost:4000${response.data.data.url}`;
+        const baseUrl = import.meta.env.VITE_API_URL.replace('/api', '');
+        const thumbnailUrl = `${baseUrl}${response.data.data.url}`;
         
         setFormData(prev => ({
           ...prev,

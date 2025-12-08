@@ -3,7 +3,7 @@ import axios from 'axios';
 import { FiSearch, FiEye, FiCheck, FiX, FiRefreshCw, FiUsers } from 'react-icons/fi';
 import DashboardLayout from '../../components/Layout/DashboardLayout';
 
-const API_BASE_URL = 'http://localhost:4000/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://tree-campus.onrender.com/api';
 
 const VolunteerManagement = () => {
   const [volunteers, setVolunteers] = useState([]);

@@ -59,9 +59,10 @@ const BlogManagement = () => {
         }
       });
 
+      const baseUrl = import.meta.env.VITE_API_URL.replace('/api', '');
       setFormData(prev => ({
         ...prev,
-        thumbnail: `http://localhost:4000${response.data.data.url}`
+        thumbnail: `${baseUrl}${response.data.data.url}`
       }));
     } catch (error) {
       console.error('Error uploading thumbnail:', error);

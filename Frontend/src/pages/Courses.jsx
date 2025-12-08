@@ -17,7 +17,7 @@ const Courses = () => {
   const [visibleStats, setVisibleStats] = useState([]);
 
   // API Base URL - adjust this to match your backend
-  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
+  const API_URL = import.meta.env.VITE_API_URL || 'https://tree-campus.onrender.com/api';
 
   useEffect(() => {
     // Trigger animations

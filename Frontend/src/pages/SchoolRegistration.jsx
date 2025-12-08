@@ -99,7 +99,7 @@ const SchoolRegistration = () => {
     setSubmitStatus(null);
 
     try {
-      const response = await axios.post('http://localhost:4000/api/registerSchool', {
+      const response = await axios.post(import.meta.env.VITE_API_URL + '/registerSchool', {
         ...formData,
         schoolPhone: formData.schoolPhone.replace(/\D/g, ''),
         contactPersonPhone: formData.contactPersonPhone.replace(/\D/g, ''),
