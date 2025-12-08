@@ -64,7 +64,8 @@ const translations = {
   }
 };
 
-const  Login = () => {
+
+const Login = () => {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -79,7 +80,7 @@ const  Login = () => {
     return savedLanguage || 'english';
   });
 
-  const { login } = useContext(AuthContext);
+  const { login, refreshUser } = useContext(AuthContext); // ⭐ ADD refreshUser
   const navigate = useNavigate();
   const location = useLocation();
   
@@ -131,71 +132,75 @@ const  Login = () => {
     setError('');
   };
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  e.stopPropagation();
-  
-  if (loading) return;
-  
-  setError('');
-
-  if (!formData.email || !formData.password || !formData.role) {
-    setError(t.fillAllFields);
-    return;
-  }
-
-  setLoading(true);
-
-  try {
-    const result = await login(formData.email, formData.password);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
     
-    console.log('Login result:', result);
+    if (loading) return;
     
-    if (result && result.success) {
-      // Get user role from server response
-      const userRole = result.user?.role;
+    setError('');
+
+    if (!formData.email || !formData.password || !formData.role) {
+      setError(t.fillAllFields);
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const result = await login(formData.email, formData.password);
       
-      // Route based on role
-      const redirectPath = userRole === 'admin' ? '/admin' : '/dashboard';
+      console.log('✅ Login result:', result);
       
-      console.log('Navigating to:', redirectPath);
+      if (result && result.success) {
+        // ⭐ FETCH FRESH PROFILE DATA FROM DATABASE
+        console.log('🔄 Fetching fresh profile data...');
+        await refreshUser();
+        console.log('✅ Profile data refreshed');
+        
+        // Get user role from server response
+        const userRole = result.user?.role;
+        
+        // Route based on role
+        const redirectPath = userRole === 'admin' ? '/admin' : '/dashboard';
+        
+        console.log('➡️ Navigating to:', redirectPath);
+        
+        // Use navigate for SPA routing
+        navigate(redirectPath, { replace: true });
+        
+      } else {
+        // Show error message without reloading page
+        setError(result?.message || t.loginFailed);
+        setLoading(false);
+      }
+    } catch (err) {
+      console.error('❌ Login error:', err);
       
-      // Use navigate for SPA routing
-      navigate(redirectPath, { replace: true });
+      let errorMessage = t.loginFailed;
       
-    } else {
-      // Show error message without reloading page
-      setError(result?.message || t.loginFailed);
+      // Handle different error types
+      if (err.response?.status === 401) {
+        errorMessage = t.incorrectPassword;
+      } else if (err.response?.status === 404) {
+        errorMessage = t.userNotFound;
+      } else if (err.message) {
+        const errorMsg = err.message.toLowerCase();
+        if (errorMsg.includes('password') || errorMsg.includes('incorrect') || errorMsg.includes('invalid') || errorMsg.includes('wrong') || errorMsg.includes('credentials')) {
+          errorMessage = t.incorrectPassword;
+        } else if (errorMsg.includes('user') || errorMsg.includes('not found') || errorMsg.includes('exist') || errorMsg.includes('email')) {
+          errorMessage = t.userNotFound;
+        } else if (errorMsg.includes('network') || errorMsg.includes('fetch') || errorMsg.includes('connection')) {
+          errorMessage = 'Network error. Please check your connection.';
+        } else {
+          errorMessage = err.message;
+        }
+      }
+      
+      setError(errorMessage);
       setLoading(false);
     }
-  } catch (err) {
-    console.error('Login error:', err);
-    
-    let errorMessage = t.loginFailed;
-    
-    // Handle different error types
-    if (err.response?.status === 401) {
-      errorMessage = t.incorrectPassword;
-    } else if (err.response?.status === 404) {
-      errorMessage = t.userNotFound;
-    } else if (err.message) {
-      const errorMsg = err.message.toLowerCase();
-      if (errorMsg.includes('password') || errorMsg.includes('incorrect') || errorMsg.includes('invalid') || errorMsg.includes('wrong') || errorMsg.includes('credentials')) {
-        errorMessage = t.incorrectPassword;
-      } else if (errorMsg.includes('user') || errorMsg.includes('not found') || errorMsg.includes('exist') || errorMsg.includes('email')) {
-        errorMessage = t.userNotFound;
-      } else if (errorMsg.includes('network') || errorMsg.includes('fetch') || errorMsg.includes('connection')) {
-        errorMessage = 'Network error. Please check your connection.';
-      } else {
-        errorMessage = err.message;
-      }
-    }
-    
-    setError(errorMessage);
-    setLoading(false);
-  }
-};
-
+  };
   return (
     <>
       {showFullScreenWelcome && (

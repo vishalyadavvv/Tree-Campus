@@ -14,6 +14,8 @@ const Profile = () => {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
 
+
+
   // Sync form data with current user data
   useEffect(() => {
     if (user) {
@@ -33,36 +35,44 @@ const Profile = () => {
     });
   };
 
- const handleSubmit = async (e) => {
+const handleSubmit = async (e) => {
   e.preventDefault();
   setLoading(true);
   setMessage('');
 
   try {
-    const response = await authService.updateProfile(formData);
+    const updatedUser = await authService.updateProfile(formData);
 
-    // Update context with new user data
-    updateUser(response);
+    if (!updatedUser) {
+      throw new Error("Updated user not received from server");
+    }
 
-    // Update localStorage if language changed
-    if (formData.preferredLanguage !== user.preferredLanguage) {
-      localStorage.setItem('preferredLanguage', formData.preferredLanguage);
+    // update global auth context
+    updateUser(updatedUser);
+
+    // IMPORTANT FIX: instantly update UI/local form state
+    setFormData({
+      name: updatedUser.name || "",
+      email: updatedUser.email || "",
+      phone: updatedUser.phone || "",
+      preferredLanguage: updatedUser.preferredLanguage || "en",
+    });
+
+    // save language if changed
+    if (formData.preferredLanguage !== updatedUser.preferredLanguage) {
+      localStorage.setItem("preferredLanguage", updatedUser.preferredLanguage);
     }
 
     setEditing(false);
-    setMessage('Profile updated successfully!');
-
-    // REMOVE THIS When - it's causing the issue and is unnecessary:
-    // setTimeout(() => {
-    //   window.location.reload();
-    // }, 1000);
+    setMessage("Profile updated successfully!");
 
   } catch (error) {
-    setMessage(error.message || 'Failed to update profile');
+    setMessage(error.message || "Failed to update profile");
   } finally {
     setLoading(false);
   }
 };
+
 
   const handleCancel = () => {
     setFormData({
@@ -74,7 +84,7 @@ const Profile = () => {
     setEditing(false);
     setMessage('');
   };
-
+  
   return (
     <div className="min-h-screen bg-gray-50 py-12">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">

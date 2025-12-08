@@ -160,43 +160,83 @@ const login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
 
-    const user = await User.findOne({ email }).select('+password');
+    // ⭐ POPULATE ALL USER DATA INCLUDING COURSES AND LESSONS
+    const user = await User.findOne({ email })
+      .select('+password')
+      .populate({
+        path: 'enrolledCourses.courseId',
+        select: 'title thumbnail category'
+      })
+      .populate({
+        path: 'completedLessons.lessonId',
+        select: 'title'
+      })
+      .populate('certificates');
 
     if (!user) {
-      return res.status(401).json({ success: false, message: 'Invalid credentials' });
+      return res.status(401).json({ 
+        success: false, 
+        message: 'Invalid credentials' 
+      });
     }
 
     const isPasswordMatch = await user.comparePassword(password);
     if (!isPasswordMatch) {
-      return res.status(401).json({ success: false, message: 'Invalid credentials' });
+      return res.status(401).json({ 
+        success: false, 
+        message: 'Invalid credentials' 
+      });
     }
 
     if (!user.isVerified) {
-      return res.status(403).json({ success: false, message: 'Please verify your email first' });
+      return res.status(403).json({ 
+        success: false, 
+        message: 'Please verify your email first' 
+      });
     }
 
-    // ⭐ FIX ROLE CASE HERE
     user.role = user.role.toLowerCase();
-
     const tokens = generateTokens(user._id);
+
+    // Remove sensitive fields
+    const userObject = user.toObject();
+    delete userObject.password;
+    delete userObject.otp;
+    delete userObject.otpExpiry;
+    delete userObject.resetPasswordToken;
+    delete userObject.resetPasswordExpiry;
+
+    console.log('✅ Login successful, sending user data:', {
+      id: userObject._id,
+      email: userObject.email,
+      enrolledCoursesCount: userObject.enrolledCourses?.length || 0,
+      completedLessonsCount: userObject.completedLessons?.length || 0
+    });
 
     res.status(200).json({
       success: true,
       message: 'Login successful',
       data: {
         user: {
-          id: user._id,
-          name: user.name,
-          email: user.email,
-          role: user.role,           // now always lowercase
-          isVerified: user.isVerified,
-          phone: user.phone,
+          id: userObject._id,
+          name: userObject.name,
+          email: userObject.email,
+          role: userObject.role,
+          isVerified: userObject.isVerified,
+          phone: userObject.phone,
+          createdAt: userObject.createdAt,
+          updatedAt: userObject.updatedAt,
+          profilePicture: userObject.profilePicture || '',
+          enrolledCourses: userObject.enrolledCourses || [],
+          completedLessons: userObject.completedLessons || [],
+          certificates: userObject.certificates || [],
         },
         ...tokens,
       },
     });
 
   } catch (error) {
+    console.error('❌ Login error:', error);
     next(error);
   }
 };
@@ -371,11 +411,20 @@ const logout = async (req, res, next) => {
  */
 const getProfile = async (req, res, next) => {
   try {
-    // req.user is already set by protect middleware
+    console.log('🔍 Fetching profile for user:', req.user.id);
+
     const user = await User.findById(req.user.id)
       .select('-password -otp -otpExpiry -resetPasswordToken -resetPasswordExpiry')
-      .populate('enrolledCourses.courseId', 'title thumbnail')
-      .populate('certificates');
+      .populate({
+        path: 'enrolledCourses.courseId',
+        select: 'title thumbnail category'
+      })
+      .populate({
+        path: 'completedLessons.lessonId',
+        select: 'title'
+      })
+      .populate('certificates')
+      .lean();
 
     if (!user) {
       return res.status(404).json({
@@ -383,6 +432,13 @@ const getProfile = async (req, res, next) => {
         message: 'User not found',
       });
     }
+
+    console.log('✅ Profile data found:', {
+      id: user._id,
+      email: user.email,
+      enrolledCoursesCount: user.enrolledCourses?.length || 0,
+      completedLessonsCount: user.completedLessons?.length || 0
+    });
 
     res.status(200).json({
       success: true,
@@ -393,18 +449,19 @@ const getProfile = async (req, res, next) => {
         phone: user.phone,
         role: user.role,
         isVerified: user.isVerified,
-        profilePicture: user.profilePicture,
+        profilePicture: user.profilePicture || '',
         createdAt: user.createdAt,
-        enrolledCourses: user.enrolledCourses,
-        completedLessons: user.completedLessons,
-        certificates: user.certificates,
+        updatedAt: user.updatedAt,
+        enrolledCourses: user.enrolledCourses || [],
+        completedLessons: user.completedLessons || [],
+        certificates: user.certificates || [],
       },
     });
   } catch (error) {
+    console.error('❌ Get profile error:', error);
     next(error);
   }
 };
-
 
 export {
   signup,

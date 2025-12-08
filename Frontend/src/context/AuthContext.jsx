@@ -1,7 +1,5 @@
-// client/src/context/AuthContext.jsx
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import { authService } from '../services/authService';
-import api from '../services/api';
 
 export const AuthContext = createContext();
 
@@ -10,38 +8,10 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-
   // Check if user is logged in on mount
   useEffect(() => {
     checkAuth();
   }, []);
-
-  // Fetch fresh user data from server
-  const fetchUserProfile = async () => {
-    try {
-      const token = sessionStorage.getItem('token');
-
-      if (!token) return null;
-
-      const response = await fetch(import.meta.env.VITE_API_URL + '/auth/profile', {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch profile');
-      }
-
-      const data = await response.json();
-      return data.user || data.data?.user || data;
-    } catch (err) {
-      console.error('Failed to fetch user profile:', err);
-      return null;
-    }
-  };
 
   const checkAuth = async () => {
     try {
@@ -53,108 +23,108 @@ export const AuthProvider = ({ children }) => {
         return;
       }
 
-      // Fetch fresh user data from server on page load
-      const freshUser = await fetchUserProfile();
-
-      if (freshUser) {
-        setUser(freshUser);
-         sessionStorage.setItem('user', JSON.stringify(freshUser));
-      } else {
-        // If fetch failed, try localStorage as fallback
-          const rawUser = sessionStorage.getItem('user');
-        
-        if (rawUser && rawUser !== "null" && rawUser !== "undefined") {
-          try {
-            const savedUser = JSON.parse(rawUser);
-            setUser(savedUser);
-          } catch (e) {
-            console.error('Failed to parse user from localStorage:', e);
-            localStorage.removeItem('user');
-            setUser(null);
-          }
-        } else {
-          setUser(null);
+      // Try to get user from sessionStorage first (FAST)
+      const savedUser = sessionStorage.getItem('user');
+      if (savedUser && savedUser !== "null" && savedUser !== "undefined") {
+        try {
+          const parsedUser = JSON.parse(savedUser);
+          setUser(parsedUser);
+          setLoading(false);
+          
+          // Refresh data in background (don't block UI)
+          refreshUserInBackground();
+          return;
+        } catch (e) {
+          console.error('Failed to parse saved user');
         }
       }
+
+      // If no saved user, fetch from server
+      await refreshUser();
 
     } catch (err) {
       console.error('Auth check failed:', err);
-      const rawUser = localStorage.getItem('user');
-      if (rawUser && rawUser !== "null" && rawUser !== "undefined") {
-        try {
-          const savedUser = JSON.parse(rawUser);
-          setUser(savedUser);
-        } catch (e) {
-          localStorage.removeItem('token');
-          localStorage.removeItem('user');
-          setUser(null);
-        }
-      }
+      sessionStorage.removeItem('token');
+      sessionStorage.removeItem('user');
+      setUser(null);
     } finally {
       setLoading(false);
     }
   };
 
-const login = async (email, password) => {
-  try {
-    setError(null);
-    setLoading(true);
+  // Refresh user data in background (non-blocking)
+  const refreshUserInBackground = async () => {
+    try {
+      const token = sessionStorage.getItem('token');
+      if (!token) return;
 
-    const response = await authService.login(email, password);
+      const response = await fetch(import.meta.env.VITE_API_URL + '/auth/profile', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
 
-    console.log('✅ Full API response:', response);
-    console.log('✅ Response data:', response.data);
-
-    // authService returns the FULL axios response object
-    // So backend data is at: response.data
-    // Backend structure: response.data = { success, message, data: { user, accessToken, refreshToken } }
-    
-    const apiData = response.data; // This is your backend's response
-    
-    if (!apiData || apiData.success === false) {
-      throw new Error(apiData?.message || "Invalid email or password");
+      if (response.ok) {
+        const data = await response.json();
+        const freshUser = data.user || data.data;
+        if (freshUser) {
+          setUser(freshUser);
+          sessionStorage.setItem('user', JSON.stringify(freshUser));
+        }
+      }
+    } catch (err) {
+      console.error('Background refresh failed:', err);
     }
+  };
 
-    // Save tokens - they're inside apiData.data (backend's nested "data" key)
-    if (apiData.data?.accessToken) {
-      sessionStorage.setItem('token', apiData.data.accessToken);
-      console.log('✅ Token saved');
-    }
-    if (apiData.data?.refreshToken) {
-      sessionStorage.setItem('refreshToken', apiData.data.refreshToken);
-      console.log('✅ Refresh token saved');
-    }
+  const login = async (email, password) => {
+    try {
+      setError(null);
+      setLoading(true);
 
-    // Save user - also inside apiData.data
-    if (apiData.data?.user) {
-      const userData = apiData.data.user;
-      sessionStorage.setItem('user', JSON.stringify(userData));
-      setUser(userData);
+      const response = await authService.login(email, password);
+      const apiData = response.data;
+
+      if (!apiData || apiData.success === false) {
+        throw new Error(apiData?.message || "Invalid email or password");
+      }
+
+      // Save tokens
+      if (apiData.data?.accessToken) {
+        sessionStorage.setItem('token', apiData.data.accessToken);
+      }
+      if (apiData.data?.refreshToken) {
+        sessionStorage.setItem('refreshToken', apiData.data.refreshToken);
+      }
+
+      // Save user
+      if (apiData.data?.user) {
+        const userData = apiData.data.user;
+        sessionStorage.setItem('user', JSON.stringify(userData));
+        setUser(userData);
+      }
+
+      setLoading(false);
+
+      return {
+        success: apiData.success,
+        user: apiData.data.user,
+        message: apiData.message
+      };
+
+    } catch (err) {
+      console.error('Login error:', err);
+      setError(err.message || "Login failed");
+      setLoading(false);
       
-      console.log('✅ User saved:', userData);
+      return {
+        success: false,
+        message: err.message || "Login failed"
+      };
     }
-
-    setLoading(false);
-
-    // Return in the format Login.jsx expects
-    return {
-      success: apiData.success,
-      user: apiData.data.user,
-      message: apiData.message
-    };
-
-  } catch (err) {
-    console.error('❌ Login error in AuthContext:', err);
-    
-    setError(err.message || "Login failed");
-    setLoading(false);
-    
-    return {
-      success: false,
-      message: err.message || "Login failed"
-    };
-  }
-};
+  };
 
   const register = async (userData) => {
     try {
@@ -167,22 +137,15 @@ const login = async (email, password) => {
     }
   };
 
- const verifyOTP = async (email, otp) => {
-  try {
-    setError(null);
-
-    const response = await authService.verifyOTP(email, otp);
-
-    // MUST return response.data
-    return response.data;
-
-  } catch (err) {
-    throw new Error(
-      err.response?.data?.message || "OTP verification failed"
-    );
-  }
-};
-
+  const verifyOTP = async (email, otp) => {
+    try {
+      setError(null);
+      const response = await authService.verifyOTP(email, otp);
+      return response.data;
+    } catch (err) {
+      throw new Error(err.response?.data?.message || "OTP verification failed");
+    }
+  };
 
   const resendOTP = async (email) => {
     try {
@@ -210,13 +173,11 @@ const login = async (email, password) => {
   };
 
   const updateUser = (userData) => {
-    console.log('Updating user context with:', userData);
-    
     setUser(prevUser => {
       const updatedUser = {
         ...prevUser,
         ...userData,
-        createdAt: prevUser?.createdAt || userData.createdAt  // ← Preserve original
+        createdAt: prevUser?.createdAt || userData.createdAt
       };
       
       sessionStorage.setItem('user', JSON.stringify(updatedUser));
@@ -226,14 +187,32 @@ const login = async (email, password) => {
 
   const refreshUser = async () => {
     try {
-      const freshUser = await fetchUserProfile();
+      const token = sessionStorage.getItem('token');
+      if (!token) return null;
+
+      const response = await fetch(import.meta.env.VITE_API_URL + '/auth/profile', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch profile');
+      }
+
+      const data = await response.json();
+      const freshUser = data.user || data.data;
+      
       if (freshUser) {
         setUser(freshUser);
-       sessionStorage.setItem('user', JSON.stringify(freshUser));
+        sessionStorage.setItem('user', JSON.stringify(freshUser));
         return freshUser;
       }
     } catch (err) {
       console.error('Failed to refresh user:', err);
+      return null;
     }
   };
 
