@@ -1,7 +1,6 @@
 // client/src/pages/CoursePlayer.jsx
 import React, { useState, useEffect } from "react";
-import { Link, useParams, useNavigate } from "react-router-dom";
-import fullSyllabus from "../data/fullSyllabus";
+import { Link, useParams, useNavigate } from "react-router-dom"
 
 const SidebarLesson = ({ lesson, onClick, active }) => (
   <button

@@ -108,7 +108,7 @@ export default function Navbar() {
   const studentMenuItems = [
     { label: "My Profile", href: navigation.profile, icon: "👤" },
     { label: "Dashboard", href: navigation.dashboard, icon: "📊" },
-    { label: "My Courses", href: navigation.myCourses, icon: "📚" },
+    { label: "My Courses", href: navigation.Courses, icon: "📚" },
     { label: "Logout", href: "#", icon: "🚪", action: "logout" }
   ];
 

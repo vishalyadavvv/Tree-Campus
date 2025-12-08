@@ -54,6 +54,9 @@ const LessonView = () => {
     message: ''
   });
 
+  // Cache course data to avoid refetching on lesson change
+  const [courseDataCache, setCourseDataCache] = useState(null);
+
   useEffect(() => {
     fetchLessonData();
     setSidebarOpen(false);
@@ -77,17 +80,16 @@ const LessonView = () => {
       if (!skipLoading) {
         setLoading(true);
       }
-      
-      // Fetch course details
-      const courseRes = await api.get(`/courses/${courseId}`);
+
+      // ✅ FIX 1: Fetch data in parallel instead of sequentially
+      const [courseRes, sectionsRes, progressRes] = await Promise.all([
+        api.get(`/courses/${courseId}`),
+        api.get(`/courses/${courseId}/sections`),
+        api.get(`/progress/course/${courseId}`)
+      ]);
+
       setCourseName(courseRes.data.data.title);
-      
-      // Fetch sections and lessons
-      const sectionsRes = await api.get(`/courses/${courseId}/sections`);
       const sections = sectionsRes.data.data;
-      
-      // Fetch progress
-      const progressRes = await api.get(`/progress/course/${courseId}`);
       const progressData = progressRes.data.data;
       const lessonsFromProgress = progressData.lessons || [];
       
@@ -96,14 +98,14 @@ const LessonView = () => {
       lessonsFromProgress.forEach(pl => {
         completionMap.set(String(pl._id), pl.isCompleted);
       });
-      
-      // Fetch lessons for each section and build structured data
-      let allCourseLessons = [];
-      const sectionsData = [];
-      let currentLessonSectionId = null;
-      
-      for (const section of sections) {
-        const lessonsRes = await api.get(`/courses/sections/${section._id}/lessons`);
+
+      // ✅ FIX 2: Fetch ALL lessons and quizzes in parallel using Promise.all
+      const sectionPromises = sections.map(async (section) => {
+        const [lessonsRes, quizzesRes] = await Promise.all([
+          api.get(`/courses/sections/${section._id}/lessons`),
+          api.get(`/quizzes/section/${section._id}`).catch(() => ({ data: { data: [] } }))
+        ]);
+
         const sectionLessons = lessonsRes.data.data.map(lesson => ({
           ...lesson,
           sectionId: section._id,
@@ -111,29 +113,32 @@ const LessonView = () => {
           isCompleted: completionMap.get(String(lesson._id)) || false
         }));
 
-        // Fetch quizzes for this section
-        const quizzesRes = await api.get(`/quizzes/section/${section._id}`).catch(() => ({ data: { data: [] } }));
         const sectionQuizzes = quizzesRes.data.data || [];
-        
-        allCourseLessons = [...allCourseLessons, ...sectionLessons];
-        
-        // Check if current lesson is in this section
-        if (sectionLessons.some(l => l._id === lessonId)) {
-          currentLessonSectionId = section._id;
-        }
-        
-        // Calculate section progress
         const completedInSection = sectionLessons.filter(l => l.isCompleted).length;
-        
-        sectionsData.push({
+
+        return {
           _id: section._id,
           title: section.title,
           lessons: sectionLessons,
           quizzes: sectionQuizzes,
           totalLessons: sectionLessons.length,
           completedLessons: completedInSection
-        });
-      }
+        };
+      });
+
+      // Wait for all sections to load in parallel
+      const sectionsData = await Promise.all(sectionPromises);
+      
+      // Build flat lessons array
+      let allCourseLessons = [];
+      let currentLessonSectionId = null;
+      
+      sectionsData.forEach(section => {
+        allCourseLessons = [...allCourseLessons, ...section.lessons];
+        if (section.lessons.some(l => l._id === lessonId)) {
+          currentLessonSectionId = section._id;
+        }
+      });
       
       // Auto-expand the section containing the current lesson
       const initialExpanded = {};
@@ -144,9 +149,17 @@ const LessonView = () => {
       setSectionsWithLessons(sectionsData);
       setExpandedSections(initialExpanded);
       setAllLessons(allCourseLessons);
+      
       const currentLesson = allCourseLessons.find(l => l._id === lessonId);
       setLesson(currentLesson);
       setProgress(progressData);
+
+      // Cache the data for quick lesson switching
+      setCourseDataCache({
+        sectionsData,
+        allCourseLessons,
+        progressData
+      });
 
     } catch (error) {
       console.error('Error fetching lesson data:', error);
@@ -161,13 +174,24 @@ const LessonView = () => {
       setCompletingLesson(true);
       const response = await api.post(`/progress/lesson/${lessonId}/complete`);
       console.log('✅ Lesson completion response:', response.data);
-      // Optimistic update - immediately show as completed
+      
+      // Optimistic update
       setProgress(prev => ({
         ...prev,
-        progress: Math.min(100, (prev?.progress || 0) + 5) // Increment progress
+        progress: Math.min(100, (prev?.progress || 0) + 5)
       }));
-      // Then fetch fresh data to confirm
-      await fetchLessonData(true);
+      
+      // Update local state immediately
+      setAllLessons(prevLessons => 
+        prevLessons.map(l => 
+          l._id === lessonId ? { ...l, isCompleted: true } : l
+        )
+      );
+      
+      // Fetch fresh progress data only (not all lessons)
+      const progressRes = await api.get(`/progress/course/${courseId}`);
+      setProgress(progressRes.data.data);
+      
       showPopupMessage('Success', '✓ Lesson marked as complete!');
     } catch (error) {
       console.error('❌ Error marking lesson complete:', error);
@@ -181,18 +205,20 @@ const LessonView = () => {
   const markCourseAsComplete = async () => {
     try {
       await api.post(`/progress/course/${courseId}/complete`);
-      fetchLessonData();
+      const progressRes = await api.get(`/progress/course/${courseId}`);
+      setProgress(progressRes.data.data);
     } catch (error) {
       console.error('Error marking course complete:', error);
       showPopupMessage('Error', 'Failed to mark course as complete');
     }
   };
 
+  // ✅ FIX 3: Remove autoplay, add loading attribute
   const getYouTubeEmbedUrl = (url) => {
     if (!url) return '';
     try {
       const videoId = url.split('v=')[1]?.split('&')[0] || url.split('/').pop();
-      return `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1`;
+      return `https://www.youtube.com/embed/${videoId}?rel=0&modestbranding=1`;
     } catch (error) {
       console.error('Error parsing YouTube URL:', error);
       return '';
@@ -274,7 +300,7 @@ const LessonView = () => {
       <div className="flex h-screen">
         {/* Main Content */}
         <main className="flex-1 flex flex-col overflow-hidden">
-          {/* Top Bar with Back to Course */}
+          {/* Top Bar */}
           <div className="bg-white border-b border-gray-200 px-4 lg:px-6 py-3 flex-shrink-0">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
@@ -299,7 +325,7 @@ const LessonView = () => {
             </div>
           </div>
 
-          {/* Video Player - Reduced height */}
+          {/* Video Player - Optimized */}
           <div className="bg-white overflow-hidden" style={{ height: '90vh' }}>
             {lesson?.videoUrl ? (
               <div className="w-full h-full max-w-4xl mx-auto px-4 py-4">
@@ -314,7 +340,8 @@ const LessonView = () => {
                   }
                   title={lesson.title}
                   frameBorder="0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  loading="lazy"
+                  allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen
                 />
               </div>
@@ -328,10 +355,9 @@ const LessonView = () => {
             )}
           </div>
 
-          {/* Lesson Details - Fixed content with proper spacing */}
+          {/* Lesson Details */}
           <div className="flex-shrink-0 bg-white border-t border-gray-200">
             <div className="p-4 lg:p-6 max-w-4xl mx-auto">
-              {/* Course and Section Info */}
               <div className="space-y-1">
                 <h2 className="text-base font-medium text-orange-600">
                   {courseName}
@@ -344,14 +370,12 @@ const LessonView = () => {
                 )}
               </div>
 
-              {/* Lesson Title */}
               <div className="mt-3">
                 <h1 className="text-base lg:text-lg font-bold text-gray-900 mb-1">
                   {lesson?.title}
                 </h1>
               </div>
 
-              {/* Progress and Actions - Compact */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 mt-3">
                 {/* Progress Card */}
                 <div className="bg-gray-50 rounded-lg p-3">
@@ -442,7 +466,7 @@ const LessonView = () => {
           </div>
         </main>
 
-        {/* Sidebar - Fixed width with scroll */}
+        {/* Sidebar */}
         <aside className={`
           fixed lg:sticky top-0 right-0 h-screen w-96 bg-white border-l border-gray-200
           transform transition-transform duration-300 z-40 flex flex-col
@@ -474,7 +498,6 @@ const LessonView = () => {
                   
                   return (
                     <div key={section._id} className="mb-2">
-                      {/* Section Header */}
                       <button
                         onClick={() => setExpandedSections(prev => ({
                           ...prev,
@@ -507,7 +530,6 @@ const LessonView = () => {
                         </div>
                       </button>
                       
-                      {/* Lessons List */}
                       {isExpanded && (
                         <div className="space-y-1.5 mt-2 ml-4">
                           {section.lessons.map((l, index) => {
@@ -556,7 +578,6 @@ const LessonView = () => {
                                       )}
                                     </div>
 
-                                    {/* Text Content Preview - Shows only for current lesson */}
                                     {isCurrent && l.textContent && (
                                       <div className="mt-2 bg-blue-50 border border-blue-200 rounded p-2">
                                         <p className="text-xs text-gray-700 leading-relaxed">
@@ -579,7 +600,6 @@ const LessonView = () => {
                                       </div>
                                     )}
 
-                                    {/* PDF Link - Shows only for current lesson */}
                                     {isCurrent && l.pdfUrl && (
                                       <div className="mt-2">
                                         <a 
