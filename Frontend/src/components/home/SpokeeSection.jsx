@@ -57,7 +57,7 @@ const SpokeeSection = () => {
                 Start Conversation
               </Link>
               <Link 
-                to="/demo"
+                to="/spokee"
                 className="px-4 py-2 bg-white/10 text-white rounded-lg hover:bg-white/20 border border-white/20 transition text-sm font-semibold"
               >
                 Watch Demo

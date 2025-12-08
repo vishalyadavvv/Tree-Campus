@@ -27,6 +27,11 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response) {
+      // Don't redirect on login page for 401 errors - let the component handle it
+      if (error.response.status === 401 && window.location.pathname === '/login') {
+        return Promise.reject(error);
+      }
+      
       if (error.response.status === 401) {
         sessionStorage.removeItem('token'); // Changed
         window.location.href = '/login';

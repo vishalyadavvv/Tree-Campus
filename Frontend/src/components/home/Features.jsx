@@ -425,13 +425,13 @@ const Features = () => {
           </p>
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center px-3 sm:px-4 max-w-lg mx-auto sm:max-w-none">
             <a
-              href="/register"
+              href="/courses"
               className="inline-block px-5 sm:px-6 lg:px-8 py-2.5 sm:py-3 lg:py-4 bg-gradient-to-r from-[#FC5A00] to-orange-600 text-white rounded-xl hover:from-orange-600 hover:to-orange-700 transition-all duration-300 shadow-lg hover:shadow-xl font-semibold text-sm sm:text-base lg:text-lg transform hover:scale-105 active:scale-95"
             >
               Start Free Trial →
             </a>
             <a
-              href="/demo"
+              href="/courses"
               className="inline-block px-5 sm:px-6 lg:px-8 py-2.5 sm:py-3 lg:py-4 border-2 border-gray-300 text-gray-700 rounded-xl hover:border-[#FC5A00] hover:text-[#FC5A00] transition-all duration-300 font-semibold text-sm sm:text-base lg:text-lg active:scale-95"
             >
               Watch Demo

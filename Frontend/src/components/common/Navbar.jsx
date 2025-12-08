@@ -51,29 +51,7 @@ export default function Navbar() {
     howItWorks: "/howitworks",
     myblogs: "/myblogs",
     blogs: {
-      main: "/blogs",
-      posts: {
-        topMobileApps: "/blogs/top-7-mobile-apps-free-english-learning-2025",
-        benefitsLearningEnglish: "/blogs/benefits-learning-spoken-english",
-        treecampusTool: "/blogs/treecampus-free-spoken-english-learning-tool",
-        speakEnglishOnline: "/blogs/speak-english-online-free",
-        motherSonConnection: "/blogs/mother-son-connection-english",
-        studentJourney: "/blogs/student-journey-failure-to-triumph",
-        studyingEnglish: "/blogs/studying-english-online-practice",
-        whyTreecampus: "/blogs/why-treecampus-best-option",
-        speakingEnglishKnowledge: "/blogs/speaking-english-with-knowledge",
-        investFuture: "/blogs/invest-future-elderly-woman-english",
-        realizePotential: "/blogs/realize-potential-learn-english-online",
-        aiPoweredApp: "/blogs/tree-campus-ai-powered-language-learning",
-        uncoverPotential: "/blogs/uncover-potential-free-english-classes",
-        masteringEnglish: "/blogs/journey-mastering-english",
-        hindiLearnEnglish: "/blogs/free-mein-english-kaise-sikhe",
-        futureProficiency: "/blogs/future-english-proficiency-2024",
-        englishSpeakingCourse: "/blogs/english-speaking-course-online-free",
-        top5MobileApps: "/blogs/top-5-free-mobile-apps-learn-english",
-        benefitsSpokenEnglish: "/blogs/10-benefits-spoken-english-course",
-        bestFreeApp: "/blogs/best-free-app-learn-english"
-      }
+      main: "/blogs"
     },
     contest: {
       main: "/contest",
@@ -107,33 +85,6 @@ export default function Navbar() {
           type: "link",
           label: "User Account Deletion – Request Form",
           href: navigation.AccountDeletionForm
-        },
-        {
-          type: "submenu",
-          label: "Blogs",
-          href: navigation.blogs.main,
-          items: [
-            { label: "Top 7 Mobile Apps for Free English Learning in 2025", href: navigation.blogs.posts.topMobileApps },
-            { label: "Benefits of Learning Spoken English: Students, Job Seekers and Professionals", href: navigation.blogs.posts.benefitsLearningEnglish },
-            { label: "Treecampus: The Free Spoken English Learning Tool Making A Difference", href: navigation.blogs.posts.treecampusTool },
-            { label: "Speak English Online Free : Change Your Academic Path with Tree Campus", href: navigation.blogs.posts.speakEnglishOnline },
-            { label: "The way a Mother Used the Tree Campus Learning App to Establish a Connection with Her Son Through English", href: navigation.blogs.posts.motherSonConnection },
-            { label: "A Student's Journey with the Tree Campus Learning App: From Failure to Triumph", href: navigation.blogs.posts.studentJourney },
-            { label: "Studying English: How to Acquire and Utilize Free Online Speaking Practice", href: navigation.blogs.posts.studyingEnglish },
-            { label: "Why the Tree Campus Learning App is the Best Option for Free English Learning", href: navigation.blogs.posts.whyTreecampus },
-            { label: "Speaking English with Knowledge : A Comprehensive Guide to Complimentary Practice Resources", href: navigation.blogs.posts.speakingEnglishKnowledge },
-            { label: "Invest in Your Future:An Elderly Woman's Adventure to Learn English.", href: navigation.blogs.posts.investFuture },
-            { label: "Realize Your Potential: Learn English Online for Free and Explore the Journey", href: navigation.blogs.posts.realizePotential },
-            { label: "Tree Campus – AI-Powered Language Learning App", href: navigation.blogs.posts.aiPoweredApp },
-            { label: "Attend Free Online English-speaking Classes to Uncover Your Potential", href: navigation.blogs.posts.uncoverPotential },
-            { label: "A Journey Story of Learning and Discovery to Mastering English", href: navigation.blogs.posts.masteringEnglish },
-            { label: "फ्री में इंग्लिश कैसे सीखें?", href: navigation.blogs.posts.hindiLearnEnglish },
-            { label: "Future Of English Language Proficiency In 2024 - Tree Campus", href: navigation.blogs.posts.futureProficiency },
-            { label: "English Speaking Course Online Free", href: navigation.blogs.posts.englishSpeakingCourse },
-            { label: "Top 5 Free Mobile Apps To Learn English", href: navigation.blogs.posts.top5MobileApps },
-            { label: "10 Benefits Of Spoken English Course Online Free", href: navigation.blogs.posts.benefitsSpokenEnglish },
-            { label: "अंग्रेजी सीखने के लिए सबसे अच्छा मुफ्त ऐप कौन सा है?", href: navigation.blogs.posts.bestFreeApp }
-          ]
         },
         {
           type: "submenu",
@@ -506,10 +457,10 @@ export default function Navbar() {
   if (loading) {
     return (
       <nav className="w-full bg-white sticky top-0 z-50 shadow-sm">
-        <div className="bg-gradient-to-r from-orange-500 to-orange-600 px-6 py-2 border-b border-orange-400">
+        <div style={{ backgroundImage: 'linear-gradient(to right, #FD5A00, #E54F00)' }} className="px-6 py-2 border-b" style={{ borderColor: '#FD5A00' }}>
           <div className="max-w-7xl mx-auto flex items-center justify-between">
-            <div className="h-4 bg-orange-400 rounded w-32 animate-pulse"></div>
-            <div className="h-4 bg-orange-400 rounded w-24 animate-pulse"></div>
+            <div className="h-4 rounded w-32 animate-pulse" style={{ backgroundColor: '#FD5A00', opacity: 0.3 }}></div>
+            <div className="h-4 rounded w-24 animate-pulse" style={{ backgroundColor: '#FD5A00', opacity: 0.3 }}></div>
           </div>
         </div>
         <div className="bg-white px-6 py-0 border-b border-gray-100">
@@ -745,13 +696,7 @@ export default function Navbar() {
                           onMouseEnter={() => handleSubmenuEnter(item.label)}
                           onMouseLeave={handleSubmenuLeave}
                         >
-                          <NavLink
-                            href={item.href}
-                            className="block px-6 py-3 bg-orange-50 text-orange-700 font-semibold border-b border-orange-100 hover:bg-orange-100 transition-colors"
-                          >
-                            View All {item.label}
-                          </NavLink>
-                          {item.items.map((subItem, subIndex) => (
+                          {item.items.map((subItem, subIndex) => (  
                             <NavLink
                               key={subIndex}
                               href={subItem.href}
@@ -1107,13 +1052,6 @@ export default function Navbar() {
                             {((item.label === 'Blogs' && mobileBlogsOpen) || 
                               (item.label === 'Contest' && mobileContestOpen)) && (
                               <div className="pl-6 py-2 space-y-1 bg-white rounded-lg mt-1 max-h-60 overflow-y-auto custom-scrollbar border-l-2 border-orange-500 ml-3">
-                                <NavLink
-                                  href={item.href}
-                                  onClick={handleLinkClick}
-                                  className="block py-2 px-3 text-orange-600 hover:bg-orange-50 transition-colors text-xs rounded font-semibold mb-1"
-                                >
-                                  View All {item.label} →
-                                </NavLink>
                                 {item.items.map((subItem, subIndex) => (
                                   <NavLink
                                     key={subIndex}

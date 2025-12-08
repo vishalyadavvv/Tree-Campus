@@ -164,6 +164,7 @@ const handleSubmit = async (e) => {
       navigate(redirectPath, { replace: true });
       
     } else {
+      // Show error message without reloading page
       setError(result?.message || t.loginFailed);
       setLoading(false);
     }
@@ -172,7 +173,12 @@ const handleSubmit = async (e) => {
     
     let errorMessage = t.loginFailed;
     
-    if (err.message) {
+    // Handle different error types
+    if (err.response?.status === 401) {
+      errorMessage = t.incorrectPassword;
+    } else if (err.response?.status === 404) {
+      errorMessage = t.userNotFound;
+    } else if (err.message) {
       const errorMsg = err.message.toLowerCase();
       if (errorMsg.includes('password') || errorMsg.includes('incorrect') || errorMsg.includes('invalid') || errorMsg.includes('wrong') || errorMsg.includes('credentials')) {
         errorMessage = t.incorrectPassword;

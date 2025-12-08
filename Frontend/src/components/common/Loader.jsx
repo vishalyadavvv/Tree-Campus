@@ -2,17 +2,54 @@
 import React from 'react';
 
 const Loader = () => {
+  const primaryColor = '#FD5A00';
+  const logoUrl = 'https://res.cloudinary.com/dbbll23jz/image/upload/v1765170258/tree_logo_ek4uw3.png';
+
   return (
-    <div className="flex flex-col justify-center items-center h-screen bg-gradient-to-br from-green-50 to-blue-50">
+    <div className="flex flex-col justify-center items-center h-screen bg-gradient-to-br from-gray-50 to-gray-100">
       <div className="relative">
-        <div className="animate-spin rounded-full h-20 w-20 border-t-4 border-b-4 border-green-500"></div>
+        {/* Rotating border circle */}
+        <div 
+          className="absolute inset-0 rounded-full animate-spin" 
+          style={{
+            width: '100px',
+            height: '100px',
+            borderRadius: '50%',
+            border: `4px solid ${primaryColor}`,
+            opacity: 0.3,
+          }}
+        ></div>
+        
+        {/* Animated gradient ring */}
+        <div 
+          className="absolute inset-0 rounded-full animate-pulse" 
+          style={{
+            width: '100px',
+            height: '100px',
+            borderRadius: '50%',
+            border: `2px solid ${primaryColor}`,
+            opacity: 0.5,
+          }}
+        ></div>
+
+        {/* Company logo in center */}
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-          <svg className="w-8 h-8 text-green-600" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z"/>
-          </svg>
+          <img 
+            src={logoUrl} 
+            alt="Tree Campus" 
+            className="w-12 h-12 object-contain"
+          />
         </div>
       </div>
-      <p className="mt-4 text-gray-600 font-medium">Loading...</p>
+
+      {/* Loading text with color */}
+      <p className="mt-8 text-gray-700 font-semibold text-lg">Loading...</p>
+      <p 
+        className="mt-2 text-sm font-medium" 
+        style={{ color: primaryColor }}
+      >
+        Tree Campus
+      </p>
     </div>
   );
 };
