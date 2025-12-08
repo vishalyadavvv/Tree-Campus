@@ -12,7 +12,7 @@ const schoolRegistrationSchema = new mongoose.Schema(
     schoolEmail: {
       type: String,
       required: [true, 'School email is required'],
-      unique: true,
+      unique: true, 
       trim: true,
       lowercase: true,
       match: [
@@ -91,7 +91,7 @@ const schoolRegistrationSchema = new mongoose.Schema(
     }
   },
   {
-    timestamps: true // Automatically adds createdAt and updatedAt fields
+    timestamps: true
   }
 );
 
@@ -103,10 +103,7 @@ schoolRegistrationSchema.methods.generateOTP = function () {
   return otp;
 };
 
-// Index for faster email lookups
-schoolRegistrationSchema.index({ schoolEmail: 1 });
-
-// Index for status filtering
+// ✅ Keep only the compound index for status filtering
 schoolRegistrationSchema.index({ status: 1, createdAt: -1 });
 
 const SchoolRegistration = mongoose.model('SchoolRegistration', schoolRegistrationSchema);
