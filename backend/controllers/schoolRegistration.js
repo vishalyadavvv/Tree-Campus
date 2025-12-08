@@ -1,6 +1,6 @@
 import { validationResult } from 'express-validator';
 import SchoolRegistration from '../models/schoolRegistration.js';
-import { sendSchoolOTPEmail } from '../utils/sendEmail.js';
+import { sendSchoolRegistrationConfirmation } from '../utils/sendEmail.js';
 
 
 // @desc    Submit school registration
@@ -54,25 +54,24 @@ export const createSchoolRegistration = async (req, res, next) => {
       status: status || 'pending'
     });
 
-    // Generate OTP
-    const otp = schoolRegistration.generateOTP();
-    await schoolRegistration.save();
-
-    // Send OTP email
-    if (process.env.NODE_ENV === 'development') {
-      console.log(`✅ [DEV] OTP for school ${schoolEmail}: ${otp}`);
-    } else {
-      await sendSchoolOTPEmail(schoolEmail, schoolName, contactPersonName, otp, {
+    // Send confirmation emails to user and admin
+    try {
+      await sendSchoolRegistrationConfirmation(schoolEmail, schoolName, contactPersonName, {
+        schoolName,
+        schoolEmail,
         schoolAddress,
         schoolPhone,
-        schoolEmail,
+        contactPersonName,
+        contactPersonEmail,
         contactPersonPhone
       });
+    } catch (error) {
+      console.error('Error sending confirmation email:', error);
     }
 
     res.status(201).json({
       success: true,
-      message: 'School registration submitted successfully! Please verify your email with the OTP sent.',
+      message: 'School registration submitted successfully!',
       data: {
         id: schoolRegistration._id,
         schoolName: schoolRegistration.schoolName,
@@ -198,53 +197,6 @@ export const deleteSchoolRegistration = async (req, res, next) => {
     res.status(200).json({
       success: true,
       message: 'School registration deleted successfully'
-    });
-  } catch (error) {
-    next(error);
-  }
-};
-
-// @desc    Verify OTP for school registration
-// @route   POST /api/registerSchool/verify-otp
-// @access  Public
-export const verifySchoolOTP = async (req, res, next) => {
-  try {
-    const { schoolEmail, otp } = req.body;
-
-    const registration = await SchoolRegistration.findOne({ schoolEmail }).select('+otp +otpExpiry');
-
-    if (!registration) {
-      return res.status(404).json({ success: false, message: 'School registration not found' });
-    }
-
-    if (registration.isVerified) {
-      return res.status(400).json({ success: false, message: 'Already verified' });
-    }
-
-    if (!registration.otp || registration.otp !== otp) {
-      return res.status(400).json({ success: false, message: 'Invalid OTP' });
-    }
-
-    if (registration.otpExpiry < Date.now()) {
-      return res.status(400).json({ success: false, message: 'OTP has expired. Please request a new one.' });
-    }
-
-    // Verify registration
-    registration.isVerified = true;
-    registration.status = 'verified';
-    registration.otp = undefined;
-    registration.otpExpiry = undefined;
-    await registration.save();
-
-    res.status(200).json({
-      success: true,
-      message: 'School registration verified successfully',
-      data: {
-        id: registration._id,
-        schoolName: registration.schoolName,
-        schoolEmail: registration.schoolEmail,
-        status: registration.status
-      }
     });
   } catch (error) {
     next(error);

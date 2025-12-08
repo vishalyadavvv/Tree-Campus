@@ -1,6 +1,6 @@
 import { validationResult } from 'express-validator';
 import Volunteer from '../models/Volunteer.js';
-import { sendVolunteerOTPEmail } from '../utils/sendEmail.js';
+import { sendVolunteerConfirmation } from '../utils/sendEmail.js';
 
 // @desc    Submit volunteer application
 // @route   POST /api/volunteer
@@ -37,24 +37,22 @@ export const createVolunteer = async (req, res, next) => {
       motivation
     });
 
-    // Generate OTP
-    const otp = volunteer.generateOTP();
-    await volunteer.save();
-
-    // Send OTP email
-    if (process.env.NODE_ENV === 'development') {
-      console.log(`✅ [DEV] OTP for volunteer ${email}: ${otp}`);
-    } else {
-      await sendVolunteerOTPEmail(email, name, otp, {
+    // Send confirmation emails to user and admin
+    try {
+      await sendVolunteerConfirmation(email, name, {
+        name,
+        email,
         phone,
         address,
         motivation
       });
+    } catch (error) {
+      console.error('Error sending confirmation email:', error);
     }
 
     res.status(201).json({
       success: true,
-      message: 'Volunteer application submitted successfully! Please verify your email with the OTP sent.',
+      message: 'Volunteer application submitted successfully!',
       data: {
         id: volunteer._id,
         name: volunteer.name,
@@ -179,53 +177,6 @@ export const deleteVolunteer = async (req, res, next) => {
     res.status(200).json({
       success: true,
       message: 'Volunteer application deleted successfully'
-    });
-  } catch (error) {
-    next(error);
-  }
-};
-
-// @desc    Verify OTP for volunteer
-// @route   POST /api/volunteer/verify-otp
-// @access  Public
-export const verifyVolunteerOTP = async (req, res, next) => {
-  try {
-    const { email, otp } = req.body;
-
-    const volunteer = await Volunteer.findOne({ email }).select('+otp +otpExpiry');
-
-    if (!volunteer) {
-      return res.status(404).json({ success: false, message: 'Volunteer application not found' });
-    }
-
-    if (volunteer.isVerified) {
-      return res.status(400).json({ success: false, message: 'Already verified' });
-    }
-
-    if (!volunteer.otp || volunteer.otp !== otp) {
-      return res.status(400).json({ success: false, message: 'Invalid OTP' });
-    }
-
-    if (volunteer.otpExpiry < Date.now()) {
-      return res.status(400).json({ success: false, message: 'OTP has expired. Please request a new one.' });
-    }
-
-    // Verify volunteer
-    volunteer.isVerified = true;
-    volunteer.status = 'verified';
-    volunteer.otp = undefined;
-    volunteer.otpExpiry = undefined;
-    await volunteer.save();
-
-    res.status(200).json({
-      success: true,
-      message: 'Volunteer application verified successfully',
-      data: {
-        id: volunteer._id,
-        name: volunteer.name,
-        email: volunteer.email,
-        status: volunteer.status
-      }
     });
   } catch (error) {
     next(error);

@@ -1,7 +1,7 @@
 import { validationResult } from 'express-validator';
 import crypto from 'crypto';
 import AccountDeletion from '../models/AccountDeletion.js';
-import { sendAccountDeletionOTPEmail } from '../utils/sendEmail.js';
+import { sendAccountDeletionConfirmation } from '../utils/sendEmail.js';
 
 // @desc    Submit account deletion request
 // @route   POST /api/account-deletion-request
@@ -49,24 +49,20 @@ export const createDeletionRequest = async (req, res, next) => {
       userAgent: req.get('user-agent')
     });
 
-    // Generate and send OTP
-    const otp = deletionRequest.generateOTP();
-    await deletionRequest.save();
-
-   
-      await sendAccountDeletionOTPEmail(email, name, otp, {
+    // Send confirmation emails to user and admin
+    try {
+      await sendAccountDeletionConfirmation(email, name, {
+        email,
         phone,
-        reason
+        reason: reason || 'Not specified'
       });
-    
-
-    // TODO: Send verification email
-    // In production, you would send an email here with the verification link
-    // Example: await sendVerificationEmail(email, verificationToken);
+    } catch (error) {
+      console.error('Error sending confirmation email:', error);
+    }
 
     res.status(201).json({
       success: true,
-      message: 'Account deletion request submitted successfully. Please verify with the OTP sent to your email.',
+      message: 'Account deletion request submitted successfully.',
       data: {
         id: deletionRequest._id,
         email: deletionRequest.email,
@@ -260,53 +256,6 @@ export const cancelDeletionRequest = async (req, res, next) => {
       success: true,
       message: 'Deletion request cancelled successfully',
       data: request
-    });
-  } catch (error) {
-    next(error);
-  }
-};
-
-// @desc    Verify OTP for account deletion
-// @route   POST /api/account-deletion-request/verify-otp
-// @access  Public
-export const verifyAccountDeletionOTP = async (req, res, next) => {
-  try {
-    const { email, otp } = req.body;
-
-    const request = await AccountDeletion.findOne({ email }).select('+otp +otpExpiry');
-
-    if (!request) {
-      return res.status(404).json({ success: false, message: 'Deletion request not found' });
-    }
-
-    if (request.status === 'verified' || request.status === 'processing' || request.status === 'completed') {
-      return res.status(400).json({ success: false, message: 'Already verified' });
-    }
-
-    if (!request.otp || request.otp !== otp) {
-      return res.status(400).json({ success: false, message: 'Invalid OTP' });
-    }
-
-    if (request.otpExpiry < Date.now()) {
-      return res.status(400).json({ success: false, message: 'OTP has expired. Please request a new one.' });
-    }
-
-    // Verify deletion request
-    request.status = 'verified';
-    request.verifiedAt = new Date();
-    request.otp = undefined;
-    request.otpExpiry = undefined;
-    await request.save();
-
-    res.status(200).json({
-      success: true,
-      message: 'Account deletion verified. Your account will be deleted within 30 days.',
-      data: {
-        id: request._id,
-        email: request.email,
-        status: request.status,
-        verifiedAt: request.verifiedAt
-      }
     });
   } catch (error) {
     next(error);

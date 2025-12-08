@@ -353,6 +353,499 @@ const sendAccountDeletionOTPEmail = async (email, name, otp, details = {}) => {
   await sendEmail({ to: email, subject, html });
 };
 
+/**
+ * Send volunteer submission confirmation to user and admin
+ */
+const sendVolunteerConfirmation = async (userEmail, userName, volunteerDetails = {}) => {
+  const adminEmail = process.env.SMTP_USER;
+  const subject = 'Volunteer Application Received - Tree Campus';
+  const logoUrl = 'https://res.cloudinary.com/dbbll23jz/image/upload/v1765170258/tree_logo_ek4uw3.png';
+
+  const userHtml = `
+    <html>
+      <head>
+        <style>
+          body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; background-color: #f5f5f5; }
+          .container { max-width: 650px; margin: 20px auto; background-color: #ffffff; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); overflow: hidden; }
+          .header { background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%); color: white; padding: 40px 20px; text-align: center; }
+          .header img { height: 60px; margin-bottom: 15px; }
+          .header h1 { margin: 0; font-size: 24px; font-weight: 600; }
+          .content { padding: 40px 30px; }
+          .content p { margin: 15px 0; line-height: 1.6; color: #333; font-size: 15px; }
+          .details-box { background-color: #f9f9f9; border-left: 4px solid #4CAF50; padding: 20px; margin: 25px 0; border-radius: 5px; }
+          .details-box h3 { margin: 0 0 15px 0; color: #4CAF50; font-size: 16px; }
+          .detail-row { margin: 10px 0; padding: 8px 0; border-bottom: 1px solid #eee; }
+          .detail-row:last-child { border-bottom: none; }
+          .detail-label { font-weight: 600; color: #555; display: inline-block; width: 120px; }
+          .detail-value { color: #333; }
+          .footer { background-color: #f5f5f5; padding: 20px; text-align: center; border-top: 1px solid #ddd; font-size: 12px; color: #666; }
+          .footer p { margin: 5px 0; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <img src="${logoUrl}" alt="Tree Campus Logo">
+            <h1>🌱 Volunteer Application Received</h1>
+          </div>
+          
+          <div class="content">
+            <p>Dear <strong>${userName}</strong>,</p>
+            
+            <p>Thank you for submitting your volunteer application to Tree Campus! We're excited to learn more about your passion for education and community service.</p>
+            
+            <p>We have successfully received your application and details. Our team will review your submission and get back to you within 3-5 business days.</p>
+            
+            <div class="details-box">
+              <h3>📋 Application Details:</h3>
+              <div class="detail-row">
+                <span class="detail-label">Name:</span>
+                <span class="detail-value">${volunteerDetails.name || 'N/A'}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Email:</span>
+                <span class="detail-value">${volunteerDetails.email || 'N/A'}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Phone:</span>
+                <span class="detail-value">${volunteerDetails.phone || 'N/A'}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Address:</span>
+                <span class="detail-value">${volunteerDetails.address || 'N/A'}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Motivation:</span>
+                <span class="detail-value">${volunteerDetails.motivation || 'N/A'}</span>
+              </div>
+            </div>
+            
+            <p>If you have any questions, feel free to reach out to us. We look forward to hearing from you!</p>
+            
+            <p>Best regards,<br><strong>Tree Campus Team</strong></p>
+          </div>
+          
+          <div class="footer">
+            <p>&copy; ${new Date().getFullYear()} Tree Campus. All rights reserved.</p>
+            <p>Empowering Education, Inspiring Change</p>
+          </div>
+        </div>
+      </body>
+    </html>
+  `;
+
+  const adminHtml = `
+    <html>
+      <head>
+        <style>
+          body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; background-color: #f5f5f5; }
+          .container { max-width: 650px; margin: 20px auto; background-color: #ffffff; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); overflow: hidden; }
+          .header { background: linear-gradient(135deg, #FF9800 0%, #FB8C00 100%); color: white; padding: 40px 20px; text-align: center; }
+          .header img { height: 60px; margin-bottom: 15px; }
+          .header h1 { margin: 0; font-size: 24px; font-weight: 600; }
+          .content { padding: 40px 30px; }
+          .content p { margin: 15px 0; line-height: 1.6; color: #333; font-size: 15px; }
+          .alert-box { background-color: #fff3e0; border-left: 4px solid #FF9800; padding: 15px; margin: 20px 0; border-radius: 5px; }
+          .alert-box strong { color: #FF9800; }
+          .details-box { background-color: #f9f9f9; border-left: 4px solid #FF9800; padding: 20px; margin: 25px 0; border-radius: 5px; }
+          .details-box h3 { margin: 0 0 15px 0; color: #FF9800; font-size: 16px; }
+          .detail-row { margin: 10px 0; padding: 8px 0; border-bottom: 1px solid #eee; }
+          .detail-row:last-child { border-bottom: none; }
+          .detail-label { font-weight: 600; color: #555; display: inline-block; width: 120px; }
+          .detail-value { color: #333; }
+          .action-btn { display: inline-block; background-color: #FF9800; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; margin: 15px 0; }
+          .footer { background-color: #f5f5f5; padding: 20px; text-align: center; border-top: 1px solid #ddd; font-size: 12px; color: #666; }
+          .footer p { margin: 5px 0; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <img src="${logoUrl}" alt="Tree Campus Logo">
+            <h1>🌱 New Volunteer Application</h1>
+          </div>
+          
+          <div class="content">
+            <div class="alert-box">
+              <strong>⚡ New Action Required:</strong> A volunteer application has been submitted and is awaiting your review.
+            </div>
+            
+            <p>A new volunteer has applied to Tree Campus. Please review the details below and take appropriate action.</p>
+            
+            <div class="details-box">
+              <h3>👤 Applicant Details:</h3>
+              <div class="detail-row">
+                <span class="detail-label">Name:</span>
+                <span class="detail-value">${volunteerDetails.name || 'N/A'}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Email:</span>
+                <span class="detail-value">${volunteerDetails.email || 'N/A'}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Phone:</span>
+                <span class="detail-value">${volunteerDetails.phone || 'N/A'}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Address:</span>
+                <span class="detail-value">${volunteerDetails.address || 'N/A'}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Motivation:</span>
+                <span class="detail-value">${volunteerDetails.motivation || 'N/A'}</span>
+              </div>
+            </div>
+            
+            <p>Please review this application and send a response to the applicant.</p>
+          </div>
+          
+          <div class="footer">
+            <p>&copy; ${new Date().getFullYear()} Tree Campus Admin Panel</p>
+            <p>Empowering Education, Inspiring Change</p>
+          </div>
+        </div>
+      </body>
+    </html>
+  `;
+
+  // Send to user
+  await sendEmail({ to: userEmail, subject, html: userHtml });
+  
+  // Send to admin
+  await sendEmail({ to: adminEmail, subject: `[ADMIN] ${subject}`, html: adminHtml });
+};
+
+/**
+ * Send school registration confirmation to user and admin
+ */
+const sendSchoolRegistrationConfirmation = async (schoolEmail, schoolName, contactName, schoolDetails = {}) => {
+  const adminEmail = process.env.SMTP_USER;
+  const subject = 'School Registration Received - Tree Campus';
+  const logoUrl = 'https://res.cloudinary.com/dbbll23jz/image/upload/v1765170258/tree_logo_ek4uw3.png';
+
+  const userHtml = `
+    <html>
+      <head>
+        <style>
+          body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; background-color: #f5f5f5; }
+          .container { max-width: 650px; margin: 20px auto; background-color: #ffffff; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); overflow: hidden; }
+          .header { background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%); color: white; padding: 40px 20px; text-align: center; }
+          .header img { height: 60px; margin-bottom: 15px; }
+          .header h1 { margin: 0; font-size: 24px; font-weight: 600; }
+          .content { padding: 40px 30px; }
+          .content p { margin: 15px 0; line-height: 1.6; color: #333; font-size: 15px; }
+          .details-box { background-color: #f9f9f9; border-left: 4px solid #4CAF50; padding: 20px; margin: 25px 0; border-radius: 5px; }
+          .details-box h3 { margin: 0 0 15px 0; color: #4CAF50; font-size: 16px; }
+          .detail-row { margin: 10px 0; padding: 8px 0; border-bottom: 1px solid #eee; }
+          .detail-row:last-child { border-bottom: none; }
+          .detail-label { font-weight: 600; color: #555; display: inline-block; width: 140px; }
+          .detail-value { color: #333; }
+          .footer { background-color: #f5f5f5; padding: 20px; text-align: center; border-top: 1px solid #ddd; font-size: 12px; color: #666; }
+          .footer p { margin: 5px 0; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <img src="${logoUrl}" alt="Tree Campus Logo">
+            <h1>🏫 School Registration Received</h1>
+          </div>
+          
+          <div class="content">
+            <p>Dear <strong>${contactName}</strong>,</p>
+            
+            <p>Thank you for registering your school with Tree Campus! We're thrilled to partner with ${schoolName} in our mission to transform education.</p>
+            
+            <p>We have successfully received your registration. Our team will verify your school details and reach out within 3-5 business days to provide you with access and next steps.</p>
+            
+            <div class="details-box">
+              <h3>🏢 School Registration Details:</h3>
+              <div class="detail-row">
+                <span class="detail-label">School Name:</span>
+                <span class="detail-value">${schoolName || 'N/A'}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">School Email:</span>
+                <span class="detail-value">${schoolDetails.schoolEmail || 'N/A'}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">School Address:</span>
+                <span class="detail-value">${schoolDetails.schoolAddress || 'N/A'}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">School Phone:</span>
+                <span class="detail-value">${schoolDetails.schoolPhone || 'N/A'}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Contact Person:</span>
+                <span class="detail-value">${contactName || 'N/A'}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Contact Email:</span>
+                <span class="detail-value">${schoolDetails.contactPersonEmail || 'N/A'}</span>
+              </div>
+            </div>
+            
+            <p>If you have any questions before we contact you, please don't hesitate to reach out.</p>
+            
+            <p>Best regards,<br><strong>Tree Campus Team</strong></p>
+          </div>
+          
+          <div class="footer">
+            <p>&copy; ${new Date().getFullYear()} Tree Campus. All rights reserved.</p>
+            <p>Empowering Education, Inspiring Change</p>
+          </div>
+        </div>
+      </body>
+    </html>
+  `;
+
+  const adminHtml = `
+    <html>
+      <head>
+        <style>
+          body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; background-color: #f5f5f5; }
+          .container { max-width: 650px; margin: 20px auto; background-color: #ffffff; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); overflow: hidden; }
+          .header { background: linear-gradient(135deg, #FF9800 0%, #FB8C00 100%); color: white; padding: 40px 20px; text-align: center; }
+          .header img { height: 60px; margin-bottom: 15px; }
+          .header h1 { margin: 0; font-size: 24px; font-weight: 600; }
+          .content { padding: 40px 30px; }
+          .content p { margin: 15px 0; line-height: 1.6; color: #333; font-size: 15px; }
+          .alert-box { background-color: #fff3e0; border-left: 4px solid #FF9800; padding: 15px; margin: 20px 0; border-radius: 5px; }
+          .alert-box strong { color: #FF9800; }
+          .details-box { background-color: #f9f9f9; border-left: 4px solid #FF9800; padding: 20px; margin: 25px 0; border-radius: 5px; }
+          .details-box h3 { margin: 0 0 15px 0; color: #FF9800; font-size: 16px; }
+          .detail-row { margin: 10px 0; padding: 8px 0; border-bottom: 1px solid #eee; }
+          .detail-row:last-child { border-bottom: none; }
+          .detail-label { font-weight: 600; color: #555; display: inline-block; width: 140px; }
+          .detail-value { color: #333; }
+          .footer { background-color: #f5f5f5; padding: 20px; text-align: center; border-top: 1px solid #ddd; font-size: 12px; color: #666; }
+          .footer p { margin: 5px 0; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <img src="${logoUrl}" alt="Tree Campus Logo">
+            <h1>🌱 New School Registration</h1>
+          </div>
+          
+          <div class="content">
+            <div class="alert-box">
+              <strong>⚡ New Action Required:</strong> A school has registered and is awaiting your verification.
+            </div>
+            
+            <p>A new school has registered with Tree Campus. Please review the details below and verify their information.</p>
+            
+            <div class="details-box">
+              <h3>🏢 School Details:</h3>
+              <div class="detail-row">
+                <span class="detail-label">School Name:</span>
+                <span class="detail-value">${schoolName || 'N/A'}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">School Email:</span>
+                <span class="detail-value">${schoolDetails.schoolEmail || 'N/A'}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">School Address:</span>
+                <span class="detail-value">${schoolDetails.schoolAddress || 'N/A'}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">School Phone:</span>
+                <span class="detail-value">${schoolDetails.schoolPhone || 'N/A'}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Contact Person:</span>
+                <span class="detail-value">${contactName || 'N/A'}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Contact Email:</span>
+                <span class="detail-value">${schoolDetails.contactPersonEmail || 'N/A'}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Contact Phone:</span>
+                <span class="detail-value">${schoolDetails.contactPersonPhone || 'N/A'}</span>
+              </div>
+            </div>
+            
+            <p>Please verify this school and send them their login credentials.</p>
+          </div>
+          
+          <div class="footer">
+            <p>&copy; ${new Date().getFullYear()} Tree Campus Admin Panel</p>
+            <p>Empowering Education, Inspiring Change</p>
+          </div>
+        </div>
+      </body>
+    </html>
+  `;
+
+  // Send to user
+  await sendEmail({ to: schoolEmail, subject, html: userHtml });
+  
+  // Send to admin
+  await sendEmail({ to: adminEmail, subject: `[ADMIN] ${subject}`, html: adminHtml });
+};
+
+/**
+ * Send account deletion confirmation to user and admin
+ */
+const sendAccountDeletionConfirmation = async (userEmail, userName, deletionDetails = {}) => {
+  const adminEmail = process.env.SMTP_USER;
+  const subject = 'Account Deletion Request Received - Tree Campus';
+  const logoUrl = 'https://res.cloudinary.com/dbbll23jz/image/upload/v1765170258/tree_logo_ek4uw3.png';
+
+  const userHtml = `
+    <html>
+      <head>
+        <style>
+          body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; background-color: #f5f5f5; }
+          .container { max-width: 650px; margin: 20px auto; background-color: #ffffff; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); overflow: hidden; }
+          .header { background: linear-gradient(135deg, #d32f2f 0%, #c62828 100%); color: white; padding: 40px 20px; text-align: center; }
+          .header img { height: 60px; margin-bottom: 15px; filter: brightness(0) invert(1); }
+          .header h1 { margin: 0; font-size: 24px; font-weight: 600; }
+          .content { padding: 40px 30px; }
+          .content p { margin: 15px 0; line-height: 1.6; color: #333; font-size: 15px; }
+          .warning-box { background-color: #ffebee; border-left: 4px solid #d32f2f; padding: 20px; margin: 25px 0; border-radius: 5px; }
+          .warning-box h3 { margin: 0 0 10px 0; color: #d32f2f; font-size: 16px; }
+          .warning-box p { margin: 5px 0; color: #c62828; font-size: 14px; }
+          .details-box { background-color: #f9f9f9; border-left: 4px solid #d32f2f; padding: 20px; margin: 25px 0; border-radius: 5px; }
+          .details-box h3 { margin: 0 0 15px 0; color: #d32f2f; font-size: 16px; }
+          .detail-row { margin: 10px 0; padding: 8px 0; border-bottom: 1px solid #eee; }
+          .detail-row:last-child { border-bottom: none; }
+          .detail-label { font-weight: 600; color: #555; display: inline-block; width: 120px; }
+          .detail-value { color: #333; }
+          .footer { background-color: #f5f5f5; padding: 20px; text-align: center; border-top: 1px solid #ddd; font-size: 12px; color: #666; }
+          .footer p { margin: 5px 0; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <img src="${logoUrl}" alt="Tree Campus Logo">
+            <h1>🚨 Account Deletion Request</h1>
+          </div>
+          
+          <div class="content">
+            <p>Dear <strong>${userName}</strong>,</p>
+            
+            <p>We have received your account deletion request. We understand your decision and respect your choice.</p>
+            
+            <div class="warning-box">
+              <h3>⚠️ Important Notice:</h3>
+              <p><strong>Your account will be permanently deleted within 30 days.</strong></p>
+              <p>This action cannot be undone. All your data, progress, and achievements will be permanently removed from our system.</p>
+            </div>
+            
+            <div class="details-box">
+              <h3>📋 Deletion Request Details:</h3>
+              <div class="detail-row">
+                <span class="detail-label">Email:</span>
+                <span class="detail-value">${deletionDetails.email || 'N/A'}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Phone:</span>
+                <span class="detail-value">${deletionDetails.phone || 'N/A'}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Reason:</span>
+                <span class="detail-value">${deletionDetails.reason || 'Not specified'}</span>
+              </div>
+            </div>
+            
+            <p>If you have any questions or wish to cancel this request, please contact us immediately at ${process.env.SMTP_USER}.</p>
+            
+            <p>Thank you for being part of the Tree Campus community.</p>
+            
+            <p>Best regards,<br><strong>Tree Campus Team</strong></p>
+          </div>
+          
+          <div class="footer">
+            <p>&copy; ${new Date().getFullYear()} Tree Campus. All rights reserved.</p>
+            <p>Empowering Education, Inspiring Change</p>
+          </div>
+        </div>
+      </body>
+    </html>
+  `;
+
+  const adminHtml = `
+    <html>
+      <head>
+        <style>
+          body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; background-color: #f5f5f5; }
+          .container { max-width: 650px; margin: 20px auto; background-color: #ffffff; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); overflow: hidden; }
+          .header { background: linear-gradient(135deg, #d32f2f 0%, #c62828 100%); color: white; padding: 40px 20px; text-align: center; }
+          .header img { height: 60px; margin-bottom: 15px; filter: brightness(0) invert(1); }
+          .header h1 { margin: 0; font-size: 24px; font-weight: 600; }
+          .content { padding: 40px 30px; }
+          .content p { margin: 15px 0; line-height: 1.6; color: #333; font-size: 15px; }
+          .alert-box { background-color: #ffebee; border-left: 4px solid #d32f2f; padding: 15px; margin: 20px 0; border-radius: 5px; }
+          .alert-box strong { color: #d32f2f; }
+          .details-box { background-color: #f9f9f9; border-left: 4px solid #d32f2f; padding: 20px; margin: 25px 0; border-radius: 5px; }
+          .details-box h3 { margin: 0 0 15px 0; color: #d32f2f; font-size: 16px; }
+          .detail-row { margin: 10px 0; padding: 8px 0; border-bottom: 1px solid #eee; }
+          .detail-row:last-child { border-bottom: none; }
+          .detail-label { font-weight: 600; color: #555; display: inline-block; width: 120px; }
+          .detail-value { color: #333; }
+          .footer { background-color: #f5f5f5; padding: 20px; text-align: center; border-top: 1px solid #ddd; font-size: 12px; color: #666; }
+          .footer p { margin: 5px 0; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <img src="${logoUrl}" alt="Tree Campus Logo">
+            <h1>🚨 Account Deletion Request</h1>
+          </div>
+          
+          <div class="content">
+            <div class="alert-box">
+              <strong>⚠️ Alert:</strong> A user has requested account deletion. The account will be permanently deleted in 30 days unless cancelled.
+            </div>
+            
+            <p>A user has submitted an account deletion request. Please review the details below.</p>
+            
+            <div class="details-box">
+              <h3>👤 User Details:</h3>
+              <div class="detail-row">
+                <span class="detail-label">Name:</span>
+                <span class="detail-value">${userName || 'N/A'}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Email:</span>
+                <span class="detail-value">${deletionDetails.email || 'N/A'}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Phone:</span>
+                <span class="detail-value">${deletionDetails.phone || 'N/A'}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Reason:</span>
+                <span class="detail-value">${deletionDetails.reason || 'Not specified'}</span>
+              </div>
+            </div>
+            
+            <p>The account will be automatically deleted after 30 days if not cancelled. Consider reaching out to the user to understand their concerns.</p>
+          </div>
+          
+          <div class="footer">
+            <p>&copy; ${new Date().getFullYear()} Tree Campus Admin Panel</p>
+            <p>Empowering Education, Inspiring Change</p>
+          </div>
+        </div>
+      </body>
+    </html>
+  `;
+
+  // Send to user
+  await sendEmail({ to: userEmail, subject, html: userHtml });
+  
+  // Send to admin
+  await sendEmail({ to: adminEmail, subject: `[ADMIN] ${subject}`, html: adminHtml });
+};
+
 export {
   sendEmail,
   sendOTPEmail,
@@ -360,4 +853,7 @@ export {
   sendVolunteerOTPEmail,
   sendSchoolOTPEmail,
   sendAccountDeletionOTPEmail,
+  sendVolunteerConfirmation,
+  sendSchoolRegistrationConfirmation,
+  sendAccountDeletionConfirmation,
 };
