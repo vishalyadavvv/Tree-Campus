@@ -394,6 +394,7 @@ const getProfile = async (req, res, next) => {
         role: user.role,
         isVerified: user.isVerified,
         profilePicture: user.profilePicture,
+        createdAt: user.createdAt,
         enrolledCourses: user.enrolledCourses,
         completedLessons: user.completedLessons,
         certificates: user.certificates,

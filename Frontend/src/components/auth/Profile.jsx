@@ -80,17 +80,27 @@ const Profile = () => {
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
           {/* Header */}
-          <div className="bg-gradient-to-r from-green-600 to-blue-600 px-8 py-12">
+          <div className="bg-gradient-to-r from-orange-500 to-orange-600 px-8 py-12" style={{ background: 'linear-gradient(135deg, #FD5A00 0%, #ff7a3d 100%)' }}>
             <div className="flex items-center space-x-6">
-              <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center text-4xl font-bold text-green-600">
+              <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center text-4xl font-bold text-orange-500" style={{ color: '#FD5A00' }}>
                 {user?.name?.charAt(0).toUpperCase()}
               </div>
               <div className="text-white">
                 <h1 className="text-3xl font-bold">{user?.name}</h1>
-                <p className="text-green-100">{user?.email}</p>
-                <p className="text-green-200 text-sm mt-1">
-                  Member since {new Date(user?.createdAt).toLocaleDateString()}
+                <p className="text-orange-100">{user?.email}</p>
+                <p className="text-orange-200 text-sm mt-1">
+                  🎓 Member since {user?.createdAt ? new Date(user.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : 'N/A'}
                 </p>
+                {user?.phone && (
+                  <p className="text-orange-200 text-sm">
+                    📱 {user.phone}
+                  </p>
+                )}
+                {user?.isVerified && (
+                  <p className="text-orange-200 text-sm mt-1">
+                    ✅ Email Verified
+                  </p>
+                )}
               </div>
             </div>
           </div>
@@ -100,7 +110,7 @@ const Profile = () => {
             {message && (
               <div className={`mb-6 p-4 rounded-lg ${
                 message.includes('success') 
-                  ? 'bg-green-50 text-green-700 border border-green-200' 
+                  ? 'bg-orange-50 text-orange-700 border border-orange-200' 
                   : 'bg-red-50 text-red-700 border border-red-200'
               }`}>
                 {message}
@@ -112,35 +122,72 @@ const Profile = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Name
+                      Full Name
                     </label>
-                    <p className="text-lg text-gray-900">{user?.name}</p>
+                    <p className="text-lg text-gray-900 font-semibold">{user?.name}</p>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Email
+                      Email Address
                     </label>
                     <p className="text-lg text-gray-900">{user?.email}</p>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Phone
+                      Phone Number
                     </label>
-                    <p className="text-lg text-gray-900">{user?.phone || 'Not provided'}</p>
+                    <p className="text-lg text-gray-900">{user?.phone || '—'}</p>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Preferred Language
+                      Account Role
                     </label>
                     <p className="text-lg text-gray-900 capitalize">
-                      {user?.preferredLanguage === 'hindi' ? 'Hindi' : 'English'}
+                      <span className={`px-3 py-1 rounded-full text-sm font-medium ${user?.role === 'admin' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800'}`}>
+                        {user?.role}
+                      </span>
+                    </p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Member Since
+                    </label>
+                    <p className="text-lg text-gray-900">
+                      {user?.createdAt ? new Date(user.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : 'N/A'}
+                    </p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Verification Status
+                    </label>
+                    <p className="text-lg">
+                      {user?.isVerified ? (
+                        <span className="text-green-600 font-semibold">✅ Verified</span>
+                      ) : (
+                        <span className="text-yellow-600 font-semibold">⏳ Pending</span>
+                      )}
                     </p>
                   </div>
                 </div>
+
+                {user?.enrolledCourses && user.enrolledCourses.length > 0 && (
+                  <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
+                    <h3 className="font-semibold text-gray-900 mb-2">📚 Enrolled Courses</h3>
+                    <p className="text-lg font-bold" style={{ color: '#FD5A00' }}>{user.enrolledCourses.length} courses</p>
+                  </div>
+                )}
+
+                {user?.completedLessons && user.completedLessons.length > 0 && (
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                    <h3 className="font-semibold text-gray-900 mb-2">✅ Completed Lessons</h3>
+                    <p className="text-lg font-bold text-green-700">{user.completedLessons.length} lessons completed</p>
+                  </div>
+                )}
                 
                 <button
                   onClick={() => setEditing(true)}
-                  className="w-full py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-semibold"
+                  className="w-full py-3 text-white rounded-lg hover:opacity-90 transition font-semibold"
+                  style={{ backgroundColor: '#FD5A00' }}
                 >
                   Edit Profile
                 </button>
@@ -157,7 +204,8 @@ const Profile = () => {
                       name="name"
                       value={formData.name}
                       onChange={handleChange}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent transition"
+                      style={{ '--tw-ring-color': '#FD5A00' }}
                       required
                     />
                   </div>
@@ -170,7 +218,8 @@ const Profile = () => {
                       name="email"
                       value={formData.email}
                       onChange={handleChange}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent transition"
+                      style={{ '--tw-ring-color': '#FD5A00' }}
                       required
                     />
                   </div>
@@ -183,7 +232,8 @@ const Profile = () => {
                       name="phone"
                       value={formData.phone}
                       onChange={handleChange}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent transition"
+                      style={{ '--tw-ring-color': '#FD5A00' }}
                       placeholder="+1 234 567 8900"
                     />
                   </div>
@@ -195,7 +245,8 @@ const Profile = () => {
                       name="preferredLanguage"
                       value={formData.preferredLanguage}
                       onChange={handleChange}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent transition"
+                      style={{ '--tw-ring-color': '#FD5A00' }}
                     >
                       <option value="english">English</option>
                       <option value="hindi">Hindi</option>
@@ -207,7 +258,8 @@ const Profile = () => {
                   <button
                     type="submit"
                     disabled={loading}
-                    className="flex-1 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-semibold disabled:opacity-50"
+                    className="flex-1 py-3 text-white rounded-lg hover:opacity-90 transition font-semibold disabled:opacity-50"
+                    style={{ backgroundColor: '#FD5A00' }}
                   >
                     {loading ? 'Saving...' : 'Save Changes'}
                   </button>
