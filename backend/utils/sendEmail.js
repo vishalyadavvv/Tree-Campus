@@ -12,7 +12,7 @@ apiInstance.setApiKey(
   process.env.BREVO_API_KEY
 );
 
-const SENDER_EMAIL = process.env.SENDER_EMAIL || 'noreply@treecampus.com';
+const SENDER_EMAIL = process.env.SENDER_EMAIL || 'vishalyadavdgtl@gmail.com';
 const SENDER_NAME = 'Tree Campus';
 
 /**
