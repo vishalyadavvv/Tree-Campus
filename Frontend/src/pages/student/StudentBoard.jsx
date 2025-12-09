@@ -160,17 +160,25 @@ const StudentDashboard = () => {
     );
   }
 
-  const { stats, recentActivity, courseProgress, upcomingLiveClasses, recommendedCourses, studentInfo } = dashboardData;
+  const { stats, recentActivity, courseProgress, upcomingLiveClasses, recommendedCourses, studentInfo } = dashboardData || {};
+
+  // Provide default values if data is missing
+  const safeStats = stats || { totalEnrolledCourses: 0, totalCompletedLessons: 0, totalCertificates: 0, totalProgress: 0 };
+  const safeStudentInfo = studentInfo || { name: 'Student', email: '', joinedDate: new Date() };
+  const safeCourseProgress = courseProgress || [];
+  const safeRecentActivity = recentActivity || [];
+  const safeUpcomingLiveClasses = upcomingLiveClasses || [];
+  const safeRecommendedCourses = recommendedCourses || [];
 
   // Check if there are enrolled courses
-  const hasCourses = courseProgress && courseProgress.length > 0;
-  const hasRecentActivity = recentActivity && recentActivity.length > 0;
-  const hasUpcomingClasses = upcomingLiveClasses && upcomingLiveClasses.length > 0;
-  const hasRecommendedCourses = recommendedCourses && recommendedCourses.length > 0;
+  const hasCourses = safeCourseProgress && safeCourseProgress.length > 0;
+  const hasRecentActivity = safeRecentActivity && safeRecentActivity.length > 0;
+  const hasUpcomingClasses = safeUpcomingLiveClasses && safeUpcomingLiveClasses.length > 0;
+  const hasRecommendedCourses = safeRecommendedCourses && safeRecommendedCourses.length > 0;
 
   // Get courses to display (show first 3 by default, all if toggled)
-  const displayedCourses = showAllCourses ? courseProgress : (courseProgress || []).slice(0, 3);
-  const hasMoreCourses = hasCourses && courseProgress.length > 3;
+  const displayedCourses = showAllCourses ? safeCourseProgress : (safeCourseProgress || []).slice(0, 3);
+  const hasMoreCourses = hasCourses && safeCourseProgress.length > 3;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4 md:p-6 animate-fadeIn">
@@ -178,7 +186,7 @@ const StudentDashboard = () => {
       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8 animate-slideDown">
         <div>
           <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
-            Welcome back, <span className="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">{studentInfo.name}</span>! 👋
+            Welcome back, <span className="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">{safeStudentInfo.name}</span>! 👋
           </h1>
           <p className="text-gray-600 text-lg">Here's your learning progress overview</p>
         </div>
@@ -197,7 +205,7 @@ const StudentDashboard = () => {
         <StatCard
           icon={<FiBook className="w-6 h-6" />}
           title="Enrolled Courses"
-          value={stats.totalEnrolledCourses}
+          value={safeStats.totalEnrolledCourses}
           color="indigo"
           delay="100"
         />
@@ -211,14 +219,14 @@ const StudentDashboard = () => {
         <StatCard
           icon={<FiAward className="w-6 h-6" />}
           title="Certificates Earned"
-          value={stats.totalCertificates}
+          value={safeStats.totalCertificates}
           color="amber"
           delay="300"
         />
         <StatCard
           icon={<FiTrendingUp className="w-6 h-6" />}
           title="Overall Progress"
-          value={`${stats.totalProgress}%`}
+          value={`${safeStats.totalProgress}%`}
           color="purple"
           delay="400"
         />
@@ -285,7 +293,7 @@ const StudentDashboard = () => {
                 <h2 className="text-xl font-bold text-gray-900">My Courses</h2>
                 <p className="text-gray-600 text-sm mt-1">
                   {hasCourses 
-                    ? `${stats.totalEnrolledCourses} enrolled courses` 
+                    ? `${safeStats.totalEnrolledCourses} enrolled courses` 
                     : 'No courses yet'}
                 </p>
               </div>
@@ -294,7 +302,7 @@ const StudentDashboard = () => {
                   onClick={() => setShowAllCourses(!showAllCourses)}
                   className="inline-flex items-center space-x-2 text-indigo-600 hover:text-indigo-700 font-semibold transition-colors duration-300 group"
                 >
-                  <span>{showAllCourses ? 'Show Less' : `View All (${stats.totalEnrolledCourses})`}</span>
+                  <span>{showAllCourses ? 'Show Less' : `View All (${safeStats.totalEnrolledCourses})`}</span>
                   <FiArrowRight className={`w-4 h-4 group-hover:translate-x-1 transition-transform duration-300 ${showAllCourses ? 'rotate-180' : ''}`} />
                 </button>
               )}
@@ -315,7 +323,7 @@ const StudentDashboard = () => {
                 {showAllCourses && hasMoreCourses && (
                   <div className="text-center py-4">
                     <p className="text-gray-500 text-sm">
-                      Showing all {stats.totalEnrolledCourses} enrolled courses
+                      Showing all {safeStats.totalEnrolledCourses} enrolled courses
                     </p>
                   </div>
                 )}
@@ -344,7 +352,7 @@ const StudentDashboard = () => {
             <h2 className="text-xl font-bold text-gray-900 mb-6">Recent Activity</h2>
             {hasRecentActivity ? (
               <div className="space-y-4">
-                {recentActivity.map((activity, index) => (
+                {safeRecentActivity.map((activity, index) => (
                   <div
                     key={index}
                     className="group flex items-start space-x-4 p-4 bg-gray-50 hover:bg-indigo-50 rounded-xl transition-all duration-300 cursor-pointer"

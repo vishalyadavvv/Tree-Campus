@@ -23,6 +23,7 @@ import enrollmentRoutes from './routes/enrollmentRoutes.js';
 import volunteerRoutes from './routes/volunteerRoutes.js'
 import accountDeletion from './routes/accountDeletion.js';
 import registerSchool from'./routes/schoolRegistration.js';
+import assignmentRoutes from './routes/assignmentRoutes.js';
 
 // Initialize Express app
 const app = express();
@@ -35,7 +36,7 @@ connectDB();
 
 // CORS must be FIRST
 app.use(cors({
-  origin: ['http://localhost:5174', 'https://treecampus.netlify.app'],
+  origin: ['http://localhost:5173', 'https://treecampus.netlify.app'],
   methods: ['GET', 'POST', 'PUT', 'DELETE','PATCH','Options'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
@@ -89,6 +90,7 @@ app.use('/api/enrollments', enrollmentRoutes);
 app.use('/api/volunteer', volunteerRoutes);
 app.use('/api/account-deletion-request', accountDeletion);
 app.use('/api/registerschool',registerSchool);
+app.use('/api/assignments', assignmentRoutes);
 
 // 404 handler
 app.use(notFound);

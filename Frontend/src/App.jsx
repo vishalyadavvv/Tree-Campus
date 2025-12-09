@@ -24,6 +24,8 @@ import LessonView from './pages/LessonView';
 import BlogList from './pages/BlogList';
 import BlogPost from './pages/BlogPost';
 import Quiz from './pages/Quiz';
+import AssignmentTest from './pages/AssignmentTest';
+import AssignmentResults from './pages/AssignmentResults';
 
 
 
@@ -89,6 +91,16 @@ function App() {
             <Route path="/blogs" element={<BlogList />} />
             <Route path="/blogs/:id" element={<BlogPost />} />
             <Route path="/courses/:courseId/section/:sectionId/quiz" element={<Quiz />} />
+            <Route path="/courses/:courseId/assignment/:assignmentId" element={
+              <ProtectedRoute>
+                <AssignmentTest />
+              </ProtectedRoute>
+            } />
+            <Route path="/courses/:courseId/assignment/:assignmentId/results" element={
+              <ProtectedRoute>
+                <AssignmentResults />
+              </ProtectedRoute>
+            } />
 
             {/* ============ ADMIN ROUTES (Admin Only) ============ */}
             <Route 

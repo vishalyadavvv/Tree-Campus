@@ -21,59 +21,112 @@ export const getStudentDashboard = async (req, res) => {
       });
     }
 
+    // ✅ FILTER OUT NULL COURSES FIRST
+    const validEnrollments = student.enrolledCourses.filter(enrollment => enrollment.courseId != null);
+
+    // ✅ RECALCULATE PROGRESS FOR EACH VALID COURSE
+    const enrolledCoursesWithProgress = await Promise.all(
+      validEnrollments.map(async (enrollment) => {
+        try {
+          const courseId = enrollment.courseId._id;
+          
+          // Count total lessons in course
+          const totalLessons = await Lesson.countDocuments({ courseId });
+          
+          // Count completed lessons for this course
+          const completedLessonIds = student.completedLessons.map(c => c.lessonId);
+          const completedCount = await Lesson.countDocuments({
+            _id: { $in: completedLessonIds },
+            courseId: courseId
+          });
+          
+          // Calculate real-time progress
+          const realProgress = totalLessons > 0 ? Math.round((completedCount / totalLessons) * 100) : 0;
+          
+          return {
+            ...enrollment.toObject(),
+            progress: realProgress,
+            totalLessons,
+            completedLessons: completedCount
+          };
+        } catch (err) {
+          console.error('Error processing enrollment:', err);
+          return null;
+        }
+      })
+    );
+
+    // Filter out any failed enrollments
+    const finalEnrollments = enrolledCoursesWithProgress.filter(e => e !== null);
+
     // Calculate overall statistics
-    const totalEnrolledCourses = student.enrolledCourses.length;
+    const totalEnrolledCourses = finalEnrollments.length;
     const totalCompletedLessons = student.completedLessons.length;
     const totalCertificates = student.certificates.length;
 
-    // Calculate overall progress
+    // Calculate overall progress from REAL-TIME data
     let totalProgress = 0;
     if (totalEnrolledCourses > 0) {
-      const progressSum = student.enrolledCourses.reduce((sum, enrollment) => sum + enrollment.progress, 0);
+      const progressSum = finalEnrollments.reduce((sum, enrollment) => sum + enrollment.progress, 0);
       totalProgress = Math.round(progressSum / totalEnrolledCourses);
     }
 
-    // Get recent activity (last 5 completed lessons)
-    const recentCompletions = await Promise.all(
-      student.completedLessons
-        .sort((a, b) => new Date(b.completedAt) - new Date(a.completedAt))
-        .slice(0, 5)
-        .map(async (completion) => {
-          const lesson = await Lesson.findById(completion.lessonId)
-            .populate('courseId', 'title');
-          return {
-            lessonId: completion.lessonId,
-            lessonTitle: lesson?.title || 'Unknown Lesson',
-            courseTitle: lesson?.courseId?.title || 'Unknown Course',
-            completedAt: completion.completedAt
-          };
-        })
-    );
+    console.log('📊 Dashboard Stats:', {
+      totalCompletedLessons,
+      totalProgress,
+      enrolledCourses: finalEnrollments.map(e => ({
+        title: e.courseId?.title || 'Unknown',
+        progress: e.progress
+      }))
+    });
 
-    // Get detailed course progress
-    const courseProgress = await Promise.all(
-      student.enrolledCourses.map(async (enrollment) => {
-        const course = enrollment.courseId;
-        const totalLessons = await Lesson.countDocuments({ courseId: course._id });
-        const completedLessons = await Lesson.countDocuments({
-          _id: { $in: student.completedLessons.map(c => c.lessonId) },
-          courseId: course._id
-        });
+    // Get recent activity
+    const recentCompletionsData = student.completedLessons
+      .sort((a, b) => new Date(b.completedAt) - new Date(a.completedAt))
+      .slice(0, 5);
 
+    const recentLessonIds = recentCompletionsData.map(completion => completion.lessonId);
+
+    const lessons = await Lesson.find({ _id: { $in: recentLessonIds } })
+      .populate('courseId', 'title')
+      .lean();
+
+    const lessonMap = new Map();
+    lessons.forEach(lesson => {
+      lessonMap.set(lesson._id.toString(), lesson);
+    });
+
+    const recentActivity = recentCompletionsData
+      .map(completion => {
+        const lessonIdStr = completion.lessonId.toString();
+        const lesson = lessonMap.get(lessonIdStr);
+        
+        if (!lesson || !lesson.courseId) {
+          return null;
+        }
+        
         return {
-          courseId: course._id,
-          title: course.title,
-          thumbnail: course.thumbnail,
-          category: course.category,
-          instructor: course.instructor,
-          duration: course.duration,
-          progress: enrollment.progress,
-          totalLessons,
-          completedLessons,
-          enrolledAt: enrollment.enrolledAt
+          lessonId: completion.lessonId,
+          lessonTitle: lesson.title,
+          courseTitle: lesson.courseId.title,
+          completedAt: completion.completedAt
         };
       })
-    );
+      .filter(item => item !== null);
+
+    // Course progress details
+    const courseProgress = finalEnrollments.map(enrollment => ({
+      courseId: enrollment.courseId._id,
+      title: enrollment.courseId.title,
+      thumbnail: enrollment.courseId.thumbnail,
+      category: enrollment.courseId.category,
+      instructor: enrollment.courseId.instructor,
+      duration: enrollment.courseId.duration,
+      progress: enrollment.progress,
+      totalLessons: enrollment.totalLessons,
+      completedLessons: enrollment.completedLessons,
+      enrolledAt: enrollment.enrolledAt
+    }));
 
     // Get upcoming live classes
     const upcomingLiveClasses = await LiveClass.find({
@@ -87,14 +140,22 @@ export const getStudentDashboard = async (req, res) => {
     // Get recommended courses
     let recommendedCourses = [];
     
-    if (student.enrolledCourses.length > 0) {
-      // If student has enrolled courses, recommend courses in same categories
-      const enrolledCategories = [...new Set(student.enrolledCourses.map(e => e.courseId?.category).filter(Boolean))];
+    if (finalEnrollments.length > 0) {
+      const enrolledCategories = [...new Set(
+        finalEnrollments
+          .map(e => e.courseId?.category)
+          .filter(Boolean)
+      )];
+      
+      const enrolledCourseIds = finalEnrollments
+        .map(e => e.courseId?._id)
+        .filter(Boolean);
       
       if (enrolledCategories.length > 0) {
         recommendedCourses = await Course.find({
           category: { $in: enrolledCategories },
-          _id: { $nin: student.enrolledCourses.map(e => e.courseId._id) }
+          _id: { $nin: enrolledCourseIds },
+          isPublished: true
         })
           .select('title thumbnail category rating enrollmentCount')
           .sort('-rating')
@@ -102,9 +163,8 @@ export const getStudentDashboard = async (req, res) => {
       }
     }
     
-    // If no recommendations yet (new student or no matching categories), get popular courses
     if (recommendedCourses.length === 0) {
-      recommendedCourses = await Course.find({})
+      recommendedCourses = await Course.find({ isPublished: true })
         .select('title thumbnail category rating enrollmentCount')
         .sort('-enrollmentCount')
         .limit(4);
@@ -119,20 +179,20 @@ export const getStudentDashboard = async (req, res) => {
           totalCertificates,
           totalProgress
         },
-        recentActivity: recentCompletions,
+        recentActivity,
         courseProgress,
         upcomingLiveClasses,
         recommendedCourses,
         studentInfo: {
           name: student.name,
           email: student.email,
-          avatar: student.avatar,
+          profilePicture: student.profilePicture,
           joinedAt: student.createdAt
         }
       }
     });
   } catch (error) {
-    console.error('Dashboard error:', error);
+    console.error('❌ Dashboard error:', error);
     res.status(500).json({
       success: false,
       message: error.message

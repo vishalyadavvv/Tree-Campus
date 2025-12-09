@@ -525,6 +525,160 @@ const sendAccountDeletionConfirmation = async (userEmail, userName, deletionDeta
   }
 };
 
+/**
+ * Send assignment results email (pass/fail notification)
+ */
+export const sendAssignmentResultsEmail = async (userEmail, userName, assignmentData) => {
+  const { courseTitle, score, passed, certificateId, passingScore } = assignmentData;
+
+  const subject = passed
+    ? `🎉 Congratulations! You Passed "${courseTitle}" Assignment`
+    : `Assignment Results - ${courseTitle}`;
+
+  const resultColor = passed ? '#27AE60' : '#E74C3C';
+  const resultText = passed ? 'PASSED ✓' : 'NEEDS IMPROVEMENT';
+
+  const userHtml = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <style>
+          body { font-family: Arial, sans-serif; background-color: #f5f5f5; margin: 0; padding: 20px; }
+          .container { max-width: 600px; margin: 0 auto; background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); overflow: hidden; }
+          .header { background: linear-gradient(135deg, #FD5A00 0%, #FF7722 100%); color: white; padding: 30px; text-align: center; }
+          .header img { max-width: 60px; margin-bottom: 15px; }
+          .header h1 { margin: 0; font-size: 24px; }
+          .content { padding: 30px; }
+          .result-box { 
+            background: ${resultColor}; 
+            color: white; 
+            padding: 20px; 
+            border-radius: 8px; 
+            text-align: center; 
+            margin: 20px 0;
+            font-size: 18px;
+            font-weight: bold;
+          }
+          .score { font-size: 36px; font-weight: bold; color: ${resultColor}; margin: 15px 0; }
+          .details { background: #f9f9f9; padding: 15px; border-left: 4px solid #FD5A00; margin: 15px 0; }
+          .button { 
+            display: inline-block; 
+            background: #FD5A00; 
+            color: white; 
+            padding: 12px 30px; 
+            border-radius: 5px; 
+            text-decoration: none; 
+            margin: 20px 0;
+            font-weight: bold;
+          }
+          .footer { background: #f5f5f5; padding: 20px; text-align: center; color: #666; font-size: 12px; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <img src="${COMPANY_LOGO}" alt="Tree Campus">
+            <h1>Assignment Results</h1>
+          </div>
+          <div class="content">
+            <p>Hi <strong>${userName}</strong>,</p>
+            
+            <div class="result-box">${resultText}</div>
+            
+            <div class="score">Score: ${score}%</div>
+            
+            <div class="details">
+              <p><strong>Course:</strong> ${courseTitle}</p>
+              <p><strong>Your Score:</strong> ${score}%</p>
+              <p><strong>Passing Score:</strong> ${passingScore || 60}%</p>
+            </div>
+
+            ${
+              passed
+                ? `
+            <p style="text-align: center; color: #27AE60; font-weight: bold;">
+              🎓 Congratulations! You have earned your certificate of completion!
+            </p>
+            <div style="text-align: center;">
+              <a href="https://treecampus.netlify.app/dashboard/certificates" class="button">
+                View Your Certificate
+              </a>
+            </div>
+            `
+                : `
+            <p style="color: #E74C3C;">
+              <strong>Keep Learning!</strong> You didn't reach the passing score this time. 
+              Review the material and try again to earn your certificate.
+            </p>
+            <div style="text-align: center;">
+              <a href="https://treecampus.netlify.app/courses/${courseTitle}" class="button">
+                Return to Course
+              </a>
+            </div>
+            `
+            }
+
+            <p style="margin-top: 30px; color: #666;">
+              If you have any questions, please contact us at 
+              <a href="mailto:support@treecampus.com" style="color: #FD5A00;">support@treecampus.com</a>
+            </p>
+          </div>
+          <div class="footer">
+            <p>© 2024 Tree Campus Academy. All rights reserved.</p>
+            <p>This is an automated message, please do not reply directly to this email.</p>
+          </div>
+        </div>
+      </body>
+    </html>
+  `;
+
+  // Send to user
+  await sendEmail({
+    to: userEmail,
+    subject,
+    html: userHtml
+  });
+
+  // Also notify admin
+  const adminHtml = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <style>
+          body { font-family: Arial, sans-serif; background-color: #f5f5f5; }
+          .container { max-width: 600px; margin: 20px auto; background: white; padding: 20px; border-radius: 8px; }
+          .header { background: #FD5A00; color: white; padding: 15px; border-radius: 5px; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h2>[ADMIN] Assignment Submission Notification</h2>
+          </div>
+          <p><strong>Student:</strong> ${userName}</p>
+          <p><strong>Email:</strong> ${userEmail}</p>
+          <p><strong>Course:</strong> ${courseTitle}</p>
+          <p><strong>Score:</strong> ${score}%</p>
+          <p><strong>Status:</strong> ${passed ? 'PASSED ✓' : 'NEEDS IMPROVEMENT'}</p>
+          <p><strong>Timestamp:</strong> ${new Date().toLocaleString()}</p>
+        </div>
+      </body>
+    </html>
+  `;
+
+  // Send admin notification in background
+  const adminEmail = process.env.ADMIN_EMAIL || process.env.SENDER_EMAIL;
+  if (adminEmail) {
+    sendEmail({
+      to: adminEmail,
+      subject: `[ADMIN] ${courseTitle} - Assignment ${passed ? 'PASSED' : 'FAILED'}: ${userName}`,
+      html: adminHtml
+    }).catch(err => {
+      console.error('❌ Failed to send admin assignment notification:', err.message);
+    });
+  }
+};
+
 export {
   sendEmail,
   sendOTPEmail,
