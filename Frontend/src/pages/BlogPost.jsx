@@ -8,6 +8,7 @@ import {
   FiHeart, FiMessageCircle, FiBookOpen, FiInstagram, FiX
 } from 'react-icons/fi';
 import { format } from 'date-fns';
+import toast from 'react-hot-toast';
 
 const BlogPost = () => {
   const { id } = useParams();
@@ -161,7 +162,7 @@ const BlogPost = () => {
 
     if (platform === 'copy') {
       navigator.clipboard.writeText(url);
-      alert('Link copied to clipboard!');
+      toast.success('Link copied to clipboard!');
       setShowShare(false);
       return;
     }
@@ -169,7 +170,7 @@ const BlogPost = () => {
     if (platform === 'instagram') {
       const message = `Check out this blog post: ${title}\n${url}`;
       navigator.clipboard.writeText(message);
-      alert('Content copied to clipboard! You can now paste it in your Instagram post or story.');
+      toast.success('Content copied to clipboard! You can now paste it in your Instagram post or story.');
       setShowShare(false);
       return;
     }

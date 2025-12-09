@@ -14,6 +14,7 @@ import {
   FiArrowLeft,
   FiAlertCircle
 } from 'react-icons/fi';
+import toast from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext';
 
 const Quiz = () => {
@@ -99,7 +100,7 @@ const Quiz = () => {
       setQuizSubmitted(true);
     } catch (error) {
       console.error('Error submitting quiz:', error);
-      alert('Failed to submit quiz. Please try again.');
+      toast.error('Failed to submit quiz. Please try again.');
     }
   };
 
@@ -140,7 +141,7 @@ const Quiz = () => {
   const copyToClipboard = () => {
     const text = getShareText();
     navigator.clipboard.writeText(text);
-    alert('Copied to clipboard!');
+    toast.success('Copied to clipboard!');
   };
 
   if (loading) {

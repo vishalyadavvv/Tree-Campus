@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { FiSearch, FiEye, FiCheck, FiX, FiRefreshCw, FiSettings } from 'react-icons/fi';
 import DashboardLayout from '../../components/Layout/DashboardLayout';
+import toast from 'react-hot-toast';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://tree-campus.onrender.com/api';
 
@@ -40,10 +41,10 @@ const SchoolRegistrationManagement = () => {
       await axios.patch(`${API_BASE_URL}/registerSchool/${id}/status`, { status });
       await fetchSchools();
       setConfirmModal(null);
-      alert(`Status updated to ${status} successfully!`);
+      toast.success(`Status updated to ${status} successfully!`);
     } catch (error) {
       console.error('Error updating status:', error);
-      alert('Failed to update status. Please try again.');
+      toast.error('Failed to update status. Please try again.');
     }
   };
 

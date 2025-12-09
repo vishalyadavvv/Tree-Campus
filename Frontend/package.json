@@ -21,6 +21,7 @@
     "chart.js": "^4.5.1",
     "date-fns": "^4.1.0",
     "framer-motion": "^11.18.2",
+    "html2canvas": "^1.4.1",
     "i18next": "^25.6.3",
     "jspdf": "^3.0.4",
     "lucide-react": "^0.554.0",

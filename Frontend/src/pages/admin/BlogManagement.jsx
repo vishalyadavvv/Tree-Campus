@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import DashboardLayout from '../../components/Layout/DashboardLayout';
 import api from '../../services/api';
 import { FiPlus, FiTrash2, FiUpload, FiX, FiEdit2, FiEye, FiCalendar, FiTag, FiUser } from 'react-icons/fi';
+import toast from 'react-hot-toast';
 
 const BlogManagement = () => {
   const [blogs, setBlogs] = useState([]);
@@ -66,7 +67,7 @@ const BlogManagement = () => {
       }));
     } catch (error) {
       console.error('Error uploading thumbnail:', error);
-      alert('Failed to upload thumbnail');
+      toast.error('Failed to upload thumbnail');
     } finally {
       setUploading(false);
     }
@@ -83,10 +84,10 @@ const BlogManagement = () => {
       
       if (editingBlog) {
         await api.put(`/blogs/${editingBlog._id}`, blogData);
-        alert('✅ Blog updated successfully!');
+        toast.success('Blog updated successfully!');
       } else {
         await api.post('/blogs', blogData);
-        alert('✅ Blog created successfully!');
+        toast.success('Blog created successfully!');
       }
       
       setShowModal(false);
@@ -106,7 +107,7 @@ const BlogManagement = () => {
       fetchBlogs();
     } catch (error) {
       console.error('Error saving blog:', error);
-      alert(`❌ Failed to save blog: ${error.response?.data?.message || error.message}`);
+      toast.error(`Failed to save blog: ${error.response?.data?.message || error.message}`);
     }
   };
 
@@ -131,11 +132,11 @@ const BlogManagement = () => {
     if (window.confirm('Are you sure you want to delete this blog?')) {
       try {
         await api.delete(`/blogs/${id}`);
-        alert('✅ Blog deleted successfully!');
+        toast.success('Blog deleted successfully!');
         fetchBlogs();
       } catch (error) {
         console.error('Error deleting blog:', error);
-        alert('❌ Failed to delete blog');
+        toast.error('Failed to delete blog');
       }
     }
   };
@@ -149,7 +150,7 @@ const BlogManagement = () => {
       fetchBlogs();
     } catch (error) {
       console.error('Error updating blog:', error);
-      alert('❌ Failed to update blog status');
+      toast.error('Failed to update blog status');
     }
   };
 

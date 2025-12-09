@@ -2,10 +2,12 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import { FiAward, FiDownload, FiArrowRight, FiBookOpen } from 'react-icons/fi';
+import toast from 'react-hot-toast';
 
 const Certificate = () => {
     const [certificates, setCertificates] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [downloading, setDownloading] = useState(null);
     const [error, setError] = useState(null);
     const navigate = useNavigate();
 
@@ -26,6 +28,31 @@ const Certificate = () => {
             setError(err.response?.data?.message || 'Failed to load certificates');
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleDownloadCertificate = async (cert) => {
+        try {
+            setDownloading(cert._id);
+            
+            // Download directly from certificateUrl if available
+            if (cert.certificateUrl) {
+                const link = document.createElement('a');
+                link.href = cert.certificateUrl;
+                link.download = `Certificate-${cert.userName?.replace(/\s+/g, '_') || 'TreeCampus'}-${cert.certificateNumber}.pdf`;
+                link.target = '_blank';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                toast.success('Certificate downloaded successfully!');
+            } else {
+                toast.error('Certificate URL not available');
+            }
+        } catch (error) {
+            console.error('Error downloading certificate:', error);
+            toast.error('Failed to download certificate. Please try again.');
+        } finally {
+            setDownloading(null);
         }
     };
 
@@ -176,15 +203,27 @@ const Certificate = () => {
                                 
                                 {/* Overlay for Actions */}
                                 <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center rounded-xl backdrop-blur-sm z-20">
-                                    <a 
-                                        href={cert.certificateUrl || '#'} 
-                                        target="_blank" 
-                                        rel="noopener noreferrer"
-                                        className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-orange-400 to-orange-600 text-white font-bold rounded-full transform scale-90 group-hover:scale-100 transition-all duration-300 shadow-xl hover:shadow-2xl"
+                                    <button
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            e.stopPropagation();
+                                            handleDownloadCertificate(cert);
+                                        }}
+                                        disabled={downloading === cert._id}
+                                        className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-orange-400 to-orange-600 text-white font-bold rounded-full transform scale-90 group-hover:scale-100 transition-all duration-300 shadow-xl hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed"
                                     >
-                                        <FiDownload className="w-5 h-5 mr-2" />
-                                        Download PDF
-                                    </a>
+                                        {downloading === cert._id ? (
+                                            <>
+                                                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                                                Downloading...
+                                            </>
+                                        ) : (
+                                            <>
+                                                <FiDownload className="w-5 h-5 mr-2" />
+                                                Download PDF
+                                            </>
+                                        )}
+                                    </button>
                                 </div>
                             </div>
                         ))}

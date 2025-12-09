@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import Loader from '../components/common/Loader';
 import { FiClock, FiFileText, FiCheckCircle, FiAlertCircle, FiAward, FiPlay } from 'react-icons/fi';
+import toast from 'react-hot-toast';
 
 const AssignmentTest = () => {
   const { assignmentId, courseId } = useParams();
@@ -130,7 +131,7 @@ const AssignmentTest = () => {
       });
     } catch (error) {
       console.error('Error submitting assignment:', error);
-      alert('Failed to submit assignment. Please try again.');
+      toast.error('Failed to submit assignment. Please try again.');
     } finally {
       setSubmitting(false);
     }

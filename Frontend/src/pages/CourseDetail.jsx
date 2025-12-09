@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import { FiChevronRight, FiPlay, FiChevronDown, FiChevronUp, FiClock, FiBook, FiAward, FiCheckCircle, FiUser, FiUsers, FiStar, FiLock, FiLogIn, FiAlertCircle } from 'react-icons/fi';
 import { AuthContext } from '../context/AuthContext'; 
+import toast from 'react-hot-toast';
 
 const CourseOverview = () => {
   const { id } = useParams();
@@ -143,7 +144,7 @@ const CourseOverview = () => {
         setShowEnrollModal(false);
         
         // Show success message
-        alert('Successfully enrolled in the course!');
+        toast.success('Successfully enrolled in the course!');
         
         // If there's a first lesson, navigate to it
         if (firstLessonId) {

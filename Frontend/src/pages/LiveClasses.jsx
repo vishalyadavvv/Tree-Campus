@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Calendar, Clock, Users, Video, Youtube, Loader2 } from 'lucide-react';
+import toast from 'react-hot-toast';
 import api from '../services/api'; // Adjust path based on your project structure
 
 const LiveClasses = () => {
@@ -111,7 +112,7 @@ const LiveClasses = () => {
     if (link) {
       window.open(link, '_blank', 'noopener,noreferrer');
     } else {
-      alert('No class link available');
+      toast.error('No class link available');
     }
   };
 

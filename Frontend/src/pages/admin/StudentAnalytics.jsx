@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import DashboardLayout from '../../components/Layout/DashboardLayout';
 import api from '../../services/api';
 import { FiSearch, FiTrash2, FiEdit2, FiMail, FiBook, FiAward, FiCalendar, FiUser, FiFilter } from 'react-icons/fi';
+import toast from 'react-hot-toast';
 
 const StudentAnalytics = () => {
   const [students, setStudents] = useState([]);
@@ -30,9 +31,10 @@ const StudentAnalytics = () => {
       try {
         await api.delete(`/students/${id}`);
         fetchStudents();
+        toast.success('Student deleted successfully');
       } catch (error) {
         console.error('Error deleting student:', error);
-        alert('Failed to delete student');
+        toast.error('Failed to delete student');
       }
     }
   };

@@ -8,6 +8,7 @@ import {
   FiSettings, FiInfo, FiBookOpen, FiBarChart2, FiUsers, FiGlobe,
   FiUpload, FiImage, FiYoutube, FiExternalLink, FiEye, FiEyeOff,FiAward
 } from 'react-icons/fi';
+import toast from 'react-hot-toast';
 
 // Course categories based on your backend enum
 const COURSE_CATEGORIES = [
@@ -116,12 +117,12 @@ const CourseBuilder = () => {
         setShowCourseEditModal(false);
         setEditingCourse(null);
       } else {
-        alert(response.data.message || 'Failed to update course');
+        toast.error(response.data.message || 'Failed to update course');
       }
     } catch (error) {
       console.error('Error updating course:', error);
       const errorMessage = error.response?.data?.message || 'Failed to update course. Please check the form data.';
-      alert(errorMessage);
+      toast.error(errorMessage);
     }
   };
 
@@ -139,13 +140,13 @@ const CourseBuilder = () => {
     
     if (response.data.success) {
       await fetchCourseStructure();
-      alert('Thumbnail uploaded successfully!');
+      toast.success('Thumbnail uploaded successfully!');
     } else {
-      alert('Failed to upload thumbnail');
+      toast.error('Failed to upload thumbnail');
     }
   } catch (error) {
     console.error('Error uploading thumbnail:', error);
-    alert(error.response?.data?.message || 'Error uploading thumbnail');
+    toast.error(error.response?.data?.message || 'Error uploading thumbnail');
   } finally {
     setUploadingThumbnail(false);
   }
@@ -184,7 +185,7 @@ const CourseBuilder = () => {
       setEditingSection(null);
     } catch (error) {
       console.error('Error saving section:', error);
-      alert(error.response?.data?.message || 'Failed to save section');
+      toast.error(error.response?.data?.message || 'Failed to save section');
     }
   };
 
@@ -195,7 +196,7 @@ const CourseBuilder = () => {
       await fetchCourseStructure();
     } catch (error) {
       console.error('Error deleting section:', error);
-      alert('Failed to delete section');
+      toast.error('Failed to delete section');
     }
   };
 
@@ -249,7 +250,7 @@ const CourseBuilder = () => {
       setCurrentSectionId(null);
     } catch (error) {
       console.error('Error saving lesson:', error);
-      alert(error.response?.data?.message || 'Failed to save lesson');
+      toast.error(error.response?.data?.message || 'Failed to save lesson');
     }
   };
 
@@ -260,7 +261,7 @@ const CourseBuilder = () => {
       await fetchCourseStructure();
     } catch (error) {
       console.error('Error deleting lesson:', error);
-      alert('Failed to delete lesson');
+      toast.error('Failed to delete lesson');
     }
   };
 
@@ -307,7 +308,7 @@ const handleSaveQuiz = async (quizData) => {
     setCurrentSectionId(null);
   } catch (error) {
     console.error('Error saving quiz:', error);
-    alert(error.response?.data?.message || 'Failed to save quiz');
+    toast.error(error.response?.data?.message || 'Failed to save quiz');
   }
 };
 
@@ -318,7 +319,7 @@ const handleSaveQuiz = async (quizData) => {
       await fetchCourseStructure();
     } catch (error) {
       console.error('Error deleting quiz:', error);
-      alert('Failed to delete quiz');
+      toast.error('Failed to delete quiz');
     }
   };
 
@@ -351,7 +352,7 @@ const handleSaveQuiz = async (quizData) => {
       setEditingAssignment(null);
     } catch (error) {
       console.error('Error saving assignment:', error);
-      alert(error.response?.data?.message || 'Failed to save assignment');
+      toast.error(error.response?.data?.message || 'Failed to save assignment');
     }
   };
 
@@ -362,7 +363,7 @@ const handleSaveQuiz = async (quizData) => {
       await fetchCourseStructure();
     } catch (error) {
       console.error('Error deleting assignment:', error);
-      alert('Failed to delete assignment');
+      toast.error('Failed to delete assignment');
     }
   };
 
@@ -1016,11 +1017,11 @@ const handleThumbnailChange = (e) => {
   if (!file) return;
 
   if (file.size > 5 * 1024 * 1024) {
-    alert("File size should be less than 5MB");
+    toast.error("File size should be less than 5MB");
     return;
   }
   if (!file.type.startsWith("image/")) {
-    alert("Please upload an image file");
+    toast.error("Please upload an image file");
     return;
   }
 
@@ -1325,7 +1326,7 @@ const LessonModal = ({ lesson, onSave, onClose }) => {
       setPdfFile(file);
       setFormData({ ...formData, pdfFileName: file.name });
     } else {
-      alert('Please select a valid PDF file');
+      toast.error('Please select a valid PDF file');
     }
   };
 
@@ -1545,12 +1546,12 @@ const handleSubmit = async (e) => {
 
   // ✅ 1. VALIDATE FORM
   if (!formData.title.trim()) {
-    alert("Please enter a quiz title");
+    toast.error("Please enter a quiz title");
     return;
   }
 
   if (formData.questions.length === 0) {
-    alert("Please add at least one question");
+    toast.error("Please add at least one question");
     return;
   }
 
@@ -1575,7 +1576,7 @@ const handleSubmit = async (e) => {
   });
 
   if (validationErrors.length > 0) {
-    alert("Please fix the following errors:\n\n" + validationErrors.join("\n"));
+    toast.error("Please fix the following errors:\n\n" + validationErrors.join("\n"));
     return;
   }
 
@@ -1619,7 +1620,7 @@ const handleSubmit = async (e) => {
     await onSave(quizData);
   } catch (error) {
     console.error("Failed to save quiz:", error);
-    alert(error.response?.data?.message || "Failed to save quiz. Please try again.");
+    toast.error(error.response?.data?.message || "Failed to save quiz. Please try again.");
   }
 };
   // Render JSX remains the same...

@@ -3,6 +3,7 @@
   import DashboardLayout from '../../components/Layout/DashboardLayout';
   import api from '../../services/api';
   import { FiPlus, FiEdit2, FiTrash2, FiUpload, FiX, FiUsers, FiClock, FiBarChart2 } from 'react-icons/fi';
+  import toast from 'react-hot-toast';
 
   const CoursesManagement = () => {
     const navigate = useNavigate();
@@ -74,7 +75,7 @@
         
       } catch (error) {
         console.error('❌ Upload failed:', error);
-        alert('Upload failed. Please try entering an image URL instead.');
+        toast.error('Upload failed. Please try entering an image URL instead.');
         setFormData(prev => ({
           ...prev,
           thumbnail: ''
@@ -89,7 +90,7 @@
       
       // Validate thumbnail
       if (!formData.thumbnail) {
-        alert('Please upload a thumbnail or enter an image URL');
+        toast.error('Please upload a thumbnail or enter an image URL');
         return;
       }
       
@@ -116,10 +117,10 @@
         // Refresh courses list
         await fetchCourses();
         
-        alert('Course created successfully!');
+        toast.success('Course created successfully!');
       } catch (error) {
         console.error('Error creating course:', error);
-        alert('Failed to create course: ' + (error.response?.data?.message || error.message));
+        toast.error('Failed to create course: ' + (error.response?.data?.message || error.message));
       }
     };
 
@@ -130,7 +131,7 @@
           fetchCourses();
         } catch (error) {
           console.error('Error deleting course:', error);
-          alert('Failed to delete course');
+          toast.error('Failed to delete course');
         }
       }
     };

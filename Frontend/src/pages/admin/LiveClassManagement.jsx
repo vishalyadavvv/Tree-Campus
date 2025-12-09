@@ -3,6 +3,7 @@ import DashboardLayout from '../../components/Layout/DashboardLayout';
 import api from '../../services/api';
 import { FiPlus, FiTrash2, FiExternalLink, FiClock, FiCalendar, FiUser, FiVideo, FiX } from 'react-icons/fi';
 import { format } from 'date-fns';
+import toast from 'react-hot-toast';
 
 const LiveClassManagement = () => {
   const [liveClasses, setLiveClasses] = useState([]);
@@ -51,9 +52,10 @@ const LiveClassManagement = () => {
         maxParticipants: 100 
       });
       fetchLiveClasses();
+      toast.success('Live class scheduled successfully!');
     } catch (error) {
       console.error('Error creating live class:', error);
-      alert('Failed to create live class');
+      toast.error('Failed to create live class');
     }
   };
 
@@ -62,9 +64,10 @@ const LiveClassManagement = () => {
       try {
         await api.delete(`/live-classes/${id}`);
         fetchLiveClasses();
+        toast.success('Live class deleted successfully');
       } catch (error) {
         console.error('Error deleting live class:', error);
-        alert('Failed to delete live class');
+        toast.error('Failed to delete live class');
       }
     }
   };

@@ -1,5 +1,6 @@
 // client/src/App.js
 import React from 'react';
+import { Toaster } from 'react-hot-toast';
 import { useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
@@ -69,6 +70,37 @@ function App() {
       <CourseProvider>
         <ScrollToTop />
         <div className="App">
+          <Toaster 
+            position="top-center"
+            reverseOrder={false}
+            toastOptions={{
+              duration: 4000,
+              style: {
+                background: '#fff',
+                color: '#333',
+              },
+              success: {
+                style: {
+                  background: '#10B981',
+                  color: '#fff',
+                },
+                iconTheme: {
+                  primary: '#fff',
+                  secondary: '#10B981',
+                },
+              },
+              error: {
+                 style: {
+                  background: '#EF4444',
+                  color: '#fff',
+                },
+                 iconTheme: {
+                  primary: '#fff',
+                  secondary: '#EF4444',
+                },
+              },
+            }}
+          />
           <Navbar />
           
           <Routes>
