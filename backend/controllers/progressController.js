@@ -63,8 +63,13 @@ export const completeLesson = async (req, res) => {
       console.log(`⏭️  Lesson ${lessonId} already completed, skipping`);
     }
 
-    // Recalculate progress
-    const totalLessons = await Lesson.countDocuments({ courseId });
+    // Recalculate progress (only count lessons in valid sections)
+    const sections = await (await import('../models/Section.js')).default.find({ courseId });
+    const sectionIds = sections.map(s => s._id);
+    const totalLessons = await Lesson.countDocuments({ 
+      courseId,
+      sectionId: { $in: sectionIds }
+    });
     const completedCount = progressDoc.completedLessons.length;
     const newProgress = totalLessons > 0 ? Math.round((completedCount / totalLessons) * 100) : 0;
 
@@ -106,8 +111,13 @@ export const getCourseProgress = async (req, res) => {
       progressDoc = await Progress.create({ user: userId, course: courseId });
     }
 
-    // Ensure progress is up-to-date (recompute using Lessons)
-    const totalLessons = await Lesson.countDocuments({ courseId });
+    // Ensure progress is up-to-date (recompute using Lessons in valid sections)
+    const sections = await (await import('../models/Section.js')).default.find({ courseId });
+    const sectionIds = sections.map(s => s._id);
+    const totalLessons = await Lesson.countDocuments({ 
+      courseId,
+      sectionId: { $in: sectionIds }
+    });
     const completedCount = progressDoc.completedLessons.length;
     const progress = totalLessons > 0 ? Math.round((completedCount / totalLessons) * 100) : 0;
 

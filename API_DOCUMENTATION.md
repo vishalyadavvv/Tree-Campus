@@ -152,7 +152,7 @@ GET /api/courses
 ```
 **Access:** 🌐 Public
 
-**Frontend Usage:** `CourseCatalog.jsx`, `CoursesManagement.jsx`
+**Frontend Usage:**  `CoursesManagement.jsx`
 
 ---
 
@@ -168,7 +168,7 @@ POST /api/courses
   "title": "JavaScript Fundamentals",
   "description": "Learn JavaScript from scratch",
   "instructor": "John Doe",
-  "price": 49.99,
+  
   "thumbnail": "/uploads/thumbnails/course.jpg",
   "level": "Beginner",
   "duration": "10 hours"

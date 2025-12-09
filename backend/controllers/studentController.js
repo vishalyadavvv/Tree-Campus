@@ -9,9 +9,11 @@ import LiveClass from '../models/LiveClass.js';
 // @access  Private/Student
 export const getStudentDashboard = async (req, res) => {
   try {
-    const student = await User.findById(req.user._id)
+    const studentId = req.user._id;
+
+    // Get student with enrolled courses
+    const student = await User.findById(studentId)
       .populate('enrolledCourses.courseId', 'title thumbnail category instructor duration')
-      .populate('certificates', 'courseId issuedAt')
       .select('-password');
 
     if (!student) {
@@ -21,28 +23,48 @@ export const getStudentDashboard = async (req, res) => {
       });
     }
 
-    // ✅ FILTER OUT NULL COURSES FIRST
+    // import Progress model dynamically if not imported at top, or assume it's available. 
+    // Ideally add: import Progress from '../models/Progress.js'; at the top of file.
+    // Since I am replacing the function, I should check imports first.
+    // I will add the import in a separate edit or assume I can add it here if I replace the whole file? 
+    // No, I am replacing a chunk. I should check if Progress is imported. It is NOT.
+    // So I need to add the import as well. But I can't add it in this chunk easily if I only replace the function.
+    // I will load it dynamically inside the function or file. 
+    // Actually, I can use `await import('../models/Progress.js')` or just rely on a separate edit to add the import.
+    // For safety, I will do a multi_replace including the import.
+    
+    // FETCH PROGRESS FOR ALL COURSES
+    // We'll find all Progress documents for this user
+    const Progress = (await import('../models/Progress.js')).default;
+    const progressDocs = await Progress.find({ user: studentId });
+
+    // Create a map of courseId -> processDoc for O(1) lookup
+    const progressMap = {};
+    progressDocs.forEach(doc => {
+      progressMap[doc.course.toString()] = doc;
+    });
+
+    // FILTER OUT NULL COURSES AND ATTACH PROGRESS
     const validEnrollments = student.enrolledCourses.filter(enrollment => enrollment.courseId != null);
 
-    // ✅ RECALCULATE PROGRESS FOR EACH VALID COURSE
     const enrolledCoursesWithProgress = await Promise.all(
       validEnrollments.map(async (enrollment) => {
         try {
-          const courseId = enrollment.courseId._id;
-          
+          const courseId = enrollment.courseId._id.toString();
+          const progressDoc = progressMap[courseId]; // Get progress from Progress model
+
           // Count total lessons in course
           const totalLessons = await Lesson.countDocuments({ courseId });
           
-          // Count completed lessons for this course
-          const completedLessonIds = student.completedLessons.map(c => c.lessonId);
-          const completedCount = await Lesson.countDocuments({
-            _id: { $in: completedLessonIds },
-            courseId: courseId
-          });
-          
-          // Calculate real-time progress
-          const realProgress = totalLessons > 0 ? Math.round((completedCount / totalLessons) * 100) : 0;
-          
+          let completedCount = 0;
+          let realProgress = 0;
+
+          if (progressDoc) {
+             completedCount = progressDoc.completedLessons.length;
+             // Calculate percentage based on total lessons (consistency check)
+             realProgress = totalLessons > 0 ? Math.round((completedCount / totalLessons) * 100) : 0;
+          }
+
           return {
             ...enrollment.toObject(),
             progress: realProgress,
@@ -56,65 +78,63 @@ export const getStudentDashboard = async (req, res) => {
       })
     );
 
-    // Filter out any failed enrollments
+    // Filter out errors
     const finalEnrollments = enrolledCoursesWithProgress.filter(e => e !== null);
 
     // Calculate overall statistics
     const totalEnrolledCourses = finalEnrollments.length;
-    const totalCompletedLessons = student.completedLessons.length;
+    
+    // Total Completed Lessons across all courses (sum of completed in each valid enrollment)
+    const totalCompletedLessons = finalEnrollments.reduce((sum, e) => sum + e.completedLessons, 0);
+    
     const totalCertificates = student.certificates.length;
 
-    // Calculate overall progress from REAL-TIME data
+    // Calculate overall progress
     let totalProgress = 0;
     if (totalEnrolledCourses > 0) {
       const progressSum = finalEnrollments.reduce((sum, enrollment) => sum + enrollment.progress, 0);
       totalProgress = Math.round(progressSum / totalEnrolledCourses);
     }
 
-    console.log('📊 Dashboard Stats:', {
-      totalCompletedLessons,
-      totalProgress,
-      enrolledCourses: finalEnrollments.map(e => ({
-        title: e.courseId?.title || 'Unknown',
-        progress: e.progress
-      }))
+    // GET RECENT ACTIVITY FROM PROGRESS DOCUMENTS
+    // Aggregate all completed lessons from all progress docs
+    let allCompletedLessons = [];
+    progressDocs.forEach(doc => {
+       if (doc.completedLessons && doc.completedLessons.length > 0) {
+           doc.completedLessons.forEach(cl => {
+               allCompletedLessons.push({
+                   lessonId: cl.lesson,
+                   completedAt: cl.completedAt,
+                   courseId: doc.course
+               });
+           });
+       }
     });
 
-    // Get recent activity
-    const recentCompletionsData = student.completedLessons
+    // Sort by completedAt desc and take top 5
+    const recentCompletionsData = allCompletedLessons
       .sort((a, b) => new Date(b.completedAt) - new Date(a.completedAt))
       .slice(0, 5);
 
-    const recentLessonIds = recentCompletionsData.map(completion => completion.lessonId);
-
-    const lessons = await Lesson.find({ _id: { $in: recentLessonIds } })
-      .populate('courseId', 'title')
-      .lean();
-
-    const lessonMap = new Map();
-    lessons.forEach(lesson => {
-      lessonMap.set(lesson._id.toString(), lesson);
-    });
-
-    const recentActivity = recentCompletionsData
-      .map(completion => {
-        const lessonIdStr = completion.lessonId.toString();
-        const lesson = lessonMap.get(lessonIdStr);
+    // Populate lesson details for recent activity
+    const recentActivity = await Promise.all(recentCompletionsData.map(async (item) => {
+        const lesson = await Lesson.findById(item.lessonId).select('title');
+        const course = await Course.findById(item.courseId).select('title');
         
-        if (!lesson || !lesson.courseId) {
-          return null;
-        }
-        
+        if (!lesson || !course) return null;
+
         return {
-          lessonId: completion.lessonId,
-          lessonTitle: lesson.title,
-          courseTitle: lesson.courseId.title,
-          completedAt: completion.completedAt
+            lessonId: item.lessonId,
+            lessonTitle: lesson.title,
+            courseTitle: course.title,
+            completedAt: item.completedAt
         };
-      })
-      .filter(item => item !== null);
+    }));
 
-    // Course progress details
+    const finalRecentActivity = recentActivity.filter(Boolean);
+
+
+    // Course progress details for response
     const courseProgress = finalEnrollments.map(enrollment => ({
       courseId: enrollment.courseId._id,
       title: enrollment.courseId.title,
@@ -179,7 +199,7 @@ export const getStudentDashboard = async (req, res) => {
           totalCertificates,
           totalProgress
         },
-        recentActivity,
+        recentActivity: finalRecentActivity,
         courseProgress,
         upcomingLiveClasses,
         recommendedCourses,

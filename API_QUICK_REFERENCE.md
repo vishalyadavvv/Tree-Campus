@@ -2,7 +2,7 @@
 
 ## Server & Base URL
 ```
-Base URL: http://localhost:4000
+Base URL: http://localhost:4000, https://tree-campus.onrender.com/
 API Prefix: /api
 Port: 4000
 ```

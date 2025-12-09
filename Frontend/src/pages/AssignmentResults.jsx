@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import api from '../services/api';
+import { jsPDF } from 'jspdf';
 
 const AssignmentResults = () => {
   const { courseId, assignmentId } = useParams();
@@ -31,19 +32,61 @@ const AssignmentResults = () => {
 
   const handleDownloadCertificate = async () => {
     try {
-      const res = await api.get(`/certificates/${certificateId}/download`, {
-        responseType: 'blob'
-      });
+      setLoading(true);
       
-      const url = window.URL.createObjectURL(new Blob([res.data]));
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', `certificate-${certificateId}.pdf`);
-      document.body.appendChild(link);
-      link.click();
-      link.parentChild.removeChild(link);
+      const doc = new jsPDF({
+        orientation: 'landscape',
+        unit: 'px',
+        format: [842, 595]
+      });
+
+      const img = new Image();
+      img.src = '/assets/certificate_template.png';
+      
+      await new Promise((resolve, reject) => {
+        img.onload = resolve;
+        img.onerror = reject;
+      });
+
+      const width = doc.internal.pageSize.getWidth();
+      const height = doc.internal.pageSize.getHeight();
+
+      doc.addImage(img, 'PNG', 0, 0, width, height);
+
+      // Configure text styles
+      doc.setTextColor(50, 50, 50);
+      
+      // Name
+      doc.setFontSize(40);
+      doc.setFont('helvetica', 'bold');
+      const name = certificate?.userName || 'Candidate Name';
+      doc.text(name, width / 2, height / 2 + 10, { align: 'center' }); // Adjusted vertical position
+
+      // Course Name (if needed to override template text or add specific course name)
+      // Assuming template has "has successfully completed..." text already? 
+      // The template text says "has successfully completed 3 months Online English Speaking Course".
+      // If the user wants to inject the SPECIFIC course name causing the line "distribute acc to the course",
+      // we should overlay the specific course name or position it appropriately.
+      // Based on template image, it seems hardcoded. But user request implies dynamic course name.
+      // I will put the course name below the name.
+      
+      doc.setFontSize(22);
+      doc.setFont('helvetica', 'normal');
+      doc.text(certificate?.courseTitle || 'English Speaking Course', width / 2, height / 2 + 50, { align: 'center' });
+      
+      // Date
+      const date = new Date(certificate?.issuedAt || Date.now()).toLocaleDateString();
+      doc.setFontSize(14);
+      doc.text(date, width / 2 - 50, height - 70); // Estimating position for Date line if exists, or just bottom center
+
+      // Add signature or other details if available
+
+      doc.save(`Certificate-${certificate?.userName?.replace(/\s+/g, '_') || 'TreeCampus'}.pdf`);
     } catch (error) {
-      console.error('Error downloading certificate:', error);
+      console.error('Error generating certificate:', error);
+      alert('Failed to generate certificate. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -62,9 +105,9 @@ const AssignmentResults = () => {
               </>
             ) : (
               <>
-                <div className="text-6xl mb-4">📚</div>
-                <h1 className="text-4xl font-bold text-blue-600 mb-2">Keep Learning</h1>
-                <p className="text-xl text-gray-700">Review the material and try again</p>
+                <div className="text-6xl mb-4">😔</div>
+                <h1 className="text-4xl font-bold text-red-600 mb-2">Sorry!</h1>
+                <p className="text-xl text-gray-700">You did not pass. Please review the material.</p>
               </>
             )}
           </div>
@@ -103,7 +146,7 @@ const AssignmentResults = () => {
             <div className="border-2 border-[#FD5A00] rounded-lg p-6 mb-8 bg-orange-50">
               <h3 className="text-xl font-bold text-[#FD5A00] mb-4">🎓 Certificate Earned</h3>
               <p className="text-gray-700 mb-4">
-                Your certificate of completion has been generated and is available on your dashboard.
+                <strong>{certificate?.userName || 'Candidate'}</strong>, your certificate of completion has been generated and is available on your dashboard.
               </p>
               <button
                 onClick={handleDownloadCertificate}
@@ -121,7 +164,7 @@ const AssignmentResults = () => {
               <ul className="text-gray-700 space-y-2">
                 <li>✓ Review the course materials</li>
                 <li>✓ Focus on challenging topics</li>
-                <li>✓ Take the assignment again to earn your certificate</li>
+                <li>✓ Take the assignment again to earn your certificate (if allowed)</li>
                 <li>✓ Minimum passing score: 60%</li>
               </ul>
             </div>

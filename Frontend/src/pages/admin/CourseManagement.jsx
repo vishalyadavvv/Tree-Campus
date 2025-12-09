@@ -63,9 +63,7 @@
           }
         });
 
-        // ✅ FIXED: Construct full URL properly
-        const baseUrl = import.meta.env.VITE_API_URL.replace('/api', '');
-        const thumbnailUrl = `${baseUrl}${response.data.data.url}`;
+        const thumbnailUrl = response.data.data.url;
         
         setFormData(prev => ({
           ...prev,

@@ -457,7 +457,7 @@ export default function Navbar() {
   if (loading) {
     return (
       <nav className="w-full bg-white sticky top-0 z-50 shadow-sm">
-        <div style={{ backgroundImage: 'linear-gradient(to right, #FD5A00, #E54F00)' }} className="px-6 py-2 border-b" style={{ borderColor: '#FD5A00' }}>
+        <div className="px-6 py-2 border-b" style={{ backgroundImage: 'linear-gradient(to right, #FD5A00, #E54F00)', borderColor: '#FD5A00' }}>
           <div className="max-w-7xl mx-auto flex items-center justify-between">
             <div className="h-4 rounded w-32 animate-pulse" style={{ backgroundColor: '#FD5A00', opacity: 0.3 }}></div>
             <div className="h-4 rounded w-24 animate-pulse" style={{ backgroundColor: '#FD5A00', opacity: 0.3 }}></div>

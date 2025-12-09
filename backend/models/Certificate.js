@@ -13,9 +13,18 @@ const certificateSchema = new mongoose.Schema({
   },
   certificateNumber: {
     type: String,
-    required: true,
     unique: true
   },
+  type: {
+    type: String, // 'assignment' or 'course'
+    default: 'course'
+  },
+  score: {
+     type: Number
+  },
+  courseTitle: String,
+  userName: String,
+  certificateUrl: String,
   completionPercentage: {
     type: Number,
     default: 100
@@ -40,7 +49,7 @@ certificateSchema.pre('save', async function(next) {
     const random = Math.floor(Math.random() * 10000);
     this.certificateNumber = `CERT-${timestamp}-${random}`;
   }
-  next();
+  
 });
 
 const Certificate = mongoose.model('Certificate', certificateSchema);

@@ -6,7 +6,7 @@ import {
   FiPlus, FiEdit2, FiTrash2, FiSave, FiChevronDown, FiChevronUp, 
   FiVideo, FiFileText, FiCheckCircle, FiArrowLeft, FiX, FiClock,
   FiSettings, FiInfo, FiBookOpen, FiBarChart2, FiUsers, FiGlobe,
-  FiUpload, FiImage, FiYoutube, FiExternalLink, FiEye, FiEyeOff
+  FiUpload, FiImage, FiYoutube, FiExternalLink, FiEye, FiEyeOff,FiAward
 } from 'react-icons/fi';
 
 // Course categories based on your backend enum
@@ -40,6 +40,11 @@ const CourseBuilder = () => {
   const [editingQuiz, setEditingQuiz] = useState(null);
   const [currentSectionId, setCurrentSectionId] = useState(null);
   const [uploadingThumbnail, setUploadingThumbnail] = useState(false);
+  
+  // Assignment states
+  const [assignments, setAssignments] = useState([]);
+  const [showAssignmentModal, setShowAssignmentModal] = useState(false);
+  const [editingAssignment, setEditingAssignment] = useState(null);
 
   useEffect(() => {
     fetchCourseStructure();
@@ -51,6 +56,15 @@ const CourseBuilder = () => {
       const response = await api.get(`/courses/${id}/structure`);
       setCourse(response.data.data.course);
       setSections(response.data.data.sections);
+      
+      // Fetch assignments separately since they are course-level, not section-level
+      try {
+        const assignmentsRes = await api.get(`/assignments/course/${id}`);
+        setAssignments(assignmentsRes.data.data || []);
+      } catch (err) {
+        console.error('Error fetching assignments:', err);
+      }
+
       const expanded = {};
       response.data.data.sections.forEach(section => {
         expanded[section._id] = true;
@@ -308,6 +322,50 @@ const handleSaveQuiz = async (quizData) => {
     }
   };
 
+  // Assignment Management
+  const handleAddAssignment = () => {
+    setEditingAssignment({
+      title: '',
+      description: '',
+      passingScore: 60,
+      timeLimit: 60,
+      questions: []
+    });
+    setShowAssignmentModal(true);
+  };
+
+  const handleEditAssignment = (assignment) => {
+    setEditingAssignment(assignment);
+    setShowAssignmentModal(true);
+  };
+
+  const handleSaveAssignment = async (assignmentData) => {
+    try {
+      if (assignmentData._id) {
+        await api.put(`/assignments/${assignmentData._id}`, assignmentData);
+      } else {
+        await api.post(`/assignments/course/${id}`, assignmentData);
+      }
+      await fetchCourseStructure(); // Will re-fetch assignments too
+      setShowAssignmentModal(false);
+      setEditingAssignment(null);
+    } catch (error) {
+      console.error('Error saving assignment:', error);
+      alert(error.response?.data?.message || 'Failed to save assignment');
+    }
+  };
+
+  const handleDeleteAssignment = async (assignmentId) => {
+    if (!window.confirm('Are you sure you want to delete this assignment?')) return;
+    try {
+      await api.delete(`/assignments/${assignmentId}`);
+      await fetchCourseStructure();
+    } catch (error) {
+      console.error('Error deleting assignment:', error);
+      alert('Failed to delete assignment');
+    }
+  };
+
   // Calculate course statistics
   const calculateStats = () => {
     const totalLessons = sections.reduce((acc, section) => acc + (section.lessons?.length || 0), 0);
@@ -526,6 +584,96 @@ const handleSaveQuiz = async (quizData) => {
             </div>
           </div>
         </div>
+
+      {/* Course Assignments Section - Moved to Top */}
+      <div className="mt-8 mb-8 animate-fade-in">
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900">Course Assignments (Tests)</h2>
+            <p className="text-gray-600">Create final assessments for certification</p>
+          </div>
+          <button 
+            className="flex items-center space-x-2 bg-gradient-to-r from-orange-500 to-orange-600 text-white px-6 py-3 rounded-xl hover:from-orange-600 hover:to-orange-700 transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl"
+            onClick={handleAddAssignment}
+          >
+            <FiPlus className="w-4 h-4" />
+            <span>Add Assignment</span>
+          </button>
+        </div>
+
+        {assignments.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {assignments.map((assignment) => (
+              <div key={assignment._id} className="bg-white rounded-xl border border-orange-200 shadow-lg p-6 hover:shadow-xl transition-all duration-300 relative overflow-hidden group">
+                <div className="absolute top-0 right-0 p-3 opacity-0 group-hover:opacity-100 transition-opacity flex space-x-2 bg-white/80 backdrop-blur-sm rounded-bl-xl">
+                  <button 
+                    onClick={() => handleEditAssignment(assignment)}
+                    className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg"
+                    title="Edit"
+                  >
+                    <FiEdit2 className="w-4 h-4" />
+                  </button>
+                  <button 
+                    onClick={() => handleDeleteAssignment(assignment._id)}
+                    className="p-2 text-red-600 hover:bg-red-50 rounded-lg"
+                    title="Delete"
+                  >
+                    <FiTrash2 className="w-4 h-4" />
+                  </button>
+                </div>
+
+                <div className="flex items-center space-x-3 mb-4">
+                  <div className="p-3 bg-orange-100 text-orange-600 rounded-xl">
+                    <FiAward className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-gray-900 line-clamp-1">{assignment.title}</h3>
+                    <p className="text-sm text-gray-500">{assignment.questions.length} Questions</p>
+                  </div>
+                </div>
+
+                <div className="space-y-2 text-sm text-gray-600 mb-4">
+                  <div className="flex justify-between">
+                    <span>Passing Score:</span>
+                    <span className="font-bold text-gray-900">{assignment.passingScore}%</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Time Limit:</span>
+                    <span className="font-bold text-gray-900">{assignment.timeLimit} mins</span>
+                  </div>
+                </div>
+
+                <div className="pt-4 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500">
+                  <span className="flex items-center gap-1">
+                    <FiClock className="w-3 h-3" />
+                    Last updated
+                  </span>
+                  <span>{new Date(assignment.updatedAt).toLocaleDateString()}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-12 bg-orange-50 rounded-xl border-2 border-dashed border-orange-200">
+            <FiAward className="w-12 h-12 text-orange-300 mx-auto mb-3" />
+            <h3 className="text-lg font-semibold text-gray-900">No Assignments Yet</h3>
+            <p className="text-gray-500">Create an assignment for students to earn their certificate.</p>
+          </div>
+        )}
+      </div>
+
+      {showAssignmentModal && (
+        <QuizEditorModal
+          quiz={editingAssignment}
+          onSave={handleSaveAssignment}
+          onClose={() => {
+            setShowAssignmentModal(false);
+            setEditingAssignment(null);
+          }}
+          title={editingAssignment?._id ? "Edit Assignment" : "New Assignment"}
+          isAssignment={true}
+        />
+      )}
 
         {/* Sections List */}
         <div className="space-y-6">
@@ -831,6 +979,9 @@ const handleSaveQuiz = async (quizData) => {
           </div>
         )}
       </div>
+
+
+
     </DashboardLayout>
   );
 };
@@ -1320,7 +1471,7 @@ transition-all cursor-pointer hover:bg-red-100"
 
 
 // Quiz Editor Modal Component - Fixed
-const QuizEditorModal = ({ quiz, onSave, onClose }) => {
+const QuizEditorModal = ({ quiz, onSave, onClose, ...props }) => {
   const [formData, setFormData] = useState({
     title: quiz.title || '',
     description: quiz.description || '',
@@ -1435,7 +1586,7 @@ const handleSubmit = async (e) => {
     return {
       questionText: q.questionText.trim(),
       options: q.options.map(opt => opt.optionText.trim()), // Convert objects to strings
-      correctAnswer: correctIndex >= 0 ? correctIndex : 0, // Ensure valid index
+      correctAnswer: correctIndex >= 0 ? q.options[correctIndex].optionText.trim() : "", // Save actual text value
       points: q.points || 1,
       explanation: q.explanation?.trim() || ''
     };
@@ -1477,7 +1628,7 @@ const handleSubmit = async (e) => {
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
           <h2 className="text-xl font-semibold text-gray-900">
-            {quiz.isNew ? 'Create Quiz' : 'Edit Quiz'}
+            {props.title || (quiz.isNew ? 'Create Quiz' : 'Edit Quiz')}
           </h2>
           <button className="text-gray-400 hover:text-gray-600 transition-colors hover:scale-105" onClick={onClose}>
             <FiX className="w-6 h-6" />

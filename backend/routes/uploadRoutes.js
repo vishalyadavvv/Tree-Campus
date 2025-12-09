@@ -1,85 +1,56 @@
 import express from 'express';
-import {
-  getCourses,
-  getCourse,
-  createCourse,
-  updateCourse,
-  deleteCourse,
-  getCourseSections,
-  createSection,
-  getSectionLessons,
-  createLesson,
-  enrollCourse,
-  checkEnrollmentStatus,
-  getCourseStructure,
-  updateSection,
-  deleteSection,
-  updateLesson,
-  deleteLesson,
-  uploadCourseThumbnail,  // ✅ Add this
-  upload  // ✅ Add this
-} from '../controllers/courseController.js';
-import {
-  createQuiz,
-  getQuiz,
-  getSectionQuiz,
-  updateQuiz,
-  deleteQuiz,
-  submitQuiz
-} from '../controllers/quizController.js';
-import { protect } from '../middleware/auth.js';
-import { adminOnly } from '../middleware/adminMiddleware.js';
+import multer from 'multer';
+import { v2 as cloudinary } from 'cloudinary';
+import { Readable } from 'stream';
 
 const router = express.Router();
 
-router.route('/')
-  .get(getCourses)
-  .post(protect, adminOnly, createCourse);
+const storage = multer.memoryStorage();
+const upload = multer({
+  storage: storage,
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Not an image! Please upload an image.'), false);
+    }
+  },
+});
 
-router.route('/:id')
-  .get(getCourse)
-  .put(protect, adminOnly, updateCourse)
-  .delete(protect, adminOnly, deleteCourse);
+router.post('/file', upload.single('file'), (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({
+      success: false,
+      message: 'No file uploaded'
+    });
+  }
 
-// ✅ Add thumbnail upload route
-router.route('/:id/thumbnail')
-  .post(protect, adminOnly, upload.single('thumbnail'), uploadCourseThumbnail);
+  const uploadStream = cloudinary.uploader.upload_stream(
+    {
+      folder: 'generic/uploads',
+      resource_type: 'image'
+    },
+    (error, result) => {
+      if (error) {
+        console.error('Cloudinary upload error:', error);
+        return res.status(500).json({
+          success: false,
+          message: 'Error uploading to Cloudinary'
+        });
+      }
 
-router.route('/:id/structure')
-  .get(getCourseStructure);
+      res.status(200).json({
+        success: true,
+        data: {
+          url: result.secure_url,
+          public_id: result.public_id
+        }
+      });
+    }
+  );
 
-router.route('/:id/sections')
-  .get(getCourseSections)
-  .post(protect, adminOnly, createSection);
-
-router.route('/:id/enroll')
-  .post(protect, enrollCourse);
-
-router.route('/:id/enrollment-status')
-  .get(protect, checkEnrollmentStatus);
-
-router.route('/sections/:id')
-  .put(protect, adminOnly, updateSection)
-  .delete(protect, adminOnly, deleteSection);
-
-router.route('/sections/:id/lessons')
-  .get(getSectionLessons)
-  .post(protect, adminOnly, createLesson);
-
-router.route('/sections/:id/quiz')
-  .get(getSectionQuiz)
-  .post(protect, adminOnly, createQuiz);
-
-router.route('/lessons/:id')
-  .put(protect, adminOnly, updateLesson)
-  .delete(protect, adminOnly, deleteLesson);
-
-router.route('/quiz/:id')
-  .get(getQuiz)
-  .put(protect, adminOnly, updateQuiz)
-  .delete(protect, adminOnly, deleteQuiz);
-
-router.route('/quiz/:id/submit')
-  .post(protect, submitQuiz);
+  Readable.from(req.file.buffer).pipe(uploadStream);
+});
 
 export default router;

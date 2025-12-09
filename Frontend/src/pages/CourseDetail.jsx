@@ -88,7 +88,7 @@ const CourseOverview = () => {
   const fetchCourseProgress = async () => {
     try {
       const res = await api.get(`/progress/course/${id}`);
-      setCourseProgress(res.data.data?.overallProgress || 0);
+      setCourseProgress(Number(res.data.data?.progress || 0));
     } catch (error) {
       console.error('Error fetching progress:', error);
     }
@@ -680,99 +680,108 @@ const CourseOverview = () => {
                       </div>
                     )}
 
-                    {/* Assignment Section - Show when progress >= 90% */}
-                    {assignments.length > 0 && assignments.map((assignment) => (
-                      <div key={assignment._id}>
-                        {courseProgress >= 90 && (
-                          <div
-                            className={`flex flex-col sm:flex-row sm:items-center justify-between p-5 rounded-xl border transition-all duration-300 group mt-4 ${
-                              isAuthenticated && isEnrolled 
-                                ? 'bg-gradient-to-r from-green-50 to-emerald-50 hover:from-green-100 hover:to-emerald-100 border-green-300 hover:border-green-500 cursor-pointer hover:translate-x-2'
-                                : 'bg-gradient-to-r from-gray-100 to-gray-50 border-gray-300 cursor-not-allowed'
-                            } ${(!isAuthenticated || !isEnrolled) && 'opacity-75'}`}
-                            onClick={() => {
-                              if (isAuthenticated && isEnrolled) {
-                                navigate(`/courses/${id}/assignment/${assignment._id}`);
-                              } else if (!isAuthenticated) {
-                                handleEnrollClick();
-                              }
-                            }}
-                          >
-                            <div className="flex items-center gap-4 mb-3 sm:mb-0">
-                              <div className={`flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center transition-colors duration-300 ${
-                                isAuthenticated && isEnrolled 
-                                  ? 'bg-green-500/20 group-hover:bg-green-500'
-                                  : 'bg-gray-300'
-                              }`}>
-                                <FiAward className={isAuthenticated && isEnrolled ? "text-green-600 group-hover:text-white" : "text-gray-500"} size={20} />
-                              </div>
-                              <div className="min-w-0">
-                                <p className={`font-bold text-lg mb-1 ${
-                                  isAuthenticated && isEnrolled ? 'text-gray-900 group-hover:text-green-600' : 'text-gray-500'
-                                }`}>
-                                  📋 {assignment.title}
-                                </p>
-                                <div className="flex flex-wrap gap-4 font-bold">
-                                  <span className={`flex items-center gap-2 ${
-                                    isAuthenticated && isEnrolled ? "text-gray-600" : "text-gray-400"
-                                  }`}>
-                                    <FiAward size={16} className={isAuthenticated && isEnrolled ? "text-green-600" : "text-gray-400"} />
-                                    {assignment.totalQuestions} questions
-                                  </span>
-                                  <span className={isAuthenticated && isEnrolled ? "text-gray-600" : "text-gray-400"}>•</span>
-                                  <span className={`flex items-center gap-2 ${
-                                    isAuthenticated && isEnrolled ? "text-gray-600" : "text-gray-400"
-                                  }`}>
-                                    <FiClock size={16} className={isAuthenticated && isEnrolled ? "text-green-600" : "text-gray-400"} />
-                                    {assignment.timeLimit} min
-                                  </span>
-                                  <span className={isAuthenticated && isEnrolled ? "text-gray-600" : "text-gray-400"}>•</span>
-                                  <span className={`flex items-center gap-2 ${
-                                    isAuthenticated && isEnrolled ? "text-gray-600" : "text-gray-400"
-                                  }`}>
-                                    <FiCheckCircle size={16} className={isAuthenticated && isEnrolled ? "text-green-600" : "text-gray-400"} />
-                                    Pass: {assignment.passingScore}%
-                                  </span>
-                                </div>
-                              </div>
-                            </div>
-                            <div className="flex items-center justify-between sm:justify-end gap-4">
-                              {(!isAuthenticated || !isEnrolled) && (
-                                <span className="text-sm text-gray-500 font-bold">
-                                  {!isAuthenticated ? 'Login to access' : 'Enroll to access'}
-                                </span>
-                              )}
-                              {courseProgress < 90 && isAuthenticated && isEnrolled && (
-                                <span className="text-sm text-orange-600 font-bold">
-                                  {100 - courseProgress}% remaining
-                                </span>
-                              )}
-                              <FiChevronRight className={
-                                isAuthenticated && isEnrolled 
-                                  ? "text-gray-400 group-hover:text-green-600 transform group-hover:translate-x-1 transition-all duration-300"
-                                  : "text-gray-300"
-                              } size={20} />
-                            </div>
-                          </div>
-                        )}
-                        {courseProgress < 90 && isAuthenticated && isEnrolled && (
-                          <div className="mt-4 bg-amber-50 border border-amber-300 rounded-lg p-4">
-                            <p className="text-amber-900 font-bold">
-                              🔒 Assignment Locked - Complete {Math.ceil(90 - courseProgress)}% more of the course to unlock
-                            </p>
-                            <div className="mt-2 bg-amber-200 rounded-full h-2 overflow-hidden">
-                              <div className="bg-amber-500 h-full" style={{ width: `${courseProgress}%` }}></div>
-                            </div>
-                            <p className="text-sm text-amber-800 mt-2">Progress: {Math.round(courseProgress)}%</p>
-                          </div>
-                        )}
-                      </div>
-                    ))}
                   </div>
                 )}
               </div>
             ))}
           </div>
+
+          {/* Assignments / Certifications Section */}
+          {assignments.length > 0 && (
+            <div className="mt-12">
+              <div className="mb-6">
+                <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                  <FiAward className="text-[#FC5A00]" />
+                  Final Assessment & Certification
+                </h2>
+                <p className="text-gray-600 mt-1">Complete these assessments to earn your certificate.</p>
+              </div>
+
+              <div className="grid gap-4">
+                {assignments.map((assignment) => (
+                  <div key={assignment._id} className="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-md">
+                    <div className="p-6">
+                      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div className="flex items-start gap-4">
+                          <div className={`p-3 rounded-xl ${
+                            isAuthenticated && isEnrolled 
+                              ? 'bg-green-100 text-green-600' 
+                              : 'bg-gray-100 text-gray-400'
+                          }`}>
+                            <FiAward size={24} />
+                          </div>
+                          <div>
+                            <h3 className="text-xl font-bold text-gray-900 mb-1">{assignment.title}</h3>
+                            <div className="flex flex-wrap gap-4 text-sm text-gray-600">
+                              <span className="flex items-center gap-1">
+                                <FiBook size={14} />
+                                {assignment.questions.length} Questions
+                              </span>
+                              <span className="flex items-center gap-1">
+                                <FiClock size={14} />
+                                {assignment.timeLimit} mins
+                              </span>
+                              <span className="flex items-center gap-1">
+                                <FiCheckCircle size={14} />
+                                Pass: {assignment.passingScore}%
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="flex flex-col items-end gap-2">
+                          {isAuthenticated && isEnrolled ? (
+                            courseProgress >= 90 ? (
+                              <button
+                                onClick={() => navigate(`/courses/${id}/assignment/${assignment._id}`)}
+                                className="bg-[#FC5A00] hover:bg-[#FF6B1A] text-white px-6 py-2.5 rounded-lg font-bold transition-colors flex items-center gap-2"
+                              >
+                                Start Assessment
+                                <FiChevronRight />
+                              </button>
+                            ) : (
+                              <div className="text-right">
+                                <span className="inline-flex items-center gap-1 px-4 py-2 bg-gray-100 text-gray-500 rounded-lg font-bold text-sm cursor-not-allowed">
+                                  <FiLock size={14} />
+                                  Locked
+                                </span>
+                                <p className="text-xs text-orange-600 font-semibold mt-1">
+                                  Current Progress: {Math.round(courseProgress)}% <br/>
+                                  Complete {Math.max(0, Math.ceil(90 - courseProgress))}% more to unlock
+                                </p>
+                              </div>
+                            )
+                          ) : (
+                            <span className="inline-flex items-center gap-1 px-4 py-2 bg-gray-100 text-gray-500 rounded-lg font-bold text-sm">
+                              <FiLock size={14} />
+                              Enroll to Access
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      
+                      {/* Progress Bar for Locked State */}
+                      {isAuthenticated && isEnrolled && courseProgress < 90 && (
+                        <div className="mt-4 pt-4 border-t border-gray-100">
+                          <div className="flex items-center justify-between text-xs mb-1">
+                            <span className="font-bold text-gray-500">Unlock Progress</span>
+                            <span className="font-bold text-[#FC5A00]">{Math.round(courseProgress)}% / 90%</span>
+                          </div>
+                          <div className="w-full bg-gray-100 rounded-full h-2">
+                            <div 
+                              className="bg-[#FC5A00] h-2 rounded-full transition-all duration-500"
+                              style={{ width: `${Math.min(courseProgress, 90)}%` }}
+                            ></div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
 
           {sections?.length === 0 && (
             <div className="text-center py-16 lg:py-24">

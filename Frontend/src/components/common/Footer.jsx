@@ -133,7 +133,7 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
-                <Link to="/certificates" className="text-gray-400 hover:text-green-400 transition-colors duration-300 text-sm flex items-center">
+                <Link to="/certificate" className="text-gray-400 hover:text-green-400 transition-colors duration-300 text-sm flex items-center">
                   <span style={{ width: '6px', height: '6px', backgroundColor: primaryColor, borderRadius: '50%', marginRight: '10px' }}></span>
                   Certificates
                 </Link>

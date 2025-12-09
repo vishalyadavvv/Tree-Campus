@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import Loader from '../components/common/Loader';
+import { FiClock, FiFileText, FiCheckCircle, FiAlertCircle, FiAward, FiPlay } from 'react-icons/fi';
 
 const AssignmentTest = () => {
   const { assignmentId, courseId } = useParams();
@@ -34,10 +35,10 @@ const AssignmentTest = () => {
       }
 
       if (eligibilityRes.data.alreadySubmitted) {
-        navigate(`/courses/${courseId}/assignment/${assignmentId}/results`, {
-          state: { score: eligibilityRes.data.score, passed: eligibilityRes.data.passed }
-        });
-        return;
+        // alert("You have already given this assignment.");
+        // navigate(`/courses/${courseId}`);
+        // return;
+        console.log("Allowing retake for testing purposes");
       }
 
       // Fetch assignment
@@ -120,7 +121,7 @@ const AssignmentTest = () => {
       // Navigate to results page
       navigate(`/courses/${courseId}/assignment/${assignmentId}/results`, {
         state: {
-          score: res.data.data.submission.percentageScore,
+          score: res.data.data.submission.score ?? res.data.data.submission.percentageScore ?? 0,
           passed: res.data.data.submission.passed,
           totalScore: res.data.data.submission.totalScore,
           totalPoints: res.data.data.submission.totalPoints,
@@ -180,12 +181,73 @@ const AssignmentTest = () => {
           </div>
 
           {!testStarted ? (
-            <button
-              onClick={() => setTestStarted(true)}
-              className="w-full bg-[#FD5A00] text-white py-3 rounded-lg font-semibold hover:bg-orange-600 transition text-lg"
-            >
-              Start Test
-            </button>
+            <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
+                <div className="bg-gradient-to-r from-orange-500 to-pink-500 p-8 text-white text-center">
+                    <div className="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center mx-auto mb-6">
+                        <FiFileText className="w-10 h-10 text-white" />
+                    </div>
+                    <h2 className="text-3xl font-bold mb-2">Ready to start?</h2>
+                    <p className="text-orange-50 opacity-90 text-lg">Please review the assignment details below before beginning.</p>
+                </div>
+                
+                <div className="p-8">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
+                        <div className="bg-orange-50 p-4 rounded-xl text-center border border-orange-100">
+                            <FiClock className="w-6 h-6 text-orange-500 mx-auto mb-2" />
+                            <p className="text-gray-500 text-sm font-medium">Duration</p>
+                            <p className="text-gray-900 font-bold text-lg">{assignment.timeLimit} mins</p>
+                        </div>
+                        <div className="bg-blue-50 p-4 rounded-xl text-center border border-blue-100">
+                            <FiFileText className="w-6 h-6 text-blue-500 mx-auto mb-2" />
+                            <p className="text-gray-500 text-sm font-medium">Questions</p>
+                            <p className="text-gray-900 font-bold text-lg">{assignment.totalQuestions}</p>
+                        </div>
+                        <div className="bg-green-50 p-4 rounded-xl text-center border border-green-100">
+                            <FiCheckCircle className="w-6 h-6 text-green-500 mx-auto mb-2" />
+                            <p className="text-gray-500 text-sm font-medium">Passing Score</p>
+                            <p className="text-gray-900 font-bold text-lg">{assignment.passingScore}%</p>
+                        </div>
+                        <div className="bg-purple-50 p-4 rounded-xl text-center border border-purple-100">
+                            <FiAward className="w-6 h-6 text-purple-500 mx-auto mb-2" />
+                            <p className="text-gray-500 text-sm font-medium">Total Points</p>
+                            <p className="text-gray-900 font-bold text-lg">{assignment.totalPoints}</p>
+                        </div>
+                    </div>
+
+                    <div className="bg-gray-50 rounded-xl p-6 mb-8 border border-gray-100">
+                        <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                             <FiAlertCircle className="text-orange-500" />
+                             Important Instructions
+                        </h3>
+                        <ul className="space-y-3 text-gray-600">
+                            <li className="flex items-start gap-2">
+                                <span className="w-1.5 h-1.5 bg-gray-400 rounded-full mt-2 flex-shrink-0"></span>
+                                The timer will start immediately once you click the button below.
+                            </li>
+                            <li className="flex items-start gap-2">
+                                <span className="w-1.5 h-1.5 bg-gray-400 rounded-full mt-2 flex-shrink-0"></span>
+                                Please do not refresh the page or navigate away during the test.
+                            </li>
+                            <li className="flex items-start gap-2">
+                                <span className="w-1.5 h-1.5 bg-gray-400 rounded-full mt-2 flex-shrink-0"></span>
+                                Answer all questions. You can revisit previous questions before submitting.
+                            </li>
+                            <li className="flex items-start gap-2">
+                                <span className="w-1.5 h-1.5 bg-gray-400 rounded-full mt-2 flex-shrink-0"></span>
+                                The test will auto-submit when the time expires.
+                            </li>
+                        </ul>
+                    </div>
+
+                    <button
+                        onClick={() => setTestStarted(true)}
+                        className="w-full bg-gradient-to-r from-orange-500 to-pink-500 text-white py-4 rounded-xl font-bold text-xl hover:from-orange-600 hover:to-pink-600 transition-all duration-300 transform hover:-translate-y-1 shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
+                    >
+                        <FiPlay className="w-6 h-6 fill-current" />
+                        Start Assignment Now
+                    </button>
+                </div>
+            </div>
           ) : (
             <div className="flex items-center gap-4">
               <div className="flex-1 bg-gray-200 rounded-full h-2 overflow-hidden">
