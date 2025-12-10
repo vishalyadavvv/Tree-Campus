@@ -1,5 +1,5 @@
 // client/src/utils/constants.js
-export const API_URL = process.env.VITE_API_URL || 'http://localhost:4000/api';
+export const API_URL = process.env.VITE_API_URL || 'https://tree-campus.onrender.com/api';
 
 export const COURSE_LEVELS = {
   alllevels:'All Levels',

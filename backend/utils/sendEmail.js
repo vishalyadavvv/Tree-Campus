@@ -600,7 +600,7 @@ export const sendAssignmentResultsEmail = async (userEmail, userName, assignment
               🎓 Congratulations! You have earned your certificate of completion!
             </p>
             <div style="text-align: center;">
-              <a href="https://treecampus.netlify.app/dashboard/certificates" class="button">
+              <a href="https://treecampus.netlify.app/dashboard/certificate/${certificateId}" class="button">
                 View Your Certificate
               </a>
             </div>
