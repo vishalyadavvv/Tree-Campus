@@ -19,6 +19,27 @@ const COMPANY_LOGO = 'https://res.cloudinary.com/dbbll23jz/image/upload/v1765170
 const PRIMARY_COLOR = '#FD5A00';
 
 /**
+ * Common Email Styles
+ */
+const EMAIL_STYLES = `
+  body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #f4f4f7; color: #51545e; margin: 0; padding: 0; -webkit-text-size-adjust: 100%; }
+  .container { max-width: 600px; margin: 40px auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+  .header { background-color: #ffffff; padding: 30px 0; text-align: center; border-bottom: 1px solid #edf2f7; }
+  .logo { max-height: 60px; width: auto; object-fit: contain; }
+  .content { padding: 40px; }
+  .greeting { font-size: 20px; font-weight: 600; color: #333333; margin-bottom: 20px; }
+  .text { font-size: 16px; line-height: 1.6; color: #51545e; margin-bottom: 24px; }
+  .btn { display: inline-block; background-color: ${PRIMARY_COLOR}; color: #ffffff; border-radius: 6px; padding: 14px 30px; text-decoration: none; font-weight: bold; margin: 20px 0; text-align: center; box-shadow: 0 4px 6px rgba(253, 90, 0, 0.2); }
+  .otp-box { background: linear-gradient(135deg, ${PRIMARY_COLOR}0D 0%, ${PRIMARY_COLOR}1A 100%); border: 1px dashed ${PRIMARY_COLOR}; border-radius: 6px; padding: 24px; text-align: center; font-size: 32px; font-weight: 700; letter-spacing: 6px; color: ${PRIMARY_COLOR}; margin: 32px 0; font-family: 'Courier New', monospace; }
+  .info-box { background-color: #fafafa; border-left: 4px solid ${PRIMARY_COLOR}; padding: 16px; border-radius: 4px; font-size: 14px; color: #666; margin-top: 24px; }
+  .footer { background-color: #f8f9fa; padding: 24px 40px; text-align: center; font-size: 12px; color: #999; border-top: 1px solid #edf2f7; }
+  .admin-label { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #999; margin-top: 10px; }
+  .data-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+  .data-table td { padding: 10px; border-bottom: 1px solid #eee; }
+  .data-label { font-weight: 600; color: #333; width: 120px; }
+`;
+
+/**
  * Send email using Brevo Transactional Email API
  */
 const sendEmail = async (options) => {
@@ -36,7 +57,6 @@ const sendEmail = async (options) => {
 
     const data = await apiInstance.sendTransacEmail(sendSmtpEmail);
     
-    // Brevo returns { messageId: "..." }
     const messageId = data?.messageId || data?.id || 'sent';
     console.log(`✅ Email sent successfully to ${options.to} (ID: ${messageId})`);
     
@@ -62,31 +82,7 @@ const sendOTPEmail = async (email, name, otp) => {
     <head>
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <style>
-        body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #f4f4f7; color: #51545e; margin: 0; padding: 0; -webkit-text-size-adjust: 100%; }
-        .container { max-width: 600px; margin: 40px auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-        .header { background-color: #ffffff; padding: 30px 0; text-align: center; border-bottom: 1px solid #edf2f7; }
-        .logo { max-height: 60px; width: auto; object-fit: contain; }
-        .content { padding: 40px; }
-        .greeting { font-size: 20px; font-weight: 600; color: #333333; margin-bottom: 20px; }
-        .text { font-size: 16px; line-height: 1.6; color: #51545e; margin-bottom: 24px; }
-        .otp-box { 
-          background: linear-gradient(135deg, ${PRIMARY_COLOR}0D 0%, ${PRIMARY_COLOR}1A 100%);
-          border: 1px dashed ${PRIMARY_COLOR};
-          border-radius: 6px;
-          padding: 24px;
-          text-align: center;
-          font-size: 32px;
-          font-weight: 700;
-          letter-spacing: 6px;
-          color: ${PRIMARY_COLOR};
-          margin: 32px 0;
-          font-family: 'Courier New', monospace;
-        }
-        .info-box { background-color: #fafafa; border-left: 4px solid ${PRIMARY_COLOR}; padding: 16px; border-radius: 4px; font-size: 14px; color: #666; margin-top: 24px; }
-        .footer { background-color: #f8f9fa; padding: 24px 40px; text-align: center; font-size: 12px; color: #999; border-top: 1px solid #edf2f7; }
-        .footer-link { color: ${PRIMARY_COLOR}; text-decoration: none; font-weight: 500; }
-      </style>
+      <style>${EMAIL_STYLES}</style>
     </head>
     <body>
       <div class="container">
@@ -107,7 +103,6 @@ const sendOTPEmail = async (email, name, otp) => {
         </div>
         <div class="footer">
           <p>&copy; ${new Date().getFullYear()} Tree Campus. All rights reserved.</p>
-          <p><a href="https://treecampus.netlify.app" class="footer-link">Visit Our Website</a> | <a href="mailto:support@treecampus.com" class="footer-link">Contact Support</a></p>
         </div>
       </div>
     </body>
@@ -129,30 +124,7 @@ const sendPasswordResetEmail = async (email, name, resetToken) => {
     <head>
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <style>
-        body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #f4f4f7; color: #51545e; margin: 0; padding: 0; -webkit-text-size-adjust: 100%; }
-        .container { max-width: 600px; margin: 40px auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-        .header { background-color: #ffffff; padding: 30px 0; text-align: center; border-bottom: 1px solid #edf2f7; }
-        .logo { max-height: 60px; width: auto; object-fit: contain; }
-        .content { padding: 40px; }
-        .greeting { font-size: 20px; font-weight: 600; color: #333333; margin-bottom: 20px; }
-        .text { font-size: 16px; line-height: 1.6; color: #51545e; margin-bottom: 24px; }
-        .btn { 
-          display: inline-block; 
-          background-color: ${PRIMARY_COLOR}; 
-          color: #ffffff; 
-          border-radius: 6px; 
-          padding: 14px 30px; 
-          text-decoration: none; 
-          font-weight: bold; 
-          margin: 20px 0; 
-          text-align: center;
-          box-shadow: 0 4px 6px rgba(253, 90, 0, 0.2);
-        }
-        .info-box { background-color: #fafafa; border-left: 4px solid ${PRIMARY_COLOR}; padding: 16px; border-radius: 4px; font-size: 14px; color: #666; margin-top: 24px; }
-        .link-text { font-size: 12px; color: #999; word-break: break-all; margin-top: 10px; }
-        .footer { background-color: #f8f9fa; padding: 24px 40px; text-align: center; font-size: 12px; color: #999; border-top: 1px solid #edf2f7; }
-      </style>
+      <style>${EMAIL_STYLES}</style>
     </head>
     <body>
       <div class="container">
@@ -173,8 +145,8 @@ const sendPasswordResetEmail = async (email, name, resetToken) => {
           
           <p class="text" style="font-size: 14px; margin-top: 20px;">If you didn't request a password reset, please ignore this email.</p>
           
-          <div style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px;">
-            <p class="link-text">If the button above doesn't work, copy and paste this link into your browser:<br>${resetUrl}</p>
+          <div style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px; font-size: 12px; color: #999;">
+            <p>If the button above doesn't work, copy and paste this link into your browser:<br>${resetUrl}</p>
           </div>
         </div>
         <div class="footer">
@@ -199,29 +171,8 @@ const sendVolunteerOTPEmail = async (email, name, otp, details = {}) => {
     <head>
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <style>
-        body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #f4f4f7; color: #51545e; margin: 0; padding: 0; -webkit-text-size-adjust: 100%; }
-        .container { max-width: 600px; margin: 40px auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-        .header { background-color: #ffffff; padding: 30px 0; text-align: center; border-bottom: 1px solid #edf2f7; }
-        .logo { max-height: 60px; width: auto; object-fit: contain; }
-        .content { padding: 40px; }
-        .greeting { font-size: 20px; font-weight: 600; color: #333333; margin-bottom: 20px; }
-        .text { font-size: 16px; line-height: 1.6; color: #51545e; margin-bottom: 24px; }
-        .otp-box { 
-          background: linear-gradient(135deg, #00A86B0D 0%, #00A86B1A 100%);
-          border: 1px dashed #00A86B;
-          border-radius: 6px;
-          padding: 24px;
-          text-align: center;
-          font-size: 32px;
-          font-weight: 700;
-          letter-spacing: 6px;
-          color: #00A86B;
-          margin: 32px 0;
-          font-family: 'Courier New', monospace;
-        }
-        .info-box { background-color: #f0fff4; border-left: 4px solid #00A86B; padding: 16px; border-radius: 4px; font-size: 14px; color: #2d3748; margin-top: 24px; }
-        .footer { background-color: #f8f9fa; padding: 24px 40px; text-align: center; font-size: 12px; color: #999; border-top: 1px solid #edf2f7; }
+      <style>${EMAIL_STYLES}
+        .otp-box { border-color: #00A86B; color: #00A86B; background: #00A86B0D; }
       </style>
     </head>
     <body>
@@ -235,7 +186,7 @@ const sendVolunteerOTPEmail = async (email, name, otp, details = {}) => {
           
           <div class="otp-box">${otp}</div>
           
-          <div class="info-box">
+          <div class="info-box" style="border-left-color: #00A86B;">
             <strong>⏱️ Valid for 10 minutes</strong><br>
             Please use this code to complete your registration.
           </div>
@@ -262,29 +213,8 @@ const sendSchoolOTPEmail = async (email, schoolName, contactName, otp, details =
     <head>
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <style>
-        body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #f4f4f7; color: #51545e; margin: 0; padding: 0; -webkit-text-size-adjust: 100%; }
-        .container { max-width: 600px; margin: 40px auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-        .header { background-color: #ffffff; padding: 30px 0; text-align: center; border-bottom: 1px solid #edf2f7; }
-        .logo { max-height: 60px; width: auto; object-fit: contain; }
-        .content { padding: 40px; }
-        .greeting { font-size: 20px; font-weight: 600; color: #333333; margin-bottom: 20px; }
-        .text { font-size: 16px; line-height: 1.6; color: #51545e; margin-bottom: 24px; }
-        .otp-box { 
-          background: linear-gradient(135deg, #1E40AF0D 0%, #1E40AF1A 100%);
-          border: 1px dashed #1E40AF;
-          border-radius: 6px;
-          padding: 24px;
-          text-align: center;
-          font-size: 32px;
-          font-weight: 700;
-          letter-spacing: 6px;
-          color: #1E40AF;
-          margin: 32px 0;
-          font-family: 'Courier New', monospace;
-        }
-        .info-box { background-color: #eff6ff; border-left: 4px solid #1E40AF; padding: 16px; border-radius: 4px; font-size: 14px; color: #2d3748; margin-top: 24px; }
-        .footer { background-color: #f8f9fa; padding: 24px 40px; text-align: center; font-size: 12px; color: #999; border-top: 1px solid #edf2f7; }
+      <style>${EMAIL_STYLES}
+        .otp-box { border-color: #1E40AF; color: #1E40AF; background: #1E40AF0D; }
       </style>
     </head>
     <body>
@@ -299,7 +229,7 @@ const sendSchoolOTPEmail = async (email, schoolName, contactName, otp, details =
 
           <div class="otp-box">${otp}</div>
           
-          <div class="info-box">
+          <div class="info-box" style="border-left-color: #1E40AF;">
             <strong>⏱️ Valid for 10 minutes</strong><br>
             Please don't share this code with anyone.
           </div>
@@ -326,29 +256,10 @@ const sendAccountDeletionOTPEmail = async (email, name, otp, details = {}) => {
     <head>
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <style>
-        body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #f4f4f7; color: #51545e; margin: 0; padding: 0; -webkit-text-size-adjust: 100%; }
-        .container { max-width: 600px; margin: 40px auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-        .header { background-color: #ffffff; padding: 30px 0; text-align: center; border-bottom: 2px solid #DC2626; }
-        .logo { max-height: 60px; width: auto; object-fit: contain; }
-        .content { padding: 40px; }
-        .greeting { font-size: 20px; font-weight: 600; color: #333333; margin-bottom: 20px; }
-        .text { font-size: 16px; line-height: 1.6; color: #51545e; margin-bottom: 24px; }
+      <style>${EMAIL_STYLES}
+        .header { border-bottom: 2px solid #DC2626; }
+        .otp-box { border-color: #DC2626; color: #DC2626; background: #DC26260D; }
         .warning-box { background-color: #FEF2F2; border: 1px solid #DC2626; padding: 16px; border-radius: 6px; font-size: 14px; color: #991B1B; margin-bottom: 20px; }
-        .otp-box { 
-          background: linear-gradient(135deg, #DC26260D 0%, #DC26261A 100%);
-          border: 1px dashed #DC2626;
-          border-radius: 6px;
-          padding: 24px;
-          text-align: center;
-          font-size: 32px;
-          font-weight: 700;
-          letter-spacing: 6px;
-          color: #DC2626;
-          margin: 32px 0;
-          font-family: 'Courier New', monospace;
-        }
-        .footer { background-color: #f8f9fa; padding: 24px 40px; text-align: center; font-size: 12px; color: #999; border-top: 1px solid #edf2f7; }
       </style>
     </head>
     <body>
@@ -387,22 +298,63 @@ const sendVolunteerConfirmation = async (userEmail, userName, volunteerDetails =
   const adminEmail = process.env.ADMIN_EMAIL;
   const subject = '🌱 Welcome to Tree Campus Volunteer Program!';
 
+  // Generate Admin HTML
+  const getAdminHtml = () => `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <style>${EMAIL_STYLES}
+         .btn { background-color: #00A86B; }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <img src="${COMPANY_LOGO}" alt="Tree Campus" class="logo">
+          <div class="admin-label">Admin Notification</div>
+        </div>
+        <div class="content">
+          <div class="greeting">New Volunteer Application</div>
+          <p class="text">A new volunteer application has been submitted and is pending review.</p>
+          
+          <table class="data-table">
+            <tr>
+              <td class="data-label">Name</td>
+              <td>${userName}</td>
+            </tr>
+            <tr>
+              <td class="data-label">Email</td>
+              <td><a href="mailto:${userEmail}" style="color: #00A86B; text-decoration: none;">${userEmail}</a></td>
+            </tr>
+            <tr>
+              <td class="data-label">Date</td>
+              <td>${new Date().toLocaleDateString()}</td>
+            </tr>
+          </table>
+
+          <center>
+            <a href="${process.env.FRONTEND_URL}/admin/volunteers" class="btn">Review Application</a>
+          </center>
+        </div>
+        <div class="footer">
+          <p>&copy; ${new Date().getFullYear()} Tree Campus Admin System</p>
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+
+  // User HTML
   const userHtml = `
     <!DOCTYPE html>
     <html>
     <head>
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <style>
-        body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #f4f4f7; color: #51545e; margin: 0; padding: 0; -webkit-text-size-adjust: 100%; }
-        .container { max-width: 600px; margin: 40px auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-        .header { background-color: #ffffff; padding: 30px 0; text-align: center; border-bottom: 1px solid #edf2f7; }
-        .logo { max-height: 60px; width: auto; object-fit: contain; }
-        .content { padding: 40px; }
-        .greeting { font-size: 20px; font-weight: 600; color: #333333; margin-bottom: 20px; }
-        .text { font-size: 16px; line-height: 1.6; color: #51545e; margin-bottom: 24px; }
+      <style>${EMAIL_STYLES}
         .status-box { background-color: #f0fff4; border-left: 4px solid #00A86B; padding: 20px; border-radius: 4px; color: #2d3748; margin: 24px 0; }
-        .footer { background-color: #f8f9fa; padding: 24px 40px; text-align: center; font-size: 12px; color: #999; border-top: 1px solid #edf2f7; }
       </style>
     </head>
     <body>
@@ -432,15 +384,7 @@ const sendVolunteerConfirmation = async (userEmail, userName, volunteerDetails =
   await sendEmail({ to: userEmail, subject, html: userHtml });
   
   if (adminEmail) {
-    const adminHtml = `
-      <html><body style="font-family: Arial, sans-serif; padding: 20px;">
-        <h2 style="color: #00A86B;">New Volunteer Application</h2>
-        <p><strong>Name:</strong> ${userName}</p>
-        <p><strong>Email:</strong> ${userEmail}</p>
-        <p><a href="${process.env.FRONTEND_URL}/admin/volunteers" style="background: #00A86B; color: white; padding: 10px 15px; text-decoration: none; border-radius: 4px;">Review Application</a></p>
-      </body></html>
-    `;
-    await sendEmail({ to: adminEmail, subject: `[ADMIN] ${subject}`, html: adminHtml });
+    await sendEmail({ to: adminEmail, subject: `[ADMIN] ${subject}`, html: getAdminHtml() });
   }
 };
 
@@ -451,22 +395,66 @@ const sendSchoolRegistrationConfirmation = async (schoolEmail, schoolName, conta
   const adminEmail = process.env.ADMIN_EMAIL;
   const subject = '🏫 Welcome to Tree Campus School Partnership Program!';
 
+  // Admin HTML
+  const getAdminHtml = () => `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <style>${EMAIL_STYLES}
+        .btn { background-color: #1E40AF; }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <img src="${COMPANY_LOGO}" alt="Tree Campus" class="logo">
+          <div class="admin-label">Admin Notification</div>
+        </div>
+        <div class="content">
+          <div class="greeting">New School Registration</div>
+          <p class="text">A new school has successfully identified and registered with the platform.</p>
+          
+          <table class="data-table">
+            <tr>
+              <td class="data-label">School Name</td>
+              <td>${schoolName}</td>
+            </tr>
+            <tr>
+              <td class="data-label">Contact Person</td>
+              <td>${contactName}</td>
+            </tr>
+            <tr>
+              <td class="data-label">Email</td>
+              <td><a href="mailto:${schoolEmail}" style="color: #1E40AF; text-decoration: none;">${schoolEmail}</a></td>
+            </tr>
+            <tr>
+              <td class="data-label">Date</td>
+              <td>${new Date().toLocaleDateString()}</td>
+            </tr>
+          </table>
+
+          <center>
+            <a href="${process.env.FRONTEND_URL}/admin/schools" class="btn">View Details</a>
+          </center>
+        </div>
+        <div class="footer">
+          <p>&copy; ${new Date().getFullYear()} Tree Campus Admin System</p>
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+
   const userHtml = `
     <!DOCTYPE html>
     <html>
     <head>
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <style>
-        body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #f4f4f7; color: #51545e; margin: 0; padding: 0; -webkit-text-size-adjust: 100%; }
-        .container { max-width: 600px; margin: 40px auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-        .header { background-color: #ffffff; padding: 30px 0; text-align: center; border-bottom: 1px solid #edf2f7; }
-        .logo { max-height: 60px; width: auto; object-fit: contain; }
-        .content { padding: 40px; }
-        .greeting { font-size: 20px; font-weight: 600; color: #333333; margin-bottom: 20px; }
-        .text { font-size: 16px; line-height: 1.6; color: #51545e; margin-bottom: 24px; }
+      <style>${EMAIL_STYLES}
         .status-box { background-color: #eff6ff; border-left: 4px solid #1E40AF; padding: 20px; border-radius: 4px; color: #2d3748; margin: 24px 0; }
-        .footer { background-color: #f8f9fa; padding: 24px 40px; text-align: center; font-size: 12px; color: #999; border-top: 1px solid #edf2f7; }
       </style>
     </head>
     <body>
@@ -496,16 +484,7 @@ const sendSchoolRegistrationConfirmation = async (schoolEmail, schoolName, conta
   await sendEmail({ to: schoolEmail, subject, html: userHtml });
   
   if (adminEmail) {
-    const adminHtml = `
-      <html><body style="font-family: Arial, sans-serif; padding: 20px;">
-        <h2 style="color: #1E40AF;">New School Signed Up</h2>
-        <p><strong>School:</strong> ${schoolName}</p>
-        <p><strong>Contact:</strong> ${contactName}</p>
-        <p><strong>Email:</strong> ${schoolEmail}</p>
-        <p><a href="${process.env.FRONTEND_URL}/admin/schools" style="background: #1E40AF; color: white; padding: 10px 15px; text-decoration: none; border-radius: 4px;">View Details</a></p>
-      </body></html>
-    `;
-    await sendEmail({ to: adminEmail, subject: `[ADMIN] ${subject}`, html: adminHtml });
+    await sendEmail({ to: adminEmail, subject: `[ADMIN] ${subject}`, html: getAdminHtml() });
   }
 };
 
@@ -516,22 +495,63 @@ const sendAccountDeletionConfirmation = async (userEmail, userName, deletionDeta
   const adminEmail = process.env.ADMIN_EMAIL;
   const subject = '⚠️ Account Deletion Request Received';
 
+  // Admin HTML
+  const getAdminHtml = () => `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <style>${EMAIL_STYLES}
+        .greeting { color: #DC2626; }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <img src="${COMPANY_LOGO}" alt="Tree Campus" class="logo">
+          <div class="admin-label">Admin Notification</div>
+        </div>
+        <div class="content">
+          <div class="greeting">Account Deletion Request</div>
+          <p class="text">A user has confirmed their request for account deletion.</p>
+          
+          <table class="data-table">
+            <tr>
+              <td class="data-label">User Name</td>
+              <td>${userName}</td>
+            </tr>
+            <tr>
+              <td class="data-label">Email</td>
+              <td>${userEmail}</td>
+            </tr>
+            <tr>
+              <td class="data-label">Status</td>
+              <td style="color: #DC2626; font-weight: bold;">Pending Deletion (30 Days)</td>
+            </tr>
+            <tr>
+              <td class="data-label">Request Date</td>
+              <td>${new Date().toLocaleDateString()}</td>
+            </tr>
+          </table>
+        </div>
+        <div class="footer">
+          <p>&copy; ${new Date().getFullYear()} Tree Campus Admin System</p>
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+
   const userHtml = `
     <!DOCTYPE html>
     <html>
     <head>
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <style>
-        body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #f4f4f7; color: #51545e; margin: 0; padding: 0; -webkit-text-size-adjust: 100%; }
-        .container { max-width: 600px; margin: 40px auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-        .header { background-color: #ffffff; padding: 30px 0; text-align: center; border-bottom: 2px solid #DC2626; }
-        .logo { max-height: 60px; width: auto; object-fit: contain; }
-        .content { padding: 40px; }
-        .greeting { font-size: 20px; font-weight: 600; color: #333333; margin-bottom: 20px; }
-        .text { font-size: 16px; line-height: 1.6; color: #51545e; margin-bottom: 24px; }
+      <style>${EMAIL_STYLES}
+        .header { border-bottom: 2px solid #DC2626; }
         .warning-box { background-color: #FEF2F2; border: 1px solid #DC2626; padding: 20px; border-radius: 6px; margin: 24px 0; }
-        .footer { background-color: #f8f9fa; padding: 24px 40px; text-align: center; font-size: 12px; color: #999; border-top: 1px solid #edf2f7; }
         ul { margin: 0; padding-left: 20px; color: #51545e; }
         li { margin-bottom: 10px; }
       </style>
@@ -568,15 +588,7 @@ const sendAccountDeletionConfirmation = async (userEmail, userName, deletionDeta
   await sendEmail({ to: userEmail, subject, html: userHtml });
   
   if (adminEmail) {
-    const adminHtml = `
-      <html><body style="font-family: Arial, sans-serif; padding: 20px;">
-        <h2 style="color: #DC2626;">Account Deletion Scheduled</h2>
-        <p><strong>User:</strong> ${userName}</p>
-        <p><strong>Email:</strong> ${userEmail}</p>
-        <p><strong>Status:</strong> Pending (30 Days)</p>
-      </body></html>
-    `;
-    await sendEmail({ to: adminEmail, subject: `[ADMIN] ${subject}`, html: adminHtml });
+    await sendEmail({ to: adminEmail, subject: `[ADMIN] ${subject}`, html: getAdminHtml() });
   }
 };
 
@@ -595,19 +607,59 @@ export const sendAssignmentResultsEmail = async (userEmail, userName, assignment
   const statusIcon = passed ? '🏆' : '📚';
   const statusText = passed ? 'Passed Successfully' : 'Needs Improvement';
 
+  // Admin HTML
+  const getAdminHtml = () => `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <style>${EMAIL_STYLES}</style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <img src="${COMPANY_LOGO}" alt="Tree Campus" class="logo">
+          <div class="admin-label">Admin Notification</div>
+        </div>
+        <div class="content">
+          <div class="greeting">Assignment Submission</div>
+          <p class="text">A student has completed an assignment.</p>
+          
+          <table class="data-table">
+            <tr>
+              <td class="data-label">Student Name</td>
+              <td>${userName}</td>
+            </tr>
+            <tr>
+              <td class="data-label">Course</td>
+              <td>${courseTitle}</td>
+            </tr>
+            <tr>
+              <td class="data-label">Score</td>
+              <td style="font-weight: bold; font-size: 16px;">${score}%</td>
+            </tr>
+            <tr>
+              <td class="data-label">Result</td>
+              <td style="color: ${statusColor}; font-weight: bold;">${passed ? 'PASSED' : 'FAILED'}</td>
+            </tr>
+          </table>
+        </div>
+        <div class="footer">
+          <p>&copy; ${new Date().getFullYear()} Tree Campus Admin System</p>
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+
   const userHtml = `
     <!DOCTYPE html>
     <html>
     <head>
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <style>
-        body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #f4f4f7; color: #51545e; margin: 0; padding: 0; -webkit-text-size-adjust: 100%; }
-        .container { max-width: 600px; margin: 40px auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-        .header { background-color: #ffffff; padding: 30px 0; text-align: center; border-bottom: 1px solid #edf2f7; }
-        .logo { max-height: 60px; width: auto; object-fit: contain; }
-        .content { padding: 40px; }
-        .greeting { font-size: 20px; font-weight: 600; color: #333333; margin-bottom: 20px; }
+      <style>${EMAIL_STYLES}
         .score-card { 
           background-color: ${passed ? '#ECFDF5' : '#FEF2F2'}; 
           border: 1px solid ${passed ? '#10B981' : '#EF4444'}; 
@@ -618,22 +670,6 @@ export const sendAssignmentResultsEmail = async (userEmail, userName, assignment
         }
         .score-val { font-size: 48px; font-weight: 700; color: ${statusColor}; margin: 10px 0; }
         .score-label { font-size: 14px; text-transform: uppercase; letter-spacing: 1px; color: #666; }
-        .btn { 
-          display: inline-block; 
-          background-color: ${PRIMARY_COLOR}; 
-          color: #ffffff; 
-          border-radius: 6px; 
-          padding: 14px 30px; 
-          text-decoration: none; 
-          font-weight: bold; 
-          margin-top: 20px;
-          box-shadow: 0 4px 6px rgba(253, 90, 0, 0.2);
-        }
-        .footer { background-color: #f8f9fa; padding: 24px 40px; text-align: center; font-size: 12px; color: #999; border-top: 1px solid #edf2f7; }
-        .details-table { width: 100%; margin: 20px 0; border-collapse: collapse; }
-        .details-table td { padding: 12px 0; border-bottom: 1px solid #eee; }
-        .details-label { font-weight: 600; color: #333; }
-        .details-value { text-align: right; color: #666; }
       </style>
     </head>
     <body>
@@ -654,18 +690,18 @@ export const sendAssignmentResultsEmail = async (userEmail, userName, assignment
             <div style="color: ${statusColor}; font-weight: 600;">${statusText}</div>
           </div>
           
-          <table class="details-table">
+          <table class="data-table">
             <tr>
-              <td class="details-label">Course</td>
-              <td class="details-value">${courseTitle}</td>
+              <td class="data-label">Course</td>
+              <td>${courseTitle}</td>
             </tr>
             <tr>
-              <td class="details-label">Status</td>
-              <td class="details-value" style="color: ${statusColor}; font-weight: bold;">${passed ? 'Passed' : 'Failed'}</td>
+              <td class="data-label">Status</td>
+              <td style="color: ${statusColor}; font-weight: bold;">${passed ? 'Passed' : 'Failed'}</td>
             </tr>
             <tr>
-              <td class="details-label">Passing Score</td>
-              <td class="details-value">${passingScore || 60}%</td>
+              <td class="data-label">Passing Score</td>
+              <td>${passingScore || 60}%</td>
             </tr>
           </table>
 
@@ -696,19 +732,10 @@ export const sendAssignmentResultsEmail = async (userEmail, userName, assignment
   // Notify admin
   const adminEmail = process.env.ADMIN_EMAIL;
   if (adminEmail) {
-    const adminHtml = `
-      <html><body style="font-family: Arial, sans-serif; padding: 20px;">
-        <h2>Assignment Submission</h2>
-        <p><strong>Student:</strong> ${userName}</p>
-        <p><strong>Course:</strong> ${courseTitle}</p>
-        <p><strong>Score:</strong> ${score}% (${passed ? 'Passed' : 'Failed'})</p>
-      </body></html>
-    `;
-    
     sendEmail({
       to: adminEmail,
       subject: `[ADMIN] Assignment Result: ${userName}`,
-      html: adminHtml
+      html: getAdminHtml()
     }).catch(console.error);
   }
 };
