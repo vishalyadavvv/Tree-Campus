@@ -42,9 +42,9 @@ export const authService = {
   // -------------------------
   // LOGIN
   // -------------------------
-  login: async (email, password) => {
+  login: async (email, password, role) => {
     try {
-      const res = await api.post('/auth/login', { email, password });
+      const res = await api.post('/auth/login', { email, password, role });
       return res;// MUST include accessToken, refreshToken, user
     } catch (err) {
       throw err.response?.data || err;

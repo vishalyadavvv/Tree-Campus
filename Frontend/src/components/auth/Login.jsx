@@ -148,7 +148,7 @@ const Login = () => {
     setLoading(true);
 
     try {
-      const result = await login(formData.email, formData.password);
+      const result = await login(formData.email, formData.password, formData.role);
       
       console.log('✅ Login result:', result);
       

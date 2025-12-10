@@ -158,7 +158,15 @@ const resendOTP = async (req, res, next) => {
  */
 const login = async (req, res, next) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, role } = req.body;
+
+    // Validate request
+    if (!role) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Please select a role' 
+      });
+    }
 
     // ⭐ POPULATE ALL USER DATA INCLUDING COURSES AND LESSONS
     const user = await User.findOne({ email })
@@ -177,6 +185,14 @@ const login = async (req, res, next) => {
       return res.status(401).json({ 
         success: false, 
         message: 'Invalid credentials' 
+      });
+    }
+
+    // ⭐ CHECK ROLE MATCH
+    if (user.role.toLowerCase() !== role.toLowerCase()) {
+      return res.status(403).json({ 
+        success: false, 
+        message: `You are registered as ${user.role}, not as ${role}. Please select the correct role.` 
       });
     }
 
@@ -209,6 +225,7 @@ const login = async (req, res, next) => {
     console.log('✅ Login successful, sending user data:', {
       id: userObject._id,
       email: userObject.email,
+      role: userObject.role,
       enrolledCoursesCount: userObject.enrolledCourses?.length || 0,
       completedLessonsCount: userObject.completedLessons?.length || 0
     });
