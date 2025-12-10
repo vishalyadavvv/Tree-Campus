@@ -198,7 +198,11 @@ const Courses = () => {
 
         {/* Call to Action Section */}
         <div className={`mt-16 bg-gradient-to-r from-[#FD5A00] to-orange-600 rounded-2xl p-8 text-center text-white shadow-2xl transition-all duration-1000 delay-1500 ${isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}>
-          <h3 className="text-3xl font-bold mb-4">Ready to Start Learning?</h3>
+          <Link to="/courses" className="inline-block mb-4 hover:underline">
+  <h3 className="text-3xl font-bold mb-4 hover:text-blue-600 transition">
+    Ready to Start Learning?
+  </h3>
+</Link>
           <p className="text-lg text-orange-100 mb-6 max-w-2xl mx-auto">
             Join thousands of students who have transformed their English skills with our free courses
           </p>

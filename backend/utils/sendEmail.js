@@ -61,54 +61,53 @@ const sendOTPEmail = async (email, name, otp) => {
     <html>
     <head>
       <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; background: #f5f5f5; }
-        .container { max-width: 600px; margin: 20px auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-        .header { background: linear-gradient(135deg, ${PRIMARY_COLOR} 0%, #E84C0A 100%); color: white; padding: 40px 20px; text-align: center; }
-        .logo { height: 50px; margin-bottom: 15px; }
-        .header h1 { font-size: 28px; font-weight: bold; margin: 0; }
-        .content { padding: 40px 30px; }
-        .greeting { font-size: 18px; color: #333; margin-bottom: 20px; }
-        .message { color: #666; font-size: 16px; line-height: 1.8; margin-bottom: 30px; }
+        body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #f4f4f7; color: #51545e; margin: 0; padding: 0; -webkit-text-size-adjust: 100%; }
+        .container { max-width: 600px; margin: 40px auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .header { background-color: #ffffff; padding: 30px 0; text-align: center; border-bottom: 1px solid #edf2f7; }
+        .logo { max-height: 60px; width: auto; object-fit: contain; }
+        .content { padding: 40px; }
+        .greeting { font-size: 20px; font-weight: 600; color: #333333; margin-bottom: 20px; }
+        .text { font-size: 16px; line-height: 1.6; color: #51545e; margin-bottom: 24px; }
         .otp-box { 
-          background: linear-gradient(135deg, ${PRIMARY_COLOR}15 0%, ${PRIMARY_COLOR}08 100%);
-          border: 2px solid ${PRIMARY_COLOR};
-          padding: 25px;
+          background: linear-gradient(135deg, ${PRIMARY_COLOR}0D 0%, ${PRIMARY_COLOR}1A 100%);
+          border: 1px dashed ${PRIMARY_COLOR};
+          border-radius: 6px;
+          padding: 24px;
           text-align: center;
-          font-size: 40px;
-          font-weight: bold;
-          letter-spacing: 8px;
-          margin: 30px 0;
-          border-radius: 10px;
+          font-size: 32px;
+          font-weight: 700;
+          letter-spacing: 6px;
           color: ${PRIMARY_COLOR};
+          margin: 32px 0;
           font-family: 'Courier New', monospace;
         }
-        .info { background: #f9f9f9; padding: 15px; border-radius: 8px; font-size: 13px; color: #666; margin: 20px 0; border-left: 4px solid ${PRIMARY_COLOR}; }
-        .footer { text-align: center; padding: 20px 30px; background: #f9f9f9; border-top: 1px solid #eee; font-size: 12px; color: #999; }
-        .footer-link { color: ${PRIMARY_COLOR}; text-decoration: none; }
-        .cta-button { display: inline-block; background: ${PRIMARY_COLOR}; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; margin: 20px 0; font-weight: bold; }
+        .info-box { background-color: #fafafa; border-left: 4px solid ${PRIMARY_COLOR}; padding: 16px; border-radius: 4px; font-size: 14px; color: #666; margin-top: 24px; }
+        .footer { background-color: #f8f9fa; padding: 24px 40px; text-align: center; font-size: 12px; color: #999; border-top: 1px solid #edf2f7; }
+        .footer-link { color: ${PRIMARY_COLOR}; text-decoration: none; font-weight: 500; }
       </style>
     </head>
     <body>
       <div class="container">
         <div class="header">
           <img src="${COMPANY_LOGO}" alt="Tree Campus" class="logo">
-          <h1>🌳 Tree Campus</h1>
         </div>
         <div class="content">
-          <p class="greeting">Hello <strong>${name}</strong>! 👋</p>
-          <p class="message">Thank you for signing up with Tree Campus. Your verification code is ready!</p>
+          <div class="greeting">Hello ${name},</div>
+          <p class="text">Thank you for signing up with Tree Campus. To complete your registration, please use the verification code below:</p>
+          
           <div class="otp-box">${otp}</div>
-          <div class="info">
-            <strong>⏱️ Valid for 10 minutes</strong><br>
-            This code is unique to your account and should not be shared with anyone.
+          
+          <div class="info-box">
+            <strong>⚠️ Note:</strong> This code is valid for 10 minutes. Please do not share it with anyone.
           </div>
-          <p style="color: #666; font-size: 14px;">If you didn't request this code, please ignore this email.</p>
+          
+          <p class="text" style="margin-top: 24px; font-size: 14px; color: #888;">If you didn't create an account with Tree Campus, you can safely ignore this email.</p>
         </div>
         <div class="footer">
           <p>&copy; ${new Date().getFullYear()} Tree Campus. All rights reserved.</p>
-          <p><a href="https://treecampus.netlify.app" class="footer-link">Visit Our Website</a></p>
+          <p><a href="https://treecampus.netlify.app" class="footer-link">Visit Our Website</a> | <a href="mailto:support@treecampus.com" class="footer-link">Contact Support</a></p>
         </div>
       </div>
     </body>
@@ -129,39 +128,54 @@ const sendPasswordResetEmail = async (email, name, resetToken) => {
     <html>
     <head>
       <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; background: #f5f5f5; }
-        .container { max-width: 600px; margin: 20px auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-        .header { background: linear-gradient(135deg, ${PRIMARY_COLOR} 0%, #E84C0A 100%); color: white; padding: 40px 20px; text-align: center; }
-        .logo { height: 50px; margin-bottom: 15px; }
-        .header h1 { font-size: 28px; font-weight: bold; margin: 0; }
-        .content { padding: 40px 30px; }
-        .greeting { font-size: 18px; color: #333; margin-bottom: 20px; }
-        .message { color: #666; font-size: 16px; line-height: 1.8; margin-bottom: 30px; }
-        .cta-button { display: inline-block; background: ${PRIMARY_COLOR}; color: white; padding: 15px 40px; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 16px; margin: 25px 0; }
-        .link-text { color: #666; font-size: 13px; word-break: break-all; }
-        .info { background: #f9f9f9; padding: 15px; border-radius: 8px; font-size: 13px; color: #666; margin: 20px 0; border-left: 4px solid ${PRIMARY_COLOR}; }
-        .footer { text-align: center; padding: 20px 30px; background: #f9f9f9; border-top: 1px solid #eee; font-size: 12px; color: #999; }
+        body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #f4f4f7; color: #51545e; margin: 0; padding: 0; -webkit-text-size-adjust: 100%; }
+        .container { max-width: 600px; margin: 40px auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .header { background-color: #ffffff; padding: 30px 0; text-align: center; border-bottom: 1px solid #edf2f7; }
+        .logo { max-height: 60px; width: auto; object-fit: contain; }
+        .content { padding: 40px; }
+        .greeting { font-size: 20px; font-weight: 600; color: #333333; margin-bottom: 20px; }
+        .text { font-size: 16px; line-height: 1.6; color: #51545e; margin-bottom: 24px; }
+        .btn { 
+          display: inline-block; 
+          background-color: ${PRIMARY_COLOR}; 
+          color: #ffffff; 
+          border-radius: 6px; 
+          padding: 14px 30px; 
+          text-decoration: none; 
+          font-weight: bold; 
+          margin: 20px 0; 
+          text-align: center;
+          box-shadow: 0 4px 6px rgba(253, 90, 0, 0.2);
+        }
+        .info-box { background-color: #fafafa; border-left: 4px solid ${PRIMARY_COLOR}; padding: 16px; border-radius: 4px; font-size: 14px; color: #666; margin-top: 24px; }
+        .link-text { font-size: 12px; color: #999; word-break: break-all; margin-top: 10px; }
+        .footer { background-color: #f8f9fa; padding: 24px 40px; text-align: center; font-size: 12px; color: #999; border-top: 1px solid #edf2f7; }
       </style>
     </head>
     <body>
       <div class="container">
         <div class="header">
           <img src="${COMPANY_LOGO}" alt="Tree Campus" class="logo">
-          <h1>🔐 Password Reset</h1>
         </div>
         <div class="content">
-          <p class="greeting">Hello <strong>${name}</strong>! 👋</p>
-          <p class="message">We received a request to reset your password. Click the button below to set a new password.</p>
+          <div class="greeting">Hi ${name},</div>
+          <p class="text">We received a request to reset your password for your Tree Campus account. Click the button below to proceed:</p>
+          
           <center>
-            <a href="${resetUrl}" class="cta-button">Reset Password</a>
+            <a href="${resetUrl}" class="btn">Reset Password</a>
           </center>
-          <div class="info">
-            <strong>⏱️ This link expires in 1 hour</strong><br>
-            If you didn't request this reset, please ignore this email. Your password will remain unchanged.
+          
+          <div class="info-box">
+            <strong>⏱️ Expiry:</strong> This link is valid for 1 hour.
           </div>
-          <p class="link-text"><strong>Or copy this link:</strong><br>${resetUrl}</p>
+          
+          <p class="text" style="font-size: 14px; margin-top: 20px;">If you didn't request a password reset, please ignore this email.</p>
+          
+          <div style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px;">
+            <p class="link-text">If the button above doesn't work, copy and paste this link into your browser:<br>${resetUrl}</p>
+          </div>
         </div>
         <div class="footer">
           <p>&copy; ${new Date().getFullYear()} Tree Campus. All rights reserved.</p>
@@ -184,35 +198,47 @@ const sendVolunteerOTPEmail = async (email, name, otp, details = {}) => {
     <html>
     <head>
       <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f5f5; }
-        .container { max-width: 600px; margin: 20px auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-        .header { background: linear-gradient(135deg, #00a86b 0%, #228b22 100%); color: white; padding: 40px 20px; text-align: center; }
-        .logo { height: 50px; margin-bottom: 15px; }
-        .content { padding: 40px 30px; }
-        .greeting { font-size: 18px; color: #333; margin-bottom: 20px; }
-        .message { color: #666; font-size: 16px; line-height: 1.8; margin-bottom: 30px; }
-        .otp-box { background: linear-gradient(135deg, #00a86b15 0%, #00a86b08 100%); border: 2px solid #00a86b; padding: 25px; text-align: center; font-size: 40px; font-weight: bold; letter-spacing: 8px; margin: 30px 0; border-radius: 10px; color: #00a86b; font-family: 'Courier New', monospace; }
-        .info { background: #f0fff4; border-left: 4px solid #00a86b; padding: 15px; border-radius: 8px; font-size: 13px; color: #333; margin: 20px 0; }
-        .footer { text-align: center; padding: 20px 30px; background: #f9f9f9; border-top: 1px solid #eee; font-size: 12px; color: #999; }
+        body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #f4f4f7; color: #51545e; margin: 0; padding: 0; -webkit-text-size-adjust: 100%; }
+        .container { max-width: 600px; margin: 40px auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .header { background-color: #ffffff; padding: 30px 0; text-align: center; border-bottom: 1px solid #edf2f7; }
+        .logo { max-height: 60px; width: auto; object-fit: contain; }
+        .content { padding: 40px; }
+        .greeting { font-size: 20px; font-weight: 600; color: #333333; margin-bottom: 20px; }
+        .text { font-size: 16px; line-height: 1.6; color: #51545e; margin-bottom: 24px; }
+        .otp-box { 
+          background: linear-gradient(135deg, #00A86B0D 0%, #00A86B1A 100%);
+          border: 1px dashed #00A86B;
+          border-radius: 6px;
+          padding: 24px;
+          text-align: center;
+          font-size: 32px;
+          font-weight: 700;
+          letter-spacing: 6px;
+          color: #00A86B;
+          margin: 32px 0;
+          font-family: 'Courier New', monospace;
+        }
+        .info-box { background-color: #f0fff4; border-left: 4px solid #00A86B; padding: 16px; border-radius: 4px; font-size: 14px; color: #2d3748; margin-top: 24px; }
+        .footer { background-color: #f8f9fa; padding: 24px 40px; text-align: center; font-size: 12px; color: #999; border-top: 1px solid #edf2f7; }
       </style>
     </head>
     <body>
       <div class="container">
         <div class="header">
           <img src="${COMPANY_LOGO}" alt="Tree Campus" class="logo">
-          <h1>🌱 Verify Your Registration</h1>
         </div>
         <div class="content">
-          <p class="greeting">Welcome, ${name}! 👋</p>
-          <p class="message">Thank you for your interest in volunteering with Tree Campus. Use the code below to verify your registration:</p>
+          <div class="greeting">Welcome, ${name}! 👋</div>
+          <p class="text">Thank you for your interest in volunteering with Tree Campus. We are excited to have you on board! To continue, please verify your email address.</p>
+          
           <div class="otp-box">${otp}</div>
-          <div class="info">
+          
+          <div class="info-box">
             <strong>⏱️ Valid for 10 minutes</strong><br>
-            This code is unique to your registration. Please don't share it with anyone.
+            Please use this code to complete your registration.
           </div>
-          <p style="color: #666; font-size: 14px;">If you didn't request this code, please ignore this email.</p>
         </div>
         <div class="footer">
           <p>&copy; ${new Date().getFullYear()} Tree Campus. Making a Difference Together.</p>
@@ -235,35 +261,48 @@ const sendSchoolOTPEmail = async (email, schoolName, contactName, otp, details =
     <html>
     <head>
       <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f5f5; }
-        .container { max-width: 600px; margin: 20px auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-        .header { background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%); color: white; padding: 40px 20px; text-align: center; }
-        .logo { height: 50px; margin-bottom: 15px; }
-        .content { padding: 40px 30px; }
-        .greeting { font-size: 18px; color: #333; margin-bottom: 20px; }
-        .message { color: #666; font-size: 16px; line-height: 1.8; margin-bottom: 30px; }
-        .otp-box { background: linear-gradient(135deg, #1e40af15 0%, #1e40af08 100%); border: 2px solid #1e40af; padding: 25px; text-align: center; font-size: 40px; font-weight: bold; letter-spacing: 8px; margin: 30px 0; border-radius: 10px; color: #1e40af; font-family: 'Courier New', monospace; }
-        .info { background: #eff6ff; border-left: 4px solid #1e40af; padding: 15px; border-radius: 8px; font-size: 13px; color: #333; margin: 20px 0; }
-        .footer { text-align: center; padding: 20px 30px; background: #f9f9f9; border-top: 1px solid #eee; font-size: 12px; color: #999; }
+        body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #f4f4f7; color: #51545e; margin: 0; padding: 0; -webkit-text-size-adjust: 100%; }
+        .container { max-width: 600px; margin: 40px auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .header { background-color: #ffffff; padding: 30px 0; text-align: center; border-bottom: 1px solid #edf2f7; }
+        .logo { max-height: 60px; width: auto; object-fit: contain; }
+        .content { padding: 40px; }
+        .greeting { font-size: 20px; font-weight: 600; color: #333333; margin-bottom: 20px; }
+        .text { font-size: 16px; line-height: 1.6; color: #51545e; margin-bottom: 24px; }
+        .otp-box { 
+          background: linear-gradient(135deg, #1E40AF0D 0%, #1E40AF1A 100%);
+          border: 1px dashed #1E40AF;
+          border-radius: 6px;
+          padding: 24px;
+          text-align: center;
+          font-size: 32px;
+          font-weight: 700;
+          letter-spacing: 6px;
+          color: #1E40AF;
+          margin: 32px 0;
+          font-family: 'Courier New', monospace;
+        }
+        .info-box { background-color: #eff6ff; border-left: 4px solid #1E40AF; padding: 16px; border-radius: 4px; font-size: 14px; color: #2d3748; margin-top: 24px; }
+        .footer { background-color: #f8f9fa; padding: 24px 40px; text-align: center; font-size: 12px; color: #999; border-top: 1px solid #edf2f7; }
       </style>
     </head>
     <body>
       <div class="container">
         <div class="header">
           <img src="${COMPANY_LOGO}" alt="Tree Campus" class="logo">
-          <h1>🏫 Verify Registration</h1>
         </div>
         <div class="content">
-          <p class="greeting">Hello ${contactName}! 👋</p>
-          <p class="message">Thank you for registering <strong>${schoolName}</strong> with Tree Campus. Use the code below to verify your registration:</p>
+          <div class="greeting">Hello ${contactName},</div>
+          <p class="text">Thank you for registering <strong>${schoolName}</strong> with Tree Campus. We are honored to partner with you.</p>
+          <p class="text">Please use the verification code below to confirm your registration:</p>
+
           <div class="otp-box">${otp}</div>
-          <div class="info">
+          
+          <div class="info-box">
             <strong>⏱️ Valid for 10 minutes</strong><br>
-            This code is unique to your registration. Please don't share it with anyone.
+            Please don't share this code with anyone.
           </div>
-          <p style="color: #666; font-size: 14px;">If you didn't request this code, please ignore this email.</p>
         </div>
         <div class="footer">
           <p>&copy; ${new Date().getFullYear()} Tree Campus. Nurturing Minds, Growing Futures.</p>
@@ -286,43 +325,52 @@ const sendAccountDeletionOTPEmail = async (email, name, otp, details = {}) => {
     <html>
     <head>
       <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f5f5; }
-        .container { max-width: 600px; margin: 20px auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-        .header { background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%); color: white; padding: 40px 20px; text-align: center; }
-        .logo { height: 50px; margin-bottom: 15px; }
-        .content { padding: 40px 30px; }
-        .greeting { font-size: 18px; color: #333; margin-bottom: 20px; }
-        .warning { background: #fee; border-left: 4px solid #dc2626; padding: 20px; border-radius: 6px; margin: 20px 0; }
-        .warning strong { color: #991b1b; }
-        .message { color: #666; font-size: 16px; line-height: 1.8; margin-bottom: 25px; }
-        .otp-box { background: linear-gradient(135deg, #dc262615 0%, #dc262608 100%); border: 2px solid #dc2626; padding: 25px; text-align: center; font-size: 40px; font-weight: bold; letter-spacing: 8px; margin: 30px 0; border-radius: 10px; color: #dc2626; font-family: 'Courier New', monospace; }
-        .info { background: #fee; border-left: 4px solid #dc2626; padding: 15px; border-radius: 8px; font-size: 13px; color: #333; margin: 20px 0; }
-        .footer { text-align: center; padding: 20px 30px; background: #f9f9f9; border-top: 1px solid #eee; font-size: 12px; color: #999; }
+        body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #f4f4f7; color: #51545e; margin: 0; padding: 0; -webkit-text-size-adjust: 100%; }
+        .container { max-width: 600px; margin: 40px auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .header { background-color: #ffffff; padding: 30px 0; text-align: center; border-bottom: 2px solid #DC2626; }
+        .logo { max-height: 60px; width: auto; object-fit: contain; }
+        .content { padding: 40px; }
+        .greeting { font-size: 20px; font-weight: 600; color: #333333; margin-bottom: 20px; }
+        .text { font-size: 16px; line-height: 1.6; color: #51545e; margin-bottom: 24px; }
+        .warning-box { background-color: #FEF2F2; border: 1px solid #DC2626; padding: 16px; border-radius: 6px; font-size: 14px; color: #991B1B; margin-bottom: 20px; }
+        .otp-box { 
+          background: linear-gradient(135deg, #DC26260D 0%, #DC26261A 100%);
+          border: 1px dashed #DC2626;
+          border-radius: 6px;
+          padding: 24px;
+          text-align: center;
+          font-size: 32px;
+          font-weight: 700;
+          letter-spacing: 6px;
+          color: #DC2626;
+          margin: 32px 0;
+          font-family: 'Courier New', monospace;
+        }
+        .footer { background-color: #f8f9fa; padding: 24px 40px; text-align: center; font-size: 12px; color: #999; border-top: 1px solid #edf2f7; }
       </style>
     </head>
     <body>
       <div class="container">
         <div class="header">
           <img src="${COMPANY_LOGO}" alt="Tree Campus" class="logo">
-          <h1>⚠️ Verify Deletion</h1>
         </div>
         <div class="content">
-          <p class="greeting">Hello ${name}!</p>
-          <div class="warning">
-            <strong>🚨 Important:</strong> You have requested to delete your Tree Campus account.
+          <div class="greeting">Hello ${name},</div>
+          
+          <div class="warning-box">
+            <strong>⚠️ Critical Action:</strong> You have initiated a request to delete your Tree Campus account. This action cannot be undone once confirmed.
           </div>
-          <p class="message">To confirm deletion, use the code below:</p>
+          
+          <p class="text">To confirm deletion, please enter the following verification code:</p>
+
           <div class="otp-box">${otp}</div>
-          <div class="info">
-            <strong>⏱️ Valid for 10 minutes</strong><br>
-            This code is required to confirm your account deletion. Your account cannot be restored after deletion.
-          </div>
-          <p style="color: #666; font-size: 14px;">If you didn't request this code, please ignore this email.</p>
+          
+          <p class="text" style="font-size: 14px;">If you did not request this, please change your password immediately and contact support.</p>
         </div>
         <div class="footer">
-          <p>&copy; ${new Date().getFullYear()} Tree Campus. We hope to see you again!</p>
+          <p>&copy; ${new Date().getFullYear()} Tree Campus.</p>
         </div>
       </div>
     </body>
@@ -343,33 +391,35 @@ const sendVolunteerConfirmation = async (userEmail, userName, volunteerDetails =
     <!DOCTYPE html>
     <html>
     <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f5f5; }
-        .container { max-width: 600px; margin: 20px auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-        .header { background: linear-gradient(135deg, #00a86b 0%, #228b22 100%); color: white; padding: 40px 20px; text-align: center; }
-        .logo { height: 50px; margin-bottom: 15px; }
-        .content { padding: 40px 30px; }
-        .greeting { font-size: 20px; color: #333; margin-bottom: 20px; font-weight: bold; }
-        .message { color: #666; font-size: 16px; line-height: 1.8; margin-bottom: 25px; }
-        .highlight { background: #f0fff4; border-left: 4px solid #00a86b; padding: 15px; border-radius: 6px; margin: 20px 0; }
-        .footer { text-align: center; padding: 20px 30px; background: #f9f9f9; border-top: 1px solid #eee; font-size: 12px; color: #999; }
+        body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #f4f4f7; color: #51545e; margin: 0; padding: 0; -webkit-text-size-adjust: 100%; }
+        .container { max-width: 600px; margin: 40px auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .header { background-color: #ffffff; padding: 30px 0; text-align: center; border-bottom: 1px solid #edf2f7; }
+        .logo { max-height: 60px; width: auto; object-fit: contain; }
+        .content { padding: 40px; }
+        .greeting { font-size: 20px; font-weight: 600; color: #333333; margin-bottom: 20px; }
+        .text { font-size: 16px; line-height: 1.6; color: #51545e; margin-bottom: 24px; }
+        .status-box { background-color: #f0fff4; border-left: 4px solid #00A86B; padding: 20px; border-radius: 4px; color: #2d3748; margin: 24px 0; }
+        .footer { background-color: #f8f9fa; padding: 24px 40px; text-align: center; font-size: 12px; color: #999; border-top: 1px solid #edf2f7; }
       </style>
     </head>
     <body>
       <div class="container">
         <div class="header">
           <img src="${COMPANY_LOGO}" alt="Tree Campus" class="logo">
-          <h1>🌱 Volunteer Application Received</h1>
         </div>
         <div class="content">
-          <p class="greeting">Welcome, ${userName}! 🎉</p>
-          <p class="message">Thank you for submitting your volunteer application to Tree Campus. We're excited about your interest in making a difference!</p>
-          <div class="highlight">
-            <strong>✓ Application Status: Under Review</strong><br>
-            Our team will review your application and contact you within 2-3 business days.
+          <div class="greeting">Welcome, ${userName}! 🎉</div>
+          <p class="text">Thank you for submitting your volunteer application to Tree Campus. We are thrilled to see your enthusiasm for making a positive impact!</p>
+          
+          <div class="status-box">
+            <strong style="color: #00A86B; font-size: 18px; display: block; margin-bottom: 8px;">✓ Application Received</strong>
+            Our team is currently reviewing your application. You can expect to hear from us within 2-3 business days.
           </div>
-          <p class="message">In the meantime, feel free to explore our courses and learn more about what we're doing at Tree Campus.</p>
+          
+          <p class="text">In the meantime, feel free to explore our platform and see what we are achieving together.</p>
         </div>
         <div class="footer">
           <p>&copy; ${new Date().getFullYear()} Tree Campus. Planting Seeds of Knowledge.</p>
@@ -383,11 +433,11 @@ const sendVolunteerConfirmation = async (userEmail, userName, volunteerDetails =
   
   if (adminEmail) {
     const adminHtml = `
-      <html><body style="font-family: Arial;">
-        <h2>New Volunteer Application Received</h2>
+      <html><body style="font-family: Arial, sans-serif; padding: 20px;">
+        <h2 style="color: #00A86B;">New Volunteer Application</h2>
         <p><strong>Name:</strong> ${userName}</p>
         <p><strong>Email:</strong> ${userEmail}</p>
-        <p><a href="${process.env.FRONTEND_URL}/admin/volunteers">Review Application →</a></p>
+        <p><a href="${process.env.FRONTEND_URL}/admin/volunteers" style="background: #00A86B; color: white; padding: 10px 15px; text-decoration: none; border-radius: 4px;">Review Application</a></p>
       </body></html>
     `;
     await sendEmail({ to: adminEmail, subject: `[ADMIN] ${subject}`, html: adminHtml });
@@ -405,33 +455,35 @@ const sendSchoolRegistrationConfirmation = async (schoolEmail, schoolName, conta
     <!DOCTYPE html>
     <html>
     <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f5f5; }
-        .container { max-width: 600px; margin: 20px auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-        .header { background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%); color: white; padding: 40px 20px; text-align: center; }
-        .logo { height: 50px; margin-bottom: 15px; }
-        .content { padding: 40px 30px; }
-        .greeting { font-size: 20px; color: #333; margin-bottom: 20px; font-weight: bold; }
-        .message { color: #666; font-size: 16px; line-height: 1.8; margin-bottom: 25px; }
-        .highlight { background: #eff6ff; border-left: 4px solid #1e40af; padding: 15px; border-radius: 6px; margin: 20px 0; }
-        .footer { text-align: center; padding: 20px 30px; background: #f9f9f9; border-top: 1px solid #eee; font-size: 12px; color: #999; }
+        body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #f4f4f7; color: #51545e; margin: 0; padding: 0; -webkit-text-size-adjust: 100%; }
+        .container { max-width: 600px; margin: 40px auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .header { background-color: #ffffff; padding: 30px 0; text-align: center; border-bottom: 1px solid #edf2f7; }
+        .logo { max-height: 60px; width: auto; object-fit: contain; }
+        .content { padding: 40px; }
+        .greeting { font-size: 20px; font-weight: 600; color: #333333; margin-bottom: 20px; }
+        .text { font-size: 16px; line-height: 1.6; color: #51545e; margin-bottom: 24px; }
+        .status-box { background-color: #eff6ff; border-left: 4px solid #1E40AF; padding: 20px; border-radius: 4px; color: #2d3748; margin: 24px 0; }
+        .footer { background-color: #f8f9fa; padding: 24px 40px; text-align: center; font-size: 12px; color: #999; border-top: 1px solid #edf2f7; }
       </style>
     </head>
     <body>
       <div class="container">
         <div class="header">
           <img src="${COMPANY_LOGO}" alt="Tree Campus" class="logo">
-          <h1>🏫 School Registration Confirmed</h1>
         </div>
         <div class="content">
-          <p class="greeting">Hello ${contactName}! 👋</p>
-          <p class="message">Thank you for registering <strong>${schoolName}</strong> with Tree Campus. We're thrilled to partner with your institution!</p>
-          <div class="highlight">
-            <strong>✓ Registration Status: Active</strong><br>
-            Your school is now part of the Tree Campus community. Access our educational resources and start empowering your students.
+          <div class="greeting">Hello ${contactName},</div>
+          <p class="text">We are delighted to confirm the registration of <strong>${schoolName}</strong> with Tree Campus. Welcome to our partnership program!</p>
+          
+          <div class="status-box">
+            <strong style="color: #1E40AF; font-size: 18px; display: block; margin-bottom: 8px;">✓ Registration Active</strong>
+            Your institution is now part of the Tree Campus family, connecting education with nature.
           </div>
-          <p class="message">Our team will contact you soon with next steps and how to get started.</p>
+          
+          <p class="text">Our partnership team will reach out to you shortly with resources and the next steps to get started.</p>
         </div>
         <div class="footer">
           <p>&copy; ${new Date().getFullYear()} Tree Campus. Nurturing Minds, Growing Futures.</p>
@@ -445,12 +497,12 @@ const sendSchoolRegistrationConfirmation = async (schoolEmail, schoolName, conta
   
   if (adminEmail) {
     const adminHtml = `
-      <html><body style="font-family: Arial;">
-        <h2>New School Registration</h2>
+      <html><body style="font-family: Arial, sans-serif; padding: 20px;">
+        <h2 style="color: #1E40AF;">New School Signed Up</h2>
         <p><strong>School:</strong> ${schoolName}</p>
-        <p><strong>Contact Person:</strong> ${contactName}</p>
+        <p><strong>Contact:</strong> ${contactName}</p>
         <p><strong>Email:</strong> ${schoolEmail}</p>
-        <p><a href="${process.env.FRONTEND_URL}/admin/schools">Review Registration →</a></p>
+        <p><a href="${process.env.FRONTEND_URL}/admin/schools" style="background: #1E40AF; color: white; padding: 10px 15px; text-decoration: none; border-radius: 4px;">View Details</a></p>
       </body></html>
     `;
     await sendEmail({ to: adminEmail, subject: `[ADMIN] ${subject}`, html: adminHtml });
@@ -468,42 +520,45 @@ const sendAccountDeletionConfirmation = async (userEmail, userName, deletionDeta
     <!DOCTYPE html>
     <html>
     <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f5f5; }
-        .container { max-width: 600px; margin: 20px auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-        .header { background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%); color: white; padding: 40px 20px; text-align: center; }
-        .logo { height: 50px; margin-bottom: 15px; }
-        .content { padding: 40px 30px; }
-        .greeting { font-size: 20px; color: #333; margin-bottom: 20px; font-weight: bold; }
-        .message { color: #666; font-size: 16px; line-height: 1.8; margin-bottom: 25px; }
-        .warning { background: #fee; border-left: 4px solid #dc2626; padding: 20px; border-radius: 6px; margin: 20px 0; }
-        .warning strong { color: #991b1b; }
-        .footer { text-align: center; padding: 20px 30px; background: #f9f9f9; border-top: 1px solid #eee; font-size: 12px; color: #999; }
+        body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #f4f4f7; color: #51545e; margin: 0; padding: 0; -webkit-text-size-adjust: 100%; }
+        .container { max-width: 600px; margin: 40px auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .header { background-color: #ffffff; padding: 30px 0; text-align: center; border-bottom: 2px solid #DC2626; }
+        .logo { max-height: 60px; width: auto; object-fit: contain; }
+        .content { padding: 40px; }
+        .greeting { font-size: 20px; font-weight: 600; color: #333333; margin-bottom: 20px; }
+        .text { font-size: 16px; line-height: 1.6; color: #51545e; margin-bottom: 24px; }
+        .warning-box { background-color: #FEF2F2; border: 1px solid #DC2626; padding: 20px; border-radius: 6px; margin: 24px 0; }
+        .footer { background-color: #f8f9fa; padding: 24px 40px; text-align: center; font-size: 12px; color: #999; border-top: 1px solid #edf2f7; }
+        ul { margin: 0; padding-left: 20px; color: #51545e; }
+        li { margin-bottom: 10px; }
       </style>
     </head>
     <body>
       <div class="container">
         <div class="header">
           <img src="${COMPANY_LOGO}" alt="Tree Campus" class="logo">
-          <h1>⚠️ Account Deletion Request</h1>
         </div>
         <div class="content">
-          <p class="greeting">Hello ${userName}!</p>
-          <div class="warning">
-            <strong>🚨 Important Notice</strong><br>
-            Your account deletion request has been received and is scheduled for permanent deletion.
+          <div class="greeting">Hello ${userName},</div>
+          
+          <div class="warning-box">
+            <strong style="color: #991B1B; font-size: 18px; display: block; margin-bottom: 10px;">Account Deletion Scheduled</strong>
+            Your request to delete your account has been confirmed. Your account will be permanently deleted in <strong>30 days</strong>.
           </div>
-          <p class="message">Your account will be permanently deleted within <strong>30 days</strong>. During this period:</p>
-          <ul style="margin-left: 20px; color: #666;">
-            <li>You can log in and restore your account</li>
-            <li>Your data will be securely backed up</li>
-            <li>After 30 days, all data will be permanently removed</li>
+          
+          <p class="text">What you need to know:</p>
+          <ul>
+            <li>You can restore your account by logging in within the next 30 days.</li>
+            <li>After 30 days, your data will be permanently erased and cannot be recovered.</li>
           </ul>
-          <p class="message">If you change your mind, simply log in to your account to cancel the deletion request.</p>
+          
+          <p class="text" style="margin-top: 24px;">We're sorry to see you go. If this was a mistake, please log in immediately to cancel the request.</p>
         </div>
         <div class="footer">
-          <p>&copy; ${new Date().getFullYear()} Tree Campus. We hope to see you again!</p>
+          <p>&copy; ${new Date().getFullYear()} Tree Campus.</p>
         </div>
       </div>
     </body>
@@ -514,11 +569,11 @@ const sendAccountDeletionConfirmation = async (userEmail, userName, deletionDeta
   
   if (adminEmail) {
     const adminHtml = `
-      <html><body style="font-family: Arial;">
-        <h2>Account Deletion Request</h2>
+      <html><body style="font-family: Arial, sans-serif; padding: 20px;">
+        <h2 style="color: #DC2626;">Account Deletion Scheduled</h2>
         <p><strong>User:</strong> ${userName}</p>
         <p><strong>Email:</strong> ${userEmail}</p>
-        <p><strong>Status:</strong> Pending Deletion (30 days)</p>
+        <p><strong>Status:</strong> Pending (30 Days)</p>
       </body></html>
     `;
     await sendEmail({ to: adminEmail, subject: `[ADMIN] ${subject}`, html: adminHtml });
@@ -532,103 +587,102 @@ export const sendAssignmentResultsEmail = async (userEmail, userName, assignment
   const { courseTitle, score, passed, certificateId, passingScore } = assignmentData;
 
   const subject = passed
-    ? `🎉 Congratulations! You Passed "${courseTitle}" Assignment`
+    ? `🎉 Congratulations! You Passed "${courseTitle}"`
     : `Assignment Results - ${courseTitle}`;
 
-  const resultColor = passed ? '#27AE60' : '#E74C3C';
-  const resultText = passed ? 'PASSED ✓' : 'NEEDS IMPROVEMENT';
+  // Colors
+  const statusColor = passed ? '#10B981' : '#EF4444'; // Green or Red
+  const statusIcon = passed ? '🏆' : '📚';
+  const statusText = passed ? 'Passed Successfully' : 'Needs Improvement';
 
   const userHtml = `
     <!DOCTYPE html>
     <html>
-      <head>
-        <style>
-          body { font-family: Arial, sans-serif; background-color: #f5f5f5; margin: 0; padding: 20px; }
-          .container { max-width: 600px; margin: 0 auto; background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); overflow: hidden; }
-          .header { background: linear-gradient(135deg, #FD5A00 0%, #FF7722 100%); color: white; padding: 30px; text-align: center; }
-          .header img { max-width: 60px; margin-bottom: 15px; }
-          .header h1 { margin: 0; font-size: 24px; }
-          .content { padding: 30px; }
-          .result-box { 
-            background: ${resultColor}; 
-            color: white; 
-            padding: 20px; 
-            border-radius: 8px; 
-            text-align: center; 
-            margin: 20px 0;
-            font-size: 18px;
-            font-weight: bold;
-          }
-          .score { font-size: 36px; font-weight: bold; color: ${resultColor}; margin: 15px 0; }
-          .details { background: #f9f9f9; padding: 15px; border-left: 4px solid #FD5A00; margin: 15px 0; }
-          .button { 
-            display: inline-block; 
-            background: #FD5A00; 
-            color: white; 
-            padding: 12px 30px; 
-            border-radius: 5px; 
-            text-decoration: none; 
-            margin: 20px 0;
-            font-weight: bold;
-          }
-          .footer { background: #f5f5f5; padding: 20px; text-align: center; color: #666; font-size: 12px; }
-        </style>
-      </head>
-      <body>
-        <div class="container">
-          <div class="header">
-            <img src="${COMPANY_LOGO}" alt="Tree Campus">
-            <h1>Assignment Results</h1>
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <style>
+        body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #f4f4f7; color: #51545e; margin: 0; padding: 0; -webkit-text-size-adjust: 100%; }
+        .container { max-width: 600px; margin: 40px auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .header { background-color: #ffffff; padding: 30px 0; text-align: center; border-bottom: 1px solid #edf2f7; }
+        .logo { max-height: 60px; width: auto; object-fit: contain; }
+        .content { padding: 40px; }
+        .greeting { font-size: 20px; font-weight: 600; color: #333333; margin-bottom: 20px; }
+        .score-card { 
+          background-color: ${passed ? '#ECFDF5' : '#FEF2F2'}; 
+          border: 1px solid ${passed ? '#10B981' : '#EF4444'}; 
+          border-radius: 8px; 
+          padding: 30px; 
+          text-align: center; 
+          margin: 30px 0; 
+        }
+        .score-val { font-size: 48px; font-weight: 700; color: ${statusColor}; margin: 10px 0; }
+        .score-label { font-size: 14px; text-transform: uppercase; letter-spacing: 1px; color: #666; }
+        .btn { 
+          display: inline-block; 
+          background-color: ${PRIMARY_COLOR}; 
+          color: #ffffff; 
+          border-radius: 6px; 
+          padding: 14px 30px; 
+          text-decoration: none; 
+          font-weight: bold; 
+          margin-top: 20px;
+          box-shadow: 0 4px 6px rgba(253, 90, 0, 0.2);
+        }
+        .footer { background-color: #f8f9fa; padding: 24px 40px; text-align: center; font-size: 12px; color: #999; border-top: 1px solid #edf2f7; }
+        .details-table { width: 100%; margin: 20px 0; border-collapse: collapse; }
+        .details-table td { padding: 12px 0; border-bottom: 1px solid #eee; }
+        .details-label { font-weight: 600; color: #333; }
+        .details-value { text-align: right; color: #666; }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <img src="${COMPANY_LOGO}" alt="Tree Campus" class="logo">
+        </div>
+        <div class="content">
+          <div class="greeting">Hello ${userName},</div>
+          <p style="font-size: 16px; line-height: 1.6; color: #51545e;">
+            Here are the results for your recent assignment in <strong>${courseTitle}</strong>.
+          </p>
+          
+          <div class="score-card">
+            <div style="font-size: 40px; margin-bottom: 10px;">${statusIcon}</div>
+            <div class="score-label">Your Score</div>
+            <div class="score-val">${score}%</div>
+            <div style="color: ${statusColor}; font-weight: 600;">${statusText}</div>
           </div>
-          <div class="content">
-            <p>Hi <strong>${userName}</strong>,</p>
-            
-            <div class="result-box">${resultText}</div>
-            
-            <div class="score">Score: ${score}%</div>
-            
-            <div class="details">
-              <p><strong>Course:</strong> ${courseTitle}</p>
-              <p><strong>Your Score:</strong> ${score}%</p>
-              <p><strong>Passing Score:</strong> ${passingScore || 60}%</p>
-            </div>
+          
+          <table class="details-table">
+            <tr>
+              <td class="details-label">Course</td>
+              <td class="details-value">${courseTitle}</td>
+            </tr>
+            <tr>
+              <td class="details-label">Status</td>
+              <td class="details-value" style="color: ${statusColor}; font-weight: bold;">${passed ? 'Passed' : 'Failed'}</td>
+            </tr>
+            <tr>
+              <td class="details-label">Passing Score</td>
+              <td class="details-value">${passingScore || 60}%</td>
+            </tr>
+          </table>
 
-            ${
-              passed
-                ? `
-            <p style="text-align: center; color: #27AE60; font-weight: bold;">
-              🎓 Congratulations! You have earned your certificate of completion!
-            </p>
-            <div style="text-align: center;">
-              <a href="https://treecampus.netlify.app/certificate/${certificateId}" class="button">
-                View Your Certificate
-              </a>
-            </div>
-            `
-                : `
-            <p style="color: #E74C3C;">
-              <strong>Keep Learning!</strong> You didn't reach the passing score this time. 
-              Review the material and try again to earn your certificate.
-            </p>
-            <div style="text-align: center;">
-              <a href="https://treecampus.netlify.app/courses/${courseTitle}" class="button">
-                Return to Course
-              </a>
-            </div>
-            `
+          <div style="text-align: center;">
+            ${passed 
+              ? `<p>You have successfully completed this assignment. You can now view your certificate.</p>
+                 <a href="https://treecampus.netlify.app/certificate/${certificateId}" class="btn">View Certificate</a>` 
+              : `<p>Don't worry! You can review the course material and try again.</p>
+                 <a href="https://treecampus.netlify.app/courses" class="btn">Return to Course</a>`
             }
-
-            <p style="margin-top: 30px; color: #666;">
-              If you have any questions, please contact us at 
-              <a href="mailto:support@treecampus.com" style="color: #FD5A00;">support@treecampus.com</a>
-            </p>
-          </div>
-          <div class="footer">
-            <p>© 2024 Tree Campus Academy. All rights reserved.</p>
-            <p>This is an automated message, please do not reply directly to this email.</p>
           </div>
         </div>
-      </body>
+        <div class="footer">
+          <p>&copy; ${new Date().getFullYear()} Tree Campus. All rights reserved.</p>
+        </div>
+      </div>
+    </body>
     </html>
   `;
 
@@ -639,43 +693,23 @@ export const sendAssignmentResultsEmail = async (userEmail, userName, assignment
     html: userHtml
   });
 
-  // Also notify admin
-  const adminHtml = `
-    <!DOCTYPE html>
-    <html>
-      <head>
-        <style>
-          body { font-family: Arial, sans-serif; background-color: #f5f5f5; }
-          .container { max-width: 600px; margin: 20px auto; background: white; padding: 20px; border-radius: 8px; }
-          .header { background: #FD5A00; color: white; padding: 15px; border-radius: 5px; }
-        </style>
-      </head>
-      <body>
-        <div class="container">
-          <div class="header">
-            <h2>[ADMIN] Assignment Submission Notification</h2>
-          </div>
-          <p><strong>Student:</strong> ${userName}</p>
-          <p><strong>Email:</strong> ${userEmail}</p>
-          <p><strong>Course:</strong> ${courseTitle}</p>
-          <p><strong>Score:</strong> ${score}%</p>
-          <p><strong>Status:</strong> ${passed ? 'PASSED ✓' : 'NEEDS IMPROVEMENT'}</p>
-          <p><strong>Timestamp:</strong> ${new Date().toLocaleString()}</p>
-        </div>
-      </body>
-    </html>
-  `;
-
-  // Send admin notification in background
-  const adminEmail = process.env.ADMIN_EMAIL || process.env.SENDER_EMAIL;
+  // Notify admin
+  const adminEmail = process.env.ADMIN_EMAIL;
   if (adminEmail) {
+    const adminHtml = `
+      <html><body style="font-family: Arial, sans-serif; padding: 20px;">
+        <h2>Assignment Submission</h2>
+        <p><strong>Student:</strong> ${userName}</p>
+        <p><strong>Course:</strong> ${courseTitle}</p>
+        <p><strong>Score:</strong> ${score}% (${passed ? 'Passed' : 'Failed'})</p>
+      </body></html>
+    `;
+    
     sendEmail({
       to: adminEmail,
-      subject: `[ADMIN] ${courseTitle} - Assignment ${passed ? 'PASSED' : 'FAILED'}: ${userName}`,
+      subject: `[ADMIN] Assignment Result: ${userName}`,
       html: adminHtml
-    }).catch(err => {
-      console.error('❌ Failed to send admin assignment notification:', err.message);
-    });
+    }).catch(console.error);
   }
 };
 

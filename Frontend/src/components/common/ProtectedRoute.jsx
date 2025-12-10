@@ -7,6 +7,7 @@ const ProtectedRoute = ({ children, adminOnly = false, studentOnly = false }) =>
 
   // ⛔ IMPORTANT FIX: Wait for auth check to finish
   if (loading) {
+    console.log('⏳ Auth still loading...');
     return (
       <div className="w-full h-screen flex items-center justify-center text-xl font-semibold">
         Checking authentication...
@@ -16,19 +17,52 @@ const ProtectedRoute = ({ children, adminOnly = false, studentOnly = false }) =>
 
   // If still no user after loading → redirect
   if (!user) {
+    console.log('❌ No user found, redirecting to login');
     return <Navigate to="/login" replace />;
   }
 
-  // Admin-only route
-  if (adminOnly && user.role !== "admin") {
-    return <Navigate to="/dashboard" replace />;
+  console.log('🛡️ ProtectedRoute Check:', {
+    user: user?.email,
+    role: user?.role,
+    adminOnly,
+    studentOnly,
+    path: window.location.pathname
+  });
+
+  // ⭐ FIX: Only redirect if user.role is DEFINED and doesn't match
+  // This prevents redirects when role is still loading
+  if (adminOnly) {
+    if (!user.role) {
+      console.log('⏳ User role not loaded yet, waiting...');
+      return (
+        <div className="w-full h-screen flex items-center justify-center text-xl font-semibold">
+          Loading...
+        </div>
+      );
+    }
+    if (user.role !== "admin") {
+      console.log('❌ Admin route but user is not admin, redirecting to /dashboard');
+      return <Navigate to="/dashboard" replace />;
+    }
   }
 
   // Student-only route
-  if (studentOnly && user.role !== "student") {
-    return <Navigate to="/admin" replace />;
+  if (studentOnly) {
+    if (!user.role) {
+      console.log('⏳ User role not loaded yet, waiting...');
+      return (
+        <div className="w-full h-screen flex items-center justify-center text-xl font-semibold">
+          Loading...
+        </div>
+      );
+    }
+    if (user.role !== "student") {
+      console.log('❌ Student route but user is not student, redirecting to /admin');
+      return <Navigate to="/admin" replace />;
+    }
   }
 
+  console.log('✅ Access granted');
   return children;
 };
 

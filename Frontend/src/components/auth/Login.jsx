@@ -155,19 +155,30 @@ const Login = () => {
       if (result && result.success) {
         // ⭐ FETCH FRESH PROFILE DATA FROM DATABASE
         console.log('🔄 Fetching fresh profile data...');
-        await refreshUser();
-        console.log('✅ Profile data refreshed');
+        const freshUser = await refreshUser();
+        console.log('✅ Profile data refreshed:', freshUser);
         
-        // Get user role from server response
-        const userRole = result.user?.role;
+        // Get user role from REFRESHED user data
+        const userRole = freshUser?.role || result.user?.role;
+        
+        console.log('👤 User Role Info:', {
+          fromRefresh: freshUser?.role,
+          fromResult: result.user?.role,
+          finalRole: userRole,
+          resultData: result.user
+        });
         
         // Route based on role
         const redirectPath = userRole === 'admin' ? '/admin' : '/dashboard';
         
-        console.log('➡️ Navigating to:', redirectPath);
+        console.log('➡️ Navigating to:', redirectPath, 'Role:', userRole);
         
-        // Use navigate for SPA routing
-        navigate(redirectPath, { replace: true });
+        // ⭐ FIX: Use window.location for admin to ensure fresh page load with updated context
+        if (userRole === 'admin') {
+          window.location.href = redirectPath;
+        } else {
+          navigate(redirectPath, { replace: true });
+        }
         
       } else {
         // Show error message without reloading page

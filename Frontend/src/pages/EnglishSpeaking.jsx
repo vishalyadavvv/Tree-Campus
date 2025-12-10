@@ -79,15 +79,19 @@ const EnglishSpeaking = () => {
         }}
       >
         <div className="container mx-auto text-center">
-          <h1 className="text-4xl md:text-6xl font-bold mb-4 animate-fade-in-down">
-            Free English Speaking Classes
-          </h1>
+          <Link to="/courses">
+  <h1 className="text-4xl md:text-6xl font-bold mb-4 animate-fade-in-down">
+    Free English Speaking Classes
+  </h1>
+</Link>
           <p className="text-xl md:text-2xl mb-8 max-w-2xl mx-auto animate-fade-in-up">
             Master English conversation with our curated collection of free video lessons
           </p>
-          <button className="bg-primary hover:bg-orange-600 text-white font-bold py-3 px-8 rounded-full text-lg transition-all duration-300 transform hover:scale-105 shadow-lg animate-pulse-slow">
-            Start Learning Now
-          </button>
+         <Link to="/courses">
+  <button className="bg-primary hover:bg-orange-600 text-white font-bold py-3 px-8 rounded-full text-lg transition-all duration-300 transform hover:scale-105 shadow-lg animate-pulse-slow">
+    Start Learning Now
+  </button>
+</Link>
         </div>
         
         {/* Animated floating elements */}

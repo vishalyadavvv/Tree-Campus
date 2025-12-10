@@ -167,7 +167,7 @@ const Dashboard = () => {
             <button
               onClick={handleRefresh}
               disabled={refreshing}
-              className="flex items-center space-x-2 bg-white border border-gray-300 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
+              className="flex items-center space-x-2 bg-blue-100 border border-gray-300 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
             >
               <FiRefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
               <span>Refresh</span>
