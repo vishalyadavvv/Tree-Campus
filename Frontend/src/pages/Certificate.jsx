@@ -3,6 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import { FiAward, FiDownload, FiArrowRight, FiBookOpen } from 'react-icons/fi';
 import toast from 'react-hot-toast';
+import domtoimage from 'dom-to-image-more';
+import jsPDF from 'jspdf';
 
 const Certificate = () => {
     const [certificates, setCertificates] = useState([]);
@@ -31,23 +33,76 @@ const Certificate = () => {
         }
     };
 
-    const handleDownloadCertificate = async (cert) => {
+    const handleDownloadCertificate = async (certId) => {
         try {
-            setDownloading(cert._id);
+            setDownloading(certId);
             
-            // Download directly from certificateUrl if available
-            if (cert.certificateUrl) {
-                const link = document.createElement('a');
-                link.href = cert.certificateUrl;
-                link.download = `Certificate-${cert.userName?.replace(/\s+/g, '_') || 'TreeCampus'}-${cert.certificateNumber}.pdf`;
-                link.target = '_blank';
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                toast.success('Certificate downloaded successfully!');
-            } else {
-                toast.error('Certificate URL not available');
+            // Get certificate data
+            const cert = certificates.find(c => c._id === certId);
+            
+            if (!cert) {
+                toast.error('Certificate not found');
+                return;
             }
+
+            // Create PDF
+            const doc = new jsPDF({
+                orientation: 'landscape',
+                unit: 'px',
+                format: [842, 595]
+            });
+
+            // Load certificate template image
+            const img = new Image();
+            img.crossOrigin = 'anonymous';
+            img.src = 'https://res.cloudinary.com/dbbll23jz/image/upload/v1765345196/certificate_treecampus_page-0001_z38eqj.jpg';
+            
+            await new Promise((resolve, reject) => {
+                img.onload = resolve;
+                img.onerror = reject;
+            });
+
+            const width = doc.internal.pageSize.getWidth();
+            const height = doc.internal.pageSize.getHeight();
+
+            // Add template image
+            doc.addImage(img, 'JPEG', 0, 0, width, height);
+
+            // Configure text styles
+            doc.setTextColor(26, 37, 47); // Dark color matching template
+            
+            // Student Name
+            doc.setFontSize(32);
+            doc.setFont('helvetica', 'bold');
+            const name = cert.userName || 'Student Name';
+            doc.text(name, width / 2, height / 2 + 10, { align: 'center' });
+
+            // Course Name
+            doc.setFontSize(18);
+            doc.setFont('helvetica', 'bold');
+            const courseName = cert.courseId?.title || cert.courseTitle || 'Course';
+            doc.text(courseName, width / 2, height / 2 + 65, { align: 'center' });
+            
+            // Date
+            const date = new Date(cert.issuedAt).toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            });
+            doc.setFontSize(12);
+            doc.setFont('helvetica', 'normal');
+            doc.text(date, 225, height - 90);
+
+            // Certificate ID (small text bottom right)
+            doc.setFontSize(8);
+            doc.setTextColor(128, 128, 128);
+            doc.text(`ID: ${cert.certificateNumber}`, width - 120, height - 15);
+
+            // Download
+            const fileName = `Certificate-${cert.userName?.replace(/\s+/g, '_') || 'TreeCampus'}-${cert.certificateNumber || 'cert'}.pdf`;
+            doc.save(fileName);
+            
+            toast.success('Certificate downloaded successfully!');
         } catch (error) {
             console.error('Error downloading certificate:', error);
             toast.error('Failed to download certificate. Please try again.');
@@ -101,103 +156,59 @@ const Certificate = () => {
                                 key={cert._id} 
                                 className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 relative group overflow-hidden"
                             >
-                                {/* Google Font for Script */}
+                                {/* Google Fonts for Professional Look */}
                                 <style>
                                     {`
-                                        @import url('https://fonts.googleapis.com/css2?family=Great+Vibes&family=Montserrat:wght@400;500;600;700&display=swap');
+                                        @import url('https://fonts.googleapis.com/css2?family=Great+Vibes&family=Montserrat:wght@400;500;600;700;800&display=swap');
                                     `}
                                 </style>
 
-                                {/* Certificate Container */}
-                                <div className="relative p-8 h-full min-h-[450px] flex flex-col items-center text-center bg-white border border-gray-200">
+                                {/* Professional Certificate with Template Image */}
+                                <div id={`certificate-${cert._id}`} className="relative w-full bg-white" style={{ aspectRatio: '1000/707' }}>
                                     
-                                    {/* Decorative Background Elements (Corners) */}
-                                    <div className="absolute top-0 left-0 w-32 h-32 bg-[#1a2b3c] rounded-br-[100px] z-0"></div>
-                                    <div className="absolute top-0 right-0 w-40 h-40 bg-[#1a2b3c] rounded-bl-[100px] z-0">
-                                        <div className="absolute top-0 right-0 w-36 h-36 bg-[#fbbf24] rounded-bl-[90px] opacity-20"></div>
-                                    </div>
-                                    <div className="absolute bottom-0 left-0 w-24 h-24 bg-[#fbbf24] rounded-tr-[80px] z-0">
-                                         <div className="absolute bottom-0 left-0 w-20 h-20 bg-[#1a2b3c] rounded-tr-[70px]"></div>
-                                    </div>
+                                    {/* Certificate Template Background Image */}
+                                    <img 
+                                        src="https://res.cloudinary.com/dbbll23jz/image/upload/v1765345196/certificate_treecampus_page-0001_z38eqj.jpg"
+                                        alt="Certificate Template"
+                                        className="absolute inset-0 w-full h-full object-contain"
+                                        crossOrigin="anonymous"
+                                    />
                                     
-                                    {/* Wavy Lines Pattern (SVG) */}
-                                    <div className="absolute inset-0 opacity-5 pointer-events-none z-0">
-                                         <svg width="100%" height="100%">
-                                            <pattern id="pattern-circles" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
-                                                <circle cx="2" cy="2" r="1" className="text-gray-900" fill="currentColor" />
-                                            </pattern>
-                                            <rect x="0" y="0" width="100%" height="100%" fill="url(#pattern-circles)" />
-                                        </svg>
-                                    </div>
-
-                                    {/* Logo */}
-                                    <div className="absolute top-4 right-4 z-10 w-16 md:w-20">
-                                        <img 
-                                            src="https://res.cloudinary.com/dbbll23jz/image/upload/v1765170258/tree_logo_ek4uw3.png" 
-                                            alt="Tree Campus Logo" 
-                                            className="w-full h-auto drop-shadow-md"
-                                        />
-                                    </div>
-
-                                    {/* Content */}
-                                    <div className="relative z-10 w-full flex-1 flex flex-col items-center mt-4">
+                                    {/* Text Overlays */}
+                                    <div className="absolute inset-0 flex flex-col items-center justify-center" style={{ paddingTop: '5%' }}>
                                         
-                                        {/* Header */}
-                                        <h1 className="text-5xl md:text-6xl text-[#1a2b3c] mb-2" style={{ fontFamily: "'Great Vibes', cursive" }}>
-                                            Certificate
-                                        </h1>
-                                        <p className="text-[#1a2b3c] font-semibold text-sm md:text-base uppercase tracking-wider mb-8" style={{ fontFamily: "'Montserrat', sans-serif" }}>
-                                            Of Achievement from Tree Campus Academy
-                                        </p>
-
-                                        {/* Ribbon Banner */}
-                                        <div className="relative bg-[#fbbf24] text-[#1a2b3c] py-2 px-8 mb-8 shadow-md transform -skew-x-12">
-                                            <p className="font-bold text-xs md:text-sm uppercase tracking-wide transform skew-x-12" style={{ fontFamily: "'Montserrat', sans-serif" }}>
-                                                This Certificate is Proudly Presented to
+                                        {/* Student Name - Positioned in the blank line area */}
+                                        <div className="absolute" style={{ top: '52%', left: '50%', transform: 'translate(-50%, -50%)', width: '60%' }}>
+                                            <h2 className="text-3xl font-bold text-[#1a252f] text-center border-b-2 border-gray-400 pb-2"
+                                                style={{ fontFamily: "'Montserrat', sans-serif" }}>
+                                                {cert.userName || 'Student Name'}
+                                            </h2>
+                                        </div>
+                                        
+                                        {/* Course Name - Below the "3 months" text */}
+                                        <div className="absolute" style={{ top: '63%', left: '50%', transform: 'translate(-50%, -50%)', width: '70%' }}>
+                                            <p className="text-lg font-bold text-[#1a252f] text-center"
+                                               style={{ fontFamily: "'Montserrat', sans-serif" }}>
+                                                {cert.courseId?.title || cert.courseTitle || 'Online English Speaking Course'}
                                             </p>
-                                            {/* Ribbon Ends (Pseudo-elements simulation) */}
-                                            <div className="absolute top-0 left-0 -ml-4 h-full w-4 bg-[#d97706] transform skew-y-12 origin-bottom-right z-[-1]"></div>
-                                            <div className="absolute top-0 right-0 -mr-4 h-full w-4 bg-[#d97706] transform -skew-y-12 origin-bottom-left z-[-1]"></div>
-                                        </div>
-
-                                        {/* Recipient Name */}
-                                        <h2 className="text-3xl md:text-4xl font-bold text-[#d97706] mb-6 border-b-2 border-gray-300 pb-2 px-8 min-w-[60%]" style={{ fontFamily: "'Montserrat', sans-serif" }}>
-                                            {cert.userName || 'Student Name'}
-                                        </h2>
-
-                                        {/* Description */}
-                                        <p className="text-gray-600 content-center text-sm md:text-base mb-2 max-w-md mx-auto leading-relaxed">
-                                            has successfully completed the
-                                        </p>
-                                        <h3 className="text-xl font-bold text-[#1a2b3c] mb-8" style={{ fontFamily: "'Montserrat', sans-serif" }}>
-                                            {cert.courseId?.title || cert.courseTitle || 'Online English Speaking Course'}
-                                        </h3>
-
-                                        {/* Footer: Date & Signature */}
-                                        <div className="mt-auto w-full flex justify-between items-end px-8 md:px-12 pb-4">
-                                            <div className="text-center">
-                                                <p className="text-[#1a2b3c] font-medium border-t border-gray-400 pt-1 px-4 text-sm min-w-[100px]">
-                                                    {new Date(cert.issuedAt).toLocaleDateString()}
-                                                </p>
-                                                <p className="text-[10px] text-gray-400 uppercase tracking-widest mt-1">Date</p>
-                                            </div>
-
-                                            <div className="text-center">
-                                                {/* Mock Signature */}
-                                                <div className="h-8 mb-1 overflow-hidden relative" style={{ minWidth: '120px' }}>
-                                                    <span className="text-2xl text-[#1a2b3c] opacity-80" style={{ fontFamily: "'Great Vibes', cursive" }}>Verified</span>
-                                                </div>
-                                                <p className="text-[#1a2b3c] font-medium border-t border-gray-400 pt-1 px-4 text-sm min-w-[100px]">
-                                                    Tree Campus
-                                                </p>
-                                                <p className="text-[10px] text-gray-400 uppercase tracking-widest mt-1">Signature</p>
-                                            </div>
                                         </div>
                                         
-                                        {/* Small ID at bottom */}
-                                        <div className="absolute bottom-2 left-0 w-full text-center">
-                                            <p className="text-[8px] text-gray-300 font-mono">ID: {cert.certificateNumber}</p>
+                                        {/* Date - Bottom Left */}
+                                        <div className="absolute" style={{ bottom: '15%', left: '27%' }}>
+                                            <p className="text-base font-medium text-[#1a252f] text-center"
+                                               style={{ fontFamily: "'Montserrat', sans-serif" }}>
+                                                {new Date(cert.issuedAt).toLocaleDateString('en-US', { 
+                                                    year: 'numeric', 
+                                                    month: 'long', 
+                                                    day: 'numeric' 
+                                                })}
+                                            </p>
                                         </div>
+                                        
+                                        {/* Certificate ID - Small text at bottom */}
+                                        <p className="absolute bottom-2 right-4 text-xs text-gray-500 font-mono">
+                                            ID: {cert.certificateNumber}
+                                        </p>
                                     </div>
                                 </div>
                                 
@@ -207,7 +218,7 @@ const Certificate = () => {
                                         onClick={(e) => {
                                             e.preventDefault();
                                             e.stopPropagation();
-                                            handleDownloadCertificate(cert);
+                                            handleDownloadCertificate(cert._id);
                                         }}
                                         disabled={downloading === cert._id}
                                         className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-orange-400 to-orange-600 text-white font-bold rounded-full transform scale-90 group-hover:scale-100 transition-all duration-300 shadow-xl hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed"
