@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect, useCallback } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { Link, useNavigate } from "react-router-dom"; // Added useNavigate
 
+
 export default function Navbar() {
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [activeSubmenu, setActiveSubmenu] = useState(null);
@@ -36,16 +37,13 @@ export default function Navbar() {
     register: "/register",
     profile: "/profile",
     dashboard: "/dashboard",
-    myCourses: "/my-courses",
     admin: "/admin",
-    adminUsers: "/admin/users",
     adminCourses: "/admin/courses",
     logout: "/logout",
     courses: "/courses",
     certificate: "/certificate",
     liveClasses: "/live-classes",
     EnglishSpeaking: "/englishspeaking",
-    dailyReading: "/daily-reading",
     volunteer: "/volunteer",
     AccountDeletionForm: "/accountdeletion",
     howItWorks: "/howitworks",
@@ -71,11 +69,6 @@ export default function Navbar() {
     },
     more: {
       items: [
-        {
-          type: "link",
-          label: "Daily English Reading – Tree Campus",
-          href: navigation.dailyReading
-        },
         {
           type: "link", 
           label: "Volunteer",
@@ -108,14 +101,13 @@ export default function Navbar() {
   const studentMenuItems = [
     { label: "My Profile", href: navigation.profile, icon: "👤" },
     { label: "Dashboard", href: navigation.dashboard, icon: "📊" },
-    { label: "My Courses", href: navigation.Courses, icon: "📚" },
     { label: "Logout", href: "#", icon: "🚪", action: "logout" }
   ];
 
   // Admin menu items - FIXED: Removed settings option
   const adminMenuItems = [
     { label: "Admin Dashboard", href: navigation.admin, icon: "🏠" },
-    { label: "User Management", href: navigation.adminUsers, icon: "👥" },
+
     { label: "Course Management", href: navigation.adminCourses, icon: "📚" },
     { label: "Profile", href: navigation.profile, icon: "👤" },
     { label: "Logout", href: "#", icon: "🚪", action: "logout" }
@@ -512,18 +504,18 @@ export default function Navbar() {
               <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M6.62 10.79a15.053 15.053 0 006.59 6.59l2.2-2.2a1 1 0 011.01-.24c1.12.37 2.33.57 3.58.57a1 1 0 011 1V20a1 1 0 01-1 1C11.29 21 3 12.71 3 2a1 1 0 011-1h3.5a1 1 0 011 1c0 1.25.19 2.46.57 3.58a1 1 0 01-.24 1.01l-2.21 2.2z"/>
               </svg>
-              <span className="text-sm font-medium tracking-wide">+91 9876543210</span>
+              <span className="text-sm font-medium tracking-wide">+91 xxxxxxxxxx</span>
             </div>
 
             <div className="absolute right-0 mt-2 w-40 bg-white text-black shadow-lg rounded-lg py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-20">
               <a
-                href="tel:+919876543210"
+                href="tel:+91-xxxxxxxxxx"
                 className="block px-4 py-2 text-sm hover:bg-gray-100"
               >
                 📞 Call Now
               </a>
               <a
-                href="https://wa.me/919876543210"
+                href="https://wa.me/91xxxxxxxxxx"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="block px-4 py-2 text-sm hover:bg-gray-100"

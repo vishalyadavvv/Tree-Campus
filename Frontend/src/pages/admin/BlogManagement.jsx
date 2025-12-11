@@ -52,18 +52,17 @@ const BlogManagement = () => {
     setUploading(true);
     try {
       const uploadFormData = new FormData();
-      uploadFormData.append('thumbnail', file);
+      uploadFormData.append('file', file);
 
-      const response = await api.post('/upload/thumbnail', uploadFormData, {
+      const response = await api.post('/upload/file', uploadFormData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
       });
 
-      const baseUrl = import.meta.env.VITE_API_URL.replace('/api', '');
       setFormData(prev => ({
         ...prev,
-        thumbnail: `${baseUrl}${response.data.data.url}`
+        thumbnail: response.data.data.url
       }));
     } catch (error) {
       console.error('Error uploading thumbnail:', error);

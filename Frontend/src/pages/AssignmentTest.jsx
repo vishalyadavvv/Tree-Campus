@@ -164,7 +164,7 @@ const AssignmentTest = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-4xl mx-auto px-4">
+      <div className="max-w-2xl mx-auto px-4">
         {/* Header */}
         <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
           <div className="flex justify-between items-start mb-4">
@@ -191,50 +191,50 @@ const AssignmentTest = () => {
                     <p className="text-orange-50 opacity-90 text-lg">Please review the assignment details below before beginning.</p>
                 </div>
                 
-                <div className="p-8">
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
-                        <div className="bg-orange-50 p-4 rounded-xl text-center border border-orange-100">
-                            <FiClock className="w-6 h-6 text-orange-500 mx-auto mb-2" />
-                            <p className="text-gray-500 text-sm font-medium">Duration</p>
-                            <p className="text-gray-900 font-bold text-lg">{assignment.timeLimit} mins</p>
+                <div className="p-6">
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                        <div className="bg-orange-50 p-3 rounded-lg text-center border border-orange-100">
+                            <FiClock className="w-5 h-5 text-orange-500 mx-auto mb-1" />
+                            <p className="text-gray-500 text-xs font-medium">Duration</p>
+                            <p className="text-gray-900 font-bold text-base">{assignment.timeLimit} mins</p>
                         </div>
-                        <div className="bg-blue-50 p-4 rounded-xl text-center border border-blue-100">
-                            <FiFileText className="w-6 h-6 text-blue-500 mx-auto mb-2" />
-                            <p className="text-gray-500 text-sm font-medium">Questions</p>
-                            <p className="text-gray-900 font-bold text-lg">{assignment.totalQuestions}</p>
+                        <div className="bg-blue-50 p-3 rounded-lg text-center border border-blue-100">
+                            <FiFileText className="w-5 h-5 text-blue-500 mx-auto mb-1" />
+                            <p className="text-gray-500 text-xs font-medium">Questions</p>
+                            <p className="text-gray-900 font-bold text-base">{assignment.totalQuestions}</p>
                         </div>
-                        <div className="bg-green-50 p-4 rounded-xl text-center border border-green-100">
-                            <FiCheckCircle className="w-6 h-6 text-green-500 mx-auto mb-2" />
-                            <p className="text-gray-500 text-sm font-medium">Passing Score</p>
-                            <p className="text-gray-900 font-bold text-lg">{assignment.passingScore}%</p>
+                        <div className="bg-green-50 p-3 rounded-lg text-center border border-green-100">
+                            <FiCheckCircle className="w-5 h-5 text-green-500 mx-auto mb-1" />
+                            <p className="text-gray-500 text-xs font-medium">Passing</p>
+                            <p className="text-gray-900 font-bold text-base">{assignment.passingScore}%</p>
                         </div>
-                        <div className="bg-purple-50 p-4 rounded-xl text-center border border-purple-100">
-                            <FiAward className="w-6 h-6 text-purple-500 mx-auto mb-2" />
-                            <p className="text-gray-500 text-sm font-medium">Total Points</p>
-                            <p className="text-gray-900 font-bold text-lg">{assignment.totalPoints}</p>
+                        <div className="bg-purple-50 p-3 rounded-lg text-center border border-purple-100">
+                            <FiAward className="w-5 h-5 text-purple-500 mx-auto mb-1" />
+                            <p className="text-gray-500 text-xs font-medium">Points</p>
+                            <p className="text-gray-900 font-bold text-base">{assignment.totalPoints}</p>
                         </div>
                     </div>
 
-                    <div className="bg-gray-50 rounded-xl p-6 mb-8 border border-gray-100">
-                        <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                    <div className="bg-gray-50 rounded-lg p-5 mb-8 border border-gray-100">
+                        <h3 className="text-base font-bold text-gray-900 mb-3 flex items-center gap-2">
                              <FiAlertCircle className="text-orange-500" />
                              Important Instructions
                         </h3>
-                        <ul className="space-y-3 text-gray-600">
+                        <ul className="space-y-2 text-gray-600 text-sm">
                             <li className="flex items-start gap-2">
-                                <span className="w-1.5 h-1.5 bg-gray-400 rounded-full mt-2 flex-shrink-0"></span>
+                                <span className="w-1.5 h-1.5 bg-gray-400 rounded-full mt-1.5 flex-shrink-0"></span>
                                 The timer will start immediately once you click the button below.
                             </li>
                             <li className="flex items-start gap-2">
-                                <span className="w-1.5 h-1.5 bg-gray-400 rounded-full mt-2 flex-shrink-0"></span>
+                                <span className="w-1.5 h-1.5 bg-gray-400 rounded-full mt-1.5 flex-shrink-0"></span>
                                 Please do not refresh the page or navigate away during the test.
                             </li>
                             <li className="flex items-start gap-2">
-                                <span className="w-1.5 h-1.5 bg-gray-400 rounded-full mt-2 flex-shrink-0"></span>
-                                Answer all questions. You can revisit previous questions before submitting.
+                                <span className="w-1.5 h-1.5 bg-gray-400 rounded-full mt-1.5 flex-shrink-0"></span>
+                                Answer all questions. You can revisit previous questions.
                             </li>
                             <li className="flex items-start gap-2">
-                                <span className="w-1.5 h-1.5 bg-gray-400 rounded-full mt-2 flex-shrink-0"></span>
+                                <span className="w-1.5 h-1.5 bg-gray-400 rounded-full mt-1.5 flex-shrink-0"></span>
                                 The test will auto-submit when the time expires.
                             </li>
                         </ul>
@@ -242,10 +242,10 @@ const AssignmentTest = () => {
 
                     <button
                         onClick={() => setTestStarted(true)}
-                        className="w-full bg-gradient-to-r from-orange-500 to-pink-500 text-white py-4 rounded-xl font-bold text-xl hover:from-orange-600 hover:to-pink-600 transition-all duration-300 transform hover:-translate-y-1 shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
+                        className="w-full bg-gradient-to-r from-orange-500 to-pink-500 text-white py-3 rounded-lg font-bold text-lg hover:from-orange-600 hover:to-pink-600 transition-all duration-300 transform hover:-translate-y-1 shadow-md hover:shadow-lg flex items-center justify-center gap-2"
                     >
-                        <FiPlay className="w-6 h-6 fill-current" />
-                        Start Assignment Now
+                        <FiPlay className="w-5 h-5 fill-current" />
+                        Start Assignment
                     </button>
                 </div>
             </div>
@@ -267,30 +267,44 @@ const AssignmentTest = () => {
         {testStarted && (
           <>
             {/* Question Card */}
-            <div className="bg-white rounded-lg shadow-lg p-8 mb-6">
+            <div className="bg-white rounded-lg shadow-md p-6 mb-6">
               <div className="mb-6">
-                <h2 className="text-xl font-bold text-gray-800 mb-4">
-                  {currentQuestionIndex + 1}. {currentQuestion.questionText}
+                <div className="flex items-center justify-between mb-4">
+                  <span className="inline-block bg-[#FD5A00]/10 text-[#FD5A00] px-3 py-1 rounded-full text-sm font-semibold">
+                    Question {currentQuestionIndex + 1}
+                  </span>
+                  <span className="text-gray-400 text-sm">
+                    {currentQuestion.type === 'multiple-choice' ? 'Multiple Choice' : 'Text Answer'}
+                  </span>
+                </div>
+                <h2 className="text-xl font-bold text-gray-800 mb-4 leading-relaxed">
+                  {currentQuestion.questionText}
                 </h2>
 
                 {currentQuestion.type === 'multiple-choice' ? (
                   <div className="space-y-3">
                     {currentQuestion.options.map((option, idx) => (
-                      <label key={idx} className="flex items-center p-4 border-2 rounded-lg cursor-pointer hover:bg-gray-50 transition"
+                      <label key={idx} className="flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50 transition duration-200"
                         style={{
                           borderColor: answers[currentQuestion._id] === option ? '#FD5A00' : '#e5e7eb',
-                          backgroundColor: answers[currentQuestion._id] === option ? '#FFF5F0' : 'transparent'
+                          backgroundColor: answers[currentQuestion._id] === option ? '#FFF5F0' : 'transparent',
+                          boxShadow: answers[currentQuestion._id] === option ? '0 2px 4px rgba(253, 90, 0, 0.1)' : 'none'
                         }}
                       >
+                        <div className={`w-5 h-5 rounded-full border flex items-center justify-center flex-shrink-0 mr-3 ${
+                           answers[currentQuestion._id] === option ? 'border-[#FD5A00] bg-[#FD5A00]' : 'border-gray-300'
+                        }`}>
+                           {answers[currentQuestion._id] === option && <FiCheckCircle className="text-white w-3 h-3" />}
+                        </div>
                         <input
                           type="radio"
                           name={`question-${currentQuestion._id}`}
                           value={option}
                           checked={answers[currentQuestion._id] === option}
                           onChange={(e) => handleAnswerChange(currentQuestion._id, e.target.value)}
-                          className="w-4 h-4 text-[#FD5A00]"
+                          className="hidden"
                         />
-                        <span className="ml-3 text-gray-700">{option}</span>
+                        <span className="text-gray-700 font-medium">{option}</span>
                       </label>
                     ))}
                   </div>
@@ -299,7 +313,7 @@ const AssignmentTest = () => {
                     value={answers[currentQuestion._id] || ''}
                     onChange={(e) => handleAnswerChange(currentQuestion._id, e.target.value)}
                     placeholder="Type your answer here..."
-                    className="w-full p-4 border-2 border-gray-300 rounded-lg focus:border-[#FD5A00] outline-none min-h-32"
+                    className="w-full p-4 border border-gray-300 rounded-lg focus:border-[#FD5A00] focus:ring-1 focus:ring-[#FD5A00] outline-none min-h-32 text-gray-700"
                   />
                 )}
               </div>
@@ -352,7 +366,7 @@ const AssignmentTest = () => {
               <button
                 onClick={handleSubmit}
                 disabled={submitting}
-                className="w-full bg-[#FD5A00] text-white py-3 rounded-lg font-bold hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed transition text-lg"
+                className="w-full bg-[#FD5A00] text-white py-3 rounded-lg font-bold hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed transition text-base shadow-md hover:shadow-lg"
               >
                 {submitting ? 'Submitting...' : 'Submit Assignment'}
               </button>

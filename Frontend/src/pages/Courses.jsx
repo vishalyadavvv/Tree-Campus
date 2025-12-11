@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import CourseList from '../components/courses/CourseList';
 import CourseFilter from '../components/courses/CourseFilter';
 import axios from 'axios';
+import { Link } from 'react-router-dom';
 
 const Courses = () => {
   const [courses, setCourses] = useState([]);
@@ -197,19 +198,20 @@ const Courses = () => {
         )}
 
         {/* Call to Action Section */}
-        <div className={`mt-16 bg-gradient-to-r from-[#FD5A00] to-orange-600 rounded-2xl p-8 text-center text-white shadow-2xl transition-all duration-1000 delay-1500 ${isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}>
-          <Link to="/courses" className="inline-block mb-4 hover:underline">
-  <h3 className="text-3xl font-bold mb-4 hover:text-blue-600 transition">
+        <div
+  className={`mt-16 bg-gradient-to-r from-[#FD5A00] to-orange-600 rounded-2xl p-8 text-center text-white shadow-2xl transition-all duration-1000 delay-1500 ${
+    isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
+  }`}
+>
+  <h3 className="text-3xl font-bold mb-4">
     Ready to Start Learning?
   </h3>
-</Link>
-          <p className="text-lg text-orange-100 mb-6 max-w-2xl mx-auto">
-            Join thousands of students who have transformed their English skills with our free courses
-          </p>
-          <button className="px-8 py-3 bg-white text-[#FD5A00] rounded-xl font-bold text-lg hover:bg-gray-100 transition-all duration-300 shadow-lg transform hover:scale-105">
-            Browse All Courses
-          </button>
-        </div>
+
+  <p className="text-lg text-orange-100 max-w-2xl mx-auto">
+    Join thousands of students who have transformed their English skills with our free courses
+  </p>
+</div>
+
       </div>
     </div>
   );

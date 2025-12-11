@@ -174,52 +174,52 @@ const Quiz = () => {
   if (!quizStarted) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-[#FC5A00]/10 via-orange-50 to-white p-4 md:p-8">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-2xl mx-auto">
           <button
             onClick={() => navigate(`/courses/${courseId}`)}
-            className="flex items-center gap-2 text-gray-600 hover:text-[#FC5A00] font-bold mb-6 transition-colors duration-200"
+            className="flex items-center gap-2 text-gray-600 hover:text-[#FC5A00] font-medium mb-6 transition-colors duration-200"
           >
             <FiArrowLeft size={20} />
             Back to Course
           </button>
 
-          <div className="bg-white rounded-3xl shadow-2xl overflow-hidden">
-            <div className="bg-gradient-to-r from-[#FC5A00] to-orange-600 p-8 md:p-12 text-white">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center">
-                  <FiAward size={32} />
+          <div className="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100">
+            <div className="bg-gradient-to-r from-[#FC5A00] to-orange-600 p-6 md:p-8 text-white">
+              <div className="flex items-center gap-4 mb-2">
+                <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
+                  <FiAward size={24} />
                 </div>
                 <div>
-                  <h1 className="text-3xl md:text-4xl font-bold">{quiz.title}</h1>
-                  <p className="text-white/90 mt-1">{quiz.description}</p>
+                  <h1 className="text-2xl md:text-3xl font-bold">{quiz.title}</h1>
+                  <p className="text-white/90 text-sm mt-1">{quiz.description}</p>
                 </div>
               </div>
             </div>
 
-            <div className="p-8 md:p-12">
-              <div className="grid md:grid-cols-3 gap-6 mb-8">
-                <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-6 border border-blue-200">
-                  <div className="flex items-center gap-3 mb-2">
-                    <FiCheckCircle className="text-blue-600" size={24} />
-                    <span className="text-gray-600 font-bold">Questions</span>
+            <div className="p-6 md:p-8">
+              <div className="grid md:grid-cols-3 gap-4 mb-8">
+                <div className="bg-blue-50 rounded-xl p-5 border border-blue-100">
+                  <div className="flex items-center gap-2 mb-2">
+                    <FiCheckCircle className="text-blue-600" size={20} />
+                    <span className="text-gray-600 text-sm font-medium">Questions</span>
                   </div>
-                  <p className="text-3xl font-bold text-blue-600">{quiz.questions.length}</p>
+                  <p className="text-2xl font-bold text-blue-700">{quiz.questions.length}</p>
                 </div>
 
-                <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-2xl p-6 border border-purple-200">
-                  <div className="flex items-center gap-3 mb-2">
-                    <FiClock className="text-purple-600" size={24} />
-                    <span className="text-gray-600 font-bold">Time Limit</span>
+                <div className="bg-purple-50 rounded-xl p-5 border border-purple-100">
+                  <div className="flex items-center gap-2 mb-2">
+                    <FiClock className="text-purple-600" size={20} />
+                    <span className="text-gray-600 text-sm font-medium">Time Limit</span>
                   </div>
-                  <p className="text-3xl font-bold text-purple-600">{quiz.timeLimit} min</p>
+                  <p className="text-2xl font-bold text-purple-700">{quiz.timeLimit} min</p>
                 </div>
 
-                <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-2xl p-6 border border-green-200">
-                  <div className="flex items-center gap-3 mb-2">
-                    <FiAward className="text-green-600" size={24} />
-                    <span className="text-gray-600 font-bold">Passing Score</span>
+                <div className="bg-green-50 rounded-xl p-5 border border-green-100">
+                  <div className="flex items-center gap-2 mb-2">
+                    <FiAward className="text-green-600" size={20} />
+                    <span className="text-gray-600 text-sm font-medium">Passing Score</span>
                   </div>
-                  <p className="text-3xl font-bold text-green-600">{quiz.passingScore}%</p>
+                  <p className="text-2xl font-bold text-green-700">{quiz.passingScore}%</p>
                 </div>
               </div>
 
@@ -267,27 +267,27 @@ const Quiz = () => {
     const passed = results.passed;
     
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4 md:p-8">
-        <div className="max-w-4xl mx-auto">
-          <div className={`bg-white rounded-3xl shadow-2xl overflow-hidden ${passed ? 'border-4 border-green-500' : 'border-4 border-red-500'}`}>
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4 flex items-center justify-center">
+        <div className="max-w-lg w-full">
+          <div className={`bg-white rounded-2xl shadow-xl overflow-hidden ${passed ? 'border-t-4 border-green-500' : 'border-t-4 border-red-500'}`}>
             {/* Results Header */}
-            <div className={`p-8 md:p-12 text-white ${passed ? 'bg-gradient-to-r from-green-500 to-emerald-600' : 'bg-gradient-to-r from-red-500 to-rose-600'}`}>
+            <div className={`p-6 text-white ${passed ? 'bg-gradient-to-r from-green-500 to-emerald-600' : 'bg-gradient-to-r from-red-500 to-rose-600'}`}>
               <div className="text-center">
                 {passed ? (
-                  <div className="animate-bounce mb-4">
-                    <FiAward className="mx-auto" size={80} />
+                  <div className="animate-bounce mb-2">
+                    <FiAward className="mx-auto" size={48} />
                   </div>
                 ) : (
-                  <div className="mb-4">
-                    <FiXCircle className="mx-auto" size={80} />
+                  <div className="mb-2">
+                    <FiXCircle className="mx-auto" size={48} />
                   </div>
                 )}
                 
-                <h1 className="text-4xl md:text-5xl font-bold mb-4">
+                <h1 className="text-2xl md:text-3xl font-bold mb-2">
                   {passed ? '🎉 Congratulations!' : '😔 Not Quite There'}
                 </h1>
                 
-                <p className="text-xl md:text-2xl text-white/90">
+                <p className="text-base text-white/90">
                   {passed 
                     ? 'You passed the quiz with flying colors!' 
                     : 'Don\'t worry, you can try again!'}
@@ -296,54 +296,54 @@ const Quiz = () => {
             </div>
 
             {/* Score Display */}
-            <div className="p-8 md:p-12">
-              <div className="text-center mb-8">
+            <div className="p-6">
+              <div className="text-center mb-6">
                 <div className="inline-block relative">
-                  <svg className="transform -rotate-90 w-48 h-48">
+                  <svg className="transform -rotate-90 w-32 h-32">
                     <circle
-                      cx="96"
-                      cy="96"
-                      r="88"
+                      cx="64"
+                      cy="64"
+                      r="56"
                       stroke="#e5e7eb"
-                      strokeWidth="12"
+                      strokeWidth="8"
                       fill="none"
                     />
                     <circle
-                      cx="96"
-                      cy="96"
-                      r="88"
+                      cx="64"
+                      cy="64"
+                      r="56"
                       stroke={passed ? '#10b981' : '#ef4444'}
-                      strokeWidth="12"
+                      strokeWidth="8"
                       fill="none"
-                      strokeDasharray={`${(results.score / 100) * 553} 553`}
+                      strokeDasharray={`${(results.score / 100) * 351} 351`}
                       strokeLinecap="round"
                       className="transition-all duration-1000 ease-out"
                     />
                   </svg>
                   <div className="absolute inset-0 flex items-center justify-center">
                     <div>
-                      <div className={`text-6xl font-bold ${passed ? 'text-green-600' : 'text-red-600'}`}>
+                      <div className={`text-4xl font-bold ${passed ? 'text-green-600' : 'text-red-600'}`}>
                         {results.score}%
                       </div>
-                      <div className="text-gray-500 font-bold">Your Score</div>
+                      <div className="text-xs text-gray-500 font-bold uppercase tracking-wider">Score</div>
                     </div>
                   </div>
                 </div>
               </div>
 
               {/* Stats */}
-              <div className="grid md:grid-cols-3 gap-4 mb-8">
-                <div className="bg-gray-50 rounded-2xl p-6 text-center border border-gray-200">
-                  <div className="text-3xl font-bold text-gray-900">{results.correctAnswers}</div>
-                  <div className="text-gray-600 font-bold">Correct</div>
+              <div className="grid grid-cols-3 gap-3 mb-6">
+                <div className="bg-gray-50 rounded-xl p-3 text-center border border-gray-100">
+                  <div className="text-xl font-bold text-gray-900">{results.correctAnswers}</div>
+                  <div className="text-xs text-gray-500 font-medium">Correct</div>
                 </div>
-                <div className="bg-gray-50 rounded-2xl p-6 text-center border border-gray-200">
-                  <div className="text-3xl font-bold text-gray-900">{results.totalQuestions - results.correctAnswers}</div>
-                  <div className="text-gray-600 font-bold">Incorrect</div>
+                <div className="bg-gray-50 rounded-xl p-3 text-center border border-gray-100">
+                  <div className="text-xl font-bold text-gray-900">{results.totalQuestions - results.correctAnswers}</div>
+                  <div className="text-xs text-gray-500 font-medium">Incorrect</div>
                 </div>
-                <div className="bg-gray-50 rounded-2xl p-6 text-center border border-gray-200">
-                  <div className="text-3xl font-bold text-gray-900">{results.passingScore}%</div>
-                  <div className="text-gray-600 font-bold">Required</div>
+                <div className="bg-gray-50 rounded-xl p-3 text-center border border-gray-100">
+                  <div className="text-xl font-bold text-gray-900">{results.passingScore}%</div>
+                  <div className="text-xs text-gray-500 font-medium">Required</div>
                 </div>
               </div>
 
@@ -387,20 +387,20 @@ const Quiz = () => {
               )}
 
               {/* Action Buttons */}
-              <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex gap-3">
                 <button
                   onClick={handleRetry}
-                  className="flex-1 bg-gradient-to-r from-[#FC5A00] to-orange-600 hover:from-[#FF6B1A] hover:to-orange-700 text-white py-4 rounded-xl font-bold text-lg transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center gap-3"
+                  className="flex-1 bg-gradient-to-r from-[#FC5A00] to-orange-600 hover:from-[#FF6B1A] hover:to-orange-700 text-white py-3 rounded-xl font-bold text-base transition-all duration-300 shadow-md flex items-center justify-center gap-2"
                 >
-                  <FiRefreshCw size={24} />
-                  Try Again
+                  <FiRefreshCw size={18} />
+                  Retry
                 </button>
                 <button
                   onClick={() => navigate(`/courses/${courseId}`)}
-                  className="flex-1 bg-gray-700 hover:bg-gray-800 text-white py-4 rounded-xl font-bold text-lg transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center gap-3"
+                  className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-3 rounded-xl font-bold text-base transition-all duration-300 flex items-center justify-center gap-2"
                 >
-                  <FiArrowLeft size={24} />
-                  Back to Course
+                  <FiArrowLeft size={18} />
+                  Back
                 </button>
               </div>
             </div>
@@ -436,11 +436,11 @@ const Quiz = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 p-4 md:p-8">
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-2xl mx-auto">
         {/* Back Button */}
         <button
           onClick={() => navigate(`/courses/${courseId}`)}
-          className="flex items-center gap-2 text-gray-600 hover:text-[#FC5A00] font-bold mb-6 transition-colors duration-200"
+          className="flex items-center gap-2 text-gray-600 hover:text-[#FC5A00] font-medium mb-6 transition-colors duration-200"
         >
           <FiArrowLeft size={20} />
           Back to Course
@@ -457,10 +457,11 @@ const Quiz = () => {
               </div>
             </div>
             
-            <div className={`flex items-center gap-3 px-6 py-3 rounded-xl font-bold text-lg ${
+            
+            <div className={`flex items-center gap-2 px-4 py-2 rounded-lg font-bold text-base ${
               timeLeft < 60 ? 'bg-red-100 text-red-600' : 'bg-blue-100 text-blue-600'
             }`}>
-              <FiClock size={24} />
+              <FiClock size={20} />
               {formatTime(timeLeft)}
             </div>
           </div>
@@ -477,12 +478,17 @@ const Quiz = () => {
         </div>
 
         {/* Question Card */}
-        <div className="bg-white rounded-2xl shadow-xl p-8 md:p-12 mb-6">
+        <div className="bg-white rounded-2xl shadow-lg p-6 md:p-10 mb-6 border border-gray-100">
           <div className="mb-8">
-            <div className="inline-block bg-[#FC5A00]/10 text-[#FC5A00] px-4 py-2 rounded-lg font-bold mb-4">
-              Question {currentQuestion + 1}
+            <div className="flex items-center justify-between mb-4">
+              <span className="inline-block bg-[#FC5A00]/10 text-[#FC5A00] px-3 py-1 rounded-full text-sm font-semibold">
+                Question {currentQuestion + 1}
+              </span>
+              <span className="text-gray-400 text-sm">
+                Single Choice
+              </span>
             </div>
-            <h3 className="text-2xl md:text-3xl font-bold text-gray-900 leading-relaxed">
+            <h3 className="text-xl md:text-2xl font-bold text-gray-900 leading-relaxed">
               {question.questionText || question.question || 'Question text not available'}
             </h3>
           </div>
@@ -494,23 +500,23 @@ const Quiz = () => {
                 <button
                   key={index}
                   onClick={() => handleAnswerSelect(index)}
-                  className={`w-full text-left p-6 rounded-xl border-2 transition-all duration-300 transform hover:scale-102 ${
+                  className={`w-full text-left p-4 rounded-xl border transition-all duration-200 ${
                     selectedAnswers[currentQuestion] === index
-                      ? 'border-[#FC5A00] bg-[#FC5A00]/10 shadow-lg'
-                      : 'border-gray-200 hover:border-[#FC5A00]/50 hover:bg-gray-50'
+                      ? 'border-[#FC5A00] bg-[#FC5A00]/5 shadow-md'
+                      : 'border-gray-200 hover:border-[#FC5A00]/30 hover:bg-gray-50'
                   }`}
                 >
                   <div className="flex items-center gap-4">
-                    <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
+                    <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-colors ${
                       selectedAnswers[currentQuestion] === index
                         ? 'border-[#FC5A00] bg-[#FC5A00]'
                         : 'border-gray-300'
                     }`}>
                       {selectedAnswers[currentQuestion] === index && (
-                        <FiCheckCircle className="text-white" size={20} />
+                        <FiCheckCircle className="text-white" size={14} />
                       )}
                     </div>
-                    <span className="text-lg font-bold text-gray-900">{option}</span>
+                    <span className="text-base font-medium text-gray-800">{option}</span>
                   </div>
                 </button>
               ))
@@ -535,9 +541,9 @@ const Quiz = () => {
             <button
               onClick={handlePreviousQuestion}
               disabled={currentQuestion === 0}
-              className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 py-4 rounded-xl font-bold text-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 py-3 rounded-lg font-bold text-base transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
-              <FiArrowLeft size={20} />
+              <FiArrowLeft size={18} />
               Previous
             </button>
 
@@ -545,18 +551,18 @@ const Quiz = () => {
               <button
                 onClick={handleSubmitQuiz}
                 disabled={!allQuestionsAnswered}
-                className="flex-1 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white py-4 rounded-xl font-bold text-lg transition-all duration-300 transform hover:scale-105 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-2"
+                className="flex-1 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white py-3 rounded-lg font-bold text-base transition-all duration-300 transform hover:scale-105 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-2"
               >
-                <FiCheckCircle size={24} />
+                <FiCheckCircle size={20} />
                 Submit Quiz
               </button>
             ) : (
               <button
                 onClick={handleNextQuestion}
-                className="flex-1 bg-gradient-to-r from-[#FC5A00] to-orange-600 hover:from-[#FF6B1A] hover:to-orange-700 text-white py-4 rounded-xl font-bold text-lg transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center gap-2"
+                className="flex-1 bg-gradient-to-r from-[#FC5A00] to-orange-600 hover:from-[#FF6B1A] hover:to-orange-700 text-white py-3 rounded-lg font-bold text-base transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center gap-2"
               >
                 Next
-                <FiCheckCircle size={20} />
+                <FiCheckCircle size={18} />
               </button>
             )}
           </div>

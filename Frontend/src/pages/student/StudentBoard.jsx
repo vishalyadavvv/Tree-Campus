@@ -463,45 +463,81 @@ const StudentDashboard = () => {
             </Link>
           </div>
           
-          <div className="grid grid-cols-3 gap-4 mb-4">
-            <div className="text-center group cursor-pointer hover:bg-orange-50 p-3 rounded-xl transition-all duration-300">
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center text-2xl mx-auto mb-2 shadow-sm">
-                🐦
+          <div className="space-y-4">
+            <Link to="/games/bird-saver" className="block group">
+              <div className="flex items-center space-x-4 p-3 hover:bg-orange-50 rounded-xl transition-all duration-300 border border-transparent hover:border-orange-100">
+                <div className="flex-shrink-0">
+                  <div className="w-16 h-16 rounded-lg overflow-hidden bg-orange-100">
+                    <img 
+                      src="https://res.cloudinary.com/dbbll23jz/image/upload/v1765432805/Gemini_Generated_Image_bxpnzobxpnzobxpn_zxgovl.png" 
+                      alt="Bird Saver" 
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    />
+                  </div>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-bold text-gray-900 group-hover:text-orange-600 transition-colors">Bird Saver</h3>
+                  <p className="text-sm text-gray-500 line-clamp-1">Translate fast to save the birds!</p>
+                  <div className="flex items-center space-x-3 mt-1">
+                    <span className="text-xs font-semibold px-2 py-0.5 bg-emerald-100 text-emerald-700 rounded-full">Easy</span>
+                    <span className="text-xs text-orange-600 font-medium">+50 XP</span>
+                  </div>
+                </div>
+                <div className="p-2 bg-orange-100 text-orange-600 rounded-full group-hover:bg-orange-600 group-hover:text-white transition-all duration-300">
+                  <FiZap className="w-4 h-4" />
+                </div>
               </div>
-              <h3 className="font-bold text-gray-900 text-sm">Bird Saver</h3>
-              <p className="text-gray-500 text-xs mt-1">50 pts</p>
-            </div>
-            <div className="text-center group cursor-pointer hover:bg-purple-50 p-3 rounded-xl transition-all duration-300">
-              <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center text-2xl mx-auto mb-2 shadow-sm">
-                🔐
+            </Link>
+
+            <Link to="/games/lock-and-key" className="block group">
+              <div className="flex items-center space-x-4 p-3 hover:bg-orange-50 rounded-xl transition-all duration-300 border border-transparent hover:border-orange-100">
+                <div className="flex-shrink-0">
+                  <div className="w-16 h-16 rounded-lg overflow-hidden bg-orange-100">
+                    <img 
+                      src="https://res.cloudinary.com/dbbll23jz/image/upload/v1765432965/Gemini_Generated_Image_idif13idif13idif_pybkin.png" 
+                      alt="Lock & Key" 
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    />
+                  </div>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-bold text-gray-900 group-hover:text-orange-600 transition-colors">Lock & Key</h3>
+                  <p className="text-sm text-gray-500 line-clamp-1">Unlock treasure with vocabulary</p>
+                  <div className="flex items-center space-x-3 mt-1">
+                    <span className="text-xs font-semibold px-2 py-0.5 bg-amber-100 text-amber-700 rounded-full">Medium</span>
+                    <span className="text-xs text-orange-600 font-medium">+75 XP</span>
+                  </div>
+                </div>
+                <div className="p-2 bg-orange-100 text-orange-600 rounded-full group-hover:bg-orange-600 group-hover:text-white transition-all duration-300">
+                  <FiZap className="w-4 h-4" />
+                </div>
               </div>
-              <h3 className="font-bold text-gray-900 text-sm">Lock & Key</h3>
-              <p className="text-gray-500 text-xs mt-1">100 pts</p>
-            </div>
-            <div className="text-center group cursor-pointer hover:bg-red-50 p-3 rounded-xl transition-all duration-300">
-              <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-red-500 rounded-xl flex items-center justify-center text-2xl mx-auto mb-2 shadow-sm">
-                📚
+            </Link>
+
+            <Link to="/games/vocabulary-builder" className="block group">
+              <div className="flex items-center space-x-4 p-3 hover:bg-orange-50 rounded-xl transition-all duration-300 border border-transparent hover:border-orange-100">
+                <div className="flex-shrink-0">
+                  <div className="w-16 h-16 rounded-lg overflow-hidden bg-orange-100">
+                    <img 
+                      src="https://res.cloudinary.com/dbbll23jz/image/upload/v1765432978/Gemini_Generated_Image_4ijuit4ijuit4iju_vdpwqc.png" 
+                      alt="Vocabulary Builder" 
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    />
+                  </div>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-bold text-gray-900 group-hover:text-orange-600 transition-colors">Vocabulary Builder</h3>
+                  <p className="text-sm text-gray-500 line-clamp-1">Master words with fun puzzles</p>
+                  <div className="flex items-center space-x-3 mt-1">
+                    <span className="text-xs font-semibold px-2 py-0.5 bg-rose-100 text-rose-700 rounded-full">Hard</span>
+                    <span className="text-xs text-orange-600 font-medium">+100 XP</span>
+                  </div>
+                </div>
+                <div className="p-2 bg-orange-100 text-orange-600 rounded-full group-hover:bg-orange-600 group-hover:text-white transition-all duration-300">
+                  <FiZap className="w-4 h-4" />
+                </div>
               </div>
-              <h3 className="font-bold text-gray-900 text-sm">Word Builder</h3>
-              <p className="text-gray-500 text-xs mt-1">75 pts</p>
-            </div>
-          </div>
-          
-          <div className="pt-6 border-t border-gray-100">
-            <div className="grid grid-cols-3 gap-4">
-              <div className="text-center">
-                <div className="text-2xl font-bold text-gray-900">3</div>
-                <div className="text-xs text-gray-500">Games</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-gray-900">225</div>
-                <div className="text-xs text-gray-500">Points</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-gray-900">12</div>
-                <div className="text-xs text-gray-500">Levels</div>
-              </div>
-            </div>
+            </Link>
           </div>
         </div>
 

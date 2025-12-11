@@ -59,6 +59,11 @@ import Certificate from './pages/Certificate';
 
 import './App.css';
 
+// Games
+import BirdSaver from './components/games/BirdSaver';
+import LockAndKey from './components/games/LockAndKey';
+import VocabularyBuilder from './components/games/VocabularyBuilder';
+
 function App() {
    useEffect(() => {
     if ("scrollRestoration" in window.history) {
@@ -110,6 +115,9 @@ function App() {
   <Route path="/courses" element={<Courses />} />
   <Route path="/courses/:id" element={<CourseDetail />} />
   <Route path="/games" element={<Games />} />
+  <Route path="/games/bird-saver" element={<BirdSaver />} />
+  <Route path="/games/lock-and-key" element={<LockAndKey />} />
+  <Route path="/games/vocabulary-builder" element={<VocabularyBuilder />} />
   <Route path="/live-classes" element={<LiveClasses />} />
   <Route path="/login" element={<Login />} />
   <Route path="/register" element={<Register />} />

@@ -71,17 +71,21 @@ const Certificate = () => {
             // Configure text styles
             doc.setTextColor(26, 37, 47); // Dark color matching template
             
+            // Cover potential garbage text on template - reduced area
+            doc.setFillColor(255, 255, 255);
+            doc.rect(width / 2 - 120, height / 2 - 5, 240, 35, 'F');
+
+            // Draw Underline
+            doc.setDrawColor(150, 150, 150); // Gray color
+            doc.setLineWidth(1);
+            doc.line(width / 2 - 150, height / 2 + 25, width / 2 + 150, height / 2 + 25);
+
             // Student Name
             doc.setFontSize(32);
             doc.setFont('helvetica', 'bold');
+            doc.setTextColor(50, 50, 50);
             const name = cert.userName || 'Student Name';
-            doc.text(name, width / 2, height / 2 + 10, { align: 'center' });
-
-            // Course Name
-            doc.setFontSize(18);
-            doc.setFont('helvetica', 'bold');
-            const courseName = cert.courseId?.title || cert.courseTitle || 'Course';
-            doc.text(courseName, width / 2, height / 2 + 65, { align: 'center' });
+            doc.text(name, width / 2, height / 2 + 20, { align: 'center' });
             
             // Date
             const date = new Date(cert.issuedAt).toLocaleDateString('en-US', { 

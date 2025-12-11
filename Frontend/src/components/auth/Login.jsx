@@ -69,7 +69,7 @@ const Login = () => {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
-    role: ''
+    role: 'student'
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -322,7 +322,7 @@ const Login = () => {
                   className="appearance-none w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FD5A00] focus:border-transparent transition"
                   required
                 >
-                  <option value="">{t.selectRole}</option>
+                  
                   <option value="student">{t.student}</option>
                   <option value="admin">{t.admin}</option>
                 </select>

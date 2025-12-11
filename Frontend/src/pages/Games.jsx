@@ -25,27 +25,12 @@ const Games = () => {
   const [userStats, setUserStats] = useState(null);
 
   useEffect(() => {
-    const fetchGamesData = async () => {
-      try {
-        setLoading(true);
-        
-        // Fetch from API
-        const [gamesRes, leaderboardRes] = await Promise.all([
-          api.get('/api/games'),
-          api.get('/api/games/leaderboard')
-        ]);
-
-        setGames(gamesRes.data?.data || defaultGames);
-        setLeaderboard(leaderboardRes.data?.data || defaultLeaderboard);
-
-      } catch (error) {
-        console.error('Error fetching games:', error);
-        // Use default data in development
-        setGames(defaultGames);
-        setLeaderboard(defaultLeaderboard);
-      } finally {
-        setLoading(false);
-      }
+    const fetchGamesData = () => {
+      setLoading(true);
+      // Use static data directly since backend endpoints are not yet available
+      setGames(GAMES_DATA);
+      setLeaderboard(LEADERBOARD_DATA);
+      setLoading(false);
     };
 
     fetchGamesData();
@@ -147,11 +132,11 @@ const Games = () => {
                   </div>
                 </div>
                 <div className="p-6">
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">Bird Saver</h3>
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">Lock And Key</h3>
                   <p className="text-gray-600 mb-4">
-                    Save birds by translating words quickly. Test your vocabulary and speed!
+                    Match synonyms and antonyms to unlock treasures. Build your vocabulary while having fun
                   </p>
-                  <Link to="/games/bird-saver">
+                  <Link to="/games/lock-and-key">
                     <motion.button
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
@@ -196,14 +181,14 @@ const Games = () => {
             ))}
           </div>
           
-          <Link 
+          {/* <Link 
             to="/leaderboard"
             className="flex items-center gap-2 text-[#FD5B00] font-medium hover:text-orange-700 transition-colors"
           >
             <TrophyIcon className="w-5 h-5" />
             View Full Leaderboard
             <ArrowRightIcon className="w-4 h-4" />
-          </Link>
+          </Link> */}
         </motion.div>
 
         {/* Games Grid */}
@@ -337,9 +322,9 @@ const GameCard = ({ game, index }) => {
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="p-2.5 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors"
+              
             >
-              <TrophyIcon className="w-5 h-5 text-gray-600" />
+          
             </motion.button>
           </Link>
         </div>
@@ -382,12 +367,12 @@ const LeaderboardSection = ({ leaderboard }) => {
               <p className="text-sm text-gray-500">This week's champions</p>
             </div>
           </div>
-          <Link 
+          {/* <Link 
             to="/leaderboard"
             className="text-sm text-[#FD5B00] font-medium hover:text-orange-700 transition-colors"
           >
             View All
-          </Link>
+          </Link> */}
         </div>
       </div>
 
@@ -552,14 +537,15 @@ const GamesLoadingScreen = () => (
 );
 
 // ==================== DEFAULT DATA ====================
-const defaultGames = [
+
+const GAMES_DATA = [
   {
     id: 1,
     slug: 'bird-saver',
     name: 'Bird Saver',
     description: 'Save birds by translating Hindi words to English quickly. Test your translation speed and vocabulary skills!',
-    icon: '🐦',
-    image: '/images/games/bird-saver.png',
+    icon: '�',
+    image: 'https://res.cloudinary.com/dbbll23jz/image/upload/v1765432805/Gemini_Generated_Image_bxpnzobxpnzobxpn_zxgovl.png',
     difficulty: 'Easy',
     players: '15,234',
     highScore: 1250,
@@ -572,9 +558,8 @@ const defaultGames = [
     slug: 'lock-and-key',
     name: 'Lock & Key',
     description: 'Match synonyms and antonyms to unlock treasures. Build your vocabulary while having fun!',
-    icon: '🔐',
-    image: '/images/games/lock-key.png',
-    difficulty: 'Medium',
+    icon: '�',
+    image: 'https://res.cloudinary.com/dbbll23jz/image/upload/v1765432965/Gemini_Generated_Image_idif13idif13idif_pybkin.png',
     players: '12,456',
     highScore: 980,
     userHighScore: 720,
@@ -587,36 +572,21 @@ const defaultGames = [
     name: 'Vocabulary Builder',
     description: 'Challenge yourself with word puzzles and crosswords. Expand your word power and language skills!',
     icon: '📚',
-    image: '/images/games/vocab-builder.png',
+    image: 'https://res.cloudinary.com/dbbll23jz/image/upload/v1765432978/Gemini_Generated_Image_4ijuit4ijuit4iju_vdpwqc.png',
     difficulty: 'Hard',
     players: '8,934',
     highScore: 1580,
     userHighScore: null,
     xpReward: 100,
     avgTime: '7 min'
-  },
-  {
-    id: 4,
-    slug: 'sentence-builder',
-    name: 'Sentence Builder',
-    description: 'Arrange words to form grammatically correct sentences. Master English grammar in a fun way!',
-    icon: '✏️',
-    image: '/images/games/sentence-builder.png',
-    difficulty: 'Medium',
-    players: '10,567',
-    highScore: 1120,
-    userHighScore: 650,
-    xpReward: 75,
-    avgTime: '4 min'
   }
 ];
 
-const defaultLeaderboard = [
+const LEADERBOARD_DATA = [
   { rank: 1, player: 'Priya Sharma', score: 1580, game: 'Vocabulary Builder', gameIcon: '📚', xpEarned: 250, level: 'Diamond' },
   { rank: 2, player: 'Rahul Kumar', score: 1250, game: 'Bird Saver', gameIcon: '🐦', xpEarned: 200, level: 'Platinum' },
-  { rank: 3, player: 'Anjali Verma', score: 1120, game: 'Sentence Builder', gameIcon: '✏️', xpEarned: 180, level: 'Gold' },
-  { rank: 4, player: 'Amit Patel', score: 980, game: 'Lock & Key', gameIcon: '🔐', xpEarned: 150, level: 'Gold' },
-  { rank: 5, player: 'Sneha Mishra', score: 875, game: 'Bird Saver', gameIcon: '🐦', xpEarned: 120, level: 'Silver' },
+  { rank: 3, player: 'Amit Patel', score: 980, game: 'Lock & Key', gameIcon: '🔐', xpEarned: 150, level: 'Gold' },
+  { rank: 4, player: 'Sneha Mishra', score: 875, game: 'Bird Saver', gameIcon: '🐦', xpEarned: 120, level: 'Silver' },
 ];
 
 export default Games;

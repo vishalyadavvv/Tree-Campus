@@ -53,26 +53,21 @@ const AssignmentResults = () => {
 
       doc.addImage(img, 'PNG', 0, 0, width, height);
 
-      // Configure text styles
-      doc.setTextColor(50, 50, 50);
-      
-      // Name
+      // Cover potential garbage text on template - reduced area to avoid clipping ribbon
+      doc.setFillColor(255, 255, 255);
+      doc.rect(width / 2 - 120, height / 2 - 5, 240, 35, 'F');
+
+      // Draw Underline
+      doc.setDrawColor(150, 150, 150); // Gray color
+      doc.setLineWidth(1);
+      doc.line(width / 2 - 150, height / 2 + 25, width / 2 + 150, height / 2 + 25);
+
+      // Name - Centered vertically and horizontally
       doc.setFontSize(40);
       doc.setFont('helvetica', 'bold');
+      doc.setTextColor(50, 50, 50);
       const name = certificate?.userName || 'Candidate Name';
-      doc.text(name, width / 2, height / 2 + 10, { align: 'center' }); // Adjusted vertical position
-
-      // Course Name (if needed to override template text or add specific course name)
-      // Assuming template has "has successfully completed..." text already? 
-      // The template text says "has successfully completed 3 months Online English Speaking Course".
-      // If the user wants to inject the SPECIFIC course name causing the line "distribute acc to the course",
-      // we should overlay the specific course name or position it appropriately.
-      // Based on template image, it seems hardcoded. But user request implies dynamic course name.
-      // I will put the course name below the name.
-      
-      doc.setFontSize(22);
-      doc.setFont('helvetica', 'normal');
-      doc.text(certificate?.courseTitle || 'English Speaking Course', width / 2, height / 2 + 50, { align: 'center' });
+      doc.text(name, width / 2, height / 2 + 20, { align: 'center' });
       
       // Date
       const date = new Date(certificate?.issuedAt || Date.now()).toLocaleDateString();
@@ -91,32 +86,32 @@ const AssignmentResults = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12">
-      <div className="max-w-2xl mx-auto px-4">
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+      <div className="max-w-lg w-full">
         {/* Result Card */}
-        <div className="bg-white rounded-lg shadow-2xl p-8 mb-8">
+        <div className="bg-white rounded-lg shadow-xl p-6 mb-6">
           {/* Result Header */}
-          <div className="text-center mb-8">
+          <div className="text-center mb-6">
             {passed ? (
               <>
-                <div className="text-6xl mb-4">🎉</div>
-                <h1 className="text-4xl font-bold text-green-600 mb-2">Congratulations!</h1>
-                <p className="text-xl text-gray-700">You have successfully completed the assignment</p>
+                <div className="text-4xl mb-2">🎉</div>
+                <h1 className="text-2xl font-bold text-green-600 mb-1">Congratulations!</h1>
+                <p className="text-base text-gray-600">You have successfully completed the assignment</p>
               </>
             ) : (
               <>
-                <div className="text-6xl mb-4">😔</div>
-                <h1 className="text-4xl font-bold text-red-600 mb-2">Sorry!</h1>
-                <p className="text-xl text-gray-700">You did not pass. Please review the material.</p>
+                <div className="text-4xl mb-2">😔</div>
+                <h1 className="text-2xl font-bold text-red-600 mb-1">Sorry!</h1>
+                <p className="text-base text-gray-600">You did not pass. Please review the material.</p>
               </>
             )}
           </div>
 
           {/* Score Display */}
-          <div className="bg-gradient-to-r from-[#FD5A00] to-orange-600 rounded-lg p-8 text-white text-center mb-8">
-            <p className="text-lg mb-2">Your Score</p>
-            <p className="text-6xl font-bold mb-2">{score}%</p>
-            <p className="text-lg">
+          <div className="bg-gradient-to-r from-[#FD5A00] to-orange-600 rounded-lg p-6 text-white text-center mb-6">
+            <p className="text-sm mb-1 opacity-90">Your Score</p>
+            <p className="text-4xl font-bold mb-1">{score}%</p>
+            <p className="text-sm opacity-90">
               {totalScore !== undefined && totalPoints !== undefined
                 ? `${totalScore} out of ${totalPoints} points`
                 : ''}
@@ -124,17 +119,17 @@ const AssignmentResults = () => {
           </div>
 
           {/* Result Details */}
-          <div className="bg-gray-50 rounded-lg p-6 mb-8">
-            <div className="grid grid-cols-2 gap-6">
+          <div className="bg-gray-50 rounded-lg p-4 mb-6 border border-gray-100">
+            <div className="grid grid-cols-2 gap-4">
               <div>
-                <p className="text-gray-600 text-sm">Result</p>
-                <p className={`text-2xl font-bold ${passed ? 'text-green-600' : 'text-red-600'}`}>
+                <p className="text-gray-500 text-xs font-medium uppercase tracking-wide">Result</p>
+                <p className={`text-xl font-bold ${passed ? 'text-green-600' : 'text-red-600'}`}>
                   {passed ? '✓ PASSED' : '✗ FAILED'}
                 </p>
               </div>
               <div>
-                <p className="text-gray-600 text-sm">Status</p>
-                <p className="text-2xl font-bold text-gray-800">
+                <p className="text-gray-500 text-xs font-medium uppercase tracking-wide">Status</p>
+                <p className="text-xl font-bold text-gray-800">
                   {passed ? 'Certified' : 'Incomplete'}
                 </p>
               </div>
@@ -143,15 +138,15 @@ const AssignmentResults = () => {
 
           {/* Certificate Section */}
           {passed && certificate && (
-            <div className="border-2 border-[#FD5A00] rounded-lg p-6 mb-8 bg-orange-50">
-              <h3 className="text-xl font-bold text-[#FD5A00] mb-4">🎓 Certificate Earned</h3>
-              <p className="text-gray-700 mb-4">
-                <strong>{certificate?.userName || 'Candidate'}</strong>, your certificate of completion has been generated and is available on your dashboard.
+            <div className="border border-[#FD5A00]/20 rounded-lg p-4 mb-6 bg-orange-50">
+              <h3 className="text-lg font-bold text-[#FD5A00] mb-2 flex items-center gap-2">🎓 Certificate Earned</h3>
+              <p className="text-gray-600 text-sm mb-4">
+                <strong>{certificate?.userName || 'Candidate'}</strong>, your certificate of completion is ready.
               </p>
               <button
                 onClick={handleDownloadCertificate}
                 disabled={loading}
-                className="w-full bg-[#FD5A00] text-white py-3 rounded-lg font-bold hover:bg-orange-600 disabled:opacity-50 transition"
+                className="w-full bg-[#FD5A00] text-white py-2.5 rounded-lg font-bold hover:bg-orange-600 disabled:opacity-50 transition text-sm flex items-center justify-center gap-2"
               >
                 {loading ? 'Generating...' : '⬇️ Download Certificate'}
               </button>
@@ -159,44 +154,36 @@ const AssignmentResults = () => {
           )}
 
           {!passed && (
-            <div className="border-2 border-blue-400 rounded-lg p-6 mb-8 bg-blue-50">
-              <h3 className="text-xl font-bold text-blue-600 mb-4">💡 Next Steps</h3>
-              <ul className="text-gray-700 space-y-2">
+            <div className="border border-blue-200 rounded-lg p-4 mb-6 bg-blue-50">
+              <h3 className="text-lg font-bold text-blue-600 mb-2">💡 Next Steps</h3>
+              <ul className="text-gray-600 text-sm space-y-1">
                 <li>✓ Review the course materials</li>
                 <li>✓ Focus on challenging topics</li>
-                <li>✓ Take the assignment again to earn your certificate (if allowed)</li>
-                <li>✓ Minimum passing score: 60%</li>
+                <li>✓ Review course and re-attempt</li>
               </ul>
             </div>
           )}
 
           {/* Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4">
+          <div className="flex gap-3">
             <button
               onClick={() => navigate(`/courses/${courseId}`)}
-              className="flex-1 bg-[#FD5A00] text-white py-3 rounded-lg font-bold hover:bg-orange-600 transition"
+              className="flex-1 bg-[#FD5A00] text-white py-2.5 rounded-lg font-bold hover:bg-orange-600 transition text-sm shadow"
             >
               Back to Course
             </button>
             <button
               onClick={() => navigate('/dashboard')}
-              className="flex-1 bg-gray-300 text-gray-800 py-3 rounded-lg font-bold hover:bg-gray-400 transition"
+              className="flex-1 bg-gray-100 text-gray-700 py-2.5 rounded-lg font-bold hover:bg-gray-200 transition text-sm"
             >
-              Go to Dashboard
+              Dashboard
             </button>
           </div>
         </div>
 
-        {/* Tips Section */}
-        <div className="bg-white rounded-lg shadow p-6">
-          <h3 className="text-lg font-bold text-gray-800 mb-4">💪 Study Tips</h3>
-          <ul className="space-y-2 text-gray-700">
-            <li>• Break down the content into smaller chunks</li>
-            <li>• Take notes while watching the video lessons</li>
-            <li>• Review the material before taking the assignment</li>
-            <li>• Practice with similar questions</li>
-            <li>• Don't hesitate to reach out for help</li>
-          </ul>
+        {/* Tips Section - Condensed to act as footer */}
+        <div className="text-center text-xs text-gray-500">
+          <p>Tip: Review the material before re-attempting assignment.</p>
         </div>
       </div>
     </div>
