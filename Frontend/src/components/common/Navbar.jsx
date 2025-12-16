@@ -670,7 +670,11 @@ export default function Navbar() {
                           }`}
                           onMouseEnter={() => handleSubmenuEnter(item.label)}
                           onMouseLeave={handleSubmenuLeave}
-                          onClick={(e) => handleSubmenuTriggerClick(e, item.label)}
+                          onClick={(e) => {
+                             if (item.type === 'submenu') {
+                               handleSubmenuTriggerClick(e, item.label);
+                             }
+                          }}
                         >
                           <div className="flex items-center gap-3">
                             <div className="w-1.5 h-1.5 bg-orange-500 rounded-full opacity-0 group-hover/item:opacity-100 transition-opacity"></div>

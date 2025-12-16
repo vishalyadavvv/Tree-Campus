@@ -27,6 +27,7 @@ import BlogPost from './pages/BlogPost';
 import Quiz from './pages/Quiz';
 import AssignmentTest from './pages/AssignmentTest';
 import AssignmentResults from './pages/AssignmentResults';
+import ContestQuiz from './pages/ContestQuiz';
 
 
 
@@ -133,6 +134,7 @@ function App() {
 
   <Route path="/blogs" element={<BlogList />} />
   <Route path="/blogs/:id" element={<BlogPost />} />
+  <Route path="/contest/quiz" element={<ContestQuiz />} />
 
   <Route 
     path="/courses/:courseId/section/:sectionId/quiz" 
