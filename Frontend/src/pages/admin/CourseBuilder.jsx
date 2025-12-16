@@ -1587,7 +1587,7 @@ const handleSubmit = async (e) => {
     return {
       questionText: q.questionText.trim(),
       options: q.options.map(opt => opt.optionText.trim()), // Convert objects to strings
-      correctAnswer: correctIndex >= 0 ? q.options[correctIndex].optionText.trim() : "", // Save actual text value
+      correctAnswer: correctIndex, // Save numeric index as per schema
       points: q.points || 1,
       explanation: q.explanation?.trim() || ''
     };

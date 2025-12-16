@@ -37,30 +37,34 @@ const Home = () => {
       <DownloadApp />
       <Features />
 
-      <div className="mt-10 px-4">
-  <h2 className="text-2xl font-bold mb-5">Our Courses</h2>
+      {/* Our Courses Section */}
+      <div className="text-center mb-12">
+        <div className="mb-8">
+          <h2 className="inline-block px-12 py-5 bg-[#FD5A00] text-white font-semibold rounded-lg hover:bg-[#e55100] transition-colors duration-200">
+            Our Courses
+          </h2>
+        </div>
 
-  <div className="grid md:grid-cols-3 gap-6">
-    {courses?.length > 0 ? (
-      courses.slice(0, 3).map((course) => (
-        <CourseCard key={course._id} course={course} />
-      ))
-    ) : (
-      <p>No courses available</p>
-    )}
-  </div>
+        <div className="grid md:grid-cols-3 gap-6 mb-8">
+          {courses?.length > 0 ? (
+            courses.slice(0, 3).map((course) => (
+              <CourseCard key={course._id} course={course} />
+            ))
+          ) : (
+            <p className="col-span-3 text-center text-gray-500">No courses available</p>
+          )}
+        </div>
 
-  {/* ⭐ View All Courses Button (Place Here) */}
-  <div className="text-center mt-6">
-    <a
-      href="/courses"
-      className="px-6 py-3 bg-[#FD5A00] text-white rounded-lg hover:bg-blue-700 transition"
-    >
-      View All Courses
-    </a>
-  </div>
-</div>
-
+        {/* View All Courses Button */}
+        <div className="text-center">
+          <a
+            href="/courses"
+            className="inline-block px-8 py-3 bg-[#FD5A00] text-white font-semibold rounded-lg hover:bg-[#e55100] transition-colors duration-200"
+          >
+            View All Courses
+          </a>
+        </div>
+      </div>
 
       <GamesSection />
       <SpokeeSection />

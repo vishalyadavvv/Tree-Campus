@@ -3,16 +3,26 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { LightBulbIcon, ArrowRightIcon, CheckIcon, XMarkIcon, ArrowPathIcon } from '@heroicons/react/24/solid';
 
 const VOCAB_DATA = [
-  { word: 'ABUNDANT', hint: 'Existing in large quantities; plentiful.' },
-  { word: 'BENEVOLENT', hint: 'Well meaning and kindly.' },
-  { word: 'CANDID', hint: 'Truthful and straightforward; frank.' },
-  { word: 'DILIGENT', hint: 'Having or showing care and conscientiousness in one\'s work.' },
-  { word: 'EMPATHY', hint: 'The ability to understand and share the feelings of another.' },
-  { word: 'FLOURISH', hint: 'Grow or develop in a healthy or vigorous way.' },
-  { word: 'GENUINE', hint: 'Truly what something is said to be; authentic.' },
-  { word: 'HARMONY', hint: 'The quality of forming a pleasing and consistent whole.' },
-  { word: 'INEVITABLE', hint: 'Certain to happen; unavoidable.' },
-  { word: 'JUBILANT', hint: 'Feeling or expressing great happiness and triumph.' },
+  { hindi: 'सेब', english: 'APPLE', hint: 'A red fruit that grows on trees' },
+  { hindi: 'किताब', english: 'BOOK', hint: 'You read this to learn' },
+  { hindi: 'घर', english: 'HOUSE', hint: 'A place where people live' },
+  { hindi: 'पानी', english: 'WATER', hint: 'You drink this when thirsty' },
+  { hindi: 'पेड़', english: 'TREE', hint: 'Has leaves, branches and roots' },
+  { hindi: 'विद्यालय', english: 'SCHOOL', hint: 'Place where students learn' },
+  { hindi: 'दोस्त', english: 'FRIEND', hint: 'Someone you like and trust' },
+  { hindi: 'खुश', english: 'HAPPY', hint: 'Feeling of joy and contentment' },
+  { hindi: 'दौड़ना', english: 'RUN', hint: 'Moving fast on your feet' },
+  { hindi: 'खाना', english: 'EAT', hint: 'What you do with food' },
+  { hindi: 'पक्षी', english: 'BIRD', hint: 'An animal that can fly' },
+  { hindi: 'सूरज', english: 'SUN', hint: 'Bright star in the sky during day' },
+  { hindi: 'चाँद', english: 'MOON', hint: 'Visible in the night sky' },
+  { hindi: 'सुंदर', english: 'BEAUTIFUL', hint: 'Very pleasant to look at' },
+  { hindi: 'तेज़', english: 'FAST', hint: 'Moving at high speed' },
+  { hindi: 'आम', english: 'MANGO', hint: 'Sweet yellow-orange fruit' },
+  { hindi: 'फूल', english: 'FLOWER', hint: 'Colorful plant bloom' },
+  { hindi: 'रात', english: 'NIGHT', hint: 'Time when you sleep' },
+  { hindi: 'दिन', english: 'DAY', hint: 'Time when the sun shines' },
+  { hindi: 'बिल्ली', english: 'CAT', hint: 'Pet that says meow' },
 ];
 
 const VocabularyBuilder = () => {
@@ -21,9 +31,10 @@ const VocabularyBuilder = () => {
   const [userGuess, setUserGuess] = useState('');
   const [score, setScore] = useState(0);
   const [streak, setStreak] = useState(0);
-  const [showResult, setShowResult] = useState(null); // 'correct', 'wrong'
+  const [showResult, setShowResult] = useState(null);
   const [isCompleted, setIsCompleted] = useState(false);
   const [hintsUsed, setHintsUsed] = useState(0);
+  const [revealedLetters, setRevealedLetters] = useState([]);
 
   useEffect(() => {
     loadWord(0);
@@ -39,18 +50,19 @@ const VocabularyBuilder = () => {
       return;
     }
     setCurrentIndex(index);
-    setCurrentScramble(scrambleWord(VOCAB_DATA[index].word));
+    setCurrentScramble(scrambleWord(VOCAB_DATA[index].english));
     setUserGuess('');
     setShowResult(null);
     setHintsUsed(0);
+    setRevealedLetters([]);
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const targetWord = VOCAB_DATA[currentIndex].word;
+  const handleSubmit = () => {
+    const targetWord = VOCAB_DATA[currentIndex].english;
     
     if (userGuess.toUpperCase() === targetWord) {
-      setScore(s => s + 100 - (hintsUsed * 20));
+      const pointsEarned = 100 - (hintsUsed * 20);
+      setScore(s => s + pointsEarned);
       setStreak(s => s + 1);
       setShowResult('correct');
       setTimeout(() => {
@@ -63,23 +75,18 @@ const VocabularyBuilder = () => {
     }
   };
 
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      handleSubmit();
+    }
+  };
+
   const useHint = () => {
     if (hintsUsed >= 3) return;
     
-    // Reveal first letter, then second, etc.
-    const target = VOCAB_DATA[currentIndex].word;
-    const currentLen = userGuess.length;
-    const nextChar = target.charAt(hintsUsed);
-    
-    // Auto-fill the correct letter
-    setUserGuess(prev => {
-        // This is a simple hint implementation: just filling the input
-        // A better way might be to show the letter elsewhere, but this is fine for now
-        const arr = prev.split('');
-        arr[hintsUsed] = nextChar;
-        return arr.join('');
-    });
-    
+    const target = VOCAB_DATA[currentIndex].english;
+    const newRevealedLetters = [...revealedLetters, hintsUsed];
+    setRevealedLetters(newRevealedLetters);
     setHintsUsed(h => h + 1);
   };
 
@@ -94,20 +101,20 @@ const VocabularyBuilder = () => {
     return (
       <div className="w-full max-w-2xl mx-auto p-4">
         <div className="bg-white rounded-2xl shadow-xl overflow-hidden text-center p-12">
-            <div className="w-24 h-24 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <div className="w-24 h-24 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
                 <span className="text-6xl">🏆</span>
             </div>
             <h2 className="text-3xl font-bold text-gray-900 mb-2">Vocabulary Master!</h2>
-            <p className="text-gray-600 mb-8">You've completed all the words.</p>
+            <p className="text-gray-600 mb-8">You've completed all {VOCAB_DATA.length} Hindi words!</p>
             
-            <div className="bg-gray-50 rounded-xl p-6 max-w-xs mx-auto mb-8 border border-gray-100">
-                <p className="text-sm text-gray-500 uppercase tracking-wide font-semibold">Final Score</p>
-                <p className="text-4xl font-bold text-[#FD5B00]">{score}</p>
+            <div className="bg-gradient-to-br from-orange-50 to-red-50 rounded-xl p-6 max-w-xs mx-auto mb-8 border-2 border-orange-200">
+                <p className="text-sm text-gray-500 uppercase tracking-wide font-semibold mb-1">Final Score</p>
+                <p className="text-5xl font-bold bg-gradient-to-r from-orange-500 to-red-500 bg-clip-text text-transparent">{score}</p>
             </div>
 
             <button 
                 onClick={restartGame}
-                className="inline-flex items-center gap-2 px-8 py-4 bg-[#FD5B00] text-white font-bold rounded-xl hover:bg-orange-600 transition shadow-lg hover:shadow-orange-500/25"
+                className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-orange-500 to-red-500 text-white font-bold rounded-xl hover:from-orange-600 hover:to-red-600 transition shadow-lg"
             >
                 <ArrowPathIcon className="w-5 h-5" /> Play Again
             </button>
@@ -117,6 +124,7 @@ const VocabularyBuilder = () => {
   }
 
   const currentWordData = VOCAB_DATA[currentIndex];
+  const targetWord = currentWordData.english;
 
   return (
     <div className="w-full max-w-3xl mx-auto p-4">
@@ -125,7 +133,7 @@ const VocabularyBuilder = () => {
         {/* Progress Bar */}
         <div className="w-full h-2 bg-gray-100">
             <div 
-                className="h-full bg-[#FD5B00] transition-all duration-500"
+                className="h-full bg-gradient-to-r from-orange-500 to-red-500 transition-all duration-500"
                 style={{ width: `${((currentIndex) / VOCAB_DATA.length) * 100}%` }}
             />
         </div>
@@ -153,36 +161,72 @@ const VocabularyBuilder = () => {
 
             {/* Game Area */}
             <div className="text-center mb-12">
-                <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4">Unscramble the word</h3>
+                <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4">Translate this Hindi word</h3>
                 
+                {/* Hindi Word Display */}
+                <motion.div 
+                    key={currentWordData.hindi}
+                    initial={{ scale: 0.9, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    className="text-5xl md:text-7xl font-black text-gray-800 mb-2"
+                >
+                    {currentWordData.hindi}
+                </motion.div>
+                
+                <p className="text-sm text-gray-500 mb-6">↓ Unscramble the English translation ↓</p>
+
+                {/* Scrambled English Word */}
                 <motion.div 
                     key={currentScramble}
                     initial={{ scale: 0.9, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
-                    className="text-4xl md:text-6xl font-black text-gray-800 tracking-wider mb-8 font-mono"
+                    className="text-3xl md:text-5xl font-black text-orange-600 tracking-wider mb-8 font-mono"
                 >
                     {currentScramble}
                 </motion.div>
 
+                {/* Hint Box */}
                 <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 inline-block max-w-lg mx-auto">
                     <div className="flex items-start gap-3 text-left">
                         <LightBulbIcon className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" />
                         <p className="text-blue-800 font-medium">Hint: <span className="text-blue-600 font-normal">{currentWordData.hint}</span></p>
                     </div>
                 </div>
+
+                {/* Revealed Letters */}
+                {revealedLetters.length > 0 && (
+                    <div className="mt-6 bg-yellow-50 border border-yellow-200 rounded-lg p-4 inline-block">
+                        <p className="text-sm text-yellow-800 font-semibold mb-2">💡 Letter Hints:</p>
+                        <div className="flex gap-2 justify-center">
+                            {targetWord.split('').map((letter, idx) => (
+                                <div 
+                                    key={idx}
+                                    className={`w-10 h-10 flex items-center justify-center font-bold text-lg rounded border-2 ${
+                                        revealedLetters.includes(idx) 
+                                            ? 'bg-yellow-200 border-yellow-400 text-yellow-900' 
+                                            : 'bg-white border-gray-200 text-gray-300'
+                                    }`}
+                                >
+                                    {revealedLetters.includes(idx) ? letter : '?'}
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
             </div>
 
-            {/* Input Form */}
-            <form onSubmit={handleSubmit} className="max-w-md mx-auto relative">
+            {/* Input Area */}
+            <div className="max-w-md mx-auto relative">
                 <input 
                     type="text" 
                     value={userGuess}
                     onChange={(e) => setUserGuess(e.target.value.toUpperCase())}
-                    placeholder="Type answer..."
+                    onKeyPress={handleKeyPress}
+                    placeholder="Type English translation..."
                     className={`
-                        w-full px-6 py-4 text-center text-xl font-bold rounded-xl border-2 outline-none transition-all
+                        w-full px-6 py-4 text-center text-xl font-bold rounded-xl border-2 outline-none transition-all uppercase
                         ${showResult === 'correct' ? 'border-green-500 bg-green-50 text-green-700' : ''}
-                        ${showResult === 'wrong' ? 'border-red-500 bg-red-50 text-red-700' : 'border-gray-200 focus:border-[#FD5B00] focus:ring-4 focus:ring-orange-50'}
+                        ${showResult === 'wrong' ? 'border-red-500 bg-red-50 text-red-700' : 'border-gray-200 focus:border-orange-500 focus:ring-4 focus:ring-orange-50'}
                     `}
                     autoFocus
                 />
@@ -196,13 +240,13 @@ const VocabularyBuilder = () => {
                             </motion.div>
                         )}
                         {showResult === 'wrong' && (
-                            <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }}>
+                            <motion.div initial={{ scale: 0, rotate: -90 }} animate={{ scale: 1, rotate: 0 }} exit={{ scale: 0 }}>
                                 <XCircleIcon className="w-8 h-8 text-red-500" />
                             </motion.div>
                         )}
                     </AnimatePresence>
                 </div>
-            </form>
+            </div>
 
             {/* Actions */}
             <div className="flex justify-center gap-4 mt-8">
@@ -210,25 +254,29 @@ const VocabularyBuilder = () => {
                     type="button"
                     onClick={useHint}
                     disabled={hintsUsed >= 3}
-                    className="px-5 py-2.5 text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg font-semibold transition disabled:opacity-50 flex items-center gap-2"
+                    className="px-5 py-2.5 text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg font-semibold transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                 >
-                    <LightBulbIcon className="w-4 h-4" /> Hint ({3 - hintsUsed})
+                    <LightBulbIcon className="w-4 h-4" /> Letter Hint ({3 - hintsUsed})
                 </button>
                 <button 
                     onClick={handleSubmit}
-                    className="px-8 py-2.5 bg-[#FD5B00] text-white rounded-lg font-bold hover:bg-orange-600 transition shadow-md flex items-center gap-2"
+                    className="px-8 py-2.5 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-lg font-bold hover:from-orange-600 hover:to-red-600 transition shadow-md flex items-center gap-2"
                 >
                     Submit <ArrowRightIcon className="w-4 h-4" />
                 </button>
             </div>
 
+            {/* Scoring Info */}
+            <div className="mt-6 text-center text-sm text-gray-500">
+                <p>Correct answer: +{100 - (hintsUsed * 20)} points • Each hint: -20 points</p>
+            </div>
         </div>
       </div>
     </div>
   );
 };
 
-// Helper components for icons not imported from heroicons
+// Helper components for icons
 const CheckCircleIcon = ({ className }) => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className={className}>
         <path fillRule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm13.36-1.814a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z" clipRule="evenodd" />
