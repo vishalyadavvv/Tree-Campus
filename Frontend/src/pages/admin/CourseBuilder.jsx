@@ -22,6 +22,38 @@ const COURSE_CATEGORIES = [
 const COURSE_LEVELS = ['All Levels','Beginner', 'Intermediate', 'Advanced'];
 const COURSE_LANGUAGES = ['english','hindi'];
 
+const ExpandableNote = ({ content, maxLines = 4 }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const shouldTruncate = content && content.split('\n').length > maxLines || content.length > 200;
+
+  return (
+    <div className="flex-1">
+      <div className={`text-gray-600 text-xs whitespace-pre-wrap break-words transition-all duration-300 ${!isExpanded ? 'line-clamp-4 mask-fade-bottom' : ''}`}>
+        {content}
+      </div>
+      {shouldTruncate && (
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            setIsExpanded(!isExpanded);
+          }}
+          className="text-yellow-600 hover:text-yellow-700 text-xs font-semibold mt-1 flex items-center focus:outline-none"
+        >
+          {isExpanded ? (
+            <>
+              Show Less <FiChevronUp className="ml-1" />
+            </>
+          ) : (
+            <>
+              View More <FiChevronDown className="ml-1" />
+            </>
+          )}
+        </button>
+      )}
+    </div>
+  );
+};
+
 const CourseBuilder = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -172,6 +204,8 @@ const CourseBuilder = () => {
       const formattedData = {
         title: sectionData.title,
         description: sectionData.description || '',
+        note: sectionData.note || '',
+        notes: sectionData.notes || [],
         order: parseInt(sectionData.order) || 0
       };
 
@@ -872,89 +906,151 @@ const handleSaveQuiz = async (quizData) => {
                     )}
                   </div>
 
-                  {/* Quiz Section Card */}
-                  <div className="bg-gradient-to-br from-white to-green-50 rounded-xl border border-green-100 shadow-md p-4">
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3">
-                      <div className="flex items-center space-x-2 mb-3 sm:mb-0">
-                        <div className="p-2 bg-gradient-to-br from-green-500 to-green-600 rounded-lg">
-                          <FiFileText className="w-4 h-4 text-white" />
+                  {/* Bottom Grid: Quiz & Section Note */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* Quiz Section Card */}
+                    <div className="bg-gradient-to-br from-white to-green-50 rounded-xl border border-green-100 shadow-md p-4">
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3">
+                        <div className="flex items-center space-x-2 mb-3 sm:mb-0">
+                          <div className="p-2 bg-gradient-to-br from-green-500 to-green-600 rounded-lg">
+                            <FiFileText className="w-4 h-4 text-white" />
+                          </div>
+                          <div>
+                            <h4 className="text-lg font-bold text-gray-900">Quiz</h4>
+                            <p className="text-xs text-gray-500">Test student knowledge</p>
+                          </div>
                         </div>
-                        <div>
-                          <h4 className="text-lg font-bold text-gray-900">Quiz</h4>
-                          <p className="text-xs text-gray-500">Test student knowledge</p>
-                        </div>
+                        {!section.quiz && (
+                          <button 
+                            className="flex items-center space-x-2 bg-gradient-to-r from-green-500 to-green-600 text-white px-4 py-2 rounded-lg text-sm hover:from-green-600 hover:to-green-700 transition-all duration-300 hover:scale-105"
+                            onClick={() => handleAddQuiz(section._id)}
+                          >
+                            <FiPlus className="w-3 h-3" />
+                            <span>Add Quiz</span>
+                          </button>
+                        )}
                       </div>
-                      {!section.quiz && (
-                        <button 
-                          className="flex items-center space-x-2 bg-gradient-to-r from-green-500 to-green-600 text-white px-4 py-2 rounded-lg text-sm hover:from-green-600 hover:to-green-700 transition-all duration-300 hover:scale-105"
-                          onClick={() => handleAddQuiz(section._id)}
-                        >
-                          <FiPlus className="w-3 h-3" />
-                          <span>Add Quiz</span>
-                        </button>
+                      
+                      {section.quiz ? (
+                        <div className="bg-white rounded-lg border border-green-200 p-3 hover:shadow-md transition-all duration-300 hover:border-green-300">
+                          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between">
+                            <div className="flex-1">
+                              <div className="flex items-center space-x-2 mb-2">
+                                <h5 className="text-base font-bold text-gray-900">{section.quiz.title}</h5>
+                                <span className="px-2 py-0.5 bg-green-100 text-green-700 text-xs font-semibold rounded-full">
+                                  {section.quiz.questions?.length || 0}Q
+                                </span>
+                              </div>
+                              
+                              <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mb-2 text-xs">
+                                <div className="flex items-center space-x-1 text-gray-600">
+                                  <FiBarChart2 className="w-3 h-3" />
+                                  <span><strong>{section.quiz.passingScore}%</strong> pass</span>
+                                </div>
+                                <div className="flex items-center space-x-1 text-gray-600">
+                                  <FiClock className="w-3 h-3" />
+                                  <span><strong>{section.quiz.timeLimit || 30}</strong>m</span>
+                                </div>
+                              </div>
+                              
+                              {section.quiz.description && (
+                                <p className="text-gray-600 text-xs line-clamp-1">{section.quiz.description}</p>
+                              )}
+                            </div>
+                            <div className="flex items-center space-x-1 mt-2 lg:mt-0 lg:ml-3">
+                              <button 
+                                className="flex items-center space-x-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white px-3 py-1.5 rounded-lg text-xs hover:from-blue-600 hover:to-blue-700 transition-all duration-300"
+                                onClick={() => handleEditQuiz(section.quiz, section._id)}
+                              >
+                                <FiEdit2 className="w-3 h-3" />
+                                <span>Edit</span>
+                              </button>
+                              <button 
+                                className="p-1.5 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all duration-300"
+                                onClick={() => handleDeleteQuiz(section.quiz._id)}
+                                title="Delete Quiz"
+                              >
+                                <FiTrash2 className="w-3 h-3" />
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="text-center py-4 bg-gradient-to-br from-green-50 to-white rounded-lg border-2 border-dashed border-green-300">
+                          <div className="w-14 h-14 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                            <FiFileText className="w-7 h-7 text-green-500" />
+                          </div>
+                          <h5 className="text-sm font-semibold text-gray-700 mb-1">No Quiz</h5>
+                          <p className="text-gray-500 mb-3 text-xs">Add a quiz to test knowledge</p>
+                          <button 
+                            className="inline-flex items-center space-x-1 bg-gradient-to-r from-green-500 to-green-600 text-white px-4 py-2 rounded-lg text-xs hover:from-green-600 hover:to-green-700 transition-all duration-300 hover:scale-105"
+                            onClick={() => handleAddQuiz(section._id)}
+                          >
+                            <FiPlus className="w-3 h-3" />
+                            <span>Create Quiz</span>
+                          </button>
+                        </div>
                       )}
                     </div>
-                    
-                    {section.quiz ? (
-                      <div className="bg-white rounded-lg border border-green-200 p-3 hover:shadow-md transition-all duration-300 hover:border-green-300">
-                        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between">
-                          <div className="flex-1">
-                            <div className="flex items-center space-x-2 mb-2">
-                              <h5 className="text-base font-bold text-gray-900">{section.quiz.title}</h5>
-                              <span className="px-2 py-0.5 bg-green-100 text-green-700 text-xs font-semibold rounded-full">
-                                {section.quiz.questions?.length || 0}Q
-                              </span>
-                            </div>
-                            
-                            <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mb-2 text-xs">
-                              <div className="flex items-center space-x-1 text-gray-600">
-                                <FiBarChart2 className="w-3 h-3" />
-                                <span><strong>{section.quiz.passingScore}%</strong> pass</span>
-                              </div>
-                              <div className="flex items-center space-x-1 text-gray-600">
-                                <FiClock className="w-3 h-3" />
-                                <span><strong>{section.quiz.timeLimit || 30}</strong>m</span>
-                              </div>
-                            </div>
-                            
-                            {section.quiz.description && (
-                              <p className="text-gray-600 text-xs line-clamp-1">{section.quiz.description}</p>
-                            )}
+
+                    {/* Section Notes Card */}
+                    <div className="bg-gradient-to-br from-white to-yellow-50 rounded-xl border border-yellow-100 shadow-md p-4 flex flex-col">
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3">
+                        <div className="flex items-center space-x-2 mb-3 sm:mb-0">
+                          <div className="p-2 bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-lg">
+                            <FiFileText className="w-4 h-4 text-white" />
                           </div>
-                          <div className="flex items-center space-x-1 mt-2 lg:mt-0 lg:ml-3">
+                          <div>
+                            <h4 className="text-lg font-bold text-gray-900">Notes</h4>
+                            <p className="text-xs text-gray-500">Section summary & tasks</p>
+                          </div>
+                        </div>
+                        {(!section.notes || section.notes.length === 0) && (
+                          <button 
+                            className="flex items-center space-x-2 bg-gradient-to-r from-yellow-500 to-yellow-600 text-white px-4 py-2 rounded-lg text-sm hover:from-yellow-600 hover:to-yellow-700 transition-all duration-300 hover:scale-105"
+                            onClick={() => handleEditSection(section)}
+                          >
+                            <FiPlus className="w-3 h-3" />
+                            <span>Add Note</span>
+                          </button>
+                        )}
+                      </div>
+                      
+                      {section.notes && section.notes.length > 0 ? (
+                        <div className="flex-1 flex flex-col space-y-3">
+                          {section.notes.map((note, idx) => (
+                            <div key={idx} className="bg-white rounded-lg border border-yellow-200 p-3 hover:shadow-md transition-all duration-300 hover:border-yellow-300">
+                              <h5 className="font-semibold text-gray-900 text-sm mb-1">{note.heading}</h5>
+                              <ExpandableNote content={note.content} />
+                            </div>
+                          ))}
+                          <div className="flex justify-end mt-2 pt-2 border-t border-yellow-50">
                             <button 
-                              className="flex items-center space-x-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white px-3 py-1.5 rounded-lg text-xs hover:from-blue-600 hover:to-blue-700 transition-all duration-300"
-                              onClick={() => handleEditQuiz(section.quiz, section._id)}
+                              className="flex items-center space-x-1 bg-gradient-to-r from-yellow-500 to-yellow-600 text-white px-3 py-1.5 rounded-lg text-xs hover:from-yellow-600 hover:to-yellow-700 transition-all duration-300"
+                              onClick={() => handleEditSection(section)}
                             >
                               <FiEdit2 className="w-3 h-3" />
-                              <span>Edit</span>
-                            </button>
-                            <button 
-                              className="p-1.5 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all duration-300"
-                              onClick={() => handleDeleteQuiz(section.quiz._id)}
-                              title="Delete Quiz"
-                            >
-                              <FiTrash2 className="w-3 h-3" />
+                              <span>Edit Notes</span>
                             </button>
                           </div>
                         </div>
-                      </div>
-                    ) : (
-                      <div className="text-center py-4 bg-gradient-to-br from-green-50 to-white rounded-lg border-2 border-dashed border-green-300">
-                        <div className="w-14 h-14 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-2">
-                          <FiFileText className="w-7 h-7 text-green-500" />
+                      ) : (
+                        <div className="text-center py-4 bg-gradient-to-br from-yellow-50 to-white rounded-lg border-2 border-dashed border-yellow-300 flex-1 flex flex-col justify-center items-center">
+                          <div className="w-14 h-14 bg-yellow-100 rounded-full flex items-center justify-center mb-2">
+                            <FiFileText className="w-7 h-7 text-yellow-500" />
+                          </div>
+                          <h5 className="text-sm font-semibold text-gray-700 mb-1">No Notes</h5>
+                          <p className="text-gray-500 mb-3 text-xs">Add notes for this section</p>
+                          <button 
+                            className="inline-flex items-center space-x-1 bg-gradient-to-r from-yellow-500 to-yellow-600 text-white px-4 py-2 rounded-lg text-xs hover:from-yellow-600 hover:to-yellow-700 transition-all duration-300 hover:scale-105"
+                            onClick={() => handleEditSection(section)}
+                          >
+                            <FiPlus className="w-3 h-3" />
+                            <span>Create Note</span>
+                          </button>
                         </div>
-                        <h5 className="text-sm font-semibold text-gray-700 mb-1">No Quiz</h5>
-                        <p className="text-gray-500 mb-3 text-xs">Add a quiz to test knowledge</p>
-                        <button 
-                          className="inline-flex items-center space-x-1 bg-gradient-to-r from-green-500 to-green-600 text-white px-4 py-2 rounded-lg text-xs hover:from-green-600 hover:to-green-700 transition-all duration-300 hover:scale-105"
-                          onClick={() => handleAddQuiz(section._id)}
-                        >
-                          <FiPlus className="w-3 h-3" />
-                          <span>Create Quiz</span>
-                        </button>
-                      </div>
-                    )}
+                      )}
+                    </div>
                   </div>
                 </div>
               )}
@@ -1241,11 +1337,13 @@ const handleThumbnailChange = (e) => {
   );
 };
 
-// Section Modal Component - Simplified
+// Section Modal Component - Upgraded for Multiple Notes
 const SectionModal = ({ section, onSave, onClose }) => {
   const [formData, setFormData] = useState({
     title: section?.title || '',
-    description: section?.description || ''
+    description: section?.description || '',
+    note: section?.note || '',
+    notes: section?.notes || []
   });
 
   const handleSubmit = (e) => {
@@ -1253,9 +1351,27 @@ const SectionModal = ({ section, onSave, onClose }) => {
     onSave({ ...section, ...formData });
   };
 
+  const handleAddNote = () => {
+    setFormData(prev => ({
+      ...prev,
+      notes: [...prev.notes, { heading: '', content: '' }]
+    }));
+  };
+
+  const handleNoteChange = (index, field, value) => {
+    const newNotes = [...formData.notes];
+    newNotes[index][field] = value;
+    setFormData({ ...formData, notes: newNotes });
+  };
+
+  const handleRemoveNote = (index) => {
+    const newNotes = formData.notes.filter((_, i) => i !== index);
+    setFormData({ ...formData, notes: newNotes });
+  };
+
   return (
     <div className="fixed inset-0 bg-black/40 backdrop-blur-lg flex items-center justify-center p-4 z-[9999] animate-fade-in">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md" onClick={(e) => e.stopPropagation()}>
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
           <h2 className="text-xl font-semibold text-gray-900">
             {section?._id ? 'Edit Section' : 'Add New Section'}
@@ -1265,8 +1381,8 @@ const SectionModal = ({ section, onSave, onClose }) => {
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6">
-          <div className="space-y-4">
+        <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0">
+          <div className="flex-1 overflow-y-auto p-6 space-y-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Section Title *</label>
               <input
@@ -1286,17 +1402,67 @@ const SectionModal = ({ section, onSave, onClose }) => {
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 rows="3"
-                placeholder="Brief description of this section..."
               />
+            </div>
+
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <label className="block text-sm font-medium text-gray-700">Section Notes</label>
+                <button
+                  type="button"
+                  onClick={handleAddNote}
+                  className="text-sm text-blue-600 hover:text-blue-700 font-medium flex items-center space-x-1"
+                >
+                  <FiPlus className="w-4 h-4" />
+                  <span>Add Note</span>
+                </button>
+              </div>
+
+              {formData.notes.map((note, index) => (
+                <div key={index} className="bg-gray-50 p-4 rounded-xl border border-gray-200 relative group">
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveNote(index)}
+                    className="absolute top-2 right-2 text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"
+                  >
+                    <FiTrash2 className="w-4 h-4" />
+                  </button>
+                  
+                  <div className="mb-3">
+                    <input
+                      type="text"
+                      className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm font-semibold"
+                      value={note.heading}
+                      onChange={(e) => handleNoteChange(index, 'heading', e.target.value)}
+                      placeholder="Note Heading"
+                    />
+                  </div>
+                  <div>
+                    <textarea
+                      className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm"
+                      value={note.content}
+                      onChange={(e) => handleNoteChange(index, 'content', e.target.value)}
+                      rows="3"
+                      placeholder="Note Content..."
+                    />
+                  </div>
+                </div>
+              ))}
+              
+              {formData.notes.length === 0 && (
+                <div className="text-center py-6 border-2 border-dashed border-gray-300 rounded-xl">
+                  <p className="text-gray-500 text-sm">No notes added yet.</p>
+                </div>
+              )}
             </div>
           </div>
 
-          <div className="flex space-x-3 mt-6">
-            <button type="submit" className="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white py-2 px-4 rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-300 hover:scale-105 flex items-center justify-center space-x-2">
+          <div className="flex space-x-3 p-6 border-t border-gray-200 bg-gray-50">
+            <button type="submit" className="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white py-2 px-4 rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-300 hover:scale-[1.02] flex items-center justify-center space-x-2">
               <FiSave className="w-4 h-4" />
               <span>Save Section</span>
             </button>
-            <button type="button" className="flex-1 bg-gray-100 text-gray-700 py-2 px-4 rounded-xl hover:bg-gray-200 transition-all duration-300" onClick={onClose}>
+            <button type="button" className="flex-1 bg-white border border-gray-300 text-gray-700 py-2 px-4 rounded-xl hover:bg-gray-50 transition-all duration-300" onClick={onClose}>
               Cancel
             </button>
           </div>

@@ -15,6 +15,20 @@ const sectionSchema = new mongoose.Schema({
     type: String,
     default: ''
   },
+  note: {
+    type: String,
+    default: ''
+  },
+  notes: [{
+    heading: {
+      type: String,
+      required: true
+    },
+    content: {
+      type: String,
+      required: true
+    }
+  }],
   order: {
     type: Number,
     required: true,

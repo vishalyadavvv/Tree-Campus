@@ -36,6 +36,43 @@ const PopupMessage = ({ isOpen, onClose, title, message }) => {
   );
 };
 
+const SidebarNote = ({ content, title = "Note" }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const shouldTruncate = content && content.length > 100;
+
+  return (
+    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 transition-all duration-300">
+      <h5 className="text-xs font-bold text-yellow-800 uppercase tracking-wide mb-1 flex items-center">
+        <FiFileText className="mr-1" size={12} />
+        {title}
+      </h5>
+      <div className={`text-sm text-gray-700 whitespace-pre-wrap leading-relaxed break-words ${!isExpanded && shouldTruncate ? 'line-clamp-3' : ''}`}>
+        {content}
+      </div>
+      {shouldTruncate && (
+        <button
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            setIsExpanded(!isExpanded);
+          }}
+          className="text-yellow-700 hover:text-yellow-800 text-xs font-semibold mt-2 flex items-center focus:outline-none"
+        >
+          {isExpanded ? (
+            <>
+              Show Less <FiChevronDown className="ml-1 rotate-180 transition-transform" />
+            </>
+          ) : (
+            <>
+              View More <FiChevronDown className="ml-1 transition-transform" />
+            </>
+          )}
+        </button>
+      )}
+    </div>
+  );
+};
+
 const LessonView = () => {
   const { courseId, lessonId } = useParams();
   const [lesson, setLesson] = useState(null);
@@ -122,7 +159,9 @@ const LessonView = () => {
           lessons: sectionLessons,
           quizzes: sectionQuizzes,
           totalLessons: sectionLessons.length,
-          completedLessons: completedInSection
+          completedLessons: completedInSection,
+          note: section.note,
+          notes: section.notes || []
         };
       });
 
@@ -620,6 +659,19 @@ const LessonView = () => {
                             );
                           })}
                           
+                          {/* Section Notes Loop */}
+                          {(section.notes && section.notes.length > 0) ? (
+                            <div className="mt-3 pt-3 border-t border-gray-200 space-y-3">
+                              {section.notes.map((note, idx) => (
+                                <SidebarNote key={idx} content={note.content} title={note.heading} />
+                              ))}
+                            </div>
+                          ) : section.note && (
+                            <div className="mt-3 pt-3 border-t border-gray-200">
+                              <SidebarNote content={section.note} />
+                            </div>
+                          )}
+
                           {/* Quizzes for this section */}
                           {section.quizzes && section.quizzes.length > 0 && (
                             <div className="space-y-1.5 mt-3 pt-3 border-t border-gray-200">
