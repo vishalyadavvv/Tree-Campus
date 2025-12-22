@@ -3,28 +3,34 @@ import { Link } from 'react-router-dom';
 
 const GamesSection = () => {
   const games = [
-    {
-      name: 'Bird Saver',
-      description: 'Save birds by translating words from your native language to English in this exciting vocabulary game',
-      icon: '🐦',
-      color: 'from-blue-400 to-blue-600',
-      features: ['Vocabulary Building', 'Quick Translation', 'Fun Challenges']
-    },
-    {
-      name: 'Lock & Key',
-      description: 'Match synonyms and antonyms to unlock levels and expand your English word knowledge',
-      icon: '🔐',
-      color: 'from-purple-400 to-purple-600',
-      features: ['Synonyms & Antonyms', 'Word Relationships', 'Progressive Levels']
-    },
-    {
-      name: 'Vocabulary Builder',
-      description: 'Build your word power with daily challenges and expand your English vocabulary effectively',
-      icon: '📚',
-      color: 'from-pink-400 to-pink-600',
-      features: ['Daily Challenges', 'Word Mastery', 'Progress Tracking']
-    },
-  ];
+  {
+    name: "Bird Saver",
+    path: "/games/bird-saver",
+    description:
+      "Save birds by translating words from your native language to English in this exciting vocabulary game",
+    icon: "🐦",
+    color: "from-blue-400 to-blue-600",
+    features: ["Vocabulary Building", "Quick Translation", "Fun Challenges"],
+  },
+  {
+    name: "Lock & Key",
+    path: "/games/lock-and-key",
+    description:
+      "Match synonyms and antonyms to unlock levels and expand your English word knowledge",
+    icon: "🔐",
+    color: "from-purple-400 to-purple-600",
+    features: ["Synonyms & Antonyms", "Word Relationships", "Progressive Levels"],
+  },
+  {
+    name: "Vocabulary Builder",
+    path: "/games/vocabulary-builder",
+    description:
+      "Build your word power with daily challenges and expand your English vocabulary effectively",
+    icon: "📚",
+    color: "from-pink-400 to-pink-600",
+    features: ["Daily Challenges", "Word Mastery", "Progress Tracking"],
+  },
+];
 
   return (
     <section className="py-20 bg-gradient-to-b from-white to-gray-50">
@@ -68,12 +74,13 @@ const GamesSection = () => {
                 ))}
               </div>
 
-              <Link 
-                to="/games" 
-                className="block w-full py-3 bg-gradient-to-r from-[#FD5A00] to-orange-500 text-white rounded-xl hover:from-orange-600 hover:to-orange-600 transition-all duration-300 shadow-lg hover:shadow-xl font-semibold text-center transform hover:scale-105"
-              >
-                Play Now
-              </Link>
+             <Link
+  to={game.path}
+  className="block w-full py-3 bg-gradient-to-r from-[#FD5A00] to-orange-500 text-white rounded-xl hover:from-orange-600 hover:to-orange-600 transition-all duration-300 shadow-lg hover:shadow-xl font-semibold text-center transform hover:scale-105"
+>
+  Play Now
+</Link>
+
             </div>
           ))}
         </div>

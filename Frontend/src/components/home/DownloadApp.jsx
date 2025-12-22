@@ -99,7 +99,7 @@ const DownloadApp = () => {
 
             {/* GOOGLE PLAY BUTTON */}
             <a
-              href="https://play.google.com/store"
+              href="https://play.google.com/store/apps/details?id=com.academy.tree_campus"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center w-56 space-x-3 bg-black px-5 py-3 rounded-lg hover:bg-gray-900 transition transform hover:scale-105 duration-300"
@@ -120,7 +120,7 @@ const DownloadApp = () => {
 
             {/* APP STORE BUTTON */}
             <a
-              href="https://www.apple.com/app-store/"
+              href="https://play.google.com/store/apps/details?id=com.academy.tree_campus"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center w-56 space-x-3 bg-black px-5 py-3 rounded-lg hover:bg-gray-900 transition transform hover:scale-105 duration-300"

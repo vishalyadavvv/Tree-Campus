@@ -239,7 +239,7 @@ const Footer = () => {
             </div>
             <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
               <a
-                href="https://play.google.com/store"
+                href="https://play.google.com/store/apps/details?id=com.academy.tree_campus"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="px-6 py-4 rounded-xl flex items-center space-x-4 transition-all duration-300 hover:scale-105 hover:shadow-lg border"
@@ -254,7 +254,7 @@ const Footer = () => {
                 </div>
               </a>
               <a
-                href="https://www.apple.com/app-store/"
+                href="https://play.google.com/store/apps/details?id=com.academy.tree_campus"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="px-6 py-4 rounded-xl flex items-center space-x-4 transition-all duration-300 hover:scale-105 hover:shadow-lg border"
