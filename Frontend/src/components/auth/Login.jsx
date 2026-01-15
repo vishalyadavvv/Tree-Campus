@@ -24,13 +24,13 @@ const translations = {
     loginFailed: 'Login failed. Please try again.',
     incorrectPassword: 'Incorrect password. Please try again.',
     userNotFound: 'User not found. Please check your email.',
-    welcomeTitle: 'Welcome to LMS',
+    welcomeTitle: 'Welcome to TreeCampus',
     welcomeSubtitle: 'Start your journey to accessing unlimited courses and learning resources',
     feature1: '1000+ Courses Available',
     feature2: 'Learn from Expert Instructors',
     feature3: 'Earn Certificates',
     feature4: '24/7 Access',
-    rightPanelTitle: 'Welcome to LMS',
+    rightPanelTitle: 'Welcome to TreeCampus',
     rightPanelSubtitle: 'Continue your learning journey and access unlimited courses'
   },
   hindi: {

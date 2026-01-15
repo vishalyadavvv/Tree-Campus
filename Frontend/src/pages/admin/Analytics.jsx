@@ -1,20 +1,44 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import DashboardLayout from '../../components/Layout/DashboardLayout';
 import api from '../../services/api';
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 const Analytics = () => {
+  const [searchParams] = useSearchParams();
+  const studentId = searchParams.get('studentId');
+  
   const [analyticsData, setAnalyticsData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [refreshing, setRefreshing] = useState(false);
+  const [lastUpdated, setLastUpdated] = useState(null);
+  const [selectedStudent, setSelectedStudent] = useState(null);
+  const refreshIntervalRef = useRef(null);
 
   useEffect(() => {
     fetchAnalyticsData();
-  }, []);
+    
+    // Set up real-time refresh every 30 seconds
+    refreshIntervalRef.current = setInterval(() => {
+      fetchAnalyticsData();
+    }, 30000);
+    
+    // Fetch student details if studentId is provided
+    if (studentId) {
+      fetchStudentData(studentId);
+    }
+    
+    return () => {
+      if (refreshIntervalRef.current) {
+        clearInterval(refreshIntervalRef.current);
+      }
+    };
+  }, [studentId]);
 
   const fetchAnalyticsData = async () => {
     try {
-      setLoading(true);
+      setRefreshing(true);
       setError(null);
       
       // Try to get data from the overview endpoint first
@@ -24,6 +48,7 @@ const Analytics = () => {
       // Generate analytics data from overview data
       const generatedData = generateAnalyticsFromOverview(overviewData);
       setAnalyticsData(generatedData);
+      setLastUpdated(new Date());
       
     } catch (error) {
       console.error('Error fetching analytics data:', error);
@@ -34,7 +59,21 @@ const Analytics = () => {
       setError('Using demo data - API endpoints not available');
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
+  };
+
+  const fetchStudentData = async (id) => {
+    try {
+      const response = await api.get(`/students/${id}`);
+      setSelectedStudent(response.data.data);
+    } catch (error) {
+      console.error('Error fetching student data:', error);
+    }
+  };
+
+  const handleRefresh = () => {
+    fetchAnalyticsData();
   };
 
   // Generate analytics data from overview data
@@ -77,10 +116,14 @@ const Analytics = () => {
       { _id: 'Marketing', count: 4, totalEnrollments: 132 }
     ];
 
+    // Calculate total enrollments from actual course data
+    const totalEnrollments = courseCategories.reduce((sum, cat) => sum + (cat.totalEnrollments || 0), 0);
+
     return {
       enrollmentTrend,
       courseCategories,
-      overview: overviewData
+      overview: overviewData,
+      totalEnrollments
     };
   };
 
@@ -106,7 +149,8 @@ const Analytics = () => {
     return {
       enrollmentTrend,
       courseCategories,
-      overview: null
+      overview: null,
+      totalEnrollments: 1900
     };
   };
 
@@ -122,7 +166,7 @@ const Analytics = () => {
     );
   }
 
-  const { enrollmentTrend, courseCategories } = analyticsData || { enrollmentTrend: [], courseCategories: [] };
+  const { enrollmentTrend, courseCategories, totalEnrollments } = analyticsData || { enrollmentTrend: [], courseCategories: [], totalEnrollments: 0 };
 
   return (
     <DashboardLayout>
@@ -130,29 +174,63 @@ const Analytics = () => {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Analytics Dashboard</h1>
-            <p className="text-gray-600 mt-1">Track your platform's performance and growth metrics</p>
+            <h1 className="text-2xl font-bold text-gray-900">
+              {selectedStudent ? `${selectedStudent.name}'s Analytics` : 'Analytics Dashboard'}
+            </h1>
+            <p className="text-gray-600 mt-1">
+              {selectedStudent 
+                ? `Student enrollment and progress tracking` 
+                : 'Track your platform\'s performance and growth metrics'}
+            </p>
           </div>
           <div className="flex items-center space-x-4 mt-4 sm:mt-0">
+            {lastUpdated && (
+              <div className="text-sm text-gray-500">
+                Updated: {lastUpdated.toLocaleTimeString()}
+              </div>
+            )}
             {error && (
               <div className="text-sm text-amber-600 bg-amber-50 px-3 py-1 rounded-lg">
                 {error}
               </div>
             )}
             <button
-              onClick={fetchAnalyticsData}
-              className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+              onClick={handleRefresh}
+              disabled={refreshing}
+              className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
             >
-              <span>Refresh Data</span>
+              <span>{refreshing ? 'Refreshing...' : 'Refresh Data'}</span>
             </button>
           </div>
         </div>
+
+        {/* Student Info Card (if viewing specific student) */}
+        {selectedStudent && (
+          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200 shadow-sm p-6">
+            <div className="flex items-center space-x-4">
+              <img
+                src={selectedStudent.profilePicture || `https://ui-avatars.com/api/?background=6366f1&color=fff&name=${encodeURIComponent(selectedStudent.name || 'User')}`}
+                alt={selectedStudent.name}
+                className="w-16 h-16 rounded-full border-2 border-blue-300"
+              />
+              <div className="flex-1">
+                <p className="font-semibold text-gray-900">{selectedStudent.name}</p>
+                <p className="text-sm text-gray-600">{selectedStudent.email}</p>
+                <p className="text-sm text-gray-600">{selectedStudent.phone || 'No phone'}</p>
+              </div>
+              <div className="text-right">
+                <p className="text-sm text-gray-600">Joined</p>
+                <p className="font-semibold text-gray-900">{new Date(selectedStudent.createdAt).toLocaleDateString()}</p>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Stats Overview */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 text-center">
             <div className="text-2xl font-bold text-gray-900 mb-1">
-              {enrollmentTrend.reduce((sum, item) => sum + (item.enrollments || 0), 0).toLocaleString()}
+              {totalEnrollments.toLocaleString()}
             </div>
             <div className="text-sm text-gray-600">Total Enrollments</div>
           </div>
@@ -170,7 +248,7 @@ const Analytics = () => {
           </div>
           <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 text-center">
             <div className="text-2xl font-bold text-gray-900 mb-1">
-              {Math.max(...enrollmentTrend.map(item => item.enrollments))}
+              {Math.max(...enrollmentTrend.map(item => item.enrollments), 0)}
             </div>
             <div className="text-sm text-gray-600">Peak Enrollments</div>
           </div>

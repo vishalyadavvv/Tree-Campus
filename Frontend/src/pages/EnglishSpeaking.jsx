@@ -7,9 +7,10 @@ const EnglishSpeaking = () => {
 
   // Simulate loading
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, );
+   const timer = setTimeout(() => {
+  setIsLoading(false);
+}, 1000); // or 1000, 2000, etc
+
     return () => clearTimeout(timer);
   }, []);
 
@@ -196,13 +197,22 @@ const EnglishSpeaking = () => {
         </div>
 
         {/* CTA Section */}
-        <div className="bg-gradient-to-r from-primary to-orange rounded-2xl p-8 md:p-12 text-black text-center shadow-xl animate-pulse-slow">
-          <h2 className="text-2xl md:text-4xl font-bold mb-4">Ready to Improve Your English?</h2>
-          <p className="text-xl mb-8 max-w-2xl mx-auto">Join thousands of students who have transformed their English speaking skills with our free courses.</p>
-          <button className="bg-white text-primary hover:bg-gray-100 font-bold py-3 px-8 rounded-full text-lg transition-all duration-300 transform hover:scale-105 shadow-lg">
-            Get Started Today
-          </button>
-        </div>
+       <div className="bg-gradient-to-r from-primary to-orange rounded-2xl p-8 md:p-12 text-black text-center shadow-xl animate-pulse-slow">
+  <h2 className="text-2xl md:text-4xl font-bold mb-4">
+    Ready to Improve Your English?
+  </h2>
+
+  <p className="text-xl mb-8 max-w-2xl mx-auto">
+    Join thousands of students who have transformed their English speaking skills with our free courses.
+  </p>
+
+  <Link to="/courses">
+    <button className="bg-white text-primary hover:bg-gray-100 font-bold py-3 px-8 rounded-full text-lg transition-all duration-300 transform hover:scale-105 shadow-lg">
+      Get Started Today
+    </button>
+  </Link>
+</div>
+
       </main>
 
      

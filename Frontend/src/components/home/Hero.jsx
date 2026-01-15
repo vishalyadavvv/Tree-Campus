@@ -329,7 +329,7 @@ const Hero = () => {
               </a>
 
               <a
-                href="https://play.google.com/store"
+                href="https://play.google.com/store/apps/details?id=com.academy.tree_campus"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="group relative inline-flex items-center justify-center gap-2 px-5 sm:px-6 lg:px-8 py-3 sm:py-3.5 lg:py-4 bg-white text-gray-700 rounded-lg sm:rounded-xl border-2 border-gray-200 overflow-hidden hover:border-[#FD5A00] hover:text-[#FD5A00] transition-all duration-300 shadow-sm hover:shadow-lg font-semibold text-sm sm:text-base"

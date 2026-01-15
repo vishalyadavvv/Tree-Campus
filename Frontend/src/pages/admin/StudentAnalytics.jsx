@@ -9,6 +9,10 @@ const StudentAnalytics = () => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [selectedStudent, setSelectedStudent] = useState(null);
+  const [editFormData, setEditFormData] = useState({});
+  const [savingEdit, setSavingEdit] = useState(false);
 
   useEffect(() => {
     fetchStudents();
@@ -37,6 +41,77 @@ const StudentAnalytics = () => {
         toast.error('Failed to delete student');
       }
     }
+  };
+
+  const handleExportStudents = () => {
+    try {
+      // Create CSV content
+      const headers = ['Name', 'Email', 'Phone', 'Enrollments', 'Certificates', 'Joined Date', 'Status'];
+      const csvContent = [
+        headers.join(','),
+        ...students.map(student => [
+          `"${student.name || 'Unknown'}"`,
+          `"${student.email || 'N/A'}"`,
+          `"${student.phone || 'N/A'}"`,
+          student.enrolledCourses?.length || 0,
+          student.certificates?.length || 0,
+          new Date(student.createdAt).toLocaleDateString(),
+          student.enrolledCourses?.length > 0 ? 'Active' : 'Inactive'
+        ].join(','))
+      ].join('\n');
+
+      // Create blob and download
+      const blob = new Blob([csvContent], { type: 'text/csv' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `students_${new Date().getTime()}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      
+      toast.success('Students exported successfully');
+    } catch (error) {
+      console.error('Error exporting students:', error);
+      toast.error('Failed to export students');
+    }
+  };
+
+  const handleEditStudent = (student) => {
+    setSelectedStudent(student);
+    setEditFormData({
+      name: student.name || '',
+      email: student.email || '',
+      phone: student.phone || ''
+    });
+    setEditModalOpen(true);
+  };
+
+  const handleSaveEdit = async () => {
+    if (!selectedStudent) return;
+    
+    try {
+      setSavingEdit(true);
+      await api.put(`/students/${selectedStudent._id}`, editFormData);
+      fetchStudents();
+      setEditModalOpen(false);
+      setSelectedStudent(null);
+      toast.success('Student updated successfully');
+    } catch (error) {
+      console.error('Error updating student:', error);
+      toast.error('Failed to update student');
+    } finally {
+      setSavingEdit(false);
+    }
+  };
+
+  const handleEditFormChange = (e) => {
+    const { name, value } = e.target;
+    setEditFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
   };
 
   const filteredStudents = students.filter(student => {
@@ -72,7 +147,7 @@ const StudentAnalytics = () => {
             <p className="text-gray-600">Manage registered students and their progress</p>
           </div>
           <div className="mt-4 lg:mt-0">
-            <button className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors">
+            <button onClick={handleExportStudents} className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors">
               Export Students
             </button>
           </div>
@@ -208,7 +283,7 @@ const StudentAnalytics = () => {
                       <div className="flex items-center space-x-2">
                         <button 
                           className="text-blue-600 hover:text-blue-900 transition-colors p-2 hover:bg-blue-50 rounded-lg"
-                          onClick={() => {/* Edit functionality */}}
+                          onClick={() => handleEditStudent(student)}
                         >
                           <FiEdit2 className="w-4 h-4" />
                         </button>
@@ -270,7 +345,7 @@ const StudentAnalytics = () => {
                   <div className="flex items-center space-x-2">
                     <button 
                       className="text-blue-600 hover:text-blue-900 transition-colors p-2 hover:bg-blue-50 rounded-lg"
-                      onClick={() => {/* Edit functionality */}}
+                      onClick={() => handleEditStudent(student)}
                     >
                       <FiEdit2 className="w-4 h-4" />
                     </button>
@@ -326,6 +401,68 @@ const StudentAnalytics = () => {
           </div>
         )}
       </div>
+
+      {/* Edit Modal */}
+      {editModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="fixed inset-0 bg-black opacity-40" onClick={() => setEditModalOpen(false)}></div>
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full z-50 p-6 mx-4">
+            <div className="flex justify-between items-start mb-4">
+              <h3 className="text-lg font-semibold">Edit Student</h3>
+              <button onClick={() => setEditModalOpen(false)} className="text-gray-400 hover:text-gray-600">✕</button>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+                <input
+                  type="text"
+                  name="name"
+                  value={editFormData.name}
+                  onChange={handleEditFormChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                <input
+                  type="email"
+                  name="email"
+                  value={editFormData.email}
+                  onChange={handleEditFormChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+                <input
+                  type="tel"
+                  name="phone"
+                  value={editFormData.phone}
+                  onChange={handleEditFormChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+            </div>
+
+            <div className="mt-6 flex space-x-3">
+              <button
+                onClick={handleSaveEdit}
+                disabled={savingEdit}
+                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
+              >
+                {savingEdit ? 'Saving...' : 'Save Changes'}
+              </button>
+              <button
+                onClick={() => setEditModalOpen(false)}
+                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </DashboardLayout>
   );
 };

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import DashboardLayout from '../../components/Layout/DashboardLayout';
 import api from '../../services/api';
 import { FiUsers, FiBook, FiFileText, FiVideo, FiTrendingUp, FiArrowUp, FiEye, FiCalendar, FiRefreshCw } from 'react-icons/fi';
@@ -8,13 +8,22 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [lastUpdated, setLastUpdated] = useState(null);
+  const [studentModalOpen, setStudentModalOpen] = useState(false);
+  const [selectedStudent, setSelectedStudent] = useState(null);
+  const [studentLoading, setStudentLoading] = useState(false);
+  const studentIntervalRef = useRef(null);
 
   useEffect(() => {
     fetchOverview();
     
     // Set up real-time refresh every 30 seconds
     const interval = setInterval(fetchOverview, 30000);
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+      if (studentIntervalRef.current) {
+        clearInterval(studentIntervalRef.current);
+      }
+    };
   }, []);
 
   const fetchOverview = async () => {
@@ -33,6 +42,36 @@ const Dashboard = () => {
 
   const handleRefresh = () => {
     fetchOverview();
+  };
+
+  const fetchStudent = async (studentId) => {
+    try {
+      setStudentLoading(true);
+      const response = await api.get(`/students/${studentId}`);
+      setSelectedStudent(response.data.data);
+    } catch (error) {
+      console.error('Error fetching student:', error);
+    } finally {
+      setStudentLoading(false);
+    }
+  };
+
+  const handleViewStudent = async (studentId) => {
+    setStudentModalOpen(true);
+    await fetchStudent(studentId);
+
+    // refresh student details every 15s while modal is open
+    if (studentIntervalRef.current) clearInterval(studentIntervalRef.current);
+    studentIntervalRef.current = setInterval(() => fetchStudent(studentId), 15000);
+  };
+
+  const closeStudentModal = () => {
+    setStudentModalOpen(false);
+    setSelectedStudent(null);
+    if (studentIntervalRef.current) {
+      clearInterval(studentIntervalRef.current);
+      studentIntervalRef.current = null;
+    }
   };
 
   // Safe data access with fallbacks
@@ -259,7 +298,7 @@ const Dashboard = () => {
                           <span className="px-3 py-1 bg-green-50 text-green-700 text-xs font-medium rounded-full border border-green-200">
                             Active
                           </span>
-                          <button className="text-gray-400 hover:text-gray-600 transition-colors">
+                          <button onClick={() => handleViewStudent(student._id)} className="text-gray-400 hover:text-gray-600 transition-colors cursor-pointer">
                             <FiEye className="w-4 h-4" />
                           </button>
                         </div>
@@ -327,35 +366,6 @@ const Dashboard = () => {
                   </div>
                 )}
               </div>
-            </div>
-
-            {/* Platform Stats */}
-            <div className="bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl shadow-lg p-6 text-white">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="font-semibold text-lg">Platform Performance</h3>
-                <FiTrendingUp className="w-5 h-5" />
-              </div>
-              <div className="space-y-4">
-                <div className="flex justify-between items-center pb-3 border-b border-blue-500">
-                  <span className="text-blue-100">System Uptime</span>
-                  <span className="font-semibold">{performanceMetrics.uptime}</span>
-                </div>
-                <div className="flex justify-between items-center pb-3 border-b border-blue-500">
-                  <span className="text-blue-100">Avg. Course Rating</span>
-                  <span className="font-semibold">{performanceMetrics.avgRating}/5</span>
-                </div>
-                <div className="flex justify-between items-center pb-3 border-b border-blue-500">
-                  <span className="text-blue-100">Total Enrollments</span>
-                  <span className="font-semibold">{performanceMetrics.totalEnrollments.toLocaleString()}</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-blue-100">Active Users</span>
-                  <span className="font-semibold">{performanceMetrics.activeUsers}</span>
-                </div>
-              </div>
-              <button className="w-full mt-6 py-3 bg-white text-blue-600 rounded-lg text-sm font-semibold hover:bg-blue-50 transition-colors">
-                View Detailed Analytics
-              </button>
             </div>
           </div>
         </div>
@@ -427,6 +437,73 @@ const Dashboard = () => {
           </div>
         </div>
       </div>
+
+      {studentModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="fixed inset-0 bg-black opacity-40" onClick={closeStudentModal}></div>
+          <div className="bg-white rounded-lg shadow-xl max-w-xl w-full z-50 p-6 mx-4">
+            <div className="flex justify-between items-start">
+              <h3 className="text-lg font-semibold">{studentLoading ? 'Loading...' : selectedStudent?.name || 'Student Details'}</h3>
+              <button onClick={closeStudentModal} className="text-gray-400 hover:text-gray-600">Close</button>
+            </div>
+            <div className="mt-4">
+              {studentLoading ? (
+                <div className="flex justify-center items-center py-6">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                </div>
+              ) : (
+                <>
+                  <div className="flex items-center space-x-4">
+                    <img
+                      src={selectedStudent?.profilePicture || `https://ui-avatars.com/api/?background=6366f1&color=fff&name=${encodeURIComponent(selectedStudent?.name || 'User')}`}
+                      alt={selectedStudent?.name}
+                      className="w-14 h-14 rounded-full"
+                    />
+                    <div>
+                      <p className="font-semibold">{selectedStudent?.name}</p>
+                      <p className="text-sm text-gray-600">{selectedStudent?.email}</p>
+                      <p className="text-sm text-gray-600">{selectedStudent?.phone || 'No phone'}</p>
+                    </div>
+                  </div>
+
+                  <div className="mt-4 p-4 bg-blue-50 rounded-lg">
+                    <h4 className="font-semibold text-blue-900 mb-3">Student Analytics</h4>
+                    <div className="grid grid-cols-2 gap-3 text-sm">
+                      <div>
+                        <p className="text-blue-600 font-medium">Enrolled Courses</p>
+                        <p className="text-2xl font-bold text-blue-900">{selectedStudent?.enrolledCourses?.length || 0}</p>
+                      </div>
+                      <div>
+                        <p className="text-blue-600 font-medium">Certificates</p>
+                        <p className="text-2xl font-bold text-blue-900">{selectedStudent?.certificates?.length || 0}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="mt-4">
+                    <h4 className="font-semibold">Enrolled Courses</h4>
+                    {selectedStudent?.enrolledCourses?.length > 0 ? (
+                      <ul className="mt-2 space-y-2 max-h-40 overflow-auto">
+                        {selectedStudent.enrolledCourses.map((en, i) => (
+                          <li key={i} className="p-2 rounded bg-gray-50">
+                            <p className="text-sm font-medium">{en.courseId?.title || 'Unknown Course'}</p>
+                            <p className="text-xs text-gray-500">Enrolled {new Date(en.enrolledAt || en.enrolledAt).toLocaleDateString()}</p>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : <p className="text-sm text-gray-500 mt-2">No enrolled courses</p>}
+                  </div>
+
+                  <div className="mt-6">
+                    <button onClick={closeStudentModal} className="w-full px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors">Close</button>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
     </DashboardLayout>
   );
 };

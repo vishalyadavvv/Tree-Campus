@@ -57,7 +57,7 @@ const Sidebar = () => {
   ];
 
   const menuItems = user?.role === 'admin' ? adminMenuItems : studentMenuItems;
-  const title = user?.role === 'admin' ? 'LMS Admin' : 'LMS Student';
+  const title = user?.role === 'admin' ? 'Tree Campus Admin' : 'Tree Campus Student';
   const subtitle = user?.role === 'admin' ? 'Dashboard' : 'Portal';
 
   const handleLogout = async () => {

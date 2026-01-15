@@ -27,7 +27,7 @@ const translations = {
     passwordTooShort: 'Password must be at least 6 characters',
     passwordMismatch: 'Passwords do not match',
     registrationFailed: 'Registration failed. Please try again.',
-    welcomeTitle: 'Welcome to LMS',
+    welcomeTitle: 'Welcome to TreeCampus',
     welcomeSubtitle: 'Join our community and unlock unlimited learning opportunities',
     feature1: '1000+ Courses Available',
     feature2: 'Learn from Expert Instructors',

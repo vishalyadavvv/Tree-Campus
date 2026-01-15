@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import CourseList from '../components/courses/CourseList';
 import CourseFilter from '../components/courses/CourseFilter';
+import { CourseContext } from '../context/CourseContext';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 
@@ -9,6 +10,7 @@ const Courses = () => {
   const [filteredCourses, setFilteredCourses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const { enrolledCourses, fetchEnrolledCourses } = useContext(CourseContext);
   const [filters, setFilters] = useState({
     level: 'all',
     category: 'all',
@@ -34,6 +36,7 @@ const Courses = () => {
 
   useEffect(() => {
     fetchCourses();
+    fetchEnrolledCourses();
   }, []);
 
   const fetchCourses = async () => {
@@ -60,19 +63,34 @@ const Courses = () => {
 
   useEffect(() => {
     filterCourses();
-  }, [filters, courses]);
+  }, [filters, courses, enrolledCourses]);
 
   const filterCourses = () => {
     let filtered = [...courses];
 
+    // Level Filter
     if (filters.level !== 'all') {
       filtered = filtered.filter(course => course.level === filters.level);
     }
 
+    // Category Filter
     if (filters.category !== 'all') {
-      filtered = filtered.filter(course => course.category === filters.category);
+      if (filters.category === 'spoken-english') {
+        // Show courses that start with "Spoken English" OR are in enrolled courses
+        filtered = filtered.filter(course => {
+          const isSpokenEnglish = course.category && course.category.toLowerCase().startsWith('spoken english');
+          const isEnrolled = enrolledCourses.some(enrolled => enrolled._id === course._id);
+          return isSpokenEnglish || isEnrolled;
+        });
+      } else if (filters.category === 'other') {
+        filtered = filtered.filter(course => course.category === 'Other');
+      } else {
+        // Fallback for any other specific categories if added later
+        filtered = filtered.filter(course => course.category === filters.category);
+      }
     }
 
+    // Search Filter
     if (filters.search) {
       filtered = filtered.filter(course =>
         course.title.toLowerCase().includes(filters.search.toLowerCase()) ||

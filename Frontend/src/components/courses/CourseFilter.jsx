@@ -3,19 +3,15 @@ import React from 'react';
 const CourseFilter = ({ filters, setFilters }) => {
   const levels = {
     all: 'All Levels',
-    beginner: 'Beginner',
-    intermediate: 'Intermediate',
-    advanced: 'Advanced'
+    // beginner: 'Beginner',
+    // intermediate: 'Intermediate',
+    // advanced: 'Advanced'
   };
 
   const categories = {
     all: 'All Categories',
     'spoken-english': 'Spoken English',
-    grammar: 'Grammar',
-    vocabulary: 'Vocabulary',
-    'business-english': 'Business English',
-    pronunciation: 'Pronunciation',
-    conversation: 'Conversation'
+    'other': 'Other'
   };
 
   return (

@@ -10,10 +10,10 @@ const Footer = () => {
   return (
     <footer className="bg-gray-900 text-white" style={{ borderTop: `4px solid ${primaryColor}` }}>
       {/* Main Footer Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-6 gap-6 md:gap-8">
           {/* Brand Section */}
-          <div className="lg:col-span-2">
+          <div className="col-span-2 lg:col-span-2">
             <div className="flex items-center space-x-3 mb-4">
               <img src={logoUrl} alt="Tree Campus Logo" className="w-12 h-12 object-contain" />
               <div>
@@ -139,10 +139,24 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
-                <Link to="/mobile-app" className="text-gray-400 hover:text-green-400 transition-colors duration-300 text-sm flex items-center">
-                  <span style={{ width: '6px', height: '6px', backgroundColor: primaryColor, borderRadius: '50%', marginRight: '10px' }}></span>
-                  Mobile App
-                </Link>
+                <a
+  href="https://play.google.com/store/apps/details?id=com.academy.tree_campus"
+  target="_blank" // opens link in new tab
+  rel="noopener noreferrer" // security best practice
+  className="text-gray-400 hover:text-green-400 transition-colors duration-300 text-sm flex items-center"
+>
+  <span
+    style={{
+      width: '6px',
+      height: '6px',
+      backgroundColor: primaryColor,
+      borderRadius: '50%',
+      marginRight: '10px'
+    }}
+  ></span>
+  Mobile App
+</a>
+
               </li>
             </ul>
           </div>
@@ -280,7 +294,13 @@ const Footer = () => {
                 <svg className="w-5 h-5" style={{ color: primaryColor }} fill="currentColor" viewBox="0 0 24 24">
                   <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
                 </svg>
-                <span className="text-sm">info@treecampus.in</span>
+               <a
+  href="mailto:info@treecampus.in"
+  className="text-sm text-white hover:text-green-400 transition-colors duration-300"
+>
+  info@treecampus.in
+</a>
+
               </div>
             </div>
             <div className="flex flex-col items-center md:items-start">
@@ -288,17 +308,17 @@ const Footer = () => {
                 <svg className="w-5 h-5" style={{ color: primaryColor }} fill="currentColor" viewBox="0 0 24 24">
                   <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
                 </svg>
-                <span className="text-sm">India</span>
+                <span className="text-sm text-white">India</span>
               </div>
             </div>
-            <div className="flex flex-col items-center md:items-start">
+            {/* <div className="flex flex-col items-center md:items-start">
               <div className="flex items-center space-x-3 text-gray-400">
                 <svg className="w-5 h-5" style={{ color: primaryColor }} fill="currentColor" viewBox="0 0 24 24">
                   <path d="M20 15.5c-1.25 0-2.45-.2-3.57-.57-.35-.11-.74-.03-1.02.24l-2.2 2.2c-2.83-1.44-5.15-3.75-6.59-6.59l2.2-2.21c.28-.26.36-.65.25-1C8.7 6.45 8.5 5.25 8.5 4c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1 0 9.39 7.61 17 17 17 .55 0 1-.45 1-1v-3.5c0-.55-.45-1-1-1z"/>
                 </svg>
-                <span className="text-sm">+91 XXX XXX XXXX</span>
+                <span className="text-sm text-white">+91 XXX XXX XXXX</span>
               </div>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>
