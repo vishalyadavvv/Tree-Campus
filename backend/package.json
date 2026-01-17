@@ -8,6 +8,7 @@
     "dev": "nodemon server.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "seed:course": "node seed/courseSeed.js",
+    "migrate:lang": "node migrateLanguage.js",
       "cleanup:lessons": "node scripts/cleanupOrphanedLessons.js"
   },
   "keywords": [

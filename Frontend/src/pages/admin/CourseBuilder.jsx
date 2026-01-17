@@ -20,7 +20,11 @@ const COURSE_CATEGORIES = [
 ];
 
 const COURSE_LEVELS = ['All Levels','Beginner', 'Intermediate', 'Advanced'];
-const COURSE_LANGUAGES = ['english','hindi'];
+const COURSE_LANGUAGES = [
+  { label: 'English', value: 'En' },
+  { label: 'Hindi', value: 'Hn' },
+  { label: 'Bengali', value: 'Bn' }
+];
 
 const ExpandableNote = ({ content, maxLines = 4 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -130,7 +134,7 @@ const CourseBuilder = () => {
         description: courseData.description,
         level: courseData.level,
         category: courseData.category,
-        language: courseData.language,
+        lang: courseData.lang,
         duration: courseData.duration,
         price: parseFloat(courseData.price) || 0,
         discountPrice: parseFloat(courseData.discountPrice) || 0,
@@ -1090,7 +1094,7 @@ const CourseEditModal = ({ course, onSave, onClose, onThumbnailUpload, uploading
     description: course?.description || '',
     level: course?.level || 'All Levels',
     category: course?.category || 'Spoken English',
-    language: course?.language || 'english',
+    lang: course?.lang || 'En',
     duration: course?.duration || '',
     price: course?.price || 0,
     discountPrice: course?.discountPrice || 0,
@@ -1215,13 +1219,13 @@ const handleThumbnailChange = (e) => {
               </label>
               <select
                 className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                value={formData.language}
-                onChange={(e) => setFormData({ ...formData, language: e.target.value })}
+                value={formData.lang}
+                onChange={(e) => setFormData({ ...formData, lang: e.target.value })}
                 required
               >
-                {COURSE_LANGUAGES.map(language => (
-                  <option key={language} value={language}>
-                    {language.charAt(0).toUpperCase() + language.slice(1)}
+                {COURSE_LANGUAGES.map(lang => (
+                  <option key={lang.value} value={lang.value}>
+                    {lang.label}
                   </option>
                 ))}
               </select>

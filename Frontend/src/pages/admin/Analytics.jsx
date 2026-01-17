@@ -41,7 +41,7 @@ const Analytics = () => {
       setRefreshing(true);
       setError(null);
       
-      // Try to get data from the overview endpoint first
+      // Get data from the overview endpoint
       const response = await api.get('/analytics/overview');
       const overviewData = response.data.data;
       
@@ -52,11 +52,8 @@ const Analytics = () => {
       
     } catch (error) {
       console.error('Error fetching analytics data:', error);
-      
-      // If API fails, generate mock data
-      const mockData = generateMockAnalyticsData();
-      setAnalyticsData(mockData);
-      setError('Using demo data - API endpoints not available');
+      setError('Failed to load analytics data');
+      setAnalyticsData(null);
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -78,14 +75,14 @@ const Analytics = () => {
 
   // Generate analytics data from overview data
   const generateAnalyticsFromOverview = (overviewData) => {
-    if (!overviewData) return generateMockAnalyticsData();
+    if (!overviewData) return null;
 
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     const currentMonth = new Date().getMonth();
     
     // Generate enrollment trend data
     const enrollmentTrend = months.slice(0, currentMonth + 1).map((month, index) => {
-      const baseEnrollments = overviewData.stats?.totalStudents || 100;
+      const baseEnrollments = overviewData.stats?.totalStudents || 0;
       const growthFactor = (index + 1) * 0.3;
       return {
         month,
@@ -100,21 +97,22 @@ const Analytics = () => {
       
       if (existing) {
         existing.count += 1;
-        existing.totalEnrollments += course.enrollmentCount || 10;
+        existing.totalEnrollments += course.enrollmentCount || 0;
       } else {
         acc.push({
           _id: category,
           count: 1,
-          totalEnrollments: course.enrollmentCount || 10
+          totalEnrollments: course.enrollmentCount || 0
         });
       }
       return acc;
-    }, []) || [
-      { _id: 'Technology', count: 8, totalEnrollments: 245 },
-      { _id: 'Business', count: 6, totalEnrollments: 189 },
-      { _id: 'Design', count: 5, totalEnrollments: 156 },
-      { _id: 'Marketing', count: 4, totalEnrollments: 132 }
-    ];
+    }, []) || [];
+
+    // Generate enrollment by course data
+    const enrollmentByCourse = overviewData.popularCourses?.map(course => ({
+      courseName: course.title || course.name || 'Untitled Course',
+      enrollments: course.enrollmentCount || 0
+    })) || [];
 
     // Calculate total enrollments from actual course data
     const totalEnrollments = courseCategories.reduce((sum, cat) => sum + (cat.totalEnrollments || 0), 0);
@@ -122,35 +120,9 @@ const Analytics = () => {
     return {
       enrollmentTrend,
       courseCategories,
+      enrollmentByCourse,
       overview: overviewData,
       totalEnrollments
-    };
-  };
-
-  // Generate mock data if API is not available
-  const generateMockAnalyticsData = () => {
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    const currentMonth = new Date().getMonth();
-    
-    const enrollmentTrend = months.slice(0, currentMonth + 1).map((month, index) => ({
-      month,
-      enrollments: Math.floor(50 + (index * 25) + (Math.random() * 20))
-    }));
-
-    const courseCategories = [
-      { _id: 'Technology', count: 12, totalEnrollments: 456 },
-      { _id: 'Business', count: 8, totalEnrollments: 324 },
-      { _id: 'Design', count: 6, totalEnrollments: 278 },
-      { _id: 'Marketing', count: 5, totalEnrollments: 198 },
-      { _id: 'Language', count: 4, totalEnrollments: 167 },
-      { _id: 'Science', count: 3, totalEnrollments: 134 }
-    ];
-
-    return {
-      enrollmentTrend,
-      courseCategories,
-      overview: null,
-      totalEnrollments: 1900
     };
   };
 
@@ -166,7 +138,23 @@ const Analytics = () => {
     );
   }
 
-  const { enrollmentTrend, courseCategories, totalEnrollments } = analyticsData || { enrollmentTrend: [], courseCategories: [], totalEnrollments: 0 };
+  const { enrollmentTrend, courseCategories, enrollmentByCourse, totalEnrollments } = analyticsData || { enrollmentTrend: [], courseCategories: [], enrollmentByCourse: [], totalEnrollments: 0 };
+
+  if (!analyticsData) {
+    return (
+      <DashboardLayout>
+        <div className="flex flex-col justify-center items-center min-h-96">
+          <p className="text-red-600 mb-4 text-lg">Failed to load analytics data</p>
+          <button
+            onClick={() => fetchAnalyticsData()}
+            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            Retry
+          </button>
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout>
@@ -341,20 +329,20 @@ const Analytics = () => {
           </div>
         </div>
 
-        {/* Enrollment by Category */}
+        {/* Enrollment by Course */}
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Total Enrollments by Category</h3>
-          {courseCategories.length > 0 ? (
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Enrollments by Course</h3>
+          {enrollmentByCourse.length > 0 ? (
             <ResponsiveContainer width="100%" height={350}>
-              <BarChart data={courseCategories}>
+              <BarChart data={enrollmentByCourse}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                 <XAxis 
-                  dataKey="_id" 
+                  dataKey="courseName" 
                   stroke="#6b7280"
                   fontSize={12}
                   angle={-45}
                   textAnchor="end"
-                  height={80}
+                  height={100}
                 />
                 <YAxis 
                   stroke="#6b7280"
@@ -371,7 +359,7 @@ const Analytics = () => {
                 />
                 <Legend />
                 <Bar 
-                  dataKey="totalEnrollments" 
+                  dataKey="enrollments" 
                   fill="#ec4899" 
                   radius={[4, 4, 0, 0]}
                   name="Enrollments"
@@ -380,7 +368,7 @@ const Analytics = () => {
             </ResponsiveContainer>
           ) : (
             <div className="flex justify-center items-center h-64 text-gray-500">
-              No enrollment data by category available
+              No enrollment data by course available
             </div>
           )}
         </div>

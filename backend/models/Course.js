@@ -74,6 +74,11 @@ const courseSchema = new mongoose.Schema({
   isPublished: {
     type: Boolean,
     default: true
+  },
+  lang: {
+    type: String,
+    enum: ['Hn', 'Bn', 'En'],
+    default: 'En'
   }
 }, {
   timestamps: true

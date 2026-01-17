@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { Download, Users, GamepadIcon, MessageCircle, BookOpen, Video } from 'lucide-react';
 
 const HowItWorks = () => {
@@ -331,14 +332,24 @@ const HowItWorks = () => {
             <p className="text-lg text-orange-100 mb-6 transition-all duration-300 hover:text-orange-50">
               Download the Treecampus app now and begin your English learning journey with our interactive games and live classes
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button className="px-8 py-3 bg-white text-[#FD5A00] rounded-xl font-bold text-lg hover:bg-gray-100 transition-all duration-300 shadow-lg transform hover:scale-105 hover:shadow-xl">
-                Download App Now
-              </button>
-              <button className="px-8 py-3 bg-transparent border-2 border-white text-white rounded-xl font-bold text-lg hover:bg-white/10 transition-all duration-300 transform hover:scale-105">
-                Explore All Features
-              </button>
-            </div>
+  <div className="flex flex-col sm:flex-row gap-4 justify-center">
+  <a
+    href="https://play.google.com/store/apps/details?id=com.academy.tree_campus"
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    <button className="px-8 py-3 bg-white text-[#FD5A00] rounded-xl font-bold text-lg hover:bg-gray-100 transition-all duration-300 shadow-lg transform hover:scale-105 hover:shadow-xl cursor-pointer">
+      Download App Now
+    </button>
+  </a>
+
+  <a href="/courses">
+    <button className="px-8 py-3 bg-transparent border-2 border-white text-white rounded-xl font-bold text-lg hover:bg-white/10 transition-all duration-300 transform hover:scale-105 cursor-pointer">
+      Explore All Features
+    </button>
+  </a>
+</div>
+
           </div>
         </div>
       </div>

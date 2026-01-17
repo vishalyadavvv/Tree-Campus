@@ -14,6 +14,7 @@ const Courses = () => {
   const [filters, setFilters] = useState({
     level: 'all',
     category: 'all',
+    lang: 'all',
     search: ''
   });
   const [isVisible, setIsVisible] = useState(false);
@@ -88,6 +89,11 @@ const Courses = () => {
         // Fallback for any other specific categories if added later
         filtered = filtered.filter(course => course.category === filters.category);
       }
+    }
+
+    // Language Filter
+    if (filters.lang !== 'all') {
+      filtered = filtered.filter(course => course.lang === filters.lang);
     }
 
     // Search Filter

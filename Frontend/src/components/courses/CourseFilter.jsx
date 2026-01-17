@@ -14,10 +14,17 @@ const CourseFilter = ({ filters, setFilters }) => {
     'other': 'Other'
   };
 
+  const languages = {
+    all: 'All Languages',
+    'Hn': 'Hindi',
+    'Bn': 'Bengali',
+    'En': 'English'
+  };
+
   return (
     <div className="bg-white rounded-2xl shadow-lg p-6 mb-8 border border-gray-100">
       <h3 className="text-xl font-bold text-gray-900 mb-6">Filter Courses</h3>
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
         {/* Search */}
         <div className="md:col-span-2">
           <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -59,6 +66,22 @@ const CourseFilter = ({ filters, setFilters }) => {
             className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#FD5A00] focus:border-transparent transition-all duration-300"
           >
             {Object.entries(categories).map(([key, value]) => (
+              <option key={key} value={key}>{value}</option>
+            ))}
+          </select>
+        </div>
+
+        {/* Language Filter */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Language
+          </label>
+          <select
+            value={filters.lang}
+            onChange={(e) => setFilters({ ...filters, lang: e.target.value })}
+            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#FD5A00] focus:border-transparent transition-all duration-300"
+          >
+            {Object.entries(languages).map(([key, value]) => (
               <option key={key} value={key}>{value}</option>
             ))}
           </select>
