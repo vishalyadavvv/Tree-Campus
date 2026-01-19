@@ -25,7 +25,17 @@ export const progressService = {
   // Mark lesson as complete
   completeLesson: async (lessonId) => {
     try {
-      const response = await api.put(`/lessons/${lessonId}/complete`);
+      const response = await api.post(`/progress/lesson/${lessonId}/complete`);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error;
+    }
+  },
+  
+  // Mark course as complete
+  completeCourse: async (courseId) => {
+    try {
+      const response = await api.post(`/progress/course/${courseId}/complete`);
       return response.data;
     } catch (error) {
       throw error.response?.data || error;

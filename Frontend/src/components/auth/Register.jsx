@@ -182,10 +182,6 @@ const Register = () => {
       setLoading(false);
     }
   };
-    } finally {
-      setLoading(false);
-    }
-  };
 
   return (
     <>

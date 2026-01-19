@@ -1,9 +1,9 @@
-// controllers/progressController.js
 import User from '../models/User.js';
 import Lesson from '../models/Lesson.js';
 import Certificate from '../models/Certificate.js';
 import Course from '../models/Course.js';
-import Progress from '../models/Progress.js'; // <-- use the Progress model
+import Enrollment from '../models/Enrollment.js';
+import Progress from '../models/Progress.js';
 
 // Helper: safely get ObjectId string
 const toId = (v) => (v ? v.toString() : v);
@@ -76,6 +76,30 @@ export const completeLesson = async (req, res) => {
     progressDoc.overallProgress = newProgress;
     await progressDoc.save();
 
+    // 🔄 SYNC 1: Update Enrollment collection
+    const enrollment = await Enrollment.findOne({ user: userId, course: courseId });
+    if (enrollment) {
+      enrollment.progress = newProgress;
+      if (!enrollment.completedLessons.includes(lessonId)) {
+        enrollment.completedLessons.push(lessonId);
+      }
+      enrollment.lastAccessedAt = new Date();
+      await enrollment.save();
+      console.log(`✅ Enrollment updated for course ${courseId}`);
+    }
+
+    // 🔄 SYNC 2: Update User.enrolledCourses array (cache)
+    await User.updateOne(
+      { _id: userId, 'enrolledCourses.courseId': courseId },
+      { 
+        $set: { 
+          'enrolledCourses.$.progress': newProgress,
+          'enrolledCourses.$.lastAccessedAt': new Date()
+        } 
+      }
+    );
+    console.log(`✅ User profile cache updated for course ${courseId}`);
+
     console.log(`📊 Progress updated: ${completedCount}/${totalLessons} = ${newProgress}%`);
 
     return res.status(200).json({
@@ -147,6 +171,79 @@ export const getCourseProgress = async (req, res) => {
     });
   } catch (error) {
     console.error('getCourseProgress error:', error);
+    return res.status(500).json({ success: false, message: error.message });
+  }
+};
+// @desc    Mark entire course as complete
+// @route   POST /api/progress/course/:id/complete
+// @access  Private
+export const completeCourse = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const courseId = req.params.id;
+
+    console.log(`🏆 Marking course ${courseId} complete for user ${userId}`);
+
+    const course = await Course.findById(courseId);
+    if (!course) {
+      return res.status(404).json({ success: false, message: 'Course not found' });
+    }
+
+    // 1. Update Progress model
+    let progressDoc = await Progress.findOne({ user: userId, course: courseId });
+    if (!progressDoc) {
+      progressDoc = await Progress.create({ user: userId, course: courseId });
+    }
+
+    // Mark all lessons as complete (fetch all lesson IDs for this course)
+    const lessons = await Lesson.find({ courseId }).select('_id');
+    const allLessonIds = lessons.map(l => l._id);
+    
+    // Replace completedLessons with all lessons (or merge)
+    const completedSet = new Set(progressDoc.completedLessons.map(cl => cl.lesson.toString()));
+    allLessonIds.forEach(id => {
+      if (!completedSet.has(id.toString())) {
+        progressDoc.completedLessons.push({ lesson: id, completedAt: new Date() });
+      }
+    });
+
+    progressDoc.overallProgress = 100;
+    progressDoc.certificateIssued = true; // Auto-issue flag maybe?
+    await progressDoc.save();
+
+    // 2. Update Enrollment model
+    const enrollment = await Enrollment.findOne({ user: userId, course: courseId });
+    if (enrollment) {
+      enrollment.progress = 100;
+      // Sync completed lessons IDs
+      const existingIds = new Set(enrollment.completedLessons.map(id => id.toString()));
+      allLessonIds.forEach(id => {
+        if (!existingIds.has(id.toString())) {
+          enrollment.completedLessons.push(id);
+        }
+      });
+      enrollment.completedAt = new Date();
+      await enrollment.save();
+    }
+
+    // 3. Update User model cache
+    await User.updateOne(
+      { _id: userId, 'enrolledCourses.courseId': courseId },
+      { 
+        $set: { 
+          'enrolledCourses.$.progress': 100,
+          'enrolledCourses.$.completedAt': new Date()
+        } 
+      }
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: 'Course marked as complete',
+      data: { progress: 100 }
+    });
+  } catch (error) {
+    console.error('completeCourse error:', error);
     return res.status(500).json({ success: false, message: error.message });
   }
 };
