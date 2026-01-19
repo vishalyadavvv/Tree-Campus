@@ -235,10 +235,18 @@ export const getCourseProgress = async (req, res) => {
       progressDoc.completedLessons.map(c => (c.lesson ? c.lesson.toString() : ''))
     );
 
-    const lessonsWithStatus = allLessons.map(lesson => ({
-      ...lesson.toObject(),
-      isCompleted: completedSet.has(lesson._id.toString())
-    }));
+    console.log('DEBUG COMPLETED SET:', [...completedSet]);
+    
+    const lessonsWithStatus = allLessons.map(lesson => {
+        const isComp = completedSet.has(lesson._id.toString());
+        if (lesson._id.toString() === '6944e9407080cb6689046c92') { // Log specific failing ID
+             console.log(`Debug Lesson ${lesson._id}: In Set? ${isComp}`);
+        }
+        return {
+            ...lesson.toObject(),
+            isCompleted: isComp
+        };
+    });
 
     return res.status(200).json({
       success: true,
