@@ -45,7 +45,7 @@ export const progressService = {
   // Track video watch time
   trackVideoTime: async (lessonId, watchTime) => {
     try {
-      const response = await api.post(`/lessons/${lessonId}/track-video`, {
+      const response = await api.post(`/progress/lesson/${lessonId}/track-video`, {
         watchTime
       });
       return response.data;
