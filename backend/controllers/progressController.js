@@ -80,7 +80,10 @@ export const completeLesson = async (req, res) => {
     const enrollment = await Enrollment.findOne({ user: userId, course: courseId });
     if (enrollment) {
       enrollment.progress = newProgress;
-      if (!enrollment.completedLessons.includes(lessonId)) {
+      const alreadyInEnrollment = enrollment.completedLessons.some(
+        id => id.toString() === lessonId.toString()
+      );
+      if (!alreadyInEnrollment) {
         enrollment.completedLessons.push(lessonId);
       }
       enrollment.lastAccessedAt = new Date();
@@ -98,7 +101,20 @@ export const completeLesson = async (req, res) => {
         } 
       }
     );
-    console.log(`✅ User profile cache updated for course ${courseId}`);
+
+    // 🔄 SYNC 3: Update User.completedLessons top-level array
+    // Check if not already in user's global completed list
+    const user = await User.findById(userId);
+    if (user) {
+      const isAlreadyInUserList = user.completedLessons.some(
+        cl => cl.lessonId.toString() === lessonId.toString()
+      );
+      if (!isAlreadyInUserList) {
+        user.completedLessons.push({ lessonId: lessonId, completedAt: new Date() });
+        await user.save();
+        console.log(`✅ User global completedLessons updated`);
+      }
+    }
 
     console.log(`📊 Progress updated: ${completedCount}/${totalLessons} = ${newProgress}%`);
 
@@ -153,11 +169,13 @@ export const getCourseProgress = async (req, res) => {
 
     // Build lessonsWithStatus using lessons from DB (preserve sort/order)
     const allLessons = await Lesson.find({ courseId }).sort('order');
-    const completedSet = new Set(progressDoc.completedLessons.map(c => toId(c.lesson)));
+    const completedSet = new Set(
+      progressDoc.completedLessons.map(c => (c.lesson ? c.lesson.toString() : ''))
+    );
 
     const lessonsWithStatus = allLessons.map(lesson => ({
       ...lesson.toObject(),
-      isCompleted: completedSet.has(toId(lesson._id))
+      isCompleted: completedSet.has(lesson._id.toString())
     }));
 
     return res.status(200).json({
@@ -226,16 +244,26 @@ export const completeCourse = async (req, res) => {
       await enrollment.save();
     }
 
-    // 3. Update User model cache
-    await User.updateOne(
-      { _id: userId, 'enrolledCourses.courseId': courseId },
-      { 
-        $set: { 
-          'enrolledCourses.$.progress': 100,
-          'enrolledCourses.$.completedAt': new Date()
-        } 
+    // 3. Update User model cache and global list
+    const user = await User.findById(userId);
+    if (user) {
+      // Update enrolledCourses cache
+      const enrollmentEntry = user.enrolledCourses.find(ec => ec.courseId.toString() === courseId.toString());
+      if (enrollmentEntry) {
+        enrollmentEntry.progress = 100;
+        enrollmentEntry.completedAt = new Date();
       }
-    );
+
+      // Sync global completedLessons
+      const userCompletedSet = new Set(user.completedLessons.map(cl => cl.lessonId.toString()));
+      allLessonIds.forEach(id => {
+        if (!userCompletedSet.has(id.toString())) {
+          user.completedLessons.push({ lessonId: id, completedAt: new Date() });
+        }
+      });
+      
+      await user.save();
+    }
 
     return res.status(200).json({
       success: true,

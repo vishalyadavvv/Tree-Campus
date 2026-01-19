@@ -227,6 +227,7 @@ export const getStudents = async (req, res) => {
   try {
     const students = await User.find({ role: 'student' })
       .populate('enrolledCourses.courseId', 'title thumbnail')
+      .populate('completedLessons.lessonId', 'title')
       .select('-password')
       .sort('-createdAt');
 
@@ -250,6 +251,7 @@ export const getStudent = async (req, res) => {
   try {
     const student = await User.findById(req.params.id)
       .populate('enrolledCourses.courseId')
+      .populate('completedLessons.lessonId', 'title')
       .populate('certificates')
       .select('-password');
 
