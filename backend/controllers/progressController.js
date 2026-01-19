@@ -162,9 +162,71 @@ export const getCourseProgress = async (req, res) => {
     const progress = totalLessons > 0 ? Math.round((completedCount / totalLessons) * 100) : 0;
 
     // Optionally update and save progressDoc.overallProgress if different
+    let progressUpdated = false;
     if (progressDoc.overallProgress !== progress) {
       progressDoc.overallProgress = progress;
-      await progressDoc.save();
+      progressUpdated = true;
+    }
+    
+    // 🚑 SELF-HEALING: Sync Enrollment and User if missing data
+    // 1. Sync Enrollment
+    const enrollment = await Enrollment.findOne({ user: userId, course: courseId });
+    if (enrollment) {
+      // If enrollment progress is 0 but we have progress, OR lesson counts differ significantly
+      if (enrollment.progress !== progress || enrollment.completedLessons.length !== progressDoc.completedLessons.length) {
+         console.log(`🚑 Self-healing Enrollment for user ${userId} course ${courseId}`);
+         enrollment.progress = progress;
+         
+         // Merge completed lessons
+         const existingEnrollmentIds = new Set(enrollment.completedLessons.map(id => id.toString()));
+         progressDoc.completedLessons.forEach(cl => {
+           if (cl.lesson && !existingEnrollmentIds.has(cl.lesson.toString())) {
+             enrollment.completedLessons.push(cl.lesson);
+           }
+         });
+         await enrollment.save();
+      }
+    }
+
+    // 2. Sync User
+    const user = await User.findById(userId);
+    if (user) {
+        let userModified = false;
+        
+        // Fix User.enrolledCourses progress
+        const enrolledCourse = user.enrolledCourses.find(ec => ec.courseId.toString() === courseId.toString());
+        if (enrolledCourse && enrolledCourse.progress !== progress) {
+             console.log(`🚑 Self-healing User.enrolledCourses for user ${userId}`);
+             enrolledCourse.progress = progress;
+             userModified = true;
+        }
+
+        // Fix User.completedLessons
+        const userCompletedSet = new Set(user.completedLessons.map(cl => cl.lessonId.toString()));
+        let newLessonsAdded = 0;
+        progressDoc.completedLessons.forEach(cl => {
+            if (cl.lesson && !userCompletedSet.has(cl.lesson.toString())) {
+                user.completedLessons.push({
+                    lessonId: cl.lesson,
+                    completedAt: cl.completedAt || new Date()
+                });
+                userCompletedSet.add(cl.lesson.toString()); // prevent dups in this loop
+                newLessonsAdded++;
+            }
+        });
+
+        if (newLessonsAdded > 0) {
+            console.log(`🚑 Self-healing User.completedLessons: added ${newLessonsAdded} lessons`);
+            userModified = true;
+        }
+
+        if (userModified) {
+            await user.save();
+        }
+    }
+
+    if (progressUpdated) {
+        await progressDoc.save();
     }
 
     // Build lessonsWithStatus using lessons from DB (preserve sort/order)
