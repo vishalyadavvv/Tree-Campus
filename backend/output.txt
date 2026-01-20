@@ -1,0 +1,75 @@
+✅ MongoDB Connected: ac-eszusiq-shard-00-00.llotsdg.mongodb.net
+--- DEBUG START ---
+Checking interactions for:
+User: 696a0580a0aed409b07f6dcc
+Course: 6943c7f6bf660e5e0ae9e6c9
+
+--- Progress Collection ---
+Overall Progress: 5%
+Completed Lessons Count: 5
+Raw Completed Lessons Array:
+[
+  {
+    "lesson": "6943d51bca66741c2d08972c",
+    "completedAt": "2026-01-19T06:10:43.056Z",
+    "_id": "696dcae3cf7409e3fcfdecca"
+  },
+  {
+    "lesson": "6943d54eca66741c2d089777",
+    "completedAt": "2026-01-19T06:13:28.972Z",
+    "_id": "696dcb88cf7409e3fcfdf3f6"
+  },
+  {
+    "lesson": "6943d585ca66741c2d0897c2",
+    "completedAt": "2026-01-19T06:14:31.773Z",
+    "_id": "696dcbc7cf7409e3fcfdf9f3"
+  },
+  {
+    "lesson": "6943d5aeca66741c2d08980d",
+    "completedAt": "2026-01-19T06:14:41.393Z",
+    "_id": "696dcbd1cf7409e3fcfdfbcd"
+  },
+  {
+    "lesson": "6943d5d8ca66741c2d089858",
+    "completedAt": "2026-01-19T06:14:50.453Z",
+    "_id": "696dcbdacf7409e3fcfdfdaa"
+  }
+]
+
+Is Lesson 6944e9407080cb6689046c92 present? NO
+
+--- Enrollment Collection ---
+❌ No Enrollment document found!
+
+--- User Collection ---
+Global Completed Lessons:
+[
+  {
+    "lessonId": "6943d51bca66741c2d08972c",
+    "completedAt": "2026-01-19T06:10:43.056Z",
+    "_id": "696ddc4940faaa56b2844424"
+  },
+  {
+    "lessonId": "6943d54eca66741c2d089777",
+    "completedAt": "2026-01-19T06:13:28.972Z",
+    "_id": "696ddc4940faaa56b2844425"
+  },
+  {
+    "lessonId": "6943d585ca66741c2d0897c2",
+    "completedAt": "2026-01-19T06:14:31.773Z",
+    "_id": "696ddc4940faaa56b2844426"
+  },
+  {
+    "lessonId": "6943d5aeca66741c2d08980d",
+    "completedAt": "2026-01-19T06:14:41.393Z",
+    "_id": "696ddc4940faaa56b2844427"
+  },
+  {
+    "lessonId": "6943d5d8ca66741c2d089858",
+    "completedAt": "2026-01-19T06:14:50.453Z",
+    "_id": "696ddc4940faaa56b2844428"
+  }
+]
+Is Lesson 6944e9407080cb6689046c92 present? NO
+
+--- DEBUG END ---

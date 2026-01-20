@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import Loader from '../components/common/Loader';
-import { FiClock, FiFileText, FiCheckCircle, FiAlertCircle, FiAward, FiPlay } from 'react-icons/fi';
+import { FiClock, FiFileText, FiCheckCircle, FiAlertCircle, FiAward, FiPlay, FiChevronLeft } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 
 const AssignmentTest = () => {
@@ -165,6 +165,17 @@ const AssignmentTest = () => {
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-2xl mx-auto px-4">
+        {/* Back Button */}
+        <div className="mb-4">
+          <button
+            onClick={() => navigate(`/courses/${courseId}`)}
+            className="flex items-center text-gray-600 hover:text-[#FD5A00] transition-colors font-medium"
+          >
+            <FiChevronLeft className="mr-1" size={20} />
+            Back to Course
+          </button>
+        </div>
+
         {/* Header */}
         <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
           <div className="flex justify-between items-start mb-4">

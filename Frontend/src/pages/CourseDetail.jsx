@@ -1,9 +1,10 @@
 import { useState, useEffect,useContext } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import api from '../services/api';
-import { FiChevronRight, FiPlay, FiChevronDown, FiChevronUp, FiClock, FiBook, FiAward, FiCheckCircle, FiUser, FiUsers, FiStar, FiLock, FiLogIn, FiAlertCircle } from 'react-icons/fi';
+import { FiChevronRight, FiPlay, FiChevronDown, FiChevronUp, FiClock, FiBook, FiAward, FiCheckCircle, FiUser, FiUsers, FiStar, FiLock, FiLogIn, FiAlertCircle, FiFileText } from 'react-icons/fi';
 import { AuthContext } from '../context/AuthContext'; 
 import toast from 'react-hot-toast';
+import NoteModal from '../components/common/NoteModal';
 
 const CourseOverview = () => {
   const { id } = useParams();
@@ -20,6 +21,8 @@ const CourseOverview = () => {
   const [checkingEnrollment, setCheckingEnrollment] = useState(false);
   const [courseProgress, setCourseProgress] = useState(0);
   const [assignments, setAssignments] = useState([]);
+  const [selectedNote, setSelectedNote] = useState(null);
+  const [isNoteModalOpen, setIsNoteModalOpen] = useState(false);
 
   const isAuthenticated = !!user;
 
@@ -185,6 +188,11 @@ const CourseOverview = () => {
       // If no first lesson, go to course page
       navigate(`/courses/${id}`);
     }
+  };
+
+  const handleOpenNote = (note) => {
+    setSelectedNote(note);
+    setIsNoteModalOpen(true);
   };
 
   const handleLoginRedirect = () => {
@@ -619,6 +627,102 @@ const CourseOverview = () => {
                       </div>
                     )}
 
+                    {/* Section Notes */}
+                    {((section.notes && section.notes.length > 0) || section.note) && (
+                      <div className="space-y-3 mt-4">
+                        {section.notes && section.notes.map((note, noteIdx) => (
+                          <div
+                            key={`note-${noteIdx}`}
+                            className={`flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-xl border transition-all duration-300 group ${
+                              isAuthenticated && isEnrolled 
+                                ? 'bg-amber-50 hover:bg-amber-100 border-amber-200 hover:border-amber-400 cursor-pointer hover:translate-x-2'
+                                : 'bg-gray-50/50 border-gray-200 cursor-not-allowed opacity-75'
+                            }`}
+                            onClick={() => {
+                              if (isAuthenticated && isEnrolled) {
+                                handleOpenNote(note);
+                              } else if (!isAuthenticated) {
+                                handleEnrollClick();
+                              }
+                            }}
+                          >
+                            <div className="flex items-center gap-4">
+                              <div className={`flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center transition-colors duration-300 ${
+                                isAuthenticated && isEnrolled 
+                                  ? 'bg-amber-100 group-hover:bg-amber-500'
+                                  : 'bg-gray-300'
+                              }`}>
+                                <FiFileText className={isAuthenticated && isEnrolled ? "text-amber-600 group-hover:text-white" : "text-gray-500"} size={20} />
+                              </div>
+                              <div className="min-w-0">
+                                <p className={`font-bold text-lg mb-1 truncate ${
+                                  isAuthenticated && isEnrolled ? 'text-gray-900' : 'text-gray-500'
+                                }`}>
+                                  {note.heading}
+                                </p>
+                                <div className="flex items-center gap-2 font-bold text-amber-700">
+                                  <span className="text-xs uppercase tracking-wider">Study Note</span>
+                                </div>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-4 mt-3 sm:mt-0">
+                              <span className="text-sm text-amber-600 font-bold hidden sm:block">View Full Note</span>
+                              <FiChevronRight className={
+                                isAuthenticated && isEnrolled 
+                                  ? "text-amber-400 group-hover:text-amber-600 transform group-hover:translate-x-1 transition-all duration-300"
+                                  : "text-gray-300"
+                              } size={20} />
+                            </div>
+                          </div>
+                        ))}
+
+                        {section.note && (
+                          <div
+                            className={`flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-xl border transition-all duration-300 group ${
+                              isAuthenticated && isEnrolled 
+                                ? 'bg-amber-50 hover:bg-amber-100 border-amber-200 hover:border-amber-400 cursor-pointer hover:translate-x-2'
+                                : 'bg-gray-50/50 border-gray-200 cursor-not-allowed opacity-75'
+                            }`}
+                            onClick={() => {
+                              if (isAuthenticated && isEnrolled) {
+                                handleOpenNote({ heading: 'Section Note', content: section.note });
+                              } else if (!isAuthenticated) {
+                                handleEnrollClick();
+                              }
+                            }}
+                          >
+                            <div className="flex items-center gap-4">
+                              <div className={`flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center transition-colors duration-300 ${
+                                isAuthenticated && isEnrolled 
+                                  ? 'bg-amber-100 group-hover:bg-amber-500'
+                                  : 'bg-gray-300'
+                              }`}>
+                                <FiFileText className={isAuthenticated && isEnrolled ? "text-amber-600 group-hover:text-white" : "text-gray-500"} size={20} />
+                              </div>
+                              <div className="min-w-0">
+                                <p className={`font-bold text-lg mb-1 truncate ${
+                                  isAuthenticated && isEnrolled ? 'text-gray-900' : 'text-gray-500'
+                                }`}>
+                                  General Section Note
+                                </p>
+                                <div className="flex items-center gap-2 font-bold text-amber-700">
+                                  <span className="text-xs uppercase tracking-wider">Reading Material</span>
+                                </div>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-4 mt-3 sm:mt-0">
+                              <span className="text-sm text-amber-600 font-bold hidden sm:block">View Details</span>
+                              <FiChevronRight className={
+                                isAuthenticated && isEnrolled 
+                                  ? "text-amber-400 group-hover:text-amber-600 transform group-hover:translate-x-1 transition-all duration-300"
+                                  : "text-gray-300"
+                              } size={20} />
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
                     {/* Quiz */}
                     {section.quiz && (
                       <div
@@ -837,6 +941,13 @@ const CourseOverview = () => {
           )}
         </div>
       </div>
+
+      {/* Note Modal */}
+      <NoteModal 
+        isOpen={isNoteModalOpen} 
+        onClose={() => setIsNoteModalOpen(false)} 
+        note={selectedNote} 
+      />
     </div>
   );
 };
