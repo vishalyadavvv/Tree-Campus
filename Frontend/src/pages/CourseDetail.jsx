@@ -570,7 +570,9 @@ const CourseOverview = () => {
                             key={lesson._id}
                             className={`flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-xl border transition-all duration-300 group ${
                               isAuthenticated && isEnrolled 
-                                ? 'bg-gray-50 hover:bg-[#FC5A00]/5 border-gray-200 hover:border-[#FC5A00] cursor-pointer hover:translate-x-2'
+                                ? lesson.isCompleted 
+                                  ? 'bg-green-50/50 hover:bg-green-50 border-green-200 hover:border-green-400 cursor-pointer hover:translate-x-2'
+                                  : 'bg-gray-50 hover:bg-[#FC5A00]/5 border-gray-200 hover:border-[#FC5A00] cursor-pointer hover:translate-x-2'
                                 : 'bg-gray-50/50 border-gray-200 cursor-not-allowed'
                             } ${(!isAuthenticated || !isEnrolled) && 'opacity-75'}`}
                             onClick={() => {
@@ -584,29 +586,37 @@ const CourseOverview = () => {
                             <div className="flex items-center gap-4 mb-3 sm:mb-0">
                               <div className={`flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center transition-colors duration-300 ${
                                 isAuthenticated && isEnrolled 
-                                  ? 'bg-[#FC5A00]/10 group-hover:bg-[#FC5A00]'
+                                  ? lesson.isCompleted
+                                    ? 'bg-green-100 group-hover:bg-green-500'
+                                    : 'bg-[#FC5A00]/10 group-hover:bg-[#FC5A00]'
                                   : 'bg-gray-300'
                               }`}>
                                 {isAuthenticated && isEnrolled ? (
-                                  <>
-                                    <span className="text-gray-900 font-bold text-sm group-hover:text-white">
-                                      {lessonIndex + 1}
-                                    </span>
-                                    <FiPlay className="text-[#FC5A00] group-hover:text-white ml-1" size={16} />
-                                  </>
+                                  lesson.isCompleted ? (
+                                    <FiCheckCircle className="text-green-600 group-hover:text-white" size={24} />
+                                  ) : (
+                                    <>
+                                      <span className="text-gray-900 font-bold text-sm group-hover:text-white">
+                                        {lessonIndex + 1}
+                                      </span>
+                                      <FiPlay className="text-[#FC5A00] group-hover:text-white ml-1" size={16} />
+                                    </>
+                                  )
                                 ) : (
                                   <FiLock className="text-gray-500" size={16} />
                                 )}
                               </div>
                               <div className="min-w-0">
                                 <p className={`font-bold text-lg mb-1 truncate ${
-                                  isAuthenticated && isEnrolled ? 'text-gray-900 group-hover:text-[#FC5A00]' : 'text-gray-500'
+                                  isAuthenticated && isEnrolled 
+                                    ? lesson.isCompleted ? 'text-green-700' : 'text-gray-900 group-hover:text-[#FC5A00]' 
+                                    : 'text-gray-500'
                                 }`}>
                                   {lesson.title}
                                 </p>
                                 <div className="flex items-center gap-2 font-bold">
-                                  <FiClock size={16} className={isAuthenticated && isEnrolled ? "text-[#FC5A00]" : "text-gray-400"} />
-                                  <span className={isAuthenticated && isEnrolled ? "text-gray-600" : "text-gray-400"}>{lesson.duration}</span>
+                                  <FiClock size={16} className={isAuthenticated && isEnrolled ? lesson.isCompleted ? "text-green-500" : "text-[#FC5A00]" : "text-gray-400"} />
+                                  <span className={isAuthenticated && isEnrolled ? lesson.isCompleted ? "text-green-600" : "text-gray-600" : "text-gray-400"}>{lesson.duration}</span>
                                 </div>
                               </div>
                             </div>

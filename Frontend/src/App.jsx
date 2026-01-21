@@ -28,6 +28,8 @@ import Quiz from './pages/Quiz';
 import AssignmentTest from './pages/AssignmentTest';
 import AssignmentResults from './pages/AssignmentResults';
 import ContestQuiz from './pages/ContestQuiz';
+import AITeacherPage from './pages/AITeacherPage';
+import AIFloatingButton from './components/common/AIFloatingButton';
 
 
 
@@ -108,6 +110,7 @@ function App() {
             }}
           />
           <Navbar />
+          <AIFloatingButton />
           
           <Routes>
 
@@ -287,6 +290,15 @@ function App() {
     element={
       <ProtectedRoute>
         <Spokee />
+      </ProtectedRoute>
+    }
+  />
+
+  <Route 
+    path="/ai-teacher"
+    element={
+      <ProtectedRoute>
+        <AITeacherPage />
       </ProtectedRoute>
     }
   />

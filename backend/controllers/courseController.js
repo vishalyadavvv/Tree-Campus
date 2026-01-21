@@ -2,6 +2,8 @@ import Course from '../models/Course.js';
 import Section from '../models/Section.js';
 import Lesson from '../models/Lesson.js';
 import User from '../models/User.js';
+import Progress from '../models/Progress.js';
+import jwt from 'jsonwebtoken';
 import cloudinary from '../config/cloudinary.js';
 import multer from 'multer';
 import { Readable } from 'stream'; 
@@ -378,18 +380,50 @@ export const getCourseStructure = async (req, res) => {
       });
     }
 
+    // --- PROGRESS LOGIC START ---
+    let userId = null;
+    let userProgress = null;
+
+    // Optional Check for token in Authorization header
+    if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+      const token = req.headers.authorization.split(' ')[1];
+      try {
+        const decoded = jwt.verify(token, process.env.JWT_ACCESS_SECRET);
+        userId = decoded.id;
+        // Fetch progress for this specific user and course
+        userProgress = await Progress.findOne({ user: userId, course: req.params.id });
+      } catch (err) {
+        console.warn("Invalid token in structure API - falling back to public view");
+      }
+    }
+
+    const completedLessonIds = userProgress 
+      ? userProgress.completedLessons.map(cl => cl.lesson.toString()) 
+      : [];
+    // --- PROGRESS LOGIC END ---
+
     const sections = await Section.find({ courseId: req.params.id }).sort('order');
     
     // Get lessons and quizzes for each section
     const sectionsWithContent = await Promise.all(
       sections.map(async (section) => {
-        const lessons = await Lesson.find({ sectionId: section._id }).sort('order');
+        let lessons = await Lesson.find({ sectionId: section._id }).sort('order');
+        
+        // Mark lessons as completed if progress exists
+        const lessonsWithProgress = lessons.map(lesson => {
+          const lessonObj = lesson.toObject();
+          return {
+            ...lessonObj,
+            isCompleted: completedLessonIds.includes(lesson._id.toString())
+          };
+        });
+
         const Quiz = (await import('../models/Quiz.js')).default;
         const quiz = await Quiz.findOne({ sectionId: section._id });
         
         return {
           ...section.toObject(),
-          lessons,
+          lessons: lessonsWithProgress,
           quiz
         };
       })

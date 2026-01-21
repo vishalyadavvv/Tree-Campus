@@ -9,7 +9,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "seed:course": "node seed/courseSeed.js",
     "migrate:lang": "node migrateLanguage.js",
-      "cleanup:lessons": "node scripts/cleanupOrphanedLessons.js"
+    "cleanup:lessons": "node scripts/cleanupOrphanedLessons.js"
   },
   "keywords": [
     "education",
@@ -29,15 +29,17 @@
     "express": "^5.1.0",
     "express-rate-limit": "^8.2.1",
     "express-validator": "^7.3.1",
+    "google-libphonenumber": "^3.2.44",
     "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^9.0.0",
     "morgan": "^1.10.1",
     "multer": "^2.0.2",
     "multer-storage-cloudinary": "^4.0.0",
+    "node-fetch": "^2.7.0",
     "nodemailer": "^7.0.10",
     "nodemon": "^3.1.11",
-    "openai": "^4.20.0",
+    "openai": "^4.104.0",
     "resend": "^6.5.2"
   }
 }

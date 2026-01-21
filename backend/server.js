@@ -39,6 +39,7 @@ app.use(cors({
   origin: ['http://localhost:5173', 'https://treecampus.netlify.app'],
   methods: ['GET', 'POST', 'PUT', 'DELETE','PATCH','Options'],
   allowedHeaders: ['Content-Type', 'Authorization'],
+  exposedHeaders: ['Visemes', 'Content-Disposition'],
   credentials: true,
 }));
 

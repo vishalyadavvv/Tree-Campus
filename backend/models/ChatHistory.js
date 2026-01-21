@@ -21,13 +21,13 @@ const chatHistorySchema = new mongoose.Schema({
       default: Date.now,
     },
   }],
-  course: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Course',
-  },
   lesson: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Lesson',
+  },
+  isTeacher: {
+    type: Boolean,
+    default: false
   },
 }, {
   timestamps: true,

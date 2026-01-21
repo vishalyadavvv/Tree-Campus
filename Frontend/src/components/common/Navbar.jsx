@@ -55,7 +55,8 @@ export default function Navbar() {
       main: "/contest",
       SchoolRegistration: "/contest/schoolregistration",
       contestQuiz: "/contest/quiz"
-    }
+    },
+    aiTeacher: "/ai-teacher"
   };
 
   const menuData = {
@@ -620,6 +621,18 @@ export default function Navbar() {
                   <path d="M4 6h16v2H4zm2-4h12v2H6zm14 8H4c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2v-8c0-1.1-.9-2-2-2zm0 10H4v-8h16v8zm-10-7.27l1.18.63 1.82-1 1.82 1 1.18-.63-1-1.73 1-1.73-1.18-.63-1.82 1-1.82-1-1.18.63 1 1.73-1 1.73z"/>
                 </svg>
                 BLOGS
+              </div>
+            </NavLink>
+
+            {/* AI Teacher Link */}
+            <NavLink 
+              href={navigation.aiTeacher}
+              className="bg-gradient-to-b from-blue-600 to-blue-700 px-8 flex items-center border-l border-blue-600 group relative overflow-hidden hover:from-blue-700 hover:to-blue-800 transition-all duration-200"
+            >
+              <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity"></div>
+              <div className="text-white font-bold tracking-wide text-sm relative z-10 flex items-center gap-2">
+                <span className="text-lg">👩‍🏫</span>
+                AI TEACHER
               </div>
             </NavLink>
 
