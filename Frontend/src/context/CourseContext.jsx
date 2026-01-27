@@ -13,7 +13,7 @@ export const CourseProvider = ({ children }) => {
 
   const fetchEnrolledCourses = async () => {
     try {
-      const token = sessionStorage.getItem('token');
+      const token = localStorage.getItem('token');
       if (!token) {
         setEnrolledCourses([]);
         return;

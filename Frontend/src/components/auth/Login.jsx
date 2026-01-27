@@ -31,7 +31,9 @@ const translations = {
     feature3: 'Earn Certificates',
     feature4: '24/7 Access',
     rightPanelTitle: 'Welcome to TreeCampus',
-    rightPanelSubtitle: 'Continue your learning journey and access unlimited courses'
+    rightPanelSubtitle: 'Continue your learning journey and access unlimited courses',
+    continueWithGoogle: 'Continue with Google',
+    or: 'OR'
   },
   hindi: {
     title: 'LMS लॉगिन',
@@ -60,7 +62,9 @@ const translations = {
     feature3: 'प्रमाणपत्र अर्जित करें',
     feature4: '24/7 तक पहुंच',
     rightPanelTitle: 'LMS में आपका स्वागत है',
-    rightPanelSubtitle: 'अपने सीखने की यात्रा को जारी रखें और असीमित कोर्स तक पहुंचें'
+    rightPanelSubtitle: 'अपने सीखने की यात्रा को जारी रखें और असीमित कोर्स तक पहुंचें',
+    continueWithGoogle: 'गूगल के साथ जारी रखें',
+    or: 'या'
   }
 };
 
@@ -119,10 +123,48 @@ const Login = () => {
   }, []);
 
   useEffect(() => {
+    // ⭐ HANDLE GOOGLE OAUTH REDIRECT FIRST
+    const queryParams = new URLSearchParams(location.search);
+    const oauthToken = queryParams.get('token');
+    const oauthRefreshToken = queryParams.get('refreshToken');
+    const oauthUserData = queryParams.get('user');
+
+    if (oauthToken && oauthUserData) {
+      try {
+        const user = JSON.parse(oauthUserData);
+        
+        // Save to localStorage
+        localStorage.setItem('token', oauthToken);
+        if (oauthRefreshToken) localStorage.setItem('refreshToken', oauthRefreshToken);
+        localStorage.setItem('user', JSON.stringify(user));
+        localStorage.setItem('authTimestamp', Date.now().toString());
+
+        // Update context (this will trigger re-render and navigate)
+        window.location.href = user.role === 'admin' ? '/admin' : '/dashboard';
+        return;
+      } catch (e) {
+        console.error('Failed to parse Google user data', e);
+        setError('Google authentication failed. Please try again.');
+      }
+    }
+
+    // ⭐ REDIRECT IF ALREADY LOGGED IN (AND NOT DOING OAUTH)
+    const storedToken = localStorage.getItem('token');
+    const storedUser = localStorage.getItem('user');
+    if (storedToken && storedUser) {
+      try {
+        const parsedUser = JSON.parse(storedUser);
+        navigate(parsedUser.role === 'admin' ? '/admin' : '/dashboard', { replace: true });
+        return;
+      } catch (e) {
+        console.error('Failed to parse user from localStorage');
+      }
+    }
+
     if (prefillEmail) {
       setFormData(prev => ({ ...prev, email: prefillEmail }));
     }
-  }, [prefillEmail]);
+  }, [prefillEmail, location.search, navigate]);
 
   const handleChange = (e) => {
     setFormData({
@@ -173,12 +215,8 @@ const Login = () => {
         
         console.log('➡️ Navigating to:', redirectPath, 'Role:', userRole);
         
-        // ⭐ FIX: Use window.location for admin to ensure fresh page load with updated context
-        if (userRole === 'admin') {
-          window.location.href = redirectPath;
-        } else {
-          navigate(redirectPath, { replace: true });
-        }
+        // Use navigate for all roles to prevent page reload and preserve context state
+        navigate(redirectPath, { replace: true });
         
       } else {
         // Show error message without reloading page
@@ -308,6 +346,26 @@ const Login = () => {
                 <p className="text-sm">{error}</p>
               </div>
             )}
+
+            <div className="space-y-4">
+              <button
+                onClick={() => window.location.href = `${import.meta.env.VITE_API_ORIGIN || 'http://localhost:4000'}/api/auth/google`}
+                className="w-full flex justify-center items-center py-2.5 px-4 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition transform hover:-translate-y-0.5"
+                type="button"
+              >
+                <img className="h-5 w-5 mr-2" src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" />
+                {t.continueWithGoogle}
+              </button>
+
+              <div className="relative my-6">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-gray-300"></div>
+                </div>
+                <div className="relative flex justify-center text-sm">
+                  <span className="px-2 bg-white text-gray-500">{t.or}</span>
+                </div>
+              </div>
+            </div>
 
             <form className="space-y-5" onSubmit={handleSubmit}>
               <div>

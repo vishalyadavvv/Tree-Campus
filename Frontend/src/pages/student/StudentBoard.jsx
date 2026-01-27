@@ -176,9 +176,12 @@ const StudentDashboard = () => {
   const hasUpcomingClasses = safeUpcomingLiveClasses && safeUpcomingLiveClasses.length > 0;
   const hasRecommendedCourses = safeRecommendedCourses && safeRecommendedCourses.length > 0;
 
+  // Filter out invalid courses where courseId is null or undefined
+  const validCourses = (safeCourseProgress || []).filter(course => course && course.courseId);
+
   // Get courses to display (show first 3 by default, all if toggled)
-  const displayedCourses = showAllCourses ? safeCourseProgress : (safeCourseProgress || []).slice(0, 3);
-  const hasMoreCourses = hasCourses && safeCourseProgress.length > 3;
+  const displayedCourses = showAllCourses ? validCourses : validCourses.slice(0, 3);
+  const hasMoreCourses = hasCourses && validCourses.length > 3;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4 md:p-6 animate-fadeIn">
@@ -653,6 +656,9 @@ const StatCard = ({ icon, title, value, color, delay }) => {
 // Course Progress Card Component
 const CourseProgressCard = ({ course, index }) => {
   const progress = course.progress || 0;
+  // Safely access nested course details
+  const courseDetails = course.courseId || {};
+  
   const getProgressColor = (progress) => {
     if (progress < 30) return 'from-red-500 to-red-600';
     if (progress < 70) return 'from-amber-500 to-amber-600';
@@ -661,7 +667,7 @@ const CourseProgressCard = ({ course, index }) => {
 
   return (
     <Link
-      to={`/courses/${course.courseId || course._id}`}
+      to={`/courses/${courseDetails._id || course._id}`}
       className="block group"
     >
       <div 
@@ -670,14 +676,14 @@ const CourseProgressCard = ({ course, index }) => {
       >
         <div className="flex-shrink-0">
           <img
-            src={course.thumbnail || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'}
-            alt={course.title}
+            src={courseDetails.thumbnail || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'}
+            alt={courseDetails.title || 'Course Thumbnail'}
             className="w-20 h-20 sm:w-16 sm:h-16 rounded-lg object-cover group-hover:scale-105 transition-transform duration-300"
           />
         </div>
         <div className="flex-1 min-w-0 w-full">
           <h3 className="font-semibold text-gray-900 truncate group-hover:text-indigo-600 transition-colors duration-300">
-            {course.title || 'Course Title'}
+            {courseDetails.title || 'Course Title'}
           </h3>
           <p className="text-gray-600 text-sm mt-1">
             {course.completedLessons || 0} / {course.totalLessons || 10} lessons completed

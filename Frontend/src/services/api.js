@@ -13,7 +13,7 @@ const api = axios.create({
 // Request interceptor to add token
 api.interceptors.request.use(
   (config) => {
-    const token = sessionStorage.getItem('token'); // Changed
+    const token = localStorage.getItem('token'); // Changed
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -33,7 +33,7 @@ api.interceptors.response.use(
       }
       
       if (error.response.status === 401) {
-        sessionStorage.removeItem('token'); // Changed
+        localStorage.removeItem('token'); // Changed
         window.location.href = '/login';
       }
 

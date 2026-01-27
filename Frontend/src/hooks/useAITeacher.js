@@ -4,7 +4,7 @@ import { persist } from "zustand/middleware";
 async function fetchAIResponse(question, language, history) {
   const baseUrl = (import.meta.env.VITE_API_URL || "").replace(/\/api$/, "");
   const url = `${baseUrl}/api/ai/teacher/ask`;
-  const token = sessionStorage.getItem('token');
+  const token = localStorage.getItem('token');
   
   try {
     const res = await fetch(url, {
@@ -107,7 +107,7 @@ export const useAITeacher = create(
         if (!get().isLesson) {
           set(() => ({ loading: true }));
           try {
-            const token = sessionStorage.getItem('token');
+            const token = localStorage.getItem('token');
             const baseUrl = (import.meta.env.VITE_API_URL || "").replace(/\/api$/, "");
             const ttsUrl = `${baseUrl}/api/ai/teacher/tts?teacher=${get().teacher}&text=${encodeURIComponent(
               message.audio_text

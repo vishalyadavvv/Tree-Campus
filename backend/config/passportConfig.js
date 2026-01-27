@@ -3,49 +3,53 @@ import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import User from '../models/User.js';
 
 const configurePassport = () => {
-  passport.use(
-    new GoogleStrategy(
-      {
-        clientID: process.env.GOOGLE_CLIENT_ID,
-        clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-        callbackURL: process.env.GOOGLE_CALLBACK_URL,
-      },
-      async (accessToken, refreshToken, profile, done) => {
-        try {
-          // Check if user already exists
-          let user = await User.findOne({ googleId: profile.id });
+  if (process.env.GOOGLE_CLIENT_ID) {
+    passport.use(
+      new GoogleStrategy(
+        {
+          clientID: process.env.GOOGLE_CLIENT_ID,
+          clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+          callbackURL: process.env.GOOGLE_CALLBACK_URL,
+        },
+        async (accessToken, refreshToken, profile, done) => {
+          try {
+            // Check if user already exists
+            let user = await User.findOne({ googleId: profile.id });
 
-          if (!user) {
-            // Check if user exists with the same email but no googleId
-            user = await User.findOne({ email: profile.emails[0].value });
+            if (!user) {
+              // Check if user exists with the same email but no googleId
+              user = await User.findOne({ email: profile.emails[0].value });
 
-            if (user) {
-              // Update existing user with googleId
-              user.googleId = profile.id;
-              if (!user.profilePicture) {
-                user.profilePicture = profile.photos[0].value;
+              if (user) {
+                // Update existing user with googleId
+                user.googleId = profile.id;
+                if (!user.profilePicture) {
+                  user.profilePicture = profile.photos[0].value;
+                }
+                await user.save();
+              } else {
+                // Create new user
+                user = await User.create({
+                  googleId: profile.id,
+                  name: profile.displayName,
+                  email: profile.emails[0].value,
+                  profilePicture: profile.photos[0].value,
+                  isVerified: true, // Google emails are already verified
+                  role: 'student',
+                });
               }
-              await user.save();
-            } else {
-              // Create new user
-              user = await User.create({
-                googleId: profile.id,
-                name: profile.displayName,
-                email: profile.emails[0].value,
-                profilePicture: profile.photos[0].value,
-                isVerified: true, // Google emails are already verified
-                role: 'student',
-              });
             }
-          }
 
-          return done(null, user);
-        } catch (error) {
-          return done(error, null);
+            return done(null, user);
+          } catch (error) {
+            return done(error, null);
+          }
         }
-      }
-    )
-  );
+      )
+    );
+  } else {
+    console.warn("⚠️ Google OAuth credentials missing. Google Login will be disabled.");
+  }
 
   passport.serializeUser((user, done) => {
     done(null, user.id);
