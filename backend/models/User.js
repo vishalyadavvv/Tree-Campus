@@ -20,16 +20,28 @@ const userSchema = new mongoose.Schema(
     phone: {
       type: String,
       trim: true,
-      required: [true, "Phone number is required"],
-      minlength: [10, "Phone number must be 10 digits"],
-      maxlength: [10, "Phone number must be 10 digits"],
+      required: function() { return !this.googleId; },
+      validate: {
+        validator: function(v) {
+          if (!this.googleId && !v) return false;
+          if (v && v.length !== 10) return false;
+          return true;
+        },
+        message: "Phone number must be 10 digits"
+      }
     },
 
     password: {
       type: String,
-      required: [true, "Password is required"],
+      required: function() { return !this.googleId; },
       minlength: [6, "Password must be at least 6 characters"],
       select: false,
+    },
+
+    googleId: {
+      type: String,
+      unique: true,
+      sparse: true,
     },
 
     role: {

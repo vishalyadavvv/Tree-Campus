@@ -28,6 +28,7 @@
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
     "express-rate-limit": "^8.2.1",
+    "express-session": "^1.19.0",
     "express-validator": "^7.3.1",
     "google-libphonenumber": "^3.2.44",
     "helmet": "^8.1.0",
@@ -40,6 +41,8 @@
     "nodemailer": "^7.0.10",
     "nodemon": "^3.1.11",
     "openai": "^4.104.0",
+    "passport": "^0.7.0",
+    "passport-google-oauth20": "^2.0.0",
     "resend": "^6.5.2"
   }
 }

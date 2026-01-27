@@ -26,6 +26,9 @@ import registerSchool from'./routes/schoolRegistration.js';
 import assignmentRoutes from './routes/assignmentRoutes.js';
 import contestRoutes from './routes/contestRoutes.js';
 import adminContestRoutes from './routes/adminContestRoutes.js';
+import session from 'express-session';
+import passport from 'passport';
+import configurePassport from './config/passportConfig.js';
 
 // Initialize Express app
 const app = express();
@@ -55,6 +58,19 @@ app.use(compression());
 app.use(morgan('dev')); // Logging
 app.use(express.json()); // Parse JSON bodies
 app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies
+
+// Session configuration
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'tree_campus_secret',
+  resave: false,
+  saveUninitialized: false,
+  cookie: { secure: process.env.NODE_ENV === 'production' }
+}));
+
+// Initialize Passport
+configurePassport();
+app.use(passport.initialize());
+app.use(passport.session());
 
 // Health check route
 app.get('/', (req, res) => {
