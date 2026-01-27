@@ -27,7 +27,7 @@ import BlogPost from './pages/BlogPost';
 import Quiz from './pages/Quiz';
 import AssignmentTest from './pages/AssignmentTest';
 import AssignmentResults from './pages/AssignmentResults';
-import ContestQuiz from './pages/ContestQuiz';
+import ContestHome from './pages/Contest/ContestHome';
 import AITeacherPage from './pages/AITeacherPage';
 import AIFloatingButton from './components/common/AIFloatingButton';
 
@@ -48,6 +48,9 @@ import CourseBuilder from './pages/admin/CourseBuilder';
 import SchoolRegistrationManagement from './pages/admin/SchoolRegistrationManagement';
 import VolunteerManagement from './pages/admin/VolunteerManagement';
 import AccountDeletionManagement from './pages/admin/AccountDeletionManagement';
+import ContestManagement from './pages/admin/ContestManagement';
+import CouponManagement from './pages/admin/CouponManagement';
+import ContestAdminDashboard from './pages/admin/ContestAdminDashboard';
 
 // Layout
 import Navbar from './components/common/Navbar';
@@ -137,7 +140,6 @@ function App() {
 
   <Route path="/blogs" element={<BlogList />} />
   <Route path="/blogs/:id" element={<BlogPost />} />
-  <Route path="/contest/quiz" element={<ContestQuiz />} />
 
   <Route 
     path="/courses/:courseId/section/:sectionId/quiz" 
@@ -237,6 +239,24 @@ function App() {
   />
 
   <Route 
+    path="/admin/contests"
+    element={
+      <ProtectedRoute adminOnly>
+        <ContestAdminDashboard />
+      </ProtectedRoute>
+    }
+  />
+
+  <Route 
+    path="/admin/coupons"
+    element={
+      <ProtectedRoute adminOnly>
+        <CouponManagement />
+      </ProtectedRoute>
+    }
+  />
+
+  <Route 
     path="/admin/volunteers"
     element={
       <ProtectedRoute adminOnly>
@@ -299,6 +319,15 @@ function App() {
     element={
       <ProtectedRoute>
         <AITeacherPage />
+      </ProtectedRoute>
+    }
+  />
+
+  <Route 
+    path="/contest"
+    element={
+      <ProtectedRoute>
+        <ContestHome />
       </ProtectedRoute>
     }
   />

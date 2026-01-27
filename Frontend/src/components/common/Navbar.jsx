@@ -81,13 +81,14 @@ export default function Navbar() {
           href: navigation.AccountDeletionForm
         },
         {
-          type: "submenu",
+          type: "link",
+          label: "School Registration",
+          href: navigation.contest.SchoolRegistration
+        },
+        {
+          type: "link",
           label: "Contest",
-          href: navigation.contest.main,
-          items: [
-            { label: "School Registration", href: navigation.contest.SchoolRegistration },
-            { label: "Contest Quiz", href: navigation.contest.contestQuiz }
-          ]
+          href: navigation.contest.main
         },
         {
           type: "link",
@@ -137,9 +138,9 @@ export default function Navbar() {
   useEffect(() => {
     const checkAuthState = () => {
       try {
-        // Check both context and sessionStorage for auth state
-        const token = sessionStorage.getItem('token');
-        const userFromStorage = sessionStorage.getItem('user');
+        // Check both context and localStorage for auth state
+        const token = localStorage.getItem('token');
+        const userFromStorage = localStorage.getItem('user');
         
         if (user && token) {
           // Use context user data
@@ -147,7 +148,7 @@ export default function Navbar() {
           setUserData(user);
           setUserRole(user.role || 'student');
         } else if (token && userFromStorage) {
-          // Fallback to sessionStorage if context is not updated
+          // Fallback to localStorage if context is not updated
           try {
             const parsedUser = JSON.parse(userFromStorage);
             setIsLoggedIn(true);
@@ -179,8 +180,8 @@ export default function Navbar() {
   // FIXED: Enhanced auth state change listener
   useEffect(() => {
     const handleAuthChange = () => {
-      const token = sessionStorage.getItem('token');
-      const userFromStorage = sessionStorage.getItem('user');
+      const token = localStorage.getItem('token');
+      const userFromStorage = localStorage.getItem('user');
       
       if (token && userFromStorage) {
         try {
@@ -359,9 +360,10 @@ export default function Navbar() {
     } catch (error) {
       console.error('Logout error:', error);
       // Fallback cleanup
-      sessionStorage.removeItem('token');
-      sessionStorage.removeItem('user');
-      sessionStorage.removeItem('userRole');
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      localStorage.removeItem('userRole');
+      localStorage.removeItem('authTimestamp');
       setIsLoggedIn(false);
       setUserData(null);
       setUserRole('student');
@@ -483,7 +485,7 @@ export default function Navbar() {
   }
 
   return (
-    <nav ref={navRef} className="w-full bg-white sticky top-0 z-50 shadow-sm">
+    <nav ref={navRef} className="w-full bg-white sticky top-0 z-[1000] shadow-sm">
       
       {/* Top Contact Bar */}
       <div className="bg-gradient-to-r from-orange-500 to-orange-600 px-6 py-2 border-b border-orange-400">
@@ -590,7 +592,7 @@ export default function Navbar() {
 
               {activeDropdown === 'englishCourse' && (
                 <div 
-                  className="absolute top-full left-0 w-80 bg-white shadow-xl border-t-2 border-orange-500 rounded-b-lg z-50"
+                  className="absolute top-full left-0 w-80 bg-white shadow-xl border-t-2 border-orange-500 rounded-b-lg z-[1001]"
                   onMouseEnter={handleDropdownContentEnter}
                   onMouseLeave={handleDropdownContentLeave}
                 >
@@ -660,7 +662,7 @@ export default function Navbar() {
 
               {activeDropdown === 'more' && (
                 <div 
-                  className="absolute top-full right-0 w-80 bg-white shadow-xl border-t-2 border-orange-500 rounded-b-lg z-50"
+                  className="absolute top-full right-0 w-80 bg-white shadow-xl border-t-2 border-orange-500 rounded-b-lg z-[1001]"
                   onMouseEnter={handleDropdownContentEnter}
                   onMouseLeave={handleDropdownContentLeave}
                 >
@@ -701,7 +703,7 @@ export default function Navbar() {
 
                       {item.type === 'submenu' && activeSubmenu === item.label && (
                         <div 
-                          className="absolute top-0 right-full w-96 bg-white shadow-xl border-r-2 border-orange-500 max-h-96 overflow-y-auto rounded-l-lg z-50 custom-scrollbar"
+                          className="absolute top-0 right-full w-96 bg-white shadow-xl border-r-2 border-orange-500 max-h-96 overflow-y-auto rounded-l-lg z-[1001] custom-scrollbar"
                           onMouseEnter={() => handleSubmenuEnter(item.label)}
                           onMouseLeave={handleSubmenuLeave}
                         >
@@ -771,7 +773,7 @@ export default function Navbar() {
 
                 {(profileDropdownOpen || activeDropdown === 'profile') && (
                   <div 
-                    className="absolute top-full right-0 w-64 bg-white shadow-xl border-t-2 border-orange-500 rounded-b-lg z-50"
+                    className="absolute top-full right-0 w-64 bg-white shadow-xl border-t-2 border-orange-500 rounded-b-lg z-[1001]"
                     onMouseEnter={handleDropdownContentEnter}
                     onMouseLeave={handleDropdownContentLeave}
                   >

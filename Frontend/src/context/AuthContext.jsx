@@ -15,7 +15,8 @@ export const AuthProvider = ({ children }) => {
 
   const checkAuth = async () => {
     try {
-      const token = sessionStorage.getItem('token');
+      const token = localStorage.getItem('token');
+      const authTimestamp = localStorage.getItem('authTimestamp');
 
       if (!token) {
         setUser(null);
@@ -23,8 +24,20 @@ export const AuthProvider = ({ children }) => {
         return;
       }
 
-      // Try to get user from sessionStorage first (FAST)
-      const savedUser = sessionStorage.getItem('user');
+      // Check for 2-day expiration (48 hours)
+      if (authTimestamp) {
+        const twoDaysInMs = 2 * 24 * 60 * 60 * 1000;
+        const timePassed = Date.now() - parseInt(authTimestamp);
+        
+        if (timePassed > twoDaysInMs) {
+          console.log('Session expired (2 days). Logging out.');
+          logout();
+          return;
+        }
+      }
+
+      // Try to get user from localStorage first (FAST)
+      const savedUser = localStorage.getItem('user');
       if (savedUser && savedUser !== "null" && savedUser !== "undefined") {
         try {
           const parsedUser = JSON.parse(savedUser);
@@ -44,8 +57,9 @@ export const AuthProvider = ({ children }) => {
 
     } catch (err) {
       console.error('Auth check failed:', err);
-      sessionStorage.removeItem('token');
-      sessionStorage.removeItem('user');
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      localStorage.removeItem('authTimestamp');
       setUser(null);
     } finally {
       setLoading(false);
@@ -55,7 +69,7 @@ export const AuthProvider = ({ children }) => {
   // Refresh user data in background (non-blocking)
   const refreshUserInBackground = async () => {
     try {
-      const token = sessionStorage.getItem('token');
+      const token = localStorage.getItem('token');
       if (!token) return;
 
       const response = await fetch(import.meta.env.VITE_API_URL + '/auth/profile', {
@@ -71,7 +85,7 @@ export const AuthProvider = ({ children }) => {
         const freshUser = data.user || data.data;
         if (freshUser) {
           setUser(freshUser);
-          sessionStorage.setItem('user', JSON.stringify(freshUser));
+          localStorage.setItem('user', JSON.stringify(freshUser));
         }
       }
     } catch (err) {
@@ -93,16 +107,17 @@ export const AuthProvider = ({ children }) => {
 
       // Save tokens
       if (apiData.data?.accessToken) {
-        sessionStorage.setItem('token', apiData.data.accessToken);
+        localStorage.setItem('token', apiData.data.accessToken);
+        localStorage.setItem('authTimestamp', Date.now().toString());
       }
       if (apiData.data?.refreshToken) {
-        sessionStorage.setItem('refreshToken', apiData.data.refreshToken);
+        localStorage.setItem('refreshToken', apiData.data.refreshToken);
       }
 
       // Save user
       if (apiData.data?.user) {
         const userData = apiData.data.user;
-        sessionStorage.setItem('user', JSON.stringify(userData));
+        localStorage.setItem('user', JSON.stringify(userData));
         setUser(userData);
       }
 
@@ -164,9 +179,10 @@ export const AuthProvider = ({ children }) => {
     } catch (err) {
       console.error('Logout error:', err);
     } finally {
-      sessionStorage.removeItem('token');
-      sessionStorage.removeItem('refreshToken');
-      sessionStorage.removeItem('user');
+      localStorage.removeItem('token');
+      localStorage.removeItem('refreshToken');
+      localStorage.removeItem('user');
+      localStorage.removeItem('authTimestamp');
       setUser(null);
       setError(null);
     }
@@ -180,14 +196,14 @@ export const AuthProvider = ({ children }) => {
         createdAt: prevUser?.createdAt || userData.createdAt
       };
       
-      sessionStorage.setItem('user', JSON.stringify(updatedUser));
+      localStorage.setItem('user', JSON.stringify(updatedUser));
       return updatedUser;
     });
   };
 
   const refreshUser = async () => {
     try {
-      const token = sessionStorage.getItem('token');
+      const token = localStorage.getItem('token');
       if (!token) return null;
 
       const response = await fetch(import.meta.env.VITE_API_URL + '/auth/profile', {
@@ -207,7 +223,7 @@ export const AuthProvider = ({ children }) => {
       
       if (freshUser) {
         setUser(freshUser);
-        sessionStorage.setItem('user', JSON.stringify(freshUser));
+        localStorage.setItem('user', JSON.stringify(freshUser));
         return freshUser;
       }
     } catch (err) {

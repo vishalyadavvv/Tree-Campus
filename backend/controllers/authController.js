@@ -346,11 +346,8 @@ const forgotPassword = async (req, res, next) => {
       });
     }
 
-    // Hash new password (pre-save hook will also hash, but doing it here for clarity)
-    const salt = await bcrypt.genSalt(10);
-    user.password = await bcrypt.hash(password, salt);
-
     // Clear OTP fields
+    user.password = password;
     user.otp = undefined;
     user.otpExpiry = undefined;
 

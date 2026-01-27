@@ -24,6 +24,8 @@ import volunteerRoutes from './routes/volunteerRoutes.js'
 import accountDeletion from './routes/accountDeletion.js';
 import registerSchool from'./routes/schoolRegistration.js';
 import assignmentRoutes from './routes/assignmentRoutes.js';
+import contestRoutes from './routes/contestRoutes.js';
+import adminContestRoutes from './routes/adminContestRoutes.js';
 
 // Initialize Express app
 const app = express();
@@ -92,6 +94,8 @@ app.use('/api/volunteer', volunteerRoutes);
 app.use('/api/account-deletion-request', accountDeletion);
 app.use('/api/registerschool',registerSchool);
 app.use('/api/assignments', assignmentRoutes);
+app.use('/api/contest', contestRoutes);
+app.use('/api/admin/contest', adminContestRoutes);
 
 // 404 handler
 app.use(notFound);

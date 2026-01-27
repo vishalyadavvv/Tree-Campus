@@ -124,15 +124,16 @@ export const authService = {
   // -------------------------
   logout: async () => {
   try {
-    const token = sessionStorage.getItem('token'); // Changed from localStorage
+    const token = localStorage.getItem('token');
     if (token) {
       await api.post('/auth/logout');
     }
   } catch (err) {
     console.error('Logout error:', err);
   } finally {
-    sessionStorage.removeItem('token'); // Changed from localStorage
-    sessionStorage.removeItem('refreshToken'); // Changed from localStorage
+    localStorage.removeItem('token');
+    localStorage.removeItem('refreshToken');
+    localStorage.removeItem('authTimestamp');
   }
 },
 };

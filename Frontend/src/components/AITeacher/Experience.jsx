@@ -67,7 +67,7 @@ const handleBack = () => {
 
       {/* Settings Toggle Button */}
       <button
-        className="absolute top-35 right-4 md:right-8 p-2 md:p-3 bg-gray-800/90 text-white rounded-xl shadow-2xl z-[70] backdrop-blur-md border border-white/20 hover:bg-gray-700 hover:scale-110 active:scale-95 transition-all duration-300 pointer-events-auto"
+        className="absolute top-8 right-4 md:right-8 p-2 md:p-3 bg-gray-800/90 text-white rounded-xl shadow-2xl z-[70] backdrop-blur-md border border-white/20 hover:bg-gray-700 hover:scale-110 active:scale-95 transition-all duration-300 pointer-events-auto"
         onClick={() => setShowPopup(true)}
         title="Settings"
       >

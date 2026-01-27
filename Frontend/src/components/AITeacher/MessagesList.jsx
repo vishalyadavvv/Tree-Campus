@@ -32,7 +32,7 @@ export const MessagesList = () => {
         classroom === "default"
           ? "w-[1288px] h-[676px]"
           : "w-[2528px] h-[856px]"
-      } p-8 flex flex-col space-y-8 bg-transparent opacity-80`}
+      } p-8 pt-20 flex flex-col space-y-8 bg-transparent opacity-80`}
       ref={container}
     >
       {storedQuestion && (
