@@ -69,7 +69,7 @@
     const updateFields = {};
     if (name) updateFields.name = name;
     if (email) updateFields.email = email;
-    if (phone !== undefined) updateFields.phone = phone === '' ? null : phone;
+    if (phone !== undefined) updateFields.phone = phone === '' ? undefined : phone;
     if (preferredLanguage) updateFields.preferredLanguage = preferredLanguage;
 
     console.log('Update fields:', updateFields);

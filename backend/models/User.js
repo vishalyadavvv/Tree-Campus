@@ -89,7 +89,10 @@ const userSchema = new mongoose.Schema(
 // 🚀 Create Unique Indexes CLEANLY
 // ----------------------------------
 userSchema.index({ email: 1 }, { unique: true, sparse: true });
-userSchema.index({ phone: 1 }, { unique: true, sparse: true });
+userSchema.index({ phone: 1 }, { 
+  unique: true, 
+  partialFilterExpression: { phone: { $type: "string" } } 
+});
 
 // ----------------------------------
 // 🔐 Hash password before save

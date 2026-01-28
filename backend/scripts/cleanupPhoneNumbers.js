@@ -10,9 +10,17 @@ const cleanup = async () => {
     await mongoose.connect(process.env.MONGODB_URI);
     console.log('Connected to MongoDB...');
 
-    // Update all users where phone is an empty string to be undefined
+    // Drop the old index so it can be recreated with partialFilterExpression
+    try {
+      await User.collection.dropIndex('phone_1');
+      console.log('Old phone index dropped successfully.');
+    } catch (e) {
+      console.log('Phone index not found or already dropped.');
+    }
+
+    // Update all users where phone is an empty string or null to be undefined
     const result = await User.updateMany(
-      { phone: "" },
+      { $or: [{ phone: "" }, { phone: null }] },
       { $unset: { phone: "" } }
     );
 
