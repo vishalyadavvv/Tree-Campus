@@ -9,7 +9,7 @@ export const CourseProvider = ({ children }) => {
   const [courses, setCourses] = useState([]);
   const [enrolledCourses, setEnrolledCourses] = useState([]);
 
-  const API_URL = import.meta.env.VITE_API_URL || 'https://tree-campus.onrender.com/api';
+  const API_URL = import.meta.env.VITE_API_URL;
 
   const fetchEnrolledCourses = async () => {
     try {

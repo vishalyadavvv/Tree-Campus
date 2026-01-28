@@ -48,7 +48,7 @@ const examReducer = (state, action) => {
 };
 
 export default function AdminPanel() {
-  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
+  const API_URL = import.meta.env.VITE_API_URL;
   
   const [view, setView] = useState("dashboard"); // 'dashboard', 'form', or 'details'
   const [mode, setMode] = useState("create"); // 'create' or 'edit'

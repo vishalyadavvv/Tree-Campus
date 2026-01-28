@@ -41,7 +41,7 @@ const AdminPanel = () => {
     const [exams, setExams] = useState([]);
     const [updateExamId, setUpdateExamId] = useState(null);
 
-    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
+    const API_URL = import.meta.env.VITE_API_URL;
 
     const [examDetails, dispatch] = useReducer(examReducer, {
         title: "",

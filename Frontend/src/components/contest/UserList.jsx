@@ -4,7 +4,7 @@ import * as XLSX from 'xlsx';
 import { FiSearch, FiDownload, FiCheck, FiX, FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 
 export default function UserList() {
-  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
+  const API_URL = import.meta.env.VITE_API_URL;
   
   const [participants, setParticipants] = useState([]);
   const [loading, setLoading] = useState(true);

@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { FiDownload, FiUsers, FiAward, FiFileText, FiSearch } from 'react-icons/fi';
 
 export default function AdminTables() {
-  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
+  const API_URL = import.meta.env.VITE_API_URL;
   
   const [allExams, setAllExams] = useState([]);
   const [loading, setLoading] = useState(true);

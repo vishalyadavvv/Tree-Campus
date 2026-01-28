@@ -23,9 +23,12 @@ const userSchema = new mongoose.Schema(
       required: function() { return !this.googleId; },
       validate: {
         validator: function(v) {
-          if (!this.googleId && !v) return false;
-          if (v && v.length !== 10) return false;
-          return true;
+          // Allow undefined/null for Google users or if field is being cleared and not required
+          if (!v) {
+            return this.googleId ? true : false;
+          }
+          // If value exists, it must be 10 digits
+          return v.length === 10;
         },
         message: "Phone number must be 10 digits"
       }

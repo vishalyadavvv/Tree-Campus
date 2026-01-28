@@ -26,7 +26,7 @@ const signup = async (req, res, next) => {
     const user = await User.create({
       name,
       email,
-      phone: req.body.phone || '',
+      phone: req.body.phone,
 
       password,
      role: role?.toLowerCase() || 'student',

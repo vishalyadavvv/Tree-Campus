@@ -349,7 +349,7 @@ const Login = () => {
 
             <div className="space-y-4">
               <button
-                onClick={() => window.location.href = `${import.meta.env.VITE_API_ORIGIN || 'http://localhost:4000'}/api/auth/google`}
+                onClick={() => window.location.href = `${import.meta.env.VITE_API_ORIGIN}/api/auth/google`}
                 className="w-full flex justify-center items-center py-2.5 px-4 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition transform hover:-translate-y-0.5"
                 type="button"
               >
