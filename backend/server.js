@@ -29,6 +29,7 @@ import adminContestRoutes from './routes/adminContestRoutes.js';
 import session from 'express-session';
 import passport from 'passport';
 import configurePassport from './config/passportConfig.js';
+import MongoStore from 'connect-mongo';
 
 // Initialize Express app
 const app = express();
@@ -59,11 +60,13 @@ app.use(morgan('dev')); // Logging
 app.use(express.json()); // Parse JSON bodies
 app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies
 
+
 // Session configuration
 app.use(session({
   secret: process.env.SESSION_SECRET || 'tree_campus_secret',
   resave: false,
   saveUninitialized: false,
+  store: MongoStore.create({ mongoUrl: process.env.MONGODB_URI }),
   cookie: { secure: process.env.NODE_ENV === 'production' }
 }));
 
