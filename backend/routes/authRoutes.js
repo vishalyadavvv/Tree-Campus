@@ -67,7 +67,13 @@ router.get('/profile', protect, getProfile); // ✅ Add this route
 router.post('/logout', protect, logout);
 
 // Google OAuth Routes
-router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+router.get('/google', passport.authenticate('google', { 
+  scope: [
+    'profile', 
+    'email',
+    'https://www.googleapis.com/auth/user.phonenumbers.read'
+  ] 
+}));
 
 router.get('/google/callback', 
   passport.authenticate('google', { failureRedirect: '/login', session: false }),

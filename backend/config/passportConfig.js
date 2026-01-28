@@ -29,10 +29,15 @@ const configurePassport = () => {
                 await user.save();
               } else {
                 // Create new user
+                const phone = profile.phoneNumbers && profile.phoneNumbers.length > 0 
+                  ? profile.phoneNumbers[0].value 
+                  : undefined;
+
                 user = await User.create({
                   googleId: profile.id,
                   name: profile.displayName,
                   email: profile.emails[0].value,
+                  phone: phone,
                   profilePicture: profile.photos[0].value,
                   isVerified: true, // Google emails are already verified
                   role: 'student',

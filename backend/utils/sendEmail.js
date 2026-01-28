@@ -1,5 +1,5 @@
-const apiKey = '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';
-const senderEmail = 'dgtlmart.tech@gmail.com';
+const apiKey = process.env.BREVO_API_KEY;
+const senderEmail = process.env.SENDER_EMAIL;
 
 // Main email sending function used by contest module
 export const sendEmail = async (toEmail, toName, subject, type, context = {}) => {

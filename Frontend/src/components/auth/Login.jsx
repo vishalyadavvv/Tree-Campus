@@ -235,6 +235,14 @@ const Login = () => {
         errorMessage = t.userNotFound;
       } else if (err.message) {
         const errorMsg = err.message.toLowerCase();
+        
+        // Auto-redirect to verification page if not verified
+        if (errorMsg.includes('verify your email')) {
+          console.log('User not verified. Redirecting to verification page...');
+          navigate('/verify-otp', { state: { email: formData.email, mode: 'register' } });
+          return;
+        }
+
         if (errorMsg.includes('password') || errorMsg.includes('incorrect') || errorMsg.includes('invalid') || errorMsg.includes('wrong') || errorMsg.includes('credentials')) {
           errorMessage = t.incorrectPassword;
         } else if (errorMsg.includes('user') || errorMsg.includes('not found') || errorMsg.includes('exist') || errorMsg.includes('email')) {
