@@ -67,7 +67,13 @@ router.get('/profile', protect, getProfile); // ✅ Add this route
 router.post('/logout', protect, logout);
 
 // Google OAuth Routes
-router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+router.get('/google', (req, res, next) => {
+  const platform = req.query.platform || 'web'; // Default to 'web'
+  passport.authenticate('google', { 
+    scope: ['profile', 'email'],
+    state: platform // Pass platform as state to retrieve later
+  })(req, res, next);
+});
 
 router.get('/google/callback', 
   passport.authenticate('google', { failureRedirect: '/login', session: false }),
@@ -75,7 +81,7 @@ router.get('/google/callback',
     try {
       // Successful authentication
       const tokens = generateTokens(req.user._id);
-      const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+      const platform = req.query.state || 'web'; // Retrieve platform from state
       
       const user = {
         id: req.user._id,
@@ -86,14 +92,26 @@ router.get('/google/callback',
         isVerified: req.user.isVerified
       };
 
-      // Redirect back to frontend with tokens
-      // Note: In production, consider more secure ways like postMessage or secure cookies
-      const redirectUrl = new URL(`${frontendUrl}/login`);
-      redirectUrl.searchParams.set('token', tokens.accessToken);
-      redirectUrl.searchParams.set('refreshToken', tokens.refreshToken);
-      redirectUrl.searchParams.set('user', JSON.stringify(user));
-      
-      res.redirect(redirectUrl.toString());
+      // Platform-specific redirect logic
+      if (platform === 'mobile') {
+        // Mobile app deep link redirect
+        const mobileScheme = process.env.MOBILE_APP_SCHEME || 'treecampus';
+        const redirectUrl = new URL(`${mobileScheme}://login-callback`);
+        redirectUrl.searchParams.set('token', tokens.accessToken);
+        redirectUrl.searchParams.set('refreshToken', tokens.refreshToken);
+        redirectUrl.searchParams.set('user', JSON.stringify(user));
+        
+        res.redirect(redirectUrl.toString());
+      } else {
+        // Web frontend redirect (default behavior)
+        const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+        const redirectUrl = new URL(`${frontendUrl}/login`);
+        redirectUrl.searchParams.set('token', tokens.accessToken);
+        redirectUrl.searchParams.set('refreshToken', tokens.refreshToken);
+        redirectUrl.searchParams.set('user', JSON.stringify(user));
+        
+        res.redirect(redirectUrl.toString());
+      }
     } catch (error) {
       console.error('Google Callback Error:', error);
       res.redirect(`${process.env.FRONTEND_URL}/login?error=auth_failed`);
