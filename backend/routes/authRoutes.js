@@ -69,6 +69,7 @@ router.post('/logout', protect, logout);
 // Google OAuth Routes
 router.get('/google', (req, res, next) => {
   const platform = req.query.platform || 'web'; // Default to 'web'
+  console.log('🔵 Google Auth Initiated. Platform:', platform); // Debug Log
   passport.authenticate('google', { 
     scope: ['profile', 'email'],
     state: platform // Pass platform as state to retrieve later
@@ -82,6 +83,7 @@ router.get('/google/callback',
       // Successful authentication
       const tokens = generateTokens(req.user._id);
       const platform = req.query.state || 'web'; // Retrieve platform from state
+      console.log('🟢 Google Callback Received. State/Platform:', platform); // Debug Log
       
       const user = {
         id: req.user._id,
