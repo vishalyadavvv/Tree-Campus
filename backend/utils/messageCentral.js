@@ -1,9 +1,9 @@
 import fetch from 'node-fetch';
 
-const CUSTOMER_ID = process.env.MESSAGE_CENTRAL_CUSTOMER_ID;
-const API_KEY = process.env.MESSAGE_CENTRAL_KEY;
-const BASE_URL = process.env.MESSAGE_CENTRAL_BASE_URL || 'https://cpaas.messagecentral.com';
-const COUNTRY_CODE = process.env.MESSAGE_CENTRAL_COUNTRY_CODE || '91';
+const CUSTOMER_ID = (process.env.MESSAGE_CENTRAL_CUSTOMER_ID || '').trim();
+const API_KEY = (process.env.MESSAGE_CENTRAL_KEY || '').trim();
+const BASE_URL = (process.env.MESSAGE_CENTRAL_BASE_URL || 'https://cpaas.messagecentral.com').trim();
+const COUNTRY_CODE = (process.env.MESSAGE_CENTRAL_COUNTRY_CODE || '91').trim();
 
 /**
  * Get Authentication Token from Message Central
@@ -71,7 +71,7 @@ export const sendWhatsAppOTP = async (mobileNumber) => {
 
     const data = await response.json();
 
-    if (data && (data.responseCode === 200 || data.status === 200)) {
+    if (data && (data.responseCode === 200 || data.status === 200) && data.data) {
       return {
         success: true,
         verificationId: data.data.verificationId,
@@ -79,6 +79,7 @@ export const sendWhatsAppOTP = async (mobileNumber) => {
       };
     }
     
+    console.error('❌ Message Central Send OTP Error - Full Response:', JSON.stringify(data, null, 2));
     throw new Error(data.message || data.error || 'Failed to send WhatsApp OTP');
   } catch (error) {
     console.error('❌ Send WhatsApp OTP Error:', error.message);

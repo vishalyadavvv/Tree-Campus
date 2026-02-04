@@ -35,6 +35,9 @@ const signup = async (req, res, next) => {
     });
 
     // Generate OTP and Send via WhatsApp
+    let otpSent = true;
+    let otpError = null;
+
     try {
       const mcResponse = await messageCentral.sendWhatsAppOTP(req.body.phone);
       if (mcResponse.success) {
@@ -42,19 +45,22 @@ const signup = async (req, res, next) => {
         await user.save();
       }
     } catch (err) {
-      console.error('❌ Failed to send WhatsApp OTP:', err.message);
-      // In production, we might want to return an error if OTP fails
-      // return res.status(500).json({ success: false, message: 'Failed to send verification OTP' });
+      console.error('❌ Failed to send WhatsApp OTP during signup:', err.message);
+      otpSent = false;
+      otpError = err.message;
     }
 
     res.status(201).json({
       success: true,
-      message: 'User registered successfully. Please verify your phone with the OTP sent on WhatsApp.',
+      message: otpSent 
+        ? 'User registered successfully. Please verify your phone with the OTP sent on WhatsApp.'
+        : `User registered, but WhatsApp OTP failed: ${otpError}. Please try resending OTP from the verification page.`,
       data: {
         userId: user._id,
         email: user.email,
         name: user.name,
         phone: user.phone,
+        otpSent
       },
     });
   } catch (error) {
@@ -163,7 +169,7 @@ const resendOTP = async (req, res, next) => {
 
       return res.status(500).json({ 
         success: false, 
-        message: 'WhatsApp service error. Please ensure you have configured Message Central credentials in .env' 
+        message: err.message || 'WhatsApp service error. Please try again later.' 
       });
     }
 
@@ -313,7 +319,10 @@ const forgotPassword = async (req, res, next) => {
       }
     } catch (err) {
       console.error('❌ Failed to send WhatsApp OTP for password reset:', err.message);
-      return res.status(500).json({ success: false, message: 'Failed to send OTP via WhatsApp' });
+      return res.status(500).json({ 
+        success: false, 
+        message: err.message || 'Failed to send OTP via WhatsApp. Please ensure your phone number is correct.' 
+      });
     }
 
     res.status(200).json({ 
