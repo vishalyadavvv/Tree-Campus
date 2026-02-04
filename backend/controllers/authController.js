@@ -1,6 +1,7 @@
 import User from '../models/User.js';
 import { generateTokens, generateResetToken } from '../utils/generateToken.js';
 import { sendOTPEmail, sendPasswordResetEmail } from '../utils/sendEmail.js';
+import * as messageCentral from '../utils/messageCentral.js';
 import { verifyRefreshToken } from '../middleware/auth.js';
 import bcrypt from 'bcryptjs';
 
@@ -33,25 +34,27 @@ const signup = async (req, res, next) => {
 
     });
 
-    // Generate OTP
-    const otp = user.generateOTP();
-    await user.save();
-
-    // Send OTP email in background (non-blocking)
-    sendOTPEmail(email, name, otp).catch(err => {
-      console.error('❌ Failed to send OTP email:', err.message);
-      // Don't fail the signup if email fails
-    });
+    // Generate OTP and Send via WhatsApp
+    try {
+      const mcResponse = await messageCentral.sendWhatsAppOTP(req.body.phone);
+      if (mcResponse.success) {
+        user.verificationId = mcResponse.verificationId;
+        await user.save();
+      }
+    } catch (err) {
+      console.error('❌ Failed to send WhatsApp OTP:', err.message);
+      // In production, we might want to return an error if OTP fails
+      // return res.status(500).json({ success: false, message: 'Failed to send verification OTP' });
+    }
 
     res.status(201).json({
       success: true,
-      message: 'User registered successfully. Please verify your email with the OTP sent.',
+      message: 'User registered successfully. Please verify your phone with the OTP sent on WhatsApp.',
       data: {
         userId: user._id,
         email: user.email,
         name: user.name,
         phone: user.phone,
-        
       },
     });
   } catch (error) {
@@ -68,7 +71,7 @@ const verifyOTP = async (req, res, next) => {
   try {
     const { email, otp } = req.body;
 
-    const user = await User.findOne({ email }).select('+otp +otpExpiry');
+    const user = await User.findOne({ email }).select('+otp +otpExpiry +verificationId');
 
     if (!user) {
       return res.status(404).json({ success: false, message: 'User not found' });
@@ -78,8 +81,11 @@ const verifyOTP = async (req, res, next) => {
       return res.status(400).json({ success: false, message: 'User already verified' });
     }
 
-    if (!user.otp || user.otp !== otp) {
-      return res.status(400).json({ success: false, message: 'Invalid OTP' });
+    // Validate OTP using Message Central
+    try {
+      await messageCentral.validateOTP(user.verificationId, otp);
+    } catch (err) {
+      return res.status(400).json({ success: false, message: err.message || 'Invalid OTP' });
     }
 
     if (user.otpExpiry < Date.now()) {
@@ -90,6 +96,7 @@ const verifyOTP = async (req, res, next) => {
     user.isVerified = true;
     user.otp = undefined;
     user.otpExpiry = undefined;
+    user.verificationId = undefined;
     await user.save();
 
     // Generate tokens
@@ -133,15 +140,30 @@ const resendOTP = async (req, res, next) => {
       return res.status(400).json({ success: false, message: 'User already verified' });
     }
 
-    const otp = user.generateOTP();
-    await user.save();
+    if (!user.phone) {
+      return res.status(400).json({ success: false, message: 'Phone number not found for this user. Please contact support.' });
+    }
 
-    if (process.env.NODE_ENV === 'development') {
-      console.log(`✅ [DEV] Resent OTP for ${email}: ${otp}`);
-    } else {
-      // Send OTP email in background (non-blocking)
-      sendOTPEmail(email, user.name, otp).catch(err => {
-        console.error('❌ Failed to send OTP email:', err.message);
+    try {
+      const mcResponse = await messageCentral.sendWhatsAppOTP(user.phone);
+      if (mcResponse.success) {
+        user.verificationId = mcResponse.verificationId;
+        await user.save();
+      }
+    } catch (err) {
+      console.error('❌ Failed to resend WhatsApp OTP:', err.message);
+      
+      // ✅ Handle "REQUEST_ALREADY_EXISTS" as success (OTP is already active)
+      if (err.message && err.message.includes('REQUEST_ALREADY_EXISTS')) {
+        return res.status(200).json({ 
+          success: true, 
+          message: 'OTP already sent to your WhatsApp. Please check your messages.' 
+        });
+      }
+
+      return res.status(500).json({ 
+        success: false, 
+        message: 'WhatsApp service error. Please ensure you have configured Message Central credentials in .env' 
       });
     }
 
@@ -189,7 +211,9 @@ const login = async (req, res, next) => {
     }
 
     // ⭐ CHECK ROLE MATCH
+    console.log(`🔍 Checking role match for ${email}: input_role=${role}, db_role=${user.role}`);
     if (user.role.toLowerCase() !== role.toLowerCase()) {
+      console.warn(`⚠️ Role mismatch for ${email}: expected ${user.role}, got ${role}`);
       return res.status(403).json({ 
         success: false, 
         message: `You are registered as ${user.role}, not as ${role}. Please select the correct role.` 
@@ -198,6 +222,7 @@ const login = async (req, res, next) => {
 
     const isPasswordMatch = await user.comparePassword(password);
     if (!isPasswordMatch) {
+      console.warn(`⚠️ Password mismatch for ${email}`);
       return res.status(401).json({ 
         success: false, 
         message: 'Invalid credentials' 
@@ -205,9 +230,11 @@ const login = async (req, res, next) => {
     }
 
     if (!user.isVerified) {
+      console.warn(`⚠️ User not verified: ${email}`);
       return res.status(403).json({ 
         success: false, 
-        message: 'Please verify your email first' 
+        message: 'Please verify your phone first',
+        phone: user.phone
       });
     }
 
@@ -277,27 +304,21 @@ const forgotPassword = async (req, res, next) => {
       });
     }
 
-    // Generate 6-digit OTP
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
-
-    // Save OTP and expiry (10 minutes)
-    user.otp = otp;
-    user.otpExpiry = Date.now() + 10 * 60 * 1000; // 10 minutes
-    await user.save();
-
-    // Log OTP in development mode
-    if (process.env.NODE_ENV === 'development') {
-      console.log(`✅ [DEV] Password reset OTP for ${email}: ${otp}`);
-    } else {
-      // Send password reset email in background (non-blocking)
-      sendOTPEmail(email, user.name, otp, 'Password Reset').catch(err => {
-        console.error('❌ Failed to send password reset email:', err.message);
-      });
+    // Generate OTP and send via WhatsApp
+    try {
+      const mcResponse = await messageCentral.sendWhatsAppOTP(user.phone);
+      if (mcResponse.success) {
+        user.verificationId = mcResponse.verificationId;
+        await user.save();
+      }
+    } catch (err) {
+      console.error('❌ Failed to send WhatsApp OTP for password reset:', err.message);
+      return res.status(500).json({ success: false, message: 'Failed to send OTP via WhatsApp' });
     }
 
     res.status(200).json({ 
       success: true, 
-      message: 'OTP sent to your email successfully' 
+      message: 'OTP sent to your WhatsApp successfully' 
     });
 
   } catch (error) {
@@ -317,7 +338,7 @@ const forgotPassword = async (req, res, next) => {
     const { email, password } = req.body;
 
     // Find user and select necessary fields
-    const user = await User.findOne({ email }).select("+otp +otpExpiry +password");
+    const user = await User.findOne({ email }).select("+otp +otpExpiry +password +verificationId");
 
     if (!user) {
       return res.status(404).json({ 
@@ -326,30 +347,18 @@ const forgotPassword = async (req, res, next) => {
       });
     }
 
-    // Check if OTP exists
-    if (!user.otp || !user.otpExpiry) {
-      return res.status(400).json({ 
-        success: false, 
-        message: "Session expired. Please request a new OTP." 
-      });
-    }
-
-    // Check if OTP is expired
-    if (user.otpExpiry < Date.now()) {
-      user.otp = undefined;
-      user.otpExpiry = undefined;
-      await user.save();
-
-      return res.status(400).json({ 
-        success: false, 
-        message: "OTP has expired. Please request a new one." 
-      });
+    // Validate OTP using Message Central
+    try {
+      await messageCentral.validateOTP(user.verificationId, req.body.otp);
+    } catch (err) {
+      return res.status(400).json({ success: false, message: err.message || 'Invalid OTP' });
     }
 
     // Clear OTP fields
     user.password = password;
     user.otp = undefined;
     user.otpExpiry = undefined;
+    user.verificationId = undefined;
 
     await user.save();
 

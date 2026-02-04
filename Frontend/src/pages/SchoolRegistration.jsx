@@ -580,8 +580,8 @@ const SchoolRegistration = () => {
         </div>
       </footer>
 
-      {/* Custom CSS for primary color */}
-      <style jsx>{`
+      {/* Custom styles for animations */}
+      <style>{`
         .bg-primary {
           background-color: #FC5A00;
         }

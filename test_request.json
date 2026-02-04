@@ -1,0 +1,9 @@
+{
+    "model": "liquid/lfm-2.5-1.2b-instruct:free",
+    "messages": [
+        {
+            "role": "user",
+            "content": "Respond with 'The key is working' if you can read this."
+        }
+    ]
+}

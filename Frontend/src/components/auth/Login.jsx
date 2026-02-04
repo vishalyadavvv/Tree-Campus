@@ -220,7 +220,26 @@ const Login = () => {
         
       } else {
         // Show error message without reloading page
-        setError(result?.message || t.loginFailed);
+        const errorMessage = result?.message || t.loginFailed;
+        const errorMsgLower = errorMessage.toLowerCase();
+
+        // ⭐ PRIORITIZE VERIFICATION REDIRECT
+        if (errorMsgLower.includes('verify your email') || errorMsgLower.includes('verify your phone')) {
+          console.log('User not verified. Redirecting to verification page...', result.phone);
+          // Pass the email and phone to the verification page so user doesn't have to re-type it
+          navigate('/verify-otp', { 
+            replace: true, 
+            state: { 
+              email: formData.email, 
+              phone: result.phone, 
+              mode: 'register', 
+              triggerAutoResend: true 
+            } 
+          });
+          return;
+        }
+
+        setError(errorMessage);
         setLoading(false);
       }
     } catch (err) {
@@ -228,29 +247,22 @@ const Login = () => {
       
       let errorMessage = t.loginFailed;
       
+      // Determine the error message string from various possible locations
+      const responseMsg = err.response?.data?.message || err.message || '';
+      
       // Handle different error types
       if (err.response?.status === 401) {
         errorMessage = t.incorrectPassword;
-      } else if (err.response?.status === 404) {
-        errorMessage = t.userNotFound;
-      } else if (err.message) {
-        const errorMsg = err.message.toLowerCase();
-        
-        // Auto-redirect to verification page if not verified
-        if (errorMsg.includes('verify your email')) {
-          console.log('User not verified. Redirecting to verification page...');
-          navigate('/verify-otp', { state: { email: formData.email, mode: 'register' } });
-          return;
-        }
-
-        if (errorMsg.includes('password') || errorMsg.includes('incorrect') || errorMsg.includes('invalid') || errorMsg.includes('wrong') || errorMsg.includes('credentials')) {
+      } else if (responseMsg) {
+        const errorMsgLower = responseMsg.toLowerCase();
+         if (errorMsgLower.includes('password') || errorMsgLower.includes('incorrect') || errorMsgLower.includes('invalid') || errorMsgLower.includes('wrong') || errorMsgLower.includes('credentials')) {
           errorMessage = t.incorrectPassword;
-        } else if (errorMsg.includes('user') || errorMsg.includes('not found') || errorMsg.includes('exist') || errorMsg.includes('email')) {
+        } else if (errorMsgLower.includes('user') || errorMsgLower.includes('not found') || errorMsgLower.includes('exist') || errorMsgLower.includes('email')) {
           errorMessage = t.userNotFound;
-        } else if (errorMsg.includes('network') || errorMsg.includes('fetch') || errorMsg.includes('connection')) {
+        } else if (errorMsgLower.includes('network') || errorMsgLower.includes('fetch') || errorMsgLower.includes('connection')) {
           errorMessage = 'Network error. Please check your connection.';
         } else {
-          errorMessage = err.message;
+          errorMessage = responseMsg || t.loginFailed;
         }
       }
       

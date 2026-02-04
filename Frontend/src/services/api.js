@@ -37,7 +37,9 @@ api.interceptors.response.use(
         window.location.href = '/login';
       }
 
-      if (error.response.status === 403) console.error('Access forbidden');
+      if (error.response.status === 403) {
+        console.error('Access forbidden:', error.response.data?.message || 'No message provided');
+      }
       if (error.response.status === 404) console.error('Resource not found');
       if (error.response.status === 500) console.error('Server error');
     }

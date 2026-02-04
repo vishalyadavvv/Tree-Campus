@@ -307,7 +307,8 @@ const Sidebar = () => {
         </div>
       </aside>
 
-      <style jsx>{`
+      {/* Custom Sidebar Animations */}
+      <style>{`
         .custom-scrollbar::-webkit-scrollbar {
           width: 4px;
         }

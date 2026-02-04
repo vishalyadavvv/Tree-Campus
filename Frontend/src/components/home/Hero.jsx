@@ -527,8 +527,8 @@ const Hero = () => {
       {/* Bottom Wave Transition */}
       <div className="absolute bottom-0 left-0 right-0 h-16 sm:h-24 lg:h-32 bg-gradient-to-t from-white to-transparent pointer-events-none" />
 
-      {/* Enhanced Animation Styles */}
-      <style jsx>{`
+      {/* Custom CSS for Hero Animations */}
+      <style>{`
         /* Base Animations */
         @keyframes fade-in-up {
           from {

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import DashboardLayout from '../../components/Layout/DashboardLayout';
 import api from '../../services/api';
-import { FiSearch, FiTrash2, FiEdit2, FiMail, FiBook, FiAward, FiCalendar, FiUser, FiFilter } from 'react-icons/fi';
+import { FiSearch, FiTrash2, FiEdit2, FiMail, FiPhone, FiBook, FiAward, FiCalendar, FiUser, FiFilter } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 
 const StudentAnalytics = () => {
@@ -116,7 +116,8 @@ const StudentAnalytics = () => {
 
   const filteredStudents = students.filter(student => {
     const matchesSearch = student.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         student.email?.toLowerCase().includes(searchTerm.toLowerCase());
+                         student.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         student.phone?.toLowerCase().includes(searchTerm.toLowerCase());
     
     if (filterStatus === 'active') {
       return matchesSearch && (student.enrolledCourses?.length > 0);
@@ -243,9 +244,15 @@ const StudentAnalytics = () => {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center space-x-2 text-sm text-gray-900">
-                        <FiMail className="w-4 h-4 text-gray-400" />
-                        <span>{student.email || 'No email'}</span>
+                      <div className="flex flex-col space-y-1">
+                        <div className="flex items-center space-x-2 text-sm text-gray-900">
+                          <FiMail className="w-4 h-4 text-gray-400" />
+                          <span>{student.email || 'No email'}</span>
+                        </div>
+                        <div className="flex items-center space-x-2 text-sm text-gray-600">
+                          <FiPhone className="w-4 h-4 text-gray-400" />
+                          <span>{student.phone || 'No phone'}</span>
+                        </div>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -313,9 +320,13 @@ const StudentAnalytics = () => {
                   />
                   <div className="flex-1 min-w-0">
                     <h3 className="font-semibold text-gray-900 mb-1">{student.name || 'Unknown Student'}</h3>
-                    <div className="flex items-center space-x-2 text-sm text-gray-500 mb-2">
+                    <div className="flex items-center space-x-2 text-sm text-gray-500 mb-1">
                       <FiMail className="w-3 h-3" />
                       <span className="truncate">{student.email || 'No email'}</span>
+                    </div>
+                    <div className="flex items-center space-x-2 text-sm text-gray-500 mb-2">
+                        <FiPhone className="w-3 h-3" />
+                        <span>{student.phone || 'No phone'}</span>
                     </div>
                     <div className="flex flex-wrap gap-2">
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${

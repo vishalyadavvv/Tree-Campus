@@ -1,0 +1,13 @@
+[dotenv@17.2.3] injecting env (23) from backend\.env -- tip: ≡ƒôí add observability to secrets: https://dotenvx.com/ops
+≡ƒÜÇ Starting Message Central API Test...
+≡ƒôñ Attempting to send WhatsApp OTP to: 9876543210
+Γ£à Send OTP Response: {
+  success: true,
+  verificationId: '4878559',
+  message: 'OTP sent via WhatsApp'
+}
+
+--- SUCCESS ---
+Verification ID received. API is working.
+To test full flow, you would now enter the OTP received on WhatsApp.
+Verification ID: 4878559

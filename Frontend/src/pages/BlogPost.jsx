@@ -257,6 +257,24 @@ const BlogPost = () => {
         ></div>
       </div>
 
+      {/* Custom CSS for animations and layout enhancements */}
+      <style>{`
+        /* Add any custom CSS here if needed */
+        /* For example, for the first-word styling */
+        .first-word {
+          color: black;
+          font-weight: bold;
+        }
+        /* Define keyframes for fadeIn animation */
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fadeIn {
+          animation: fadeIn 0.3s ease-out forwards;
+        }
+      `}</style>
+
       {/* Floating Action Buttons */}
       <div className="fixed right-6 bottom-6 z-40 flex flex-col gap-3">
         <button
@@ -501,7 +519,7 @@ const BlogPost = () => {
             {/* Article Content */}
             <div ref={contentRef} className="p-8 md:p-12">
               <div className="prose prose-lg max-w-none">
-                <style jsx>{`
+                <style>{`
                   .first-word {
                     color: black !important;
                     font-weight: 700;

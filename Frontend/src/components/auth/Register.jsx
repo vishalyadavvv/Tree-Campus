@@ -27,6 +27,7 @@ const translations = {
     passwordTooShort: 'Password must be at least 6 characters',
     passwordMismatch: 'Passwords do not match',
     registrationFailed: 'Registration failed. Please try again.',
+    otpMessage: 'Please check your WhatsApp for OTP',
     welcomeTitle: 'Welcome to TreeCampus',
     welcomeSubtitle: 'Join our community and unlock unlimited learning opportunities',
     feature1: '1000+ Courses Available',
@@ -60,6 +61,7 @@ const translations = {
     passwordTooShort: 'पासवर्ड कम से कम 6 अक्षर का होना चाहिए',
     passwordMismatch: 'पासवर्ड मेल नहीं खाते',
     registrationFailed: 'रजिस्ट्रेशन विफल रहा। कृपया पुनः प्रयास करें।',
+    otpMessage: 'कृपया OTP के लिए अपना व्हाट्सएप चेक करें',
     welcomeTitle: 'LMS में आपका स्वागत है',
     welcomeSubtitle: 'हमारे समुदाय में शामिल हों और असीमित सीखने के अवसर प्राप्त करें',
     feature1: '1000+ कोर्स उपलब्ध',
@@ -176,8 +178,9 @@ const Register = () => {
       navigate('/verify-otp', { 
         state: { 
           email: formData.email,
+          phone: formData.phone,
           name: formData.name,
-          message: response.message || 'Please check your email for OTP'
+          message: response.message || t.otpMessage
         } 
       });
     } catch (err) {

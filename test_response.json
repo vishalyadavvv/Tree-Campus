@@ -1,0 +1,7 @@
+
+         
+
+         
+
+         
+{"id":"gen-1770111679-4pLoW76GvoYFFtBbunQo","provider":"Liquid","model":"liquid/lfm-2.5-1.2b-instruct:free","object":"chat.completion","created":1770111679,"choices":[{"logprobs":null,"finish_reason":"stop","native_finish_reason":"stop","index":0,"message":{"role":"assistant","content":"The key is working.","refusal":null,"reasoning":null}}],"system_fingerprint":"","usage":{"prompt_tokens":24,"completion_tokens":6,"total_tokens":30,"cost":0,"is_byok":false,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"cost_details":{"upstream_inference_cost":0,"upstream_inference_prompt_cost":0,"upstream_inference_completions_cost":0},"completion_tokens_details":{"reasoning_tokens":0,"audio_tokens":0}}}

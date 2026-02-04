@@ -15,8 +15,7 @@ export const getOverview = async (req, res) => {
 
     const recentStudents = await User.find({ role: 'student' })
       .sort('-createdAt')
-      .limit(5)
-      .select('name email createdAt');
+      .select('name email phone createdAt');
 
     const popularCourses = await Course.find()
       .sort('-enrollmentCount')

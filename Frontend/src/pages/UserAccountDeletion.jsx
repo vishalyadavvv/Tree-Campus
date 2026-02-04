@@ -428,8 +428,8 @@ const AccountDeletionForm = () => {
 
       
 
-      {/* Custom CSS for animations */}
-      <style jsx>{`
+      {/* Custom CSS for animations and layout enhancements */}
+      <style>{`
         .bg-primary {
           background-color: #FD5A00;
         }

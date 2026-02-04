@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import DashboardLayout from '../../components/Layout/DashboardLayout';
 import api from '../../services/api';
-import { FiUsers, FiBook, FiFileText, FiVideo, FiTrendingUp, FiArrowUp, FiEye, FiCalendar, FiRefreshCw } from 'react-icons/fi';
+import { FiUsers, FiBook, FiFileText, FiVideo, FiTrendingUp, FiArrowUp, FiEye, FiCalendar, FiRefreshCw, FiPhone } from 'react-icons/fi';
 
 const Dashboard = () => {
   const [stats, setStats] = useState(null);
@@ -256,16 +256,13 @@ const Dashboard = () => {
               <div className="p-6 border-b border-gray-200">
                 <div className="flex items-center justify-between">
                   <h3 className="text-lg font-semibold text-gray-900">
-                    Recent Students ({data.recentStudents?.length || 0})
+                    Total Students ({data.recentStudents?.length || 0})
                   </h3>
-                  <button className="text-sm text-blue-600 font-medium hover:text-blue-700 transition-colors">
-                    View all
-                  </button>
                 </div>
               </div>
               <div className="p-6">
                 {data.recentStudents && data.recentStudents.length > 0 ? (
-                  <div className="space-y-4">
+                  <div className="space-y-4 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
                     {data.recentStudents.map((student, index) => (
                       <div 
                         key={student._id || index}
@@ -284,8 +281,12 @@ const Dashboard = () => {
                             <p className="font-semibold text-gray-900">
                               {student.name || 'Unknown Student'}
                             </p>
-                            <p className="text-sm text-gray-600">
+                            <p className="text-sm text-gray-600 flex items-center">
                               {student.email || 'No email'}
+                            </p>
+                            <p className="text-xs text-gray-500 flex items-center mt-0.5">
+                              <FiPhone className="w-3 h-3 mr-1" />
+                              {student.phone || 'No phone'}
                             </p>
                             {student.joinedDate && (
                               <p className="text-xs text-gray-500">

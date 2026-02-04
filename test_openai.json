@@ -1,0 +1,9 @@
+{
+    "model": "openai/gpt-4o-mini",
+    "messages": [
+        {
+            "role": "user",
+            "content": "Hello from ChatGPT test!"
+        }
+    ]
+}

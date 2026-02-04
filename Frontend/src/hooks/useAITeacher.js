@@ -121,7 +121,8 @@ export const useAITeacher = create(
               }
             );
             if (!audioRes.ok) {
-              throw new Error("Error fetching TTS");
+              const errorData = await audioRes.json().catch(() => ({}));
+              throw new Error(errorData.error || `Error fetching TTS: ${audioRes.status}`);
             }
 
             const visemesHeader = audioRes.headers.get("Visemes");

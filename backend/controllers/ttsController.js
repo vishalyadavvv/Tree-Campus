@@ -40,6 +40,11 @@ export const getTTS = async (req, res) => {
         if (!response.ok) {
             const errorText = await response.text();
             console.error(`Google TTS API Error: ${response.status} ${response.statusText} - ${errorText}`);
+            
+            if (response.status === 403) {
+                return res.status(403).json({ error: "TTS API failed: Forbidden. Check your API key and permissions on Google Cloud Console." });
+            }
+            
             throw new Error(`TTS API failed: ${response.statusText}`);
         }
 
@@ -74,6 +79,12 @@ export const getTTS = async (req, res) => {
 
     } catch (error) {
         console.error("TTS Error:", error);
+        
+        // Check if error is the one we threw above with 403 message
+        if (error.message.includes("Forbidden")) {
+            return res.status(403).json({ error: error.message });
+        }
+        
         res.status(500).json({ error: error.message });
     }
 };

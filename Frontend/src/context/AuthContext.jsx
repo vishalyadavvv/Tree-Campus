@@ -136,7 +136,8 @@ export const AuthProvider = ({ children }) => {
       
       return {
         success: false,
-        message: err.message || "Login failed"
+        message: err.message || "Login failed",
+        phone: err.phone
       };
     }
   };

@@ -218,7 +218,7 @@ const EnglishSpeaking = () => {
      
 
       {/* Custom CSS for animations */}
-      <style jsx>{`
+      <style>{`
         :root {
           --primary-color: #FD5A00;
         }
