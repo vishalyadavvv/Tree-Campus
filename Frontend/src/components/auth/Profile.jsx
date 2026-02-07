@@ -9,12 +9,12 @@ const Profile = () => {
     name: '',
     email: '',
     phone: '',
-    preferredLanguage: 'english'
+    preferredLanguage: 'english',
+    age: '',
+    education: ''
   });
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
-
-
 
   // Sync form data with current user data
   useEffect(() => {
@@ -23,7 +23,9 @@ const Profile = () => {
         name: user.name || '',
         email: user.email || '',
         phone: user.phone || '',
-        preferredLanguage: user.preferredLanguage || 'english'
+        preferredLanguage: user.preferredLanguage || 'english',
+        age: user.age || '',
+        education: user.education || ''
       });
     }
   }, [user]);
@@ -56,6 +58,8 @@ const handleSubmit = async (e) => {
       email: updatedUser.email || "",
       phone: updatedUser.phone || "",
       preferredLanguage: updatedUser.preferredLanguage || "en",
+      age: updatedUser.age || "",
+      education: updatedUser.education || ""
     });
 
     // save language if changed
@@ -79,7 +83,9 @@ const handleSubmit = async (e) => {
       name: user?.name || '',
       email: user?.email || '',
       phone: user?.phone || '',
-      preferredLanguage: user?.preferredLanguage || 'english'
+      preferredLanguage: user?.preferredLanguage || 'english',
+      age: user?.age || '',
+      education: user?.education || ''
     });
     setEditing(false);
     setMessage('');
@@ -104,6 +110,11 @@ const handleSubmit = async (e) => {
                 {user?.phone && (
                   <p className="text-orange-200 text-sm">
                     📱 {user.phone}
+                  </p>
+                )}
+                {user?.age && (
+                  <p className="text-orange-200 text-sm">
+                    🎂 Age: {user.age}
                   </p>
                 )}
                 {user?.isVerified && (
@@ -147,6 +158,18 @@ const handleSubmit = async (e) => {
                       Phone Number
                     </label>
                     <p className="text-lg text-gray-900">{user?.phone || '—'}</p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Age
+                    </label>
+                    <p className="text-lg text-gray-900">{user?.age || '—'}</p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Education
+                    </label>
+                    <p className="text-lg text-gray-900">{user?.education || '—'}</p>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -245,6 +268,34 @@ const handleSubmit = async (e) => {
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent transition"
                       style={{ '--tw-ring-color': '#FD5A00' }}
                       placeholder="+1 234 567 8900"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Age
+                    </label>
+                    <input
+                      type="number"
+                      name="age"
+                      value={formData.age}
+                      onChange={handleChange}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent transition"
+                      style={{ '--tw-ring-color': '#FD5A00' }}
+                      placeholder="e.g. 25"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Education
+                    </label>
+                    <input
+                      type="text"
+                      name="education"
+                      value={formData.education}
+                      onChange={handleChange}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent transition"
+                      style={{ '--tw-ring-color': '#FD5A00' }}
+                      placeholder="e.g. Undergraduate"
                     />
                   </div>
                   <div>

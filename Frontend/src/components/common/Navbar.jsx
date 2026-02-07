@@ -952,6 +952,20 @@ export default function Navbar() {
                 </div>
               </NavLink>
 
+              <NavLink 
+                href={navigation.aiTeacher}
+                onClick={() => {
+                  handleLinkClick();
+                  handleNavigation(navigation.aiTeacher);
+                }}
+                className="block px-5 py-4 text-white bg-gradient-to-r from-blue-600 to-blue-700 font-bold text-sm border-b border-blue-400 hover:from-blue-700 hover:to-blue-800 transition-all"
+              >
+                <div className="flex items-center gap-3">
+                  <span className="text-lg">👩‍🏫</span>
+                  AI TEACHER
+                </div>
+              </NavLink>
+
               {/* Admin Dashboard in Mobile Menu for Admin Users */}
               {isLoggedIn && userRole === 'admin' && (
                 <NavLink 

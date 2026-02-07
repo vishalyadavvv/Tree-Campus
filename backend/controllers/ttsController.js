@@ -1,55 +1,31 @@
-import fetch from "node-fetch";
+import OpenAI from "openai";
 
 export const getTTS = async (req, res) => {
-    const API_KEY = process.env.GOOGLE_CLOUD_API_KEY;
+    const openai = new OpenAI({
+        apiKey: process.env.OPENAI_API_KEY,
+    });
+    
     const teacher = req.query.teacher || "Nanami";
     const text = req.query.text
         .replace(/[-+]/g, ',')
         .replace(/\s+/g, ' ')
         .trim();
     
-    const language = req.query.language || "English";
+    // Voice mapping for OpenAI
+    // Nanami -> Nova (Energetic female)
+    // Others -> Onyx (Professional male)
+    const voice = teacher === "Nanami" ? "nova" : "onyx";
 
-    let languageCode, voice;
-
-    if (language.toLowerCase() === "hindi" || language.toLowerCase() === "english-hindi") {
-        languageCode = "hi-IN";
-        voice = teacher === "Nanami" ? "hi-IN-Neural2-A" : "hi-IN-Neural2-B";
-    } else {
-        languageCode = "en-IN";
-        voice = teacher === "Nanami" ? "en-IN-Neural2-A" : "en-IN-Neural2-B";
-    }
-
-    const ttsRequest = {
-        input: { text },
-        voice: { languageCode, name: voice },
-        audioConfig: {
-            audioEncoding: "MP3"
-        },
-    };
-
-    console.log(`TTS Request: voice=${voice}, lang=${languageCode}, textLength=${text.length}`);
+    console.log(`TTS Request (OpenAI): voice=${voice}, textLength=${text.length}`);
 
     try {
-        const response = await fetch(`https://texttospeech.googleapis.com/v1/text:synthesize?key=${API_KEY}`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(ttsRequest),
+        const mp3 = await openai.audio.speech.create({
+            model: "tts-1",
+            voice: voice,
+            input: text,
         });
 
-        if (!response.ok) {
-            const errorText = await response.text();
-            console.error(`Google TTS API Error: ${response.status} ${response.statusText} - ${errorText}`);
-            
-            if (response.status === 403) {
-                return res.status(403).json({ error: "TTS API failed: Forbidden. Check your API key and permissions on Google Cloud Console." });
-            }
-            
-            throw new Error(`TTS API failed: ${response.statusText}`);
-        }
-
-        const jsonResponse = await response.json();
-        const audioBuffer = Buffer.from(jsonResponse.audioContent, 'base64');
+        const buffer = Buffer.from(await mp3.arrayBuffer());
 
         // Hardcoded visemes for now as in the original project
         const visemes = [
@@ -75,16 +51,10 @@ export const getTTS = async (req, res) => {
             "Content-Type": "audio/mpeg",
             "Visemes": Buffer.from(JSON.stringify(visemes)).toString("base64"),
         });
-        res.send(audioBuffer);
+        res.send(buffer);
 
     } catch (error) {
-        console.error("TTS Error:", error);
-        
-        // Check if error is the one we threw above with 403 message
-        if (error.message.includes("Forbidden")) {
-            return res.status(403).json({ error: error.message });
-        }
-        
+        console.error("OpenAI TTS Error:", error);
         res.status(500).json({ error: error.message });
     }
 };

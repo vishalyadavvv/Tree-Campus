@@ -59,6 +59,7 @@ import ProtectedRoute from './components/common/ProtectedRoute';
 
 import CoursePlayer from './pages/CoursePlayer';
 import VerifyOTP from './components/auth/VerifyOTP';
+import CompleteProfile from './pages/CompleteProfile';
 import EnglishSpeaking from './pages/EnglishSpeaking';
 import StudentDashboard from './pages/student/StudentBoard';
 import Certificate from './pages/Certificate';
@@ -129,6 +130,7 @@ function App() {
   <Route path="/login" element={<Login />} />
   <Route path="/register" element={<Register />} />
   <Route path="/verify-otp" element={<VerifyOTP />} />
+  <Route path="/complete-profile" element={<CompleteProfile />} />
   <Route path="/howitworks" element={<HowItWorks />} />
   <Route path="/volunteer" element={<Volunteer />} />
   <Route path="/englishspeaking" element={<EnglishSpeaking />} />

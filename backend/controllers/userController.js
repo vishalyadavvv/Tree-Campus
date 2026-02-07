@@ -33,7 +33,7 @@
     console.log('Update profile request received:', req.body);
     console.log('User ID:', req.user.id);
 
-    const { name, email, phone, preferredLanguage } = req.body;
+    const { name, email, phone, preferredLanguage, age, education } = req.body;
 
     // Check if email already exists for other users
     if (email && email !== req.user.email) {
@@ -71,6 +71,8 @@
     if (email) updateFields.email = email;
     if (phone !== undefined) updateFields.phone = phone === '' ? undefined : phone;
     if (preferredLanguage) updateFields.preferredLanguage = preferredLanguage;
+    if (age !== undefined) updateFields.age = age;
+    if (education !== undefined) updateFields.education = education;
 
     console.log('Update fields:', updateFields);
 

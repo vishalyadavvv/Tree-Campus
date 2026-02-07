@@ -14,11 +14,11 @@ const configurePassport = () => {
         async (accessToken, refreshToken, profile, done) => {
           try {
             // Check if user already exists
-            let user = await User.findOne({ googleId: profile.id });
+            let user = await User.findOne({ googleId: profile.id }).select('+password');
 
             if (!user) {
               // Check if user exists with the same email but no googleId
-              user = await User.findOne({ email: profile.emails[0].value });
+              user = await User.findOne({ email: profile.emails[0].value }).select('+password');
 
               if (user) {
                 // Update existing user with googleId

@@ -1,0 +1,10 @@
+3D-English-Teacher2-main/
+node_modules/
+.env
+*.log
+dist/
+build/
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

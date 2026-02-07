@@ -132,12 +132,21 @@ const Login = () => {
     if (oauthToken && oauthUserData) {
       try {
         const user = JSON.parse(oauthUserData);
+        const needsProfileCompletion = queryParams.get('needsProfileCompletion') === 'true';
         
         // Save to localStorage
         localStorage.setItem('token', oauthToken);
         if (oauthRefreshToken) localStorage.setItem('refreshToken', oauthRefreshToken);
         localStorage.setItem('user', JSON.stringify(user));
         localStorage.setItem('authTimestamp', Date.now().toString());
+
+        // Check if Google user needs to complete profile (add phone/password)
+        if (needsProfileCompletion) {
+          console.log('🔵 Google user needs to complete profile');
+          // Navigate to profile completion page
+          navigate('/complete-profile', { state: { user }, replace: true });
+          return;
+        }
 
         // Update context (this will trigger re-render and navigate)
         window.location.href = user.role === 'admin' ? '/admin' : '/dashboard';

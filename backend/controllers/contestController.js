@@ -1,5 +1,7 @@
 import ContestExam from '../models/ContestExam.js';
+import ContestCoupon from '../models/ContestCoupon.js';
 import User from '../models/User.js';
+import { sendEmail } from '../utils/sendEmail.js';
 
 // @desc    Get all exams (for student dashboard)
 // @route   GET /api/contest/exams
@@ -133,5 +135,130 @@ export const getLeaderboard = async (req, res) => {
   } catch (error) {
     console.error('Error fetching leaderboard:', error);
     res.status(500).json({ message: 'Failed to fetch leaderboard' });
+  }
+};
+
+// Helper to generate unique coupon code
+const generateUniqueCode = async () => {
+  let code;
+  let exists = true;
+  while (exists) {
+    code = Math.random().toString(36).substring(2, 10).toUpperCase();
+    const existing = await ContestCoupon.findOne({ code });
+    if (!existing) exists = false;
+  }
+  return code;
+};
+
+// @desc    Claim reward after game completion
+// @route   POST /api/contest/game-reward
+// @access  Private
+export const claimGameReward = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Generate unique code
+    const couponCode = await generateUniqueCode();
+
+    // Save to database
+    await ContestCoupon.create({
+      code: couponCode,
+      used: false
+    });
+
+    // Send email to user
+    try {
+      await sendEmail(
+        user.email,
+        user.name,
+        "Congratulations! You've won a Tree Campus Reward",
+        "coupon",
+        { coupon: couponCode }
+      );
+    } catch (emailError) {
+      console.error('Failed to send reward email:', emailError);
+      // We don't fail the whole request if email fails, as long as coupon is generated
+    }
+
+    res.status(201).json({
+      success: true,
+      message: 'Reward claimed successfully! Check your email for details.',
+      coupon: couponCode
+    });
+
+  } catch (error) {
+    console.error('Error claiming game reward:', error);
+    res.status(500).json({ message: 'Failed to claim reward', error: error.message });
+  }
+};
+
+// @desc    Validate a coupon (Public API for partners)
+// @route   GET /api/contest/public/validate/:couponCode
+// @access  Public (Requires Partner Key)
+export const getCouponStatus = async (req, res) => {
+  try {
+    const { couponCode } = req.params;
+    const partnerKey = req.headers['x-partner-key'];
+
+    // Basic Partner Key check (Should be in process.env later)
+    if (partnerKey !== 'TreeCampus_Partner_2025_Secure') {
+      return res.status(401).json({ success: false, message: 'Invalid Partner API Key' });
+    }
+
+    const coupon = await ContestCoupon.findOne({ code: couponCode.toUpperCase() });
+
+    if (!coupon) {
+      return res.status(404).json({ success: false, message: 'Invalid coupon code' });
+    }
+
+    res.json({
+      success: true,
+      valid: !coupon.used,
+      status: coupon.used ? 'used' : 'active',
+      createdAt: coupon.createdAt
+    });
+
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Server error during validation' });
+  }
+};
+
+// @desc    Redeem a coupon (Public API for partners)
+// @route   POST /api/contest/public/redeem/:couponCode
+// @access  Public (Requires Partner Key)
+export const redeemCoupon = async (req, res) => {
+  try {
+    const { couponCode } = req.params;
+    const partnerKey = req.headers['x-partner-key'];
+
+    if (partnerKey !== 'TreeCampus_Partner_2025_Secure') {
+      return res.status(401).json({ success: false, message: 'Invalid Partner API Key' });
+    }
+
+    const coupon = await ContestCoupon.findOne({ code: couponCode.toUpperCase() });
+
+    if (!coupon) {
+      return res.status(404).json({ success: false, message: 'Invalid coupon code' });
+    }
+
+    if (coupon.used) {
+      return res.status(400).json({ success: false, message: 'Coupon already redeemed' });
+    }
+
+    coupon.used = true;
+    await coupon.save();
+
+    res.json({
+      success: true,
+      message: 'Coupon redeemed successfully'
+    });
+
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Server error during redemption' });
   }
 };

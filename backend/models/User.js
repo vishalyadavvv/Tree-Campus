@@ -82,6 +82,8 @@ const userSchema = new mongoose.Schema(
     resetPasswordExpiry: { type: Date, select: false },
 
     profilePicture: { type: String, default: "" },
+    age: { type: Number },
+    education: { type: String },
   },
   { timestamps: true }
 );

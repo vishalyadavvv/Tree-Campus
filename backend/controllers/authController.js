@@ -495,6 +495,109 @@ const getProfile = async (req, res, next) => {
   }
 };
 
+/**
+ * @desc    Complete Google user profile (phone + password)
+ * @route   POST /api/auth/complete-google-profile
+ * @access  Private (only for Google OAuth users)
+ */
+const completeGoogleProfile = async (req, res, next) => {
+  try {
+    const { phone, password } = req.body;
+    const userId = req.user.id;
+
+    // Find the user
+    const user = await User.findById(userId).select('+password +googleId');
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    // Only allow for Google users
+    if (!user.googleId) {
+      return res.status(400).json({
+        success: false,
+        message: 'This endpoint is only for Google signup users'
+      });
+    }
+
+    // Check if profile already complete
+    if (user.phone && user.password) {
+      return res.status(400).json({
+        success: false,
+        message: 'Profile already complete'
+      });
+    }
+
+    // Validate phone number
+    if (!phone || phone.length !== 10) {
+      return res.status(400).json({
+        success: false,
+        message: 'Phone number must be 10 digits'
+      });
+    }
+
+    // Check if phone number is already in use
+    const existingPhone = await User.findOne({ phone, _id: { $ne: userId } });
+    if (existingPhone) {
+      return res.status(400).json({
+        success: false,
+        message: 'Phone number already registered to another account'
+      });
+    }
+
+    // Validate password
+    if (!password || password.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: 'Password must be at least 6 characters'
+      });
+    }
+
+    // Update user with phone and password
+    user.phone = phone;
+    user.password = password; // Will be hashed by pre-save hook
+    user.isVerified = false; // Need to verify phone via OTP
+
+    // Send OTP for phone verification
+    let otpSent = true;
+    let otpError = null;
+
+    try {
+      const mcResponse = await messageCentral.sendWhatsAppOTP(phone);
+      if (mcResponse.success) {
+        user.verificationId = mcResponse.verificationId;
+      }
+    } catch (err) {
+      console.error('❌ Failed to send WhatsApp OTP for Google profile completion:', err.message);
+      otpSent = false;
+      otpError = err.message;
+    }
+
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: otpSent
+        ? 'Profile updated. Please verify your phone with the OTP sent on WhatsApp.'
+        : `Profile updated, but WhatsApp OTP failed: ${otpError}. Please try resending OTP.`,
+      data: {
+        userId: user._id,
+        email: user.email,
+        phone: user.phone,
+        otpSent,
+        needsPhoneVerification: true
+      }
+    });
+
+  } catch (error) {
+    console.error('❌ Complete Google Profile Error:', error);
+    next(error);
+  }
+};
+
 export {
   signup,
   verifyOTP,
@@ -505,4 +608,5 @@ export {
   logout,
   refreshToken,
   getProfile,
-};  
+  completeGoogleProfile,
+};

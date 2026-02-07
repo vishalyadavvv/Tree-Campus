@@ -14,6 +14,7 @@ import {
   resetPassword,
   logout,
   getProfile, // ✅ Import getProfile
+  completeGoogleProfile, // ✅ Import completeGoogleProfile
 } from '../controllers/authController.js';
 
 import { validateSignup, validateLogin, validateOTP, validate } from '../middleware/validate.js';
@@ -66,6 +67,13 @@ router.get('/profile', protect, getProfile); // ✅ Add this route
 // Logout
 router.post('/logout', protect, logout);
 
+// Complete Google profile (phone + password)
+router.post('/complete-google-profile', protect, [
+  body('phone').isLength({ min: 10, max: 10 }).withMessage('Phone number must be 10 digits'),
+  body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
+  validate
+], completeGoogleProfile);
+
 // Google OAuth Routes
 router.get('/google', (req, res, next) => {
   const platform = req.query.platform || 'web'; // Default to 'web'
@@ -91,8 +99,14 @@ router.get('/google/callback',
         email: req.user.email,
         role: req.user.role,
         profilePicture: req.user.profilePicture,
-        isVerified: req.user.isVerified
+        isVerified: req.user.isVerified,
+        hasPhone: !!req.user.phone,
+        hasPassword: !!req.user.password,
+        googleId: req.user.googleId
       };
+
+      // Check if Google user needs to complete profile
+      const needsProfileCompletion = req.user.googleId && (!req.user.phone || !req.user.password);
 
       // Platform-specific redirect logic
       if (platform === 'mobile') {
@@ -102,6 +116,7 @@ router.get('/google/callback',
         redirectUrl.searchParams.set('token', tokens.accessToken);
         redirectUrl.searchParams.set('refreshToken', tokens.refreshToken);
         redirectUrl.searchParams.set('user', JSON.stringify(user));
+        redirectUrl.searchParams.set('needsProfileCompletion', needsProfileCompletion.toString());
         
         res.redirect(redirectUrl.toString());
       } else {
@@ -111,6 +126,7 @@ router.get('/google/callback',
         redirectUrl.searchParams.set('token', tokens.accessToken);
         redirectUrl.searchParams.set('refreshToken', tokens.refreshToken);
         redirectUrl.searchParams.set('user', JSON.stringify(user));
+        redirectUrl.searchParams.set('needsProfileCompletion', needsProfileCompletion.toString());
         
         res.redirect(redirectUrl.toString());
       }

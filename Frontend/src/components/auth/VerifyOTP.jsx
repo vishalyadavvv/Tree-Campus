@@ -70,6 +70,28 @@ const VerifyOTP = () => {
 
       setTimeout(() => {
         if (mode === 'register') {
+          // Check if this is a Google user completing profile
+          const storedUser = localStorage.getItem('user');
+          const token = localStorage.getItem('token');
+          
+          if (storedUser && token) {
+            // User already has token (Google OAuth flow) - go straight to dashboard
+            try {
+              const user = JSON.parse(storedUser);
+              // Update user in localStorage with verified status
+              user.isVerified = true;
+              user.hasPhone = true;
+              localStorage.setItem('user', JSON.stringify(user));
+              
+              // Redirect to appropriate dashboard
+              navigate(user.role === 'admin' ? '/admin' : '/dashboard', { replace: true });
+              return;
+            } catch (e) {
+              console.error('Failed to parse stored user', e);
+            }
+          }
+          
+          // Normal registration flow - redirect to login
           navigate('/login', { state: { message: 'Registration successful! Please login.', email } });
         } else if (mode === 'forgot-password') {
           navigate('/reset-password', { state: { email } });
