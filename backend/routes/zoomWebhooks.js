@@ -6,6 +6,19 @@ import { verifyWebhookSignature } from '../utils/zoomAuth.js';
 const router = express.Router();
 
 /**
+ * GET /api/webhooks/zoom
+ * Simple endpoint check - Zoom may ping this during setup
+ */
+router.get('/', (req, res) => {
+  console.log('📡 Zoom webhook endpoint accessed via GET');
+  res.status(200).json({
+    success: true,
+    message: 'Zoom webhook endpoint is active',
+    timestamp: new Date().toISOString()
+  });
+});
+
+/**
  * POST /api/webhooks/zoom
  * Receive webhook events from Zoom
  * Note: Raw body is already parsed by express.raw() in server.js
