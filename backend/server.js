@@ -36,7 +36,9 @@ import MongoStore from 'connect-mongo';
 const app = express();
 
 // Zoom Webhooks (needs raw body for signature verification)
-app.use('/api/webhooks/zoom', zoomWebhooks);
+// Zoom webhook must receive RAW body BEFORE json parser
+app.use('/api/webhooks/zoom', express.raw({ type: 'application/json' }), zoomWebhooks);
+
 
 // Connect to MongoDB
 connectDB();

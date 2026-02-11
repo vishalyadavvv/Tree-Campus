@@ -9,7 +9,8 @@ const router = express.Router();
  * POST /api/webhooks/zoom
  * Receive webhook events from Zoom
  */
-router.post('/', express.raw({ type: 'application/json' }), async (req, res) => {
+router.post('/', async (req, res) => {
+
   try {
     // Verify webhook signature
     const signature = req.headers['x-zm-signature'];
