@@ -30,6 +30,7 @@ import AssignmentResults from './pages/AssignmentResults';
 import ContestHome from './pages/Contest/ContestHome';
 import AITeacherPage from './pages/AITeacherPage';
 import AIFloatingButton from './components/common/AIFloatingButton';
+import MeetingRoom from './components/LiveClass/MeetingRoom';
 
 
 
@@ -350,6 +351,15 @@ function App() {
         <CoursePlayer />
       </ProtectedRoute>
     }
+  />
+
+  <Route 
+    path="/live-classes/join/:id" 
+    element={
+      <ProtectedRoute>
+        <MeetingRoom />
+      </ProtectedRoute>
+    } 
   />
 
 </Routes>

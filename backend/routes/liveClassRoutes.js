@@ -1,5 +1,5 @@
 import express from 'express';
-import { getLiveClasses, getLiveClass, createLiveClass, updateLiveClass, deleteLiveClass } from '../controllers/liveClassController.js';
+import { getLiveClasses, getLiveClass, createLiveClass, updateLiveClass, deleteLiveClass, getMeetingSignature } from '../controllers/liveClassController.js';
 import { protect } from '../middleware/auth.js';
 import { adminOnly } from '../middleware/adminMiddleware.js';
 
@@ -13,5 +13,7 @@ router.route('/:id')
   .get(getLiveClass)
   .put(protect, adminOnly, updateLiveClass)
   .delete(protect, adminOnly, deleteLiveClass);
+
+router.post('/:id/signature', protect, getMeetingSignature);
 
 export default router;

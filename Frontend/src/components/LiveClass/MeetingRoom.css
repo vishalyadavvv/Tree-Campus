@@ -1,0 +1,32 @@
+/* Zoom Meeting Scoped Styles */
+.meeting-room-wrapper #zmmtg-root {
+    display: none;
+    /* Hide global root if it appears */
+}
+
+.meeting-room-container {
+    width: 100%;
+    height: 100%;
+    background-color: #000;
+}
+
+/* Ensure the SDK container fills its parent */
+.meeting-room-container>div {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+/* Custom loading spinner for the meeting room */
+@keyframes spin-slow {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.meeting-loading-icon {
+    animation: spin-slow 2s linear infinite;
+}

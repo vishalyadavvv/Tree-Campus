@@ -5,6 +5,9 @@ export default defineConfig({
   plugins: [
     tailwindcss(),
   ],
+  css: {
+    devSourcemap: false
+  },
   build: {
     chunkSizeWarningLimit: 2500,
     
@@ -32,6 +35,6 @@ export default defineConfig({
   },
   
   optimizeDeps: {
-    include: ['three', 'three-stdlib']
+    include: ['three', 'three-stdlib', '@zoom/meetingsdk']
   }
 })

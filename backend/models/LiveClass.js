@@ -36,14 +36,36 @@ const liveClassSchema = new mongoose.Schema({
     type: String,
     required: [true, 'Please provide instructor name']
   },
-  maxParticipants: {
-    type: Number,
-    default: 100
-  },
   status: {
     type: String,
     enum: ['scheduled', 'live', 'completed', 'cancelled'],
     default: 'scheduled'
+  },
+  meetingId: {
+    type: String,
+    unique: true,
+    sparse: true
+  },
+  password: {
+    type: String
+  },
+  hostEmail: {
+    type: String
+  },
+  hostName: {
+    type: String
+  },
+  zoomData: {
+    type: Object
+  },
+  source: {
+    type: String,
+    enum: ['manual', 'automated'],
+    default: 'manual'
+  },
+  currentParticipants: {
+    type: Number,
+    default: 0
   }
 }, {
   timestamps: true

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import DashboardLayout from '../../components/Layout/DashboardLayout';
 import api from '../../services/api';
-import { FiPlus, FiTrash2, FiExternalLink, FiClock, FiCalendar, FiUser, FiVideo, FiX } from 'react-icons/fi';
+import { FiPlus, FiTrash2, FiExternalLink, FiClock, FiCalendar, FiUser, FiVideo, FiX, FiEdit, FiCopy } from 'react-icons/fi';
 import { format } from 'date-fns';
 import toast from 'react-hot-toast';
 
@@ -17,8 +17,13 @@ const LiveClassManagement = () => {
     scheduledAt: '',
     duration: 60,
     instructor: '',
-    maxParticipants: 100
+    maxParticipants: 100,
+    password: '',
+    autoGenerateZoom: false,
+    isRecurring: false,
+    recurrenceEndDate: ''
   });
+  const [editingId, setEditingId] = useState(null);
 
   useEffect(() => {
     fetchLiveClasses();
@@ -39,8 +44,16 @@ const LiveClassManagement = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await api.post('/live-classes', formData);
+      if (editingId) {
+        await api.put(`/live-classes/${editingId}`, formData);
+        toast.success('Live class updated successfully!');
+      } else {
+        await api.post('/live-classes', formData);
+        toast.success('Live class scheduled successfully!');
+      }
+      
       setShowModal(false);
+      setEditingId(null);
       setFormData({ 
         title: '', 
         description: '', 
@@ -49,14 +62,34 @@ const LiveClassManagement = () => {
         scheduledAt: '', 
         duration: 60, 
         instructor: '',
-        maxParticipants: 100 
+        maxParticipants: 100, // Kept for state shape consistency but not used in UI/Backend
+        password: '',
+        autoGenerateZoom: false 
       });
       fetchLiveClasses();
-      toast.success('Live class scheduled successfully!');
     } catch (error) {
-      console.error('Error creating live class:', error);
-      toast.error('Failed to create live class');
+      console.error('Error saving live class:', error);
+      toast.error(editingId ? 'Failed to update live class' : 'Failed to create live class');
     }
+  };
+
+  const handleEdit = (liveClass) => {
+    setEditingId(liveClass._id);
+    setFormData({
+      title: liveClass.title,
+      description: liveClass.description,
+      platform: liveClass.platform,
+      link: liveClass.link,
+      scheduledAt: new Date(liveClass.scheduledAt).toISOString().slice(0, 16), // Format for datetime-local
+      duration: liveClass.duration,
+      instructor: liveClass.instructor,
+      maxParticipants: liveClass.maxParticipants || 100,
+      password: liveClass.password || '',
+      autoGenerateZoom: liveClass.source === 'automated',
+      isRecurring: false, // Editing recurrence is complex, default to false for now or handle if backend supports it
+      recurrenceEndDate: '' 
+    });
+    setShowModal(true);
   };
 
   const handleDelete = async (id) => {
@@ -70,6 +103,11 @@ const LiveClassManagement = () => {
         toast.error('Failed to delete live class');
       }
     }
+  };
+
+  const handleCopyHostLink = (startUrl) => {
+    navigator.clipboard.writeText(startUrl);
+    toast.success('Host Start Link copied to clipboard!');
   };
 
   const getStatus = (scheduledAt) => {
@@ -114,10 +152,6 @@ const LiveClassManagement = () => {
   return (
     <DashboardLayout>
       <div className="space-y-6 animate-fade-in">
-  {showModal && (
-  <div className="fixed inset-0 bg-black/40 backdrop-blur-md flex items-center justify-center p-4 z-50"></div>
-  
-)}
 
 
 
@@ -205,16 +239,19 @@ const LiveClassManagement = () => {
                     </span>
                   </div>
 
+                  {/* Password if exists */}
+                  {liveClass.password && (
+                    <div className="flex items-center space-x-2 text-sm text-gray-600">
+                      <div className="w-4 h-4 text-gray-400 flex items-center justify-center font-bold text-[10px] border border-gray-400 rounded-sm">P</div>
+                      <span>Password: <span className="font-mono font-semibold">{liveClass.password}</span></span>
+                    </div>
+                  )}
+
                   {/* Platform */}
                   <div className="flex items-center justify-between">
                     <span className={`px-2 py-1 rounded text-xs font-medium ${getPlatformColor(liveClass.platform)}`}>
                       {liveClass.platform}
                     </span>
-                    {liveClass.maxParticipants && (
-                      <span className="text-xs text-gray-500">
-                        Max: {liveClass.maxParticipants}
-                      </span>
-                    )}
                   </div>
                 </div>
 
@@ -236,6 +273,21 @@ const LiveClassManagement = () => {
                     >
                       <FiTrash2 className="w-4 h-4" />
                     </button>
+                    <button 
+                      className="p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                      onClick={() => handleEdit(liveClass)}
+                    >
+                      <FiEdit className="w-4 h-4" />
+                    </button>
+                    {liveClass.source === 'automated' && liveClass.zoomData?.start_url && (
+                        <button 
+                          className="p-2 text-gray-600 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                          onClick={() => handleCopyHostLink(liveClass.zoomData.start_url)}
+                          title="Copy Host Start Link"
+                        >
+                          <FiCopy className="w-4 h-4" />
+                        </button>
+                    )}
                   </div>
                 </div>
               </div>
@@ -258,9 +310,8 @@ const LiveClassManagement = () => {
         )}
       </div>
 
-      {/* Schedule Live Class Modal */}
       {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[1100] flex items-center justify-center p-4">
           {/* Backdrop with blur */}
           <div 
             className="absolute inset-0 bg-black/30 bg-opacity-50 backdrop-blur-sm transition-opacity"
@@ -271,10 +322,25 @@ const LiveClassManagement = () => {
           <div className="relative bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden transform transition-all">
             {/* Modal Header */}
             <div className="flex items-center justify-between p-6 border-b border-gray-200 bg-white">
-              <h2 className="text-xl font-semibold text-gray-900">Schedule Live Class</h2>
+              <h2 className="text-xl font-semibold text-gray-900">{editingId ? 'Edit Live Class' : 'Schedule Live Class'}</h2>
               <button 
                 className="text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-lg hover:bg-gray-100"
-                onClick={() => setShowModal(false)}
+                onClick={() => {
+                  setShowModal(false);
+                  setEditingId(null);
+                  setFormData({ 
+                    title: '', 
+                    description: '', 
+                    platform: 'Zoom', 
+                    link: '', 
+                    scheduledAt: '', 
+                    duration: 60, 
+                    instructor: '', 
+                    maxParticipants: 100,
+                    password: '',
+                    autoGenerateZoom: false 
+                  });
+                }}
               >
                 <FiX className="w-6 h-6" />
               </button>
@@ -339,44 +405,64 @@ const LiveClassManagement = () => {
                   </div>
                 </div>
 
+                {/* Auto-generate Zoom Toggle */}
+                {formData.platform === 'Zoom' && (
+                  <div className="flex items-center space-x-3 p-4 bg-blue-50 rounded-lg border border-blue-100">
+                    <input
+                      type="checkbox"
+                      id="autoGenerateZoom"
+                      className="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                      checked={formData.autoGenerateZoom}
+                      onChange={(e) => setFormData({ ...formData, autoGenerateZoom: e.target.checked })}
+                    />
+                    <label htmlFor="autoGenerateZoom" className="flex-1 text-sm font-medium text-blue-900 cursor-pointer">
+                      Automatically generate Zoom Meeting using API
+                      <p className="text-xs text-blue-700 font-normal">This will create a secure meeting and set the link automatically.</p>
+                    </label>
+                  </div>
+                )}
+
                 {/* Meeting Link */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Meeting Link *</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Meeting Link {formData.autoGenerateZoom ? '(Will be auto-generated)' : '*'}
+                  </label>
                   <input
                     type="url"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
-                    placeholder="https://zoom.us/j/..."
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors disabled:bg-gray-50 disabled:text-gray-400"
+                    placeholder={formData.autoGenerateZoom ? "Link will appear after saving" : "https://zoom.us/j/..."}
                     value={formData.link}
                     onChange={(e) => setFormData({ ...formData, link: e.target.value })}
-                    required
+                    required={!formData.autoGenerateZoom}
+                    disabled={formData.autoGenerateZoom}
                   />
                 </div>
 
-                {/* Instructor & Max Participants */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Meeting Password (Optional/Auto) */}
+                {!formData.autoGenerateZoom && (
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Instructor *</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Meeting Password (Optional)</label>
                     <input
                       type="text"
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
-                      value={formData.instructor}
-                      onChange={(e) => setFormData({ ...formData, instructor: e.target.value })}
-                      required
-                      placeholder="Instructor name"
+                      placeholder="Enter password if required"
+                      value={formData.password}
+                      onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                     />
                   </div>
+                )}
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Max Participants</label>
-                    <input
-                      type="number"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
-                      value={formData.maxParticipants}
-                      onChange={(e) => setFormData({ ...formData, maxParticipants: parseInt(e.target.value) })}
-                      min="1"
-                      max="1000"
-                    />
-                  </div>
+                {/* Instructor */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Instructor *</label>
+                  <input
+                    type="text"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                    value={formData.instructor}
+                    onChange={(e) => setFormData({ ...formData, instructor: e.target.value })}
+                    required
+                    placeholder="Instructor name"
+                  />
                 </div>
 
                 {/* Scheduled Date & Time */}
@@ -390,7 +476,42 @@ const LiveClassManagement = () => {
                     required
                   />
                 </div>
-              </div>
+                </div>
+
+                {/* Recurrence Options */}
+                {!editingId && (
+                  <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                    <div className="flex items-center space-x-3 mb-4">
+                      <input
+                        type="checkbox"
+                        id="isRecurring"
+                        className="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                        checked={formData.isRecurring}
+                        onChange={(e) => setFormData({ ...formData, isRecurring: e.target.checked })}
+                      />
+                      <label htmlFor="isRecurring" className="font-medium text-gray-700 cursor-pointer">
+                        Repeat Details?
+                      </label>
+                    </div>
+
+                    {formData.isRecurring && (
+                      <div className="pl-8">
+                         <label className="block text-sm font-medium text-gray-700 mb-2">Repeat Until (End Date) *</label>
+                        <input
+                          type="date"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors bg-white"
+                          value={formData.recurrenceEndDate}
+                          onChange={(e) => setFormData({ ...formData, recurrenceEndDate: e.target.value })}
+                          required={formData.isRecurring}
+                          min={formData.scheduledAt ? formData.scheduledAt.split('T')[0] : new Date().toISOString().split('T')[0]}
+                        />
+                        <p className="text-xs text-gray-500 mt-2">
+                          A separate class entry will be created for each day at the same time until this date.
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                )}
 
               {/* Modal Actions */}
               <div className="flex space-x-3 mt-6 pt-6 border-t border-gray-200">
@@ -398,7 +519,7 @@ const LiveClassManagement = () => {
                   type="submit" 
                   className="flex-1 bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors font-medium shadow-sm"
                 >
-                  Schedule Class
+                  {editingId ? 'Update Class' : 'Schedule Class'}
                 </button>
                 <button 
                   type="button" 

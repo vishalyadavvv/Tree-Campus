@@ -26,6 +26,7 @@ import registerSchool from'./routes/schoolRegistration.js';
 import assignmentRoutes from './routes/assignmentRoutes.js';
 import contestRoutes from './routes/contestRoutes.js';
 import adminContestRoutes from './routes/adminContestRoutes.js';
+import zoomWebhooks from './routes/zoomWebhooks.js';
 import session from 'express-session';
 import passport from 'passport';
 import configurePassport from './config/passportConfig.js';
@@ -33,6 +34,9 @@ import MongoStore from 'connect-mongo';
 
 // Initialize Express app
 const app = express();
+
+// Zoom Webhooks (needs raw body for signature verification)
+app.use('/api/webhooks/zoom', zoomWebhooks);
 
 // Connect to MongoDB
 connectDB();
