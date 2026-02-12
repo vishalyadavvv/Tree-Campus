@@ -97,16 +97,18 @@ const MeetingRoom = () => {
       </div>
 
       {/* Meeting Container */}
-      <div 
-        ref={meetingContainerRef} 
-        className="flex-1 w-full bg-black relative meeting-room-container"
-      >
+      <div className="flex-1 w-full bg-black relative meeting-room-container">
         {loading && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-900 z-10">
+          <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-900 z-[10000]">
             <Loader2 className="w-12 h-12 text-orange-500 animate-spin mb-4" />
             <p className="text-white text-lg">Initializing Secure Meeting Container...</p>
           </div>
         )}
+        <div 
+          ref={meetingContainerRef} 
+          className="w-full h-full"
+          style={{ display: loading ? 'none' : 'block' }}
+        />
       </div>
       
       {/* Footer Info */}
