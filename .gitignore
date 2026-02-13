@@ -9,3 +9,24 @@ build/
 .DS_Store
 Thumbs.db
 Zoom Meeting/
+
+# Technical Logs & Debug
+*.txt
+*.json
+!package.json
+!package-lock.json
+
+# Specific Data Files
+models.json
+key_check.json
+response_*.json
+test_*.json
+tts_error.json
+
+# Cleanup Archive
+.ignored_archive/
+
+# Temporary Documentation (except README)
+*.md
+!README.md
+!API_DOCUMENTATION.md

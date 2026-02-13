@@ -1,9 +1,0 @@
-{
-    "model": "perplexity/sonar",
-    "messages": [
-        {
-            "role": "user",
-            "content": "Hello from Perplexity test!"
-        }
-    ]
-}
