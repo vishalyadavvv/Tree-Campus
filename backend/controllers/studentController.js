@@ -301,14 +301,9 @@ export const getStudent = async (req, res) => {
 // @access  Private/Admin
 export const updateStudent = async (req, res) => {
   try {
-    const student = await User.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      {
-        new: true,
-        runValidators: true
-      }
-    ).select('-password');
+    const { name, email, phone, password, age, education } = req.body;
+    
+    let student = await User.findById(req.params.id);
 
     if (!student) {
       return res.status(404).json({
@@ -317,9 +312,30 @@ export const updateStudent = async (req, res) => {
       });
     }
 
+    // Update fields if provided
+    if (name) student.name = name;
+    if (email) student.email = email;
+    if (phone) student.phone = phone;
+    if (age) student.age = age;
+    if (education) student.education = education;
+    
+    // If password is provided, it will be hashed by the User model's pre-save hook
+    if (password) {
+      student.password = password;
+    }
+
+    await student.save();
+
     res.status(200).json({
       success: true,
-      data: student
+      data: {
+        _id: student._id,
+        name: student.name,
+        email: student.email,
+        phone: student.phone,
+        role: student.role,
+        isVerified: student.isVerified
+      }
     });
   } catch (error) {
     res.status(500).json({
