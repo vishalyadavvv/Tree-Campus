@@ -440,7 +440,7 @@ const Dashboard = () => {
       </div>
 
       {studentModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
+        <div className="fixed inset-0 z-[3000] flex items-center justify-center">
           <div className="fixed inset-0 bg-black opacity-40" onClick={closeStudentModal}></div>
           <div className="bg-white rounded-lg shadow-xl max-w-xl w-full z-50 p-6 mx-4">
             <div className="flex justify-between items-start">

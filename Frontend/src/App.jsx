@@ -2,7 +2,7 @@
 import React from 'react';
 import { Toaster } from 'react-hot-toast';
 import { useEffect } from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, useLocation } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { CourseProvider } from './context/CourseContext';
 import ScrollToTop from './components/ScrollToTop';
@@ -32,11 +32,8 @@ import AITeacherPage from './pages/AITeacherPage';
 import AIFloatingButton from './components/common/AIFloatingButton';
 import MeetingRoom from './components/LiveClass/MeetingRoom';
 
-
-
 import ForgotPassword from './components/auth/ForgotPassword';
 import ResetPassword from './components/auth/ResetPassword';
-
 
 // Admin Pages
 import Dashboard from './pages/admin/Dashboard';
@@ -73,11 +70,15 @@ import LockAndKey from './components/games/LockAndKey';
 import VocabularyBuilder from './components/games/VocabularyBuilder';
 
 function App() {
-   useEffect(() => {
+  const location = useLocation();
+  const isAdminRoute = location.pathname.startsWith('/admin');
+
+  useEffect(() => {
     if ("scrollRestoration" in window.history) {
       window.history.scrollRestoration = "manual";
     }
   }, []);
+
   return (
     <AuthProvider>
       <CourseProvider>
@@ -362,10 +363,9 @@ function App() {
     } 
   />
 
-</Routes>
-
+          </Routes>
           
-          <Footer />
+          {!isAdminRoute && <Footer />}
         </div>
       </CourseProvider>
     </AuthProvider>

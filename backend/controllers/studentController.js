@@ -250,10 +250,31 @@ export const getStudents = async (req, res) => {
 
     const totalStudents = await User.countDocuments(query);
 
+    // Calculate aggregate statistics for the dashboard
+    // Note: These are for the entire student population, not just the current page
+    const activeStudents = await User.countDocuments({ 
+      role: 'student', 
+      'enrolledCourses.0': { $exists: true } 
+    });
+
+    // Total enrollments across all students
+    const enrollmentStats = await User.aggregate([
+      { $match: { role: 'student' } },
+      { $project: { enrollmentCount: { $size: '$enrolledCourses' } } },
+      { $group: { _id: null, total: { $sum: '$enrollmentCount' } } }
+    ]);
+    const totalEnrollments = enrollmentStats.length > 0 ? enrollmentStats[0].total : 0;
+
+    // Certificates issued
+    const certificatesIssued = await Certificate.countDocuments();
+
     res.status(200).json({
       success: true,
       count: students.length,
       totalStudents,
+      activeStudents,
+      totalEnrollments,
+      certificatesIssued,
       totalPages: Math.ceil(totalStudents / limit),
       currentPage: page,
       data: students

@@ -22,16 +22,48 @@ import {
   FiMoreVertical
 } from "react-icons/fi";
 
+// Primary color configuration
+const primaryColor = "#FD5A00";
+const primaryLight = "#FF8A3D";
+const primaryDark = "#D44A00";
+
+const adminMenuItems = [
+  { path: "/admin", icon: FiHome, label: "Dashboard", section: "main" },
+  { path: "/admin/courses", icon: FiBook, label: "Courses", section: "main" },
+  { path: "/admin/studentanalytics", icon: FiUsers, label: "Students", section: "main" },
+  { path: "/admin/analytics", icon: FiBarChart2, label: "Analytics", section: "main" },
+  { path: "/admin/live-classes", icon: FiVideo, label: "Live Classes", section: "main" },
+  { path: "/admin/blogs", icon: FiFileText, label: "Blogs", section: "main" },
+  { type: "divider", label: "Management", section: "divider" },
+  { 
+    label: "Contest Management", 
+    icon: FiAward, 
+    section: "management",
+    subItems: [
+      { path: "/admin/contests?section=adminPanel", label: "Admin Panel" },
+      { path: "/admin/contests?section=couponGenerator", label: "Coupon Generator" },
+      { path: "/admin/contests?section=adminTables", label: "Admin Tables" },
+      { path: "/admin/contests?section=users", label: "All Users" }
+    ]
+  },
+  { path: "/admin/schools", icon: FiSettings, label: "School Registrations", section: "management" },
+  { path: "/admin/volunteers", icon: FiUsers, label: "Volunteers", section: "management" },
+  { path: "/admin/account-deletions", icon: FiUserX, label: "Account Deletions", section: "management" },
+];
+
+const studentMenuItems = [
+  { path: '/dashboard', icon: FiHome, label: 'Dashboard' },
+  { path: '/courses', icon: FiBook, label: 'Courses' },
+  { path: '/certificates', icon: FiAward, label: 'Certificates' },
+  { path: '/live-classes', icon: FiVideo, label: 'Live Classes' },
+  { path: '/blogs', icon: FiFileText, label: 'Blogs' }
+];
+
 const Sidebar = () => {
   const location = useLocation();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [openSubMenus, setOpenSubMenus] = useState({});
   const { user, logout } = useAuth();
-
-  // Primary color configuration
-  const primaryColor = "#FD5A00";
-  const primaryLight = "#FF8A3D";
-  const primaryDark = "#D44A00";
 
   // Close mobile menu on route change
   useEffect(() => {
@@ -40,12 +72,13 @@ const Sidebar = () => {
 
   // Auto-open sub-menus if active
   useEffect(() => {
-    adminMenuItems.forEach(item => {
-      if (item.subItems && item.subItems.some(sub => location.pathname + location.search === sub.path)) {
-        setOpenSubMenus(prev => ({ ...prev, [item.label]: true }));
-      }
-    });
-  }, []);
+    const activeSubMenu = adminMenuItems.find(item => 
+      item.subItems && item.subItems.some(sub => location.pathname + location.search === sub.path)
+    );
+    if (activeSubMenu) {
+      setOpenSubMenus(prev => ({ ...prev, [activeSubMenu.label]: true }));
+    }
+  }, [location.pathname, location.search]);
 
   const toggleSubMenu = (label) => {
     setOpenSubMenus(prev => ({
@@ -53,38 +86,6 @@ const Sidebar = () => {
       [label]: !prev[label]
     }));
   };
-
-  const adminMenuItems = [
-    { path: "/admin", icon: FiHome, label: "Dashboard", section: "main" },
-    { path: "/admin/courses", icon: FiBook, label: "Courses", section: "main" },
-    { path: "/admin/studentanalytics", icon: FiUsers, label: "Students", section: "main" },
-    { path: "/admin/analytics", icon: FiBarChart2, label: "Analytics", section: "main" },
-    { path: "/admin/live-classes", icon: FiVideo, label: "Live Classes", section: "main" },
-    { path: "/admin/blogs", icon: FiFileText, label: "Blogs", section: "main" },
-    { type: "divider", label: "Management", section: "divider" },
-    { 
-      label: "Contest Management", 
-      icon: FiAward, 
-      section: "management",
-      subItems: [
-        { path: "/admin/contests?section=adminPanel", label: "Admin Panel" },
-        { path: "/admin/contests?section=couponGenerator", label: "Coupon Generator" },
-        { path: "/admin/contests?section=adminTables", label: "Admin Tables" },
-        { path: "/admin/contests?section=users", label: "All Users" }
-      ]
-    },
-    { path: "/admin/schools", icon: FiSettings, label: "School Registrations", section: "management" },
-    { path: "/admin/volunteers", icon: FiUsers, label: "Volunteers", section: "management" },
-    { path: "/admin/account-deletions", icon: FiUserX, label: "Account Deletions", section: "management" },
-  ];
-
-  const studentMenuItems = [
-    { path: '/dashboard', icon: FiHome, label: 'Dashboard' },
-    { path: '/courses', icon: FiBook, label: 'Courses' },
-    { path: '/certificates', icon: FiAward, label: 'Certificates' },
-    { path: '/live-classes', icon: FiVideo, label: 'Live Classes' },
-    { path: '/blogs', icon: FiFileText, label: 'Blogs' }
-  ];
 
   const menuItems = user?.role === 'admin' ? adminMenuItems : studentMenuItems;
   const title = user?.role === 'admin' ? 'Tree Campus Admin' : 'Tree Campus Student';
@@ -100,13 +101,14 @@ const Sidebar = () => {
 
   // Function to handle user initials
   const getUserInitials = (name) => {
-    if (!name) return "U";
-    return name
-      .split(" ")
+    if (!name || typeof name !== 'string') return "U";
+    const initials = name
+      .trim()
+      .split(/\s+/)
       .map(part => part[0])
       .join("")
-      .toUpperCase()
-      .slice(0, 2);
+      .toUpperCase();
+    return initials.slice(0, 2) || "U";
   };
 
   return (
@@ -115,7 +117,7 @@ const Sidebar = () => {
       {!isMobileOpen && (
         <button
           onClick={() => setIsMobileOpen(true)}
-          className="md:hidden fixed top-4 left-4 z-[1200] w-12 h-12 bg-[#FD5A00] text-white rounded-xl shadow-lg flex items-center justify-center hover:scale-105 active:scale-95 transition-all duration-300"
+          className="md:hidden fixed top-4 left-4 z-[2100] w-12 h-12 bg-[#FD5A00] text-white rounded-xl shadow-lg flex items-center justify-center hover:scale-105 active:scale-95 transition-all duration-300"
           style={{ backgroundColor: primaryColor }}
         >
           <FiMenu size={24} />
@@ -126,31 +128,37 @@ const Sidebar = () => {
       {isMobileOpen && (
         <div
           onClick={() => setIsMobileOpen(false)}
-          className="fixed inset-0 bg-black/60 z-[1050] backdrop-blur-sm transition-opacity duration-300"
+          className="fixed inset-0 bg-black/60 z-[2050] backdrop-blur-sm transition-opacity duration-300"
         />
       )}
 
       {/* Sidebar - Consistent Fixed positioning */}
       <aside
         className={`
-          fixed top-0 left-0 z-[1100] h-screen transition-all duration-300 ease-in-out w-64
+          fixed top-0 md:top-[112px] left-0 z-[1000] h-screen transition-all duration-300 ease-in-out w-64
           ${isMobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
           bg-white border-r border-gray-200 shadow-2xl
         `}
-        style={{ backgroundColor: 'white', color: '#374151' }}
+        style={{ backgroundColor: 'white', color: '#374151', height: 'calc(100vh - 112px)' }}
       >
-        <div className="flex flex-col h-full">
-          {/* Logo/Brand Section */}
-          <div className="p-3 border-b border-gray-200">
-            <div className="flex items-center justify-between">
+        <div className="flex flex-col h-full overflow-hidden">
+          {/* Logo/Brand Section - Professional Header */}
+          <div className="p-5 border-b border-gray-100 bg-white sticky top-0 z-10 shadow-sm">
+            <div className="flex items-center gap-3">
+              <div 
+                className="w-10 h-10 rounded-xl flex items-center justify-center text-white shadow-lg rotate-3 hover:rotate-0 transition-transform duration-300"
+                style={{ background: `linear-gradient(135deg, ${primaryColor}, ${primaryDark})` }}
+              >
+                <FiBook size={20} />
+              </div>
               <div>
                 <h2 
-                  className="text-lg font-bold"
+                  className="text-base font-extrabold leading-none tracking-tight"
                   style={{ color: primaryColor }}
                 >
                   {title}
                 </h2>
-                <p className="text-xs text-gray-600">{subtitle}</p>
+                <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-1">{subtitle}</p>
               </div>
             </div>
           </div>

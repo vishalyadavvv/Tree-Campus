@@ -302,7 +302,7 @@
 
         {/* Create Course Modal */}
         {showModal && (
-          <div className="fixed inset-0 bg-black/30 backdrop-blur-md flex items-center justify-center p-4 z-50">
+          <div className="fixed inset-0 bg-black/30 backdrop-blur-md flex items-center justify-center p-4 z-[3000]">
             <div className="bg-white rounded-xl shadow-lg w-full max-w-6xl max-h-[90vh] overflow-hidden" onClick={(e) => e.stopPropagation()}>
               {/* Modal Header */}
               <div className="flex items-center justify-between p-6 border-b border-gray-200">

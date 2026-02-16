@@ -109,7 +109,16 @@ userSchema.pre("save", async function () {
 
 // Compare password
 userSchema.methods.comparePassword = async function (candidatePassword) {
-  return await bcrypt.compare(candidatePassword, this.password);
+  if (!this.password) return false;
+  
+  let hashToCompare = this.password;
+  
+  // WordPress (PHP) bcrypt uses $2y$, but Node (bcryptjs) expects $2a$ or $2b$
+  if (hashToCompare.startsWith('$2y$')) {
+    hashToCompare = '$2a$' + hashToCompare.slice(4);
+  }
+
+  return await bcrypt.compare(candidatePassword, hashToCompare);
 };
 
 // Generate OTP

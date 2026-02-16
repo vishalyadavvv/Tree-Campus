@@ -9,7 +9,7 @@ import LiveClass from '../models/LiveClass.js';
 export const getOverview = async (req, res) => {
   try {
     const totalStudents = await User.countDocuments({ role: 'student' });
-    const totalCourses = await Course.countDocuments();
+    const totalCourses = await Course.countDocuments({ isPublished: true });
     const totalBlogs = await Blog.countDocuments({ status: 'published' });
     const totalLiveClasses = await LiveClass.countDocuments();
 
@@ -19,7 +19,7 @@ export const getOverview = async (req, res) => {
       .limit(10)
       .select('name email phone createdAt');
 
-    const popularCourses = await Course.find()
+    const popularCourses = await Course.find({ isPublished: true })
       .sort('-enrollmentCount')
       .limit(5)
       .select('title enrollmentCount rating');
@@ -45,7 +45,26 @@ export const getOverview = async (req, res) => {
   }
 };
 
-// ... (skipping getCourseAnalytics)
+// @desc    Get course analytics
+// @route   GET /api/analytics/courses
+// @access  Private/Admin
+export const getCourseAnalytics = async (req, res) => {
+  try {
+    const courseStats = await Course.find()
+      .select('title enrollmentCount rating category')
+      .sort('-enrollmentCount');
+
+    res.status(200).json({
+      success: true,
+      data: courseStats
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
 
 // @desc    Get enrollment analytics
 // @route   GET /api/analytics/enrollments

@@ -16,6 +16,11 @@ const StudentAnalytics = () => {
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [editFormData, setEditFormData] = useState({});
   const [savingEdit, setSavingEdit] = useState(false);
+  const [stats, setStats] = useState({
+    activeStudents: 0,
+    totalEnrollments: 0,
+    certificatesIssued: 0
+  });
 
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
@@ -37,6 +42,11 @@ const StudentAnalytics = () => {
       setTotalPages(response.data.totalPages || 1);
       setTotalStudents(response.data.totalStudents || 0);
       setCurrentPage(response.data.currentPage || 1);
+      setStats({
+        activeStudents: response.data.activeStudents || 0,
+        totalEnrollments: response.data.totalEnrollments || 0,
+        certificatesIssued: response.data.certificatesIssued || 0
+      });
     } catch (error) {
       console.error('Error fetching students:', error);
       setStudents([]);
@@ -167,19 +177,19 @@ const StudentAnalytics = () => {
           </div>
           <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 text-center">
             <div className="text-2xl font-bold text-gray-900 mb-1">
-              -
+              {stats.activeStudents}
             </div>
             <div className="text-sm text-gray-600">Active Students</div>
           </div>
           <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 text-center">
             <div className="text-2xl font-bold text-gray-900 mb-1">
-              -
+              {stats.totalEnrollments}
             </div>
             <div className="text-sm text-gray-600">Total Enrollments</div>
           </div>
           <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 text-center">
             <div className="text-2xl font-bold text-gray-900 mb-1">
-              -
+              {stats.certificatesIssued}
             </div>
             <div className="text-sm text-gray-600">Certificates Issued</div>
           </div>
@@ -435,9 +445,9 @@ const StudentAnalytics = () => {
 
       {/* Edit Modal */}
       {editModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
+        <div className="fixed inset-0 z-[3000] flex items-center justify-center">
           <div className="fixed inset-0 bg-black opacity-40" onClick={() => setEditModalOpen(false)}></div>
-          <div className="bg-white rounded-lg shadow-xl max-w-md w-full z-50 p-6 mx-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full z-[3050] p-6 mx-4">
             <div className="flex justify-between items-start mb-4">
               <h3 className="text-lg font-semibold">Edit Student</h3>
               <button onClick={() => setEditModalOpen(false)} className="text-gray-400 hover:text-gray-600">✕</button>

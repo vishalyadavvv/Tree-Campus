@@ -491,7 +491,7 @@ export default function Navbar() {
   }
 
   return (
-    <nav ref={navRef} className="w-full bg-white sticky top-0 z-[1000] shadow-sm">
+    <nav ref={navRef} className="w-full bg-white sticky top-0 z-[2000] shadow-sm transition-all duration-300">
       
       {/* Top Contact Bar */}
       <div className="bg-gradient-to-r from-orange-500 to-orange-600 px-6 py-2 border-b border-orange-400">
