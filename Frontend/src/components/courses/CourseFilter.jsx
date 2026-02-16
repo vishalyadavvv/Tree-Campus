@@ -24,9 +24,9 @@ const CourseFilter = ({ filters, setFilters }) => {
   return (
     <div className="bg-white rounded-2xl shadow-lg p-6 mb-8 border border-gray-100">
       <h3 className="text-xl font-bold text-gray-900 mb-6">Filter Courses</h3>
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-        {/* Search */}
-        <div className="md:col-span-2">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+        {/* Search - FULL WIDTH ON MOBILE */}
+        <div className="col-span-2 md:col-span-2">
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Search Courses
           </label>

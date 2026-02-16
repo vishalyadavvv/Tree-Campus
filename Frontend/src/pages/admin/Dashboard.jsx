@@ -206,7 +206,7 @@ const Dashboard = () => {
             <button
               onClick={handleRefresh}
               disabled={refreshing}
-              className="flex items-center space-x-2 bg-blue-100 border border-gray-300 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
+              className="flex items-center justify-center space-x-2 bg-blue-100 border border-gray-300 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 w-full sm:w-auto"
             >
               <FiRefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
               <span>Refresh</span>
@@ -214,8 +214,8 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {/* Stats Grid - OPTIMIZED FOR MOBILE */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
           {statCards.map((stat, index) => {
             const Icon = stat.icon;
             return (
@@ -239,7 +239,7 @@ const Dashboard = () => {
                       <span className="text-sm text-gray-500 ml-1">this month</span>
                     </div>
                   </div>
-                  <div className="p-3 rounded-lg bg-blue-50 text-blue-600">
+                  <div className="hidden sm:block p-3 rounded-lg bg-blue-50 text-blue-600">
                     <Icon className="w-6 h-6" />
                   </div>
                 </div>
@@ -379,7 +379,7 @@ const Dashboard = () => {
             </h3>
           </div>
           <div className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
               {[
                 { 
                   title: 'Avg. Course Rating', 

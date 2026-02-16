@@ -182,8 +182,8 @@
             </button>
           </div>
 
-          {/* Stats Overview */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          {/* Stats Overview - OPTIMIZED */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 text-center">
               <div className="text-2xl font-bold text-gray-900 mb-1">{courses.length}</div>
               <div className="text-sm text-gray-600">Total Courses</div>
@@ -208,8 +208,8 @@
             </div>
           </div>
 
-          {/* Courses Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {/* Courses Grid - OPTIMIZED */}
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
             {courses.map((course) => (
               <div key={course._id} className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden hover:shadow-lg transition-shadow">
                 {/* Course Image */}

@@ -9,19 +9,24 @@ const openai = new OpenAI({
  * Ask a question to OpenAI
  * @param {string} question - User's question
  * @param {array} conversationHistory - Previous messages for context
+ * @param {object} user - User object for context
  * @returns {string} AI response
  */
-const askAI = async (question, conversationHistory = []) => {
+const askAI = async (question, conversationHistory = [], user = null) => {
   try {
+    const userName = user?.name || 'Learner';
+    const userProfile = user?.education ? `(${user.education})` : '';
+
     // Build messages array with system prompt
     const messages = [
       {
         role: 'system',
         content: `You are an AI learning assistant for Tree Campus, an online education platform. 
         Your role is to help students understand course materials, answer questions about lessons, 
-        provide explanations, and guide them through their learning journey. Be helpful, clear, 
-        and encouraging. If a question is outside your knowledge or inappropriate, politely redirect 
-        the student to contact their instructor or support team.`
+        provide explanations, and guide them through their learning journey. 
+        Address the user as ${userName} ${userProfile}.
+        Be helpful, clear, and encouraging. If a question is outside your knowledge or inappropriate, 
+        politely redirect the student to contact their instructor or support team.`
       },
       ...conversationHistory,
       {
@@ -56,11 +61,13 @@ const askAI = async (question, conversationHistory = []) => {
  * @param {string} question - User's question
  * @param {string} courseContext - Course information
  * @param {string} lessonContext - Lesson information
+ * @param {object} user - User object for context
  * @returns {string} AI response
  */
-const askAIWithContext = async (question, courseContext = '', lessonContext = '') => {
+const askAIWithContext = async (question, courseContext = '', lessonContext = '', user = null) => {
   try {
-    let contextPrompt = 'You are an AI learning assistant for Tree Campus.';
+    const userName = user?.name || 'Learner';
+    let contextPrompt = `You are an AI learning assistant for Tree Campus. You are helping ${userName}.`;
     
     if (courseContext) {
       contextPrompt += ` The student is currently studying: ${courseContext}.`;
@@ -70,7 +77,7 @@ const askAIWithContext = async (question, courseContext = '', lessonContext = ''
       contextPrompt += ` They are on the lesson: ${lessonContext}.`;
     }
     
-    contextPrompt += ' Answer their question based on this context.';
+    contextPrompt += ' Answer their question based on this context and be encouraging.';
 
     const messages = [
       {

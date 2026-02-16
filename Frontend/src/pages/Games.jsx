@@ -192,7 +192,7 @@ const Games = () => {
         </motion.div>
 
         {/* Games Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-2 gap-6 mb-12">
+        <div className="grid grid-cols-2 lg:grid-cols-2 gap-4 md:gap-6 mb-12">
           <AnimatePresence mode="wait">
             {filteredGames.map((game, index) => (
               <GameCard key={game._id || game.id} game={game} index={index} />

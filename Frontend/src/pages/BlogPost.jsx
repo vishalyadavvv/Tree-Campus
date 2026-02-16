@@ -414,7 +414,7 @@ const BlogPost = () => {
                 ))}
               </div>
               
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight drop-shadow-lg">
+              <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight drop-shadow-lg">
                 {blog.title}
               </h1>
               

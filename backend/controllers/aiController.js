@@ -54,9 +54,9 @@ const askQuestion = async (req, res, next) => {
     // Get AI response
     let aiResponse;
     if (courseContext || lessonContext) {
-      aiResponse = await askAIWithContext(question, courseContext, lessonContext);
+      aiResponse = await askAIWithContext(question, courseContext, lessonContext, req.user);
     } else {
-      aiResponse = await askAI(question, conversationHistory);
+      aiResponse = await askAI(question, conversationHistory, req.user);
     }
 
     // Save to chat history

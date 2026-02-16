@@ -403,31 +403,46 @@ export const getCourseStructure = async (req, res) => {
     // --- PROGRESS LOGIC END ---
 
     const sections = await Section.find({ courseId: req.params.id }).sort('order');
-    
-    // Get lessons and quizzes for each section
-    const sectionsWithContent = await Promise.all(
-      sections.map(async (section) => {
-        let lessons = await Lesson.find({ sectionId: section._id }).sort('order');
-        
-        // Mark lessons as completed if progress exists
-        const lessonsWithProgress = lessons.map(lesson => {
-          const lessonObj = lesson.toObject();
-          return {
-            ...lessonObj,
-            isCompleted: completedLessonIds.includes(lesson._id.toString())
-          };
-        });
+    const sectionIds = sections.map(s => s._id);
 
-        const Quiz = (await import('../models/Quiz.js')).default;
-        const quiz = await Quiz.findOne({ sectionId: section._id });
-        
-        return {
-          ...section.toObject(),
-          lessons: lessonsWithProgress,
-          quiz
-        };
-      })
-    );
+    // Optimized: Fetch all lessons and quizzes for all sections at once
+    const allLessons = await Lesson.find({ 
+      courseId: req.params.id,
+      sectionId: { $in: sectionIds }
+    }).sort('order');
+
+    const Quiz = (await import('../models/Quiz.js')).default;
+    const allQuizzes = await Quiz.find({ 
+      courseId: req.params.id,
+      sectionId: { $in: sectionIds }
+    });
+
+    // Group lessons and quizzes by sectionId for O(1) retrieval
+    const lessonsBySection = {};
+    const quizzesBySection = {};
+
+    allLessons.forEach(lesson => {
+      const sid = lesson.sectionId.toString();
+      if (!lessonsBySection[sid]) lessonsBySection[sid] = [];
+      lessonsBySection[sid].push({
+        ...lesson.toObject(),
+        isCompleted: completedLessonIds.includes(lesson._id.toString())
+      });
+    });
+
+    allQuizzes.forEach(quiz => {
+      quizzesBySection[quiz.sectionId.toString()] = quiz;
+    });
+    
+    // Assemble the final structure
+    const sectionsWithContent = sections.map(section => {
+      const sid = section._id.toString();
+      return {
+        ...section.toObject(),
+        lessons: lessonsBySection[sid] || [],
+        quiz: quizzesBySection[sid] || null
+      };
+    });
 
     res.status(200).json({
       success: true,

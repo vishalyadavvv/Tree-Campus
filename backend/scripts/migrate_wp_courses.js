@@ -1,0 +1,480 @@
+
+import mongoose from 'mongoose';
+import dotenv from 'dotenv';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import Course from '../models/Course.js';
+import Lesson from '../models/Lesson.js';
+import Section from '../models/Section.js';
+import User from '../models/User.js';
+import Enrollment from '../models/Enrollment.js';
+
+// ES Module fix for __dirname
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Load env vars
+dotenv.config({ path: path.join(__dirname, '../.env') });
+
+const WP_DATA_DIR = path.join(__dirname, '../../Wordpress data');
+
+const wpPostsPath = path.join(WP_DATA_DIR, 'wp_posts.json');
+const wpUsersPath = path.join(WP_DATA_DIR, 'wp_users.json');
+const wpPostMetaPath = path.join(WP_DATA_DIR, 'wp_postmeta.json');
+const wpUsermetaPath = path.join(WP_DATA_DIR, 'wp_usermeta.json');
+const wpUserItemsPath = path.join(WP_DATA_DIR, 'wp_learnpress_user_items.json');
+const wpUserItemResultsPath = path.join(WP_DATA_DIR, 'wp_learnpress_user_item_results.json');
+
+const connectDB = async () => {
+    try {
+        const conn = await mongoose.connect(process.env.MONGODB_URI);
+        console.log(`MongoDB Connected: ${conn.connection.host}`);
+    } catch (error) {
+        console.error(`Error connecting to MongoDB: ${error.message}`);
+        process.exit(1);
+    }
+};
+
+const loadJSON = (filePath) => {
+    try {
+        if (!fs.existsSync(filePath)) {
+            console.warn(`File not found: ${filePath}`);
+            return [];
+        }
+        const data = fs.readFileSync(filePath, 'utf8');
+        return JSON.parse(data);
+    } catch (error) {
+        console.error(`Error reading ${filePath}:`, error.message);
+        return [];
+    }
+};
+
+// Extract actual data rows from PHPMyAdmin JSON export format
+// Format: [{type:"header",...}, {type:"database",...}, {type:"table", data:[...rows...]}]
+const extractData = (raw) => {
+    if (!raw || raw.length === 0) return [];
+    // Check if the last element has a nested "data" array (PHPMyAdmin format)
+    const lastEntry = raw[raw.length - 1];
+    if (lastEntry && lastEntry.data && Array.isArray(lastEntry.data)) {
+        return lastEntry.data;
+    }
+    // Fallback: filter out header/database/table wrapper objects
+    return raw.filter(r => r.ID || r.user_item_id);
+};
+
+const migrateCourses = async () => {
+    await connectDB();
+
+    console.log('Loading WordPress data...');
+    const rawPosts = loadJSON(wpPostsPath);
+    const rawUsers = loadJSON(wpUsersPath);
+    const rawPostMeta = loadJSON(wpPostMetaPath);
+    const rawUserItems = loadJSON(wpUserItemsPath);
+    const rawUserMeta = loadJSON(wpUsermetaPath);
+    const rawUserResults = loadJSON(wpUserItemResultsPath);
+
+    const posts = extractData(rawPosts);
+    const users = extractData(rawUsers);
+    const postMeta = extractData(rawPostMeta);
+    const userItems = extractData(rawUserItems);
+    const userMeta = extractData(rawUserMeta);
+    const userResults = extractData(rawUserResults);
+
+    console.log(`Loaded ${posts.length} posts, ${users.length} users, ${postMeta.length} metadata, ${userItems.length} user items.`);
+    console.log(`Loaded ${userMeta.length} user metadata entries, ${userResults.length} result entries.`);
+
+    // 0. Build optimized Lookups
+    console.log('Building metadata maps...');
+    const postMetaMap = new Map();
+    postMeta.forEach(m => {
+        const pid = String(m.post_id);
+        if (!postMetaMap.has(pid)) postMetaMap.set(pid, {});
+        postMetaMap.get(pid)[m.meta_key] = m.meta_value;
+    });
+
+    const userMetaMap = new Map();
+    userMeta.forEach(m => {
+        const uid = String(m.user_id);
+        if (!userMetaMap.has(uid)) userMetaMap.set(uid, {});
+        userMetaMap.get(uid)[m.meta_key] = m.meta_value;
+    });
+
+    const userResultsMap = new Map();
+    userResults.forEach(r => {
+        const uiid = String(r.user_item_id);
+        try {
+            userResultsMap.set(uiid, typeof r.result === 'string' ? JSON.parse(r.result) : r.result);
+        } catch (e) {
+            userResultsMap.set(uiid, r.result);
+        }
+    });
+
+    // 1. Map WordPress Users (Authors) to MongoDB Users and Update Profiles
+    // Map: WP_User_ID -> Mongo_User_ID
+    const userMap = new Map();
+    const wpUserEmailMap = new Map();
+    
+    // Build map of WP ID -> Email
+    users.forEach(u => {
+        if (u.user_email) {
+            wpUserEmailMap.set(u.ID, u.user_email.toLowerCase());
+        }
+    });
+
+    // Find MongoDB users by email
+    const allMongoUsers = await User.find({});
+    const mongoUserEmailMap = new Map();
+    allMongoUsers.forEach(u => {
+        mongoUserEmailMap.set(u.email.toLowerCase(), u._id);
+    });
+
+    // Determine default admin user (fallback)
+    let defaultAdminId = null;
+    const adminUser = allMongoUsers.find(u => u.role === 'admin');
+    if (adminUser) {
+        defaultAdminId = adminUser._id;
+        console.log(`Using admin user "${adminUser.name}" (${adminUser.email}) as fallback instructor.`);
+    } else if (allMongoUsers.length > 0) {
+        defaultAdminId = allMongoUsers[0]._id;
+        console.log(`No admin found. Using first user "${allMongoUsers[0].name}" as fallback.`);
+    }
+
+    // 1. Map WordPress Users (Authors) to MongoDB Users and Update/Create Profiles
+    console.log('Migrating all WordPress users...');
+    let usersProfileUpdated = 0;
+    let usersCreated = 0;
+
+    for (const wpUser of users) {
+        const wpEmail = wpUser.user_email?.toLowerCase();
+        if (!wpEmail) continue;
+
+        const wpId = String(wpUser.ID);
+        const meta = userMetaMap.get(wpId) || {};
+        
+        // 1.1 Map Profile Data
+        const name = wpUser.display_name || wpUser.user_login;
+        let phone = `9${wpId.padStart(9, '0')}`; // Unique 10-digit placeholder starting with 9
+        if (meta.phone_number && String(meta.phone_number).length === 10) {
+            phone = meta.phone_number;
+        }
+
+        const age = meta.user_age ? parseInt(meta.user_age) : null;
+        
+        // 1.2 Map Role
+        let role = 'student';
+        const caps = Object.keys(meta).find(k => k.includes('capabilities'));
+        if (caps && meta[caps] && meta[caps].includes('administrator')) {
+            role = 'admin';
+        }
+
+        // 1.3 Map Password (Handle WordPress prefix)
+        let passwordHash = wpUser.user_pass;
+        if (passwordHash && passwordHash.startsWith('$wp$')) {
+            passwordHash = passwordHash.replace('$wp$', '');
+        }
+
+        const mongoUser = await User.findOne({ email: wpEmail });
+
+        if (mongoUser) {
+            // Update existing user
+            const updateData = {};
+            // If phone is not a placeholder, update it
+            if (meta.phone_number && String(meta.phone_number).length === 10) {
+                updateData.phone = meta.phone_number;
+            }
+            if (age) updateData.age = age;
+            if (name && name !== mongoUser.name) updateData.name = name;
+            
+            // Only update if there is something to change
+            if (Object.keys(updateData).length > 0) {
+                await User.findByIdAndUpdate(mongoUser._id, updateData);
+                usersProfileUpdated++;
+            }
+            userMap.set(wpId, mongoUser._id);
+        } else {
+            // Create new user - Use native collection to bypass password hashing hook
+            try {
+                const newUserDoc = {
+                    name,
+                    email: wpEmail,
+                    phone: phone,
+                    password: passwordHash,
+                    role: role,
+                    isVerified: true,
+                    createdAt: wpUser.user_registered ? new Date(wpUser.user_registered) : new Date(),
+                    updatedAt: new Date(),
+                    enrolledCourses: [],
+                    completedLessons: [],
+                    certificates: []
+                };
+
+                const result = await User.collection.insertOne(newUserDoc);
+                const newMongoId = result.insertedId;
+                userMap.set(wpId, newMongoId);
+                usersCreated++;
+
+                // Update the lookup maps for later users in this run
+                mongoUserEmailMap.set(wpEmail, newMongoId);
+            } catch (err) {
+                console.error(`Failed to create user ${wpEmail}:`, err.message);
+            }
+        }
+    }
+    console.log(`User Migration: ${usersCreated} created, ${usersProfileUpdated} profiles updated.`);
+
+    // Refresh defaultAdminId to ensure it points to a valid user after migration
+    const allUsers = await User.find({ role: 'admin' });
+    if (allUsers.length > 0) {
+        defaultAdminId = allUsers[0]._id;
+    }
+
+    // 2. Build Lesson -> Course Map (Refined)
+    const lessonToCourseMap = new Map();
+    const itemToSectionOrderMap = new Map(); // WP_Item_ID -> { mongoCourseId, mongoSectionId, order }
+
+    // Primary: user_items lesson entries have ref_id = course ID
+    userItems.forEach(ui => {
+        if (ui.item_type === 'lp_lesson' && ui.ref_type === 'lp_course' && ui.ref_id) {
+            lessonToCourseMap.set(String(ui.item_id), String(ui.ref_id));
+        }
+    });
+
+    // 3. Migrate Courses and Sections
+    const allowedStatuses = ['publish', 'draft', 'trash'];
+    const wpCourses = posts.filter(p => p.post_type === 'lp_course' && allowedStatuses.includes(p.post_status));
+    console.log(`Found ${wpCourses.length} courses (including draft/trash) to migrate.`);
+
+    const courseMap = new Map(); // WP_Course_ID -> Mongo_Course_ID
+
+    let coursesCreated = 0;
+    let coursesUpdated = 0;
+
+    for (const wpCourse of wpCourses) {
+        const instructorId = userMap.get(String(wpCourse.post_author)) || defaultAdminId;
+        const meta = postMetaMap.get(String(wpCourse.ID)) || {};
+        
+        let duration = meta._lp_duration || '0 hours';
+
+        const courseData = {
+            title: wpCourse.post_title,
+            description: wpCourse.post_content || wpCourse.post_title,
+            instructor: instructorId,
+            category: 'Other', 
+            level: 'All Levels',
+            duration: duration,
+            isPublished: wpCourse.post_status === 'publish',
+            slug: wpCourse.post_name,
+        };
+
+        let course = await Course.findOne({ title: wpCourse.post_title });
+        if (course) {
+            Object.assign(course, courseData);
+            await course.save();
+            coursesUpdated++;
+        } else {
+            course = await Course.create(courseData);
+            coursesCreated++;
+        }
+        courseMap.set(String(wpCourse.ID), course._id);
+
+        // Parse curriculum from _lp_info_extra_fast_query
+        let curriculum = null;
+        try {
+            if (meta._lp_info_extra_fast_query) {
+                curriculum = JSON.parse(meta._lp_info_extra_fast_query);
+            }
+        } catch (e) {
+            console.error(`Error parsing curriculum for course ${wpCourse.ID}`);
+        }
+
+        if (curriculum && curriculum.sections && curriculum.sections.length > 0) {
+            for (let i = 0; i < curriculum.sections.length; i++) {
+                const wpSection = curriculum.sections[i];
+                let section = await Section.findOne({ courseId: course._id, title: wpSection.title });
+                if (!section) {
+                    section = await Section.create({
+                        courseId: course._id,
+                        title: wpSection.title || `Section ${i+1}`,
+                        order: i + 1
+                    });
+                }
+                
+                if (wpSection.items) {
+                    wpSection.items.forEach((item, itemIdx) => {
+                        itemToSectionOrderMap.set(String(item.id), {
+                            mongoCourseId: course._id,
+                            mongoSectionId: section._id,
+                            order: itemIdx + 1
+                        });
+                        // Backfill lessonToCourseMap if missing
+                        if (!lessonToCourseMap.has(String(item.id))) {
+                            lessonToCourseMap.set(String(item.id), String(wpCourse.ID));
+                        }
+                    });
+                }
+            }
+        } else {
+            // Fallback: General Section
+            let section = await Section.findOne({ courseId: course._id, title: 'General' });
+            if (!section) {
+                section = await Section.create({
+                    courseId: course._id,
+                    title: 'General',
+                    order: 1
+                });
+            }
+            // Logic to populate this section will happen in lesson migration if no mapping found
+        }
+    }
+
+    console.log(`Courses: ${coursesCreated} created, ${coursesUpdated} updated.`);
+
+    // 4. Migrate Lessons and Quizzes (as Lessons)
+    const wpLessonTypes = ['lp_lesson', 'lp_quiz'];
+    const wpItems = posts.filter(p => wpLessonTypes.includes(p.post_type) && allowedStatuses.includes(p.post_status));
+    console.log(`Found ${wpItems.length} published items (lessons/quizzes) to migrate.`);
+
+    let itemsCreated = 0;
+    let itemsSkipped = 0;
+
+    for (const wpItem of wpItems) {
+        const mapping = itemToSectionOrderMap.get(String(wpItem.ID));
+        let mongoCourseId, mongoSectionId, order;
+
+        if (mapping) {
+            mongoCourseId = mapping.mongoCourseId;
+            mongoSectionId = mapping.mongoSectionId;
+            order = mapping.order;
+        } else {
+            // Fallback: look in lessonToCourseMap and use 'General' section
+            const wpCourseId = lessonToCourseMap.get(String(wpItem.ID));
+            if (!wpCourseId) {
+                itemsSkipped++;
+                continue;
+            }
+            mongoCourseId = courseMap.get(String(wpCourseId));
+            if (!mongoCourseId) {
+                itemsSkipped++;
+                continue;
+            }
+            // Find General section for this course
+            const genSection = await Section.findOne({ courseId: mongoCourseId, title: 'General' });
+            if (!genSection) {
+                itemsSkipped++;
+                continue;
+            }
+            mongoSectionId = genSection._id;
+            order = wpItem.menu_order || 0;
+        }
+
+        const meta = postMetaMap.get(String(wpItem.ID)) || {};
+        
+        // Simple video URL extraction: check meta or look for youtube in content
+        let videoUrl = 'https://youtube.com'; // Default placeholder
+        const content = wpItem.post_content || '';
+        const ytMatch = content.match(/https?:\/\/(?:www\.)?youtube\.com\/watch\?v=([a-zA-Z0-9_-]+)/);
+        if (ytMatch) videoUrl = ytMatch[0];
+
+        const itemData = {
+            courseId: mongoCourseId,
+            sectionId: mongoSectionId,
+            title: wpItem.post_title,
+            content: content,
+            videoUrl: videoUrl,
+            isFree: meta._lp_preview === 'yes' ? true : false,
+            order: order
+        };
+
+        const existingLesson = await Lesson.findOne({ 
+            courseId: mongoCourseId, 
+            title: wpItem.post_title 
+        });
+
+        if (!existingLesson) {
+            await Lesson.create(itemData);
+            itemsCreated++;
+        }
+    }
+
+    console.log(`Lessons/Quizzes: ${itemsCreated} created, ${itemsSkipped} skipped.`);
+
+    // 5. Migrate Enrollments and Progress
+    console.log('Migrating enrollments and progress...');
+    // We only care about Course enrollments in userItems
+    const wpEnrollments = userItems.filter(ui => ui.item_type === 'lp_course');
+    console.log(`Found ${wpEnrollments.length} enrollment records.`);
+
+    let enrollmentsCreated = 0;
+    
+    // Build map of Lesson title -> MongoID for progress tracking
+    const allLessons = await Lesson.find({});
+    const lessonTitleMap = new Map();
+    allLessons.forEach(l => {
+        lessonTitleMap.set(`${l.courseId}_${l.title}`, l._id);
+    });
+
+    for (const wpEnroll of wpEnrollments) {
+        const mongoUserId = userMap.get(String(wpEnroll.user_id));
+        const mongoCourseId = courseMap.get(String(wpEnroll.item_id));
+
+        if (!mongoUserId || !mongoCourseId) continue;
+
+        // Find progress result
+        const result = userResultsMap.get(String(wpEnroll.user_item_id)) || {};
+        const progress = result.result || 0;
+        
+        // Find completed lessons for this user/course
+        const userCourseItems = userItems.filter(ui => 
+            String(ui.user_id) === String(wpEnroll.user_id) && 
+            String(ui.ref_id) === String(wpEnroll.item_id) &&
+            ui.status === 'completed'
+        );
+
+        const completedLessonIds = [];
+        for (const uci of userCourseItems) {
+            // Find the lesson in our DB by finding its WP title first
+            const wpItemPost = posts.find(p => String(p.ID) === String(uci.item_id));
+            if (wpItemPost) {
+                const lessonId = lessonTitleMap.get(`${mongoCourseId}_${wpItemPost.post_title}`);
+                if (lessonId) completedLessonIds.push(lessonId);
+            }
+        }
+
+        const enrollmentData = {
+            user: mongoUserId,
+            course: mongoCourseId,
+            status: wpEnroll.status === 'completed' ? 'completed' : 'active',
+            progress: Math.min(100, Math.round(parseFloat(progress))),
+            completedLessons: completedLessonIds,
+            enrolledAt: wpEnroll.start_time ? new Date(wpEnroll.start_time) : new Date()
+        };
+
+        const existingEnrollment = await Enrollment.findOne({ user: mongoUserId, course: mongoCourseId });
+        if (!existingEnrollment) {
+            await Enrollment.create(enrollmentData);
+            enrollmentsCreated++;
+        } else {
+            Object.assign(existingEnrollment, enrollmentData);
+            await existingEnrollment.save();
+        }
+    }
+    console.log(`Enrollments: ${enrollmentsCreated} created/updated.`);
+
+    // Update totalLessons/totalSections in Courses
+    console.log('Updating course statistics...');
+    for (const [wpId, courseId] of courseMap.entries()) {
+        const lessonCount = await Lesson.countDocuments({ courseId });
+        const sectionCount = await Section.countDocuments({ courseId });
+        
+        await Course.findByIdAndUpdate(courseId, {
+            totalLessons: lessonCount,
+            totalSections: sectionCount
+        });
+    }
+
+    console.log('Migration Complete.');
+    process.exit();
+};
+
+migrateCourses();

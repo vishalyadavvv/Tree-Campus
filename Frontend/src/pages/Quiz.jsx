@@ -196,8 +196,8 @@ const Quiz = () => {
               </div>
             </div>
 
-            <div className="p-6 md:p-8">
-              <div className="grid md:grid-cols-3 gap-4 mb-8">
+            <div className="p-5 md:p-8">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
                 <div className="bg-blue-50 rounded-xl p-5 border border-blue-100">
                   <div className="flex items-center gap-2 mb-2">
                     <FiCheckCircle className="text-blue-600" size={20} />
@@ -332,7 +332,7 @@ const Quiz = () => {
               </div>
 
               {/* Stats */}
-              <div className="grid grid-cols-3 gap-3 mb-6">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-6">
                 <div className="bg-gray-50 rounded-xl p-3 text-center border border-gray-100">
                   <div className="text-xl font-bold text-gray-900">{results.correctAnswers}</div>
                   <div className="text-xs text-gray-500 font-medium">Correct</div>
@@ -341,7 +341,7 @@ const Quiz = () => {
                   <div className="text-xl font-bold text-gray-900">{results.totalQuestions - results.correctAnswers}</div>
                   <div className="text-xs text-gray-500 font-medium">Incorrect</div>
                 </div>
-                <div className="bg-gray-50 rounded-xl p-3 text-center border border-gray-100">
+                <div className="bg-gray-50 rounded-xl p-3 text-center border border-gray-100 col-span-2 md:col-span-1">
                   <div className="text-xl font-bold text-gray-900">{results.passingScore}%</div>
                   <div className="text-xs text-gray-500 font-medium">Required</div>
                 </div>

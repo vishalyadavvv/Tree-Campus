@@ -59,7 +59,7 @@ const handleBack = () => {
 
   return (
     <div className="relative w-full h-full"> 
-      <div className="z-10 absolute bottom-24 w-full flex justify-center pointer-events-none">
+      <div className="z-10 absolute bottom-4 md:bottom-10 w-full flex justify-center pointer-events-none px-4">
         <TypingBox
           showTypingField={showTypingField}
         />

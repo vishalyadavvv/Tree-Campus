@@ -18,7 +18,8 @@ import {
   FiSearch,
   FiSettings,
   FiUserX,
-  FiGift
+  FiGift,
+  FiMoreVertical
 } from "react-icons/fi";
 
 const Sidebar = () => {
@@ -110,29 +111,31 @@ const Sidebar = () => {
 
   return (
     <>
-      {/* Mobile Menu Button */}
-      <button
-        onClick={() => setIsMobileOpen(!isMobileOpen)}
-        className="md:hidden fixed top-4 left-4 z-50 p-3 bg-[#FD5A00] text-white rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
-        style={{ backgroundColor: primaryColor }}
-      >
-        {isMobileOpen ? <FiX size={24} /> : <FiMenu size={24} />}
-      </button>
+      {/* Mobile Menu Button - Moved to top-left for professional look */}
+      {!isMobileOpen && (
+        <button
+          onClick={() => setIsMobileOpen(true)}
+          className="md:hidden fixed top-4 left-4 z-[1200] w-12 h-12 bg-[#FD5A00] text-white rounded-xl shadow-lg flex items-center justify-center hover:scale-105 active:scale-95 transition-all duration-300"
+          style={{ backgroundColor: primaryColor }}
+        >
+          <FiMenu size={24} />
+        </button>
+      )}
 
       {/* Backdrop for mobile - Fixed to cover entire screen */}
       {isMobileOpen && (
         <div
           onClick={() => setIsMobileOpen(false)}
-          className="transition-opacity duration-300"
+          className="fixed inset-0 bg-black/60 z-[1050] backdrop-blur-sm transition-opacity duration-300"
         />
       )}
 
-      {/* Sidebar - Fixed positioning */}
+      {/* Sidebar - Consistent Fixed positioning */}
       <aside
         className={`
-          fixed md:absolute z-10 h-screen transition-all duration-300 ease-in-out w-64
+          fixed top-0 left-0 z-[1100] h-screen transition-all duration-300 ease-in-out w-64
           ${isMobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
-          bg-white border-r border-gray-200 shadow-xl
+          bg-white border-r border-gray-200 shadow-2xl
         `}
         style={{ backgroundColor: 'white', color: '#374151' }}
       >

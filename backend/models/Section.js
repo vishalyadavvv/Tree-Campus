@@ -38,6 +38,9 @@ const sectionSchema = new mongoose.Schema({
   timestamps: true
 });
 
+// Index for fast section loading by course
+sectionSchema.index({ courseId: 1 });
+
 const Section = mongoose.model('Section', sectionSchema);
 
 export default Section;

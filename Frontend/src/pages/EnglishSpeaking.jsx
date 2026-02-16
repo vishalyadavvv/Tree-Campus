@@ -128,7 +128,7 @@ const EnglishSpeaking = () => {
               {courses[activeTab].title}
             </h2>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 p-4 md:p-6">
               {courses[activeTab].videos.map((video, index) => (
                 <div 
                   key={index} 
@@ -163,7 +163,7 @@ const EnglishSpeaking = () => {
         {/* Features Section */}
         <div className="mb-16">
           <h2 className="text-3xl font-bold text-center mb-12 text-gray-800">Why Choose Our Free English Courses?</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8">
             <div className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 text-center transform hover:scale-105">
               <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-4">
                 <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">

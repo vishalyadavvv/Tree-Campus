@@ -205,8 +205,8 @@ export const getCouponStatus = async (req, res) => {
     const { couponCode } = req.params;
     const partnerKey = req.headers['x-partner-key'];
 
-    // Basic Partner Key check (Should be in process.env later)
-    if (partnerKey !== 'TreeCampus_Partner_2025_Secure') {
+    // Secure Partner Key check
+    if (partnerKey !== (process.env.PARTNER_API_KEY || 'TreeCampus_Partner_2025_Secure')) {
       return res.status(401).json({ success: false, message: 'Invalid Partner API Key' });
     }
 
@@ -236,7 +236,7 @@ export const redeemCoupon = async (req, res) => {
     const { couponCode } = req.params;
     const partnerKey = req.headers['x-partner-key'];
 
-    if (partnerKey !== 'TreeCampus_Partner_2025_Secure') {
+    if (partnerKey !== (process.env.PARTNER_API_KEY || 'TreeCampus_Partner_2025_Secure')) {
       return res.status(401).json({ success: false, message: 'Invalid Partner API Key' });
     }
 

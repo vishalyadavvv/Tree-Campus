@@ -172,7 +172,7 @@ const LiveClasses = () => {
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
       {/* Header with Background Image */}
       <div 
-        className="relative py-20 bg-cover bg-center md:py-28 px-4 text-white"
+        className="relative py-12 bg-cover bg-center md:py-28 px-4 text-white"
         style={{
           backgroundImage: `linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://plus.unsplash.com/premium_photo-1664474619075-644dd191935f?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8aW1hZ2V8ZW58MHx8MHx8fDA%3D')`,
         }}
@@ -207,7 +207,7 @@ const LiveClasses = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Helper Banner (only for upcoming tab) */}
         {activeTab === 'upcoming' && (
-          <div className={`bg-white border-2 border-[#FD5B00] rounded-2xl p-8 mb-12 shadow-lg transition-all duration-1000 delay-700 ${isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-10'}`}>
+          <div className={`bg-white border-2 border-[#FD5B00] rounded-2xl p-5 md:p-8 mb-12 shadow-lg transition-all duration-1000 delay-700 ${isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-10'}`}>
             <div className="flex items-start">
               <div className="flex-shrink-0">
                 <div className="w-12 h-12 bg-[#FD5B00] rounded-full flex items-center justify-center">
@@ -218,7 +218,7 @@ const LiveClasses = () => {
                 <h3 className="text-2xl font-bold text-gray-900 mb-4">
                   How to Join Live Classes
                 </h3>
-                <div className="grid md:grid-cols-2 gap-4">
+                <div className="grid sm:grid-cols-2 gap-3 md:gap-4">
                   <div className="flex items-start">
                     <span className="text-[#FD5B00] font-bold mr-3 text-lg">1.</span>
                     <p className="text-gray-700">Choose your preferred class from the list below</p>
@@ -299,8 +299,8 @@ const LiveClasses = () => {
             )}
           </div>
         ) : (
-          /* Classes Grid */
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          /* Classes Grid - OPTIMIZED FOR MOBILE */
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8">
             {displayedClasses.map((classItem, index) => (
               <div 
                 key={classItem._id || classItem.id} 

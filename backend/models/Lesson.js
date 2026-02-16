@@ -57,6 +57,10 @@ const lessonSchema = new mongoose.Schema({
   timestamps: true
 });
 
+// Indexes for high-concurrency curriculum lookups
+lessonSchema.index({ courseId: 1 });
+lessonSchema.index({ sectionId: 1 });
+
 const Lesson = mongoose.model('Lesson', lessonSchema);
 
 export default Lesson;

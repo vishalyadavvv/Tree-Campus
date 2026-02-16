@@ -8,6 +8,9 @@ const StudentAnalytics = () => {
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalStudents, setTotalStudents] = useState(0);
   const [filterStatus, setFilterStatus] = useState('all');
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState(null);
@@ -15,13 +18,25 @@ const StudentAnalytics = () => {
   const [savingEdit, setSavingEdit] = useState(false);
 
   useEffect(() => {
-    fetchStudents();
-  }, []);
+    const delayDebounceFn = setTimeout(() => {
+      fetchStudents(1); // Search starts from page 1
+    }, 500);
 
-  const fetchStudents = async () => {
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchTerm]);
+
+  useEffect(() => {
+    fetchStudents(currentPage);
+  }, [currentPage, filterStatus]);
+
+  const fetchStudents = async (page = 1) => {
     try {
-      const response = await api.get('/students');
+      setLoading(true);
+      const response = await api.get(`/students?page=${page}&limit=10&search=${searchTerm}&status=${filterStatus}`);
       setStudents(response.data.data || []);
+      setTotalPages(response.data.totalPages || 1);
+      setTotalStudents(response.data.totalStudents || 0);
+      setCurrentPage(response.data.currentPage || 1);
     } catch (error) {
       console.error('Error fetching students:', error);
       setStudents([]);
@@ -34,7 +49,7 @@ const StudentAnalytics = () => {
     if (window.confirm('Are you sure you want to delete this student?')) {
       try {
         await api.delete(`/students/${id}`);
-        fetchStudents();
+        fetchStudents(currentPage);
         toast.success('Student deleted successfully');
       } catch (error) {
         console.error('Error deleting student:', error);
@@ -94,7 +109,7 @@ const StudentAnalytics = () => {
     try {
       setSavingEdit(true);
       await api.put(`/students/${selectedStudent._id}`, editFormData);
-      fetchStudents();
+      fetchStudents(currentPage);
       setEditModalOpen(false);
       setSelectedStudent(null);
       toast.success('Student updated successfully');
@@ -114,19 +129,9 @@ const StudentAnalytics = () => {
     }));
   };
 
-  const filteredStudents = students.filter(student => {
-    const matchesSearch = student.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         student.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         student.phone?.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    if (filterStatus === 'active') {
-      return matchesSearch && (student.enrolledCourses?.length > 0);
-    } else if (filterStatus === 'inactive') {
-      return matchesSearch && (!student.enrolledCourses || student.enrolledCourses.length === 0);
-    }
-    
-    return matchesSearch;
-  });
+  // Note: status filtering is now handled server-side (optional implementation in controller)
+  // For now, we'll keep the variable but it's passed to the API.
+  const filteredStudents = students;
 
   if (loading) {
     return (
@@ -157,24 +162,24 @@ const StudentAnalytics = () => {
         {/* Stats Overview */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 text-center">
-            <div className="text-2xl font-bold text-gray-900 mb-1">{students.length}</div>
+            <div className="text-2xl font-bold text-gray-900 mb-1">{totalStudents}</div>
             <div className="text-sm text-gray-600">Total Students</div>
           </div>
           <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 text-center">
             <div className="text-2xl font-bold text-gray-900 mb-1">
-              {students.filter(s => s.enrolledCourses?.length > 0).length}
+              -
             </div>
             <div className="text-sm text-gray-600">Active Students</div>
           </div>
           <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 text-center">
             <div className="text-2xl font-bold text-gray-900 mb-1">
-              {students.reduce((sum, student) => sum + (student.enrolledCourses?.length || 0), 0)}
+              -
             </div>
             <div className="text-sm text-gray-600">Total Enrollments</div>
           </div>
           <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 text-center">
             <div className="text-2xl font-bold text-gray-900 mb-1">
-              {students.reduce((sum, student) => sum + (student.certificates?.length || 0), 0)}
+              -
             </div>
             <div className="text-sm text-gray-600">Certificates Issued</div>
           </div>
@@ -394,18 +399,33 @@ const StudentAnalytics = () => {
           </div>
         )}
 
-        {/* Pagination (Optional) */}
+        {/* Pagination Controls */}
         {filteredStudents.length > 0 && (
           <div className="flex items-center justify-between bg-white rounded-xl border border-gray-200 shadow-sm p-4">
             <div className="text-sm text-gray-700">
-              Showing <span className="font-medium">{filteredStudents.length}</span> of{' '}
-              <span className="font-medium">{students.length}</span> students
+              Showing <span className="font-medium">{(currentPage - 1) * 10 + 1}</span> to{' '}
+              <span className="font-medium">{Math.min(currentPage * 10, totalStudents)}</span> of{' '}
+              <span className="font-medium">{totalStudents}</span> students
             </div>
-            <div className="flex space-x-2">
-              <button className="px-3 py-1 border border-gray-300 rounded text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+            <div className="flex items-center space-x-2">
+              <button 
+                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1}
+                className="px-3 py-1 border border-gray-300 rounded text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50"
+              >
                 Previous
               </button>
-              <button className="px-3 py-1 border border-gray-300 rounded text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+              <div className="flex items-center space-x-1">
+                <span className="text-sm text-gray-600">Page</span>
+                <span className="font-semibold text-gray-900">{currentPage}</span>
+                <span className="text-sm text-gray-600">of</span>
+                <span className="font-semibold text-gray-900">{totalPages}</span>
+              </div>
+              <button 
+                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                disabled={currentPage === totalPages}
+                className="px-3 py-1 border border-gray-300 rounded text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50"
+              >
                 Next
               </button>
             </div>

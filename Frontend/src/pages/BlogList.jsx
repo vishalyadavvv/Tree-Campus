@@ -129,18 +129,18 @@ const BlogList = () => {
               </div>
               
               {/* Category Filter */}
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap items-center justify-center md:justify-start gap-2">
                 {categories.map(category => (
                   <button
                     key={category}
                     onClick={() => setSelectedCategory(category)}
-                    className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 transform hover:scale-105 ${
+                    className={`px-3 py-1.5 md:px-4 md:py-2 rounded-full text-xs md:text-sm font-medium transition-all duration-300 transform hover:scale-105 ${
                       selectedCategory === category
                         ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-lg'
                         : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                     }`}
                   >
-                    {category === 'all' ? 'All Categories' : category}
+                    {category === 'all' ? 'All' : category}
                   </button>
                 ))}
               </div>
@@ -182,8 +182,8 @@ const BlogList = () => {
           </div>
         </div>
 
-        {/* Blog Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+        {/* Blog Grid - OPTIMIZED FOR MOBILE */}
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-12">
           {filteredAndSortedBlogs.map((blog, index) => (
             <Link
               key={blog._id}
@@ -217,7 +217,7 @@ const BlogList = () => {
               </div>
 
               {/* Content */}
-              <div className="p-6">
+              <div className="p-3 md:p-6">
                 {/* Tags */}
                 <div className="flex flex-wrap gap-2 mb-4">
                   {blog.tags?.slice(0, 3).map((tag, index) => (

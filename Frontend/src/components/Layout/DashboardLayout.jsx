@@ -2,29 +2,17 @@ import Sidebar from "./Sidebar";
 import { useState, useEffect } from "react";
 
 const DashboardLayout = ({ children }) => {
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-
-  // Detect screen size
-  useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-
   return (
-    <div className="flex min-h-screen bg-gray-100">
-      {/* Sidebar - manages its own collapse state */}
+    <div className="flex min-h-screen bg-gray-100 overflow-x-hidden">
+      {/* Sidebar - Now correctly fixed and responsive */}
       <Sidebar />
 
-      {/* Content Area - with responsive margin */}
-      <div
-        className="flex flex-col w-full transition-all duration-300 md:ml-64"
-      >
-        <main className="flex-1 p-6 bg-gray-50 min-h-screen">
-          {children}
+      {/* Main Content Area */}
+      <div className="flex-1 transition-all duration-300 md:pl-64 flex flex-col min-h-screen">
+        <main className="flex-1 p-4 md:p-8 bg-gray-50">
+          <div className="max-w-7xl mx-auto">
+            {children}
+          </div>
         </main>
       </div>
     </div>

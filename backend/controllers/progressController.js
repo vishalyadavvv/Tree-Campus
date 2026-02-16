@@ -16,107 +16,48 @@ export const completeLesson = async (req, res) => {
     const userId = req.user._id;
     const lessonId = req.params.id;
 
-    console.log(`✅ Marking lesson ${lessonId} complete for user ${userId}`);
+    // Optimized fetch logic
+    const lessonDoc = await Lesson.findById(lessonId).select('courseId sectionId');
+    if (!lessonDoc) return res.status(404).json({ success: false, message: 'Lesson not found' });
+    
+    const courseId = lessonDoc.courseId;
+    const sectionIds = (await (await import('../models/Section.js')).default.find({ courseId }).select('_id')).map(s => s._id);
 
-    // Validate IDs
-    if (!userId || !lessonId) {
-      console.error('❌ Invalid userId or lessonId');
-      return res.status(400).json({ success: false, message: 'Invalid user or lesson ID' });
-    }
-
-    const lesson = await Lesson.findById(lessonId);
-    if (!lesson) {
-      console.error(`❌ Lesson not found: ${lessonId}`);
-      return res.status(404).json({ success: false, message: 'Lesson not found' });
-    }
-
-    const courseId = lesson.courseId;
-    if (!courseId) {
-      console.error(`❌ Course not found for lesson: ${lessonId}`);
-      return res.status(400).json({ success: false, message: 'Lesson has no associated course' });
-    }
-
-    console.log(`📚 Lesson belongs to course: ${courseId}`);
-
-    // Find or create Progress document
-    let progressDoc = await Progress.findOne({ user: userId, course: courseId });
-    if (!progressDoc) {
-      console.log(`📝 Creating new progress document for user ${userId} in course ${courseId}`);
-      progressDoc = await Progress.create({ 
-        user: userId, 
-        course: courseId, 
-        completedLessons: [] 
-      });
-    }
-
-    // Check if already completed
-    const alreadyCompleted = progressDoc.completedLessons.some(
-      (c) => c.lesson.toString() === lessonId.toString()
+    // Atomic update to Progress
+    const progressDoc = await Progress.findOneAndUpdate(
+      { user: userId, course: courseId },
+      { 
+        $addToSet: { completedLessons: { lesson: lessonId, completedAt: new Date() } },
+        $set: { lastAccessedAt: new Date() }
+      },
+      { new: true, upsert: true }
     );
 
-    if (!alreadyCompleted) {
-      progressDoc.completedLessons.push({ lesson: lessonId, completedAt: new Date() });
-      progressDoc.lastAccessedAt = new Date();
-      await progressDoc.save();
-      console.log(`✅ Added lesson ${lessonId} to completed lessons`);
-    } else {
-      console.log(`⏭️  Lesson ${lessonId} already completed, skipping`);
-    }
-
-    // Recalculate progress (only count lessons in valid sections)
-    const sections = await (await import('../models/Section.js')).default.find({ courseId });
-    const sectionIds = sections.map(s => s._id);
-    const totalLessons = await Lesson.countDocuments({ 
-      courseId,
-      sectionId: { $in: sectionIds }
-    });
+    // Atomic update to Enrollment
+    const totalLessons = await Lesson.countDocuments({ courseId, sectionId: { $in: sectionIds } });
     const completedCount = progressDoc.completedLessons.length;
     const newProgress = totalLessons > 0 ? Math.round((completedCount / totalLessons) * 100) : 0;
 
-    progressDoc.overallProgress = newProgress;
-    await progressDoc.save();
-
-    // 🔄 SYNC 1: Update Enrollment collection
-    const enrollment = await Enrollment.findOne({ user: userId, course: courseId });
-    if (enrollment) {
-      enrollment.progress = newProgress;
-      const alreadyInEnrollment = enrollment.completedLessons.some(
-        id => id.toString() === lessonId.toString()
-      );
-      if (!alreadyInEnrollment) {
-        enrollment.completedLessons.push(lessonId);
-      }
-      enrollment.lastAccessedAt = new Date();
-      await enrollment.save();
-      console.log(`✅ Enrollment updated for course ${courseId}`);
-    }
-
-    // 🔄 SYNC 2: Update User.enrolledCourses array (cache)
-    await User.updateOne(
-      { _id: userId, 'enrolledCourses.courseId': courseId },
-      { 
-        $set: { 
-          'enrolledCourses.$.progress': newProgress,
-          'enrolledCourses.$.lastAccessedAt': new Date()
-        } 
-      }
-    );
-
-    // 🔄 SYNC 3: Update User.completedLessons top-level array
-    // Check if not already in user's global completed list
-    const user = await User.findById(userId);
-    if (user) {
-      const isAlreadyInUserList = user.completedLessons.some(
-        cl => cl.lessonId.toString() === lessonId.toString()
-      );
-      if (!isAlreadyInUserList) {
-        user.completedLessons.push({ lessonId: lessonId, completedAt: new Date() });
-        await user.save();
-        console.log(`✅ User global completedLessons updated`);
-      }
-    }
-
-    console.log(`📊 Progress updated: ${completedCount}/${totalLessons} = ${newProgress}%`);
+    await Promise.all([
+      Progress.updateOne({ _id: progressDoc._id }, { $set: { overallProgress: newProgress } }),
+      Enrollment.updateOne(
+        { user: userId, course: courseId },
+        { 
+          $set: { progress: newProgress, lastAccessedAt: new Date() },
+          $addToSet: { completedLessons: lessonId }
+        }
+      ),
+      User.updateOne(
+        { _id: userId, 'enrolledCourses.courseId': courseId },
+        { 
+          $set: { 'enrolledCourses.$.progress': newProgress, 'enrolledCourses.$.lastAccessedAt': new Date() }
+        }
+      ),
+      User.updateOne(
+        { _id: userId },
+        { $addToSet: { completedLessons: { lessonId: lessonId, completedAt: new Date() } } }
+      )
+    ]);
 
     return res.status(200).json({
       success: true,
@@ -129,11 +70,7 @@ export const completeLesson = async (req, res) => {
     });
   } catch (error) {
     console.error('❌ completeLesson error:', error.message);
-    console.error('Stack:', error.stack);
-    return res.status(500).json({ 
-      success: false, 
-      message: error.message || 'Failed to mark lesson as complete'
-    });
+    return res.status(500).json({ success: false, message: error.message });
   }
 };
 

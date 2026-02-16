@@ -220,20 +220,42 @@ export const getStudentDashboard = async (req, res) => {
   }
 };
 
-// @desc    Get all students
+// @desc    Get all students (Paginated & Searchable)
 // @route   GET /api/students
 // @access  Private/Admin
 export const getStudents = async (req, res) => {
   try {
-    const students = await User.find({ role: 'student' })
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+    const searchTerm = req.query.search || '';
+
+    // Build query
+    let query = { role: 'student' };
+    
+    if (searchTerm) {
+      query.$or = [
+        { name: { $regex: searchTerm, $options: 'i' } },
+        { email: { $regex: searchTerm, $options: 'i' } },
+        { phone: { $regex: searchTerm, $options: 'i' } }
+      ];
+    }
+
+    const students = await User.find(query)
       .populate('enrolledCourses.courseId', 'title thumbnail')
-      .populate('completedLessons.lessonId', 'title')
       .select('-password')
-      .sort('-createdAt');
+      .sort('-createdAt')
+      .skip(skip)
+      .limit(limit);
+
+    const totalStudents = await User.countDocuments(query);
 
     res.status(200).json({
       success: true,
       count: students.length,
+      totalStudents,
+      totalPages: Math.ceil(totalStudents / limit),
+      currentPage: page,
       data: students
     });
   } catch (error) {

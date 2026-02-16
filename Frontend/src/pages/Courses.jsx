@@ -158,8 +158,8 @@ const Courses = () => {
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        {/* Stats Section */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
+        {/* Stats Section - OPTIMIZED FOR MOBILE */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-12">
           {[
             { number: '50K+', text: 'Active Students' },
             { number: '25+', text: 'Expert Teachers' },
