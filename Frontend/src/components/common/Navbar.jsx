@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { 
   FiX, FiChevronRight, FiHome, FiBook, FiUser, 
   FiInfo, FiMessageCircle, FiAward, FiLogIn, FiLogOut,
-  FiChevronDown, FiMail, FiPhone, FiSettings
+  FiChevronDown, FiMail, FiPhone, FiSettings, FiVideo
 } from "react-icons/fi";
 
 
@@ -70,7 +70,7 @@ export default function Navbar() {
       items: [
         { label: "Courses", href: navigation.courses },
         { label: "Certificate", href: navigation.certificate },
-        { label: "Live Classes", href: navigation.liveClasses },
+        { label: "Blogs", href: navigation.blogs.main },
         { label: "English Speaking Classes Online Free", href: navigation.EnglishSpeaking }
       ]
     },
@@ -611,14 +611,14 @@ export default function Navbar() {
               )}
             </div>
 
-            {/* Blogs Button */}
+            {/* Live Classes Button */}
             <NavLink 
-              href={navigation.blogs.main}
+              href={navigation.liveClasses}
               className="px-6 py-2.5 rounded-full flex items-center bg-orange-500 text-white font-bold tracking-wide text-sm shadow-sm hover:bg-orange-600 hover:shadow-md transition-all duration-300 active:scale-95 mx-1"
             >
               <div className="flex items-center gap-2">
-                <FiBook className="text-lg" />
-                <span>BLOGS</span>
+                <FiVideo className="text-lg" />
+                <span>LIVE CLASSES</span>
               </div>
             </NavLink>
 
@@ -954,12 +954,12 @@ export default function Navbar() {
                       </NavLink>
 
                       <NavLink
-                        href={navigation.blogs.main}
+                        href={navigation.liveClasses}
                         onClick={handleLinkClick}
                         className="flex items-center gap-4 px-4 py-3 text-gray-700 hover:text-orange-600 hover:bg-orange-50 rounded-xl transition-all group"
                       >
-                        <FiBook className="text-xl group-hover:scale-110 transition-transform" />
-                        <span className="font-semibold text-sm">Blogs</span>
+                        <FiVideo className="text-xl group-hover:scale-110 transition-transform" />
+                        <span className="font-semibold text-sm">Live Classes</span>
                       </NavLink>
 
                       <NavLink
