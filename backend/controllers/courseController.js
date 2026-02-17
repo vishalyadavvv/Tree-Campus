@@ -26,12 +26,25 @@ const upload = multer({
   }
 });
 
+import fs from 'fs';
+
 // @desc    Get all courses
 // @route   GET /api/courses
 // @access  Public
 export const getCourses = async (req, res) => {
   try {
-    const courses = await Course.find({ isPublished: true }).sort('-createdAt');
+    fs.appendFileSync('debug_hit.txt', `HIT AT ${new Date().toISOString()} query: ${JSON.stringify(req.query)}\n`);
+    console.log('GET /api/courses - Query:', req.query);
+    console.log('DB URI Length:', process.env.MONGODB_URI ? process.env.MONGODB_URI.length : 'MISSING');
+    
+    let query = {};
+    if (req.query.adminView !== 'true') {
+      query.isPublished = true;
+    }
+
+    const courses = await Course.find(query).sort('-createdAt');
+    console.log(`Found ${courses.length} courses in DB with query:`, JSON.stringify(query));
+    courses.forEach(c => console.log(`- ${c.title} (isPublished: ${c.isPublished})`));
     
     res.status(200).json({
       success: true,

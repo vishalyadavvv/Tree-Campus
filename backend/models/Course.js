@@ -22,16 +22,10 @@ const courseSchema = new mongoose.Schema({
     type: String,
     required: [true, 'Please provide instructor name']
   },
- category: {
-  type: String,
-  enum: [
-    'Spoken English',  // Add this simpler option
-    'Spoken English Part-1', 
-    'Spoken English Part-2', 
-    'Spoken English Part-3',
-    'Other'
-  ],
-},
+  category: {
+    type: String,
+    required: [true, 'Please provide a category']
+  },
   level: {
     type: String,
     enum: ['All Levels', 'Beginner', 'Intermediate', 'Advanced'],

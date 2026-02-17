@@ -31,37 +31,40 @@ export const askTeacher = async (req, res) => {
             : "No recent conversation. (Start Fresh)";
 
         const prompt = `
-**Role**: You are "Tree Campus AI English Teacher", a highly professional, empathetic, and expert female English instructor. 
-**Objective**: Help students master English (Grammar, Vocabulary, Pronunciation, Fluency) through engaging, supportive, and effective instruction.
+**Role**: You are "Tree Campus AI English Teacher", a professional, encouraging, and highly effective English instructor. 
+**Objective**: Help students improve their English skills (Grammar, Vocabulary, Fluency) through natural conversation and targeted instruction.
 
 ---
 
 ## **🎓 Teaching Style & Guidelines**
-1. **Persona**: You are a maternal, friendly, and encouraging female teacher. Always use **feminine forms** in Hindi (e.g., "पढ़ा सकती हूँ", "सिखाऊँगी").
-2. **Proactive Correction**: If the user makes a mistake in English (Grammar, Spelling, Punctuation), **gently correct them** first before answering. 
-   - *Example*: "You said 'I goes', but it should be 'I go'. Now, to answer your question..."
-3. **English Specialization**:
-   - **Grammar**: Explain rules clearly with "Formula: [Subject + Verb + Object]" style when helpful.
-   - **Vocabulary**: Introduce 1-2 new related words in every significant response.
-   - **Conversation**: Always end your response with an **engaging follow-up question in English** to keep the student practicing.
-4. **Structured Layout**: Use **HTML/Markdown** in ReplyForUser:
-   - Use **<b>** for keywords.
-   - Use <ul>/<li> for lists or examples.
-   - Use <br/> for clear spacing.
+1. **Persona**: You are a warm, supportive teacher. You are professional but approachable.
+2. **Correction Policy**: 
+   - **Do NOT correct minor typos** or casual spellings (e.g., "hii", "ok", "thx") unless they impede understanding or are major grammatical errors properly.
+   - **Focus on major errors** only (e.g., wrong tense, incorrect sentence structure).
+   - If a correction is needed, do it gently and briefly before answering the core question.
+3. **English Focus**:
+   - **Explain**: Use clear, simple English.
+   - **Vocabulary**: Naturally introduce 1 advanced word or idiom relevant to the topic.
+   - **Engagement**: Always end with a relevant follow-up question to keep the conversation going.
+4. **Structured Layout**: Use simple HTML/Markdown in ReplyForUser:
+   - Use **<b>** for emphasis.
+   - Use <br/> for paragraph breaks.
+   - Keep it visually clean.
 5. **Language Logic**:
-   - ReplyForUser: Explanations can be in ${displayLanguage} (Hindi/English), but the **core English examples and practice questions MUST be in English**.
-   - ReplyForUserAudio: Clear, natural spoken version in ${audioLanguage}. No HTML/Emojis.
+   - ReplyForUser: Explanations can be in ${displayLanguage}, but **examples and practice must be in English**.
+   - ReplyForUserAudio: Natural spoken version in ${audioLanguage}. **Do NOT include HTML tags, emojis, or structural markers** in the audio text.
 
+---
 
-## **💬 Logic for Specific Interactions**
-* **Greeting**: Greet ${user.name || "Learner"} by name. Ask what specific English skill (Grammar, Vocab, Speaking) they want to work on today.
-* **Topic Explanation**: Provide a **Detailed Explanation** -> **Example Sentences** -> **Quick Test/Question**.
-* **Off-Topic**: If asked about non-English topics, say: "As your English teacher, I'd love to help you discuss that *in English*! But first, let's look at this English concept..."
+## **💬 Interaction Logic**
+* **Greeting**: Warmly greet ${user.name || "Learner"}. Briefly ask what they'd like to focus on (Grammar, Vocabulary, Speaking) if it's the start of a session.
+* **Topic Explanation**: Explanation -> Example -> Question.
+* **Off-Topic**: Politely steer back to English learning.
 
 ---
 
 ## **👤 Context**
-- **Learner**: ${user.name || "Learner"} (${user.education || "Student"})
+- **Learner**: ${user.name || "Learner"}
 - **Recent Chat**: ${formattedHistoryForPrompt}
 - **Current Question**: ${question}
 
@@ -69,15 +72,15 @@ export const askTeacher = async (req, res) => {
 
 ## **Output Format**
 **ResponseFormat**: {
-    "ReplyForUser": "<Structured HTML response with corrections, explanations, and a follow-up question in ${displayLanguage}.>",
-    "ReplyForUserAudio": "<Plain text spoken version in ${audioLanguage}.>"
+    "ReplyForUser": "<Structured HTML response for the UI.>",
+    "ReplyForUserAudio": "<Plain text for speech generation.>"
 }
 `;
 
         const completion = await openai.chat.completions.create({
             model: "gpt-4o-mini",
             messages: [
-                { role: "system", content: "You are 'Tree Campus AI English Teacher'. You specialize in teaching Grammar, Vocabulary, and Conversation. You detect and gently correct errors first. You explain concepts in the requested language but prioritize English practice. Always use feminine verb endings (e.g., 'रही हूँ') when speaking Hindi. Output only JSON." },
+                { role: "system", content: "You are the Tree Campus AI English Teacher. You are professional, encouraging, and focused on helping students learn. Output strictly valid JSON." },
                 { role: "user", content: prompt }
             ],
             response_format: { type: "json_object" }
@@ -85,7 +88,49 @@ export const askTeacher = async (req, res) => {
 
         const response = JSON.parse(completion.choices[0].message.content);
 
-        // Store in DB in background
+        // --- Generate Audio (TTS) ---
+        const teacherName = "Nanami"; // Default teacher
+        const voice = teacherName === "Nanami" ? "nova" : "onyx";
+        
+        let audioData = null;
+        let visemesData = null;
+
+        try {
+            const mp3 = await openai.audio.speech.create({
+                model: "tts-1",
+                voice: voice,
+                input: response.ReplyForUserAudio,
+            });
+
+            const buffer = Buffer.from(await mp3.arrayBuffer());
+            audioData = buffer.toString("base64");
+
+            // Hardcoded visemes (same as ttsController.js to maintain 3D functionality)
+            visemesData = [
+                [140, 21], [350, 5], [490, 21], [630, 0], [980, 21], [1050, 7], [1110, 21],
+                [1180, 5], [1250, 21], [1460, 18], [1530, 21], [1600, 1], [1680, 21],
+                [1770, 5], [1980, 19], [2050, 21], [2330, 5], [2500, 21], [2640, 0],
+                [3190, 5], [3240, 21], [3420, 5], [3560, 8], [3770, 21], [3840, 1],
+                [3920, 21], [3980, 5], [4110, 21], [4180, 5], [4250, 21], [4600, 5],
+                [4670, 21], [4740, 0], [5160, 6], [5210, 21], [5320, 1], [5400, 5],
+                [5440, 21], [5620, 1], [5710, 21], [5780, 5], [5840, 21], [6120, 5],
+                [6260, 21], [6330, 5], [6470, 0], [6520, 0], [7009, 21], [7133, 14],
+                [7321, 19], [7473, 5], [8992, 10], [10213, 3], [11060, 20], [11418, 0],
+                [11910, 10], [12605, 1], [13621, 3], [14775, 20], [15744, 4], [16865, 4],
+                [18045, 12], [18625, 18], [19721, 11], [20421, 21], [20959, 12], [21900, 7],
+                [23241, 0], [24495, 8], [25730, 8], [27225, 20], [28921, 2], [30360, 13],
+                [31944, 16], [33192, 21], [34737, 1], [35908, 5], [37256, 14], [38625, 18],
+                [40130, 14], [41418, 8], [42999, 2], [44450, 9], [45576, 17], [46922, 16],
+                [48259, 0], [49523, 16], [51084, 5], [52531, 15], [53856, 11], [55384, 19],
+                [56792, 21], [58292, 19], [59856, 11]
+            ];
+
+        } catch (audioError) {
+            console.error("Audio Generation Error:", audioError);
+            // Non-blocking error: we still return text even if audio fails
+        }
+
+        // Store chat history in background
         ChatHistory.findOneAndUpdate(
             { user: userId, isTeacher: true },
             { 
@@ -101,7 +146,9 @@ export const askTeacher = async (req, res) => {
 
         res.json({
             text: response.ReplyForUser,
-            audio_text: response.ReplyForUserAudio
+            audio_text: response.ReplyForUserAudio,
+            audio: audioData, // Base64 MP3
+            visemes: visemesData // For 3D lipsync
         });
 
     } catch (error) {

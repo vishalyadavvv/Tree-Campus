@@ -1,8 +1,9 @@
   import { useState, useEffect } from 'react';
   import { useNavigate } from 'react-router-dom';
   import DashboardLayout from '../../components/Layout/DashboardLayout';
+  import Modal from '../../components/common/Modal';
   import api from '../../services/api';
-  import { FiPlus, FiEdit2, FiTrash2, FiUpload, FiX, FiUsers, FiClock, FiBarChart2 } from 'react-icons/fi';
+  import { FiPlus, FiEdit2, FiTrash2, FiUpload, FiUsers, FiClock, FiBarChart2, FiEye, FiEyeOff } from 'react-icons/fi';
   import toast from 'react-hot-toast';
 
   const CoursesManagement = () => {
@@ -10,6 +11,7 @@
     const [courses, setCourses] = useState([]);
     const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
+    const [filterStatus, setFilterStatus] = useState('all'); // 'all', 'published', 'draft'
     const [uploading, setUploading] = useState(false);
     const [thumbnailPreview, setThumbnailPreview] = useState('');
     const [formData, setFormData] = useState({
@@ -21,7 +23,8 @@
       thumbnail: '',
       duration: '',
       price: '',
-      lang: 'En'
+      lang: 'En',
+      isPublished: true
     });
 
     useEffect(() => {
@@ -30,7 +33,7 @@
 
     const fetchCourses = async () => {
       try {
-        const response = await api.get('/courses');
+        const response = await api.get('/courses?adminView=true');
         console.log('Fetched courses:', response.data);
         // ✅ FIXED: Changed from response.data.data.courses to response.data.data
         setCourses(response.data.data || []);
@@ -112,7 +115,8 @@
           thumbnail: '', 
           duration: '',
           price: '',
-          lang: 'En' 
+          lang: 'En',
+          isPublished: true
         });
         setThumbnailPreview('');
         
@@ -146,11 +150,12 @@
         description: '', 
         instructor: '', 
         category: 'Spoken English', 
-        level: 'ALl Levels', 
+        level: 'All Levels', 
         thumbnail: '', 
         duration: '',
         price: '',
-        lang: 'En' 
+        lang: 'En',
+        isPublished: true
       });
     };
 
@@ -202,15 +207,49 @@
             </div>
             <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 text-center">
               <div className="text-2xl font-bold text-gray-900 mb-1">
+                {courses.filter(course => !course.isPublished).length}
+              </div>
+              <div className="text-sm text-gray-600">Draft Courses</div>
+            </div>
+            {/* <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 text-center">
+              <div className="text-2xl font-bold text-gray-900 mb-1">
                 {courses.filter(course => course.level === 'Beginner').length}
               </div>
               <div className="text-sm text-gray-600">Beginner Courses</div>
-            </div>
+            </div> */}
+          </div>
+
+          {/* Filters */}
+          <div className="flex space-x-2 bg-white p-2 rounded-lg border border-gray-200 w-fit">
+            <button 
+              onClick={() => setFilterStatus('all')}
+              className={`px-4 py-2 rounded-md transition-colors ${filterStatus === 'all' ? 'bg-blue-600 text-white' : 'hover:bg-gray-100 text-gray-600'}`}
+            >
+              All Courses ({courses.length})
+            </button>
+            <button 
+              onClick={() => setFilterStatus('published')}
+              className={`px-4 py-2 rounded-md transition-colors ${filterStatus === 'published' ? 'bg-green-600 text-white' : 'hover:bg-gray-100 text-gray-600'}`}
+            >
+              Published ({courses.filter(c => c.isPublished).length})
+            </button>
+            <button 
+              onClick={() => setFilterStatus('draft')}
+              className={`px-4 py-2 rounded-md transition-colors ${filterStatus === 'draft' ? 'bg-orange-600 text-white' : 'hover:bg-gray-100 text-gray-600'}`}
+            >
+              Drafts ({courses.filter(c => !c.isPublished).length})
+            </button>
           </div>
 
           {/* Courses Grid - OPTIMIZED */}
           <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-            {courses.map((course) => (
+            {courses
+              .filter(course => {
+                if (filterStatus === 'published') return course.isPublished;
+                if (filterStatus === 'draft') return !course.isPublished;
+                return true;
+              })
+              .map((course) => (
               <div key={course._id} className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden hover:shadow-lg transition-shadow">
                 {/* Course Image */}
                 <div className="relative">
@@ -262,6 +301,9 @@
                     <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs font-medium">
                       {course.category}
                     </span>
+                    <span className={`px-2 py-1 rounded text-xs font-bold ${course.isPublished ? 'bg-green-100 text-green-800' : 'bg-orange-100 text-orange-800 border border-orange-200'}`}>
+                      {course.isPublished ? 'PUBLISHED' : 'DRAFT'}
+                    </span>
                   </div>
 
                   {/* Action Buttons */}
@@ -272,6 +314,21 @@
                     >
                       <FiEdit2 className="w-3 h-3" />
                       <span>Manage</span>
+                    </button>
+                    <button 
+                      className={`p-2 rounded-lg transition-colors ${course.isPublished ? 'text-gray-600 hover:text-orange-600 hover:bg-orange-50' : 'text-gray-600 hover:text-green-600 hover:bg-green-50'}`}
+                      onClick={async () => {
+                        try {
+                          await api.put(`/courses/${course._id}`, { isPublished: !course.isPublished });
+                          toast.success(`Course ${course.isPublished ? 'unpublished' : 'published'}!`);
+                          fetchCourses();
+                        } catch (error) {
+                          toast.error('Failed to update status');
+                        }
+                      }}
+                      title={course.isPublished ? 'Move to Draft' : 'Publish Now'}
+                    >
+                      {course.isPublished ? <FiEyeOff className="w-4 h-4" /> : <FiEye className="w-4 h-4" />}
                     </button>
                     <button 
                       className="p-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
@@ -301,218 +358,232 @@
         </div>
 
         {/* Create Course Modal */}
-        {showModal && (
-          <div className="fixed inset-0 bg-black/30 backdrop-blur-md flex items-center justify-center p-4 z-[3000]">
-            <div className="bg-white rounded-xl shadow-lg w-full max-w-6xl max-h-[90vh] overflow-hidden" onClick={(e) => e.stopPropagation()}>
-              {/* Modal Header */}
-              <div className="flex items-center justify-between p-6 border-b border-gray-200">
-                <h2 className="text-xl font-semibold text-gray-900">Create New Course</h2>
-                <button className="text-gray-400 hover:text-gray-600 transition-colors" onClick={handleCloseModal}>
-                  <FiX className="w-6 h-6" />
-                </button>
+        <Modal
+          isOpen={showModal}
+          onClose={handleCloseModal}
+          title="Create New Course"
+          maxWidth="max-w-4xl"
+        >
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Course Title */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Course Title *</label>
+              <input
+                type="text"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                value={formData.title}
+                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                required
+                placeholder="e.g., Spoken English"
+              />
+            </div>
+
+            {/* Description */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Description *</label>
+              <textarea
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                value={formData.description}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                required
+                rows="3"
+                placeholder="Brief description of the course..."
+              />
+            </div>
+
+            {/* Instructor & Duration */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Instructor *</label>
+                <input
+                  type="text"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  value={formData.instructor}
+                  onChange={(e) => setFormData({ ...formData, instructor: e.target.value })}
+                  required
+                  placeholder="Instructor name"
+                />
               </div>
 
-              {/* Modal Content */}
-              <form onSubmit={handleSubmit} className="p-6 overflow-auto max-h-[calc(90vh-120px)]">
-                <div className="space-y-6">
-                  {/* Course Title */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Course Title *</label>
-                    <input
-                      type="text"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      value={formData.title}
-                      onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                      required
-                      placeholder="e.g., Spoken English"
-                    />
-                  </div>
-
-                  {/* Description */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Description *</label>
-                    <textarea
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      value={formData.description}
-                      onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                      required
-                      rows="3"
-                      placeholder="Brief description of the course..."
-                    />
-                  </div>
-
-                  {/* Instructor & Duration */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Instructor *</label>
-                      <input
-                        type="text"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        value={formData.instructor}
-                        onChange={(e) => setFormData({ ...formData, instructor: e.target.value })}
-                        required
-                        placeholder="Instructor name"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Duration *</label>
-                      <input
-                        type="text"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        placeholder="Time/Date"
-                        value={formData.duration}
-                        onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
-                        required
-                      />
-                    </div>
-                  </div>
-
-                  {/* Category & Level */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
-                      <select
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        value={formData.category}
-                        onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                      >
-                        <option>Spoken English Part-1</option>
-                        <option>Spoken English Part-2</option>
-                        <option>Spoken English Part-3</option>
-                        
-                      </select>
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Level</label>
-                      <select
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        value={formData.level}
-                        onChange={(e) => setFormData({ ...formData, level: e.target.value })}
-                      >
-                        <option>All Levels</option>
-                        <option>Beginner</option>
-                        <option>Intermediate</option>
-                        <option>Advanced</option>
-                      </select>
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Language</label>
-                      <select
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        value={formData.lang}
-                        onChange={(e) => setFormData({ ...formData, lang: e.target.value })}
-                      >
-                        <option value="En">English</option>
-                        <option value="Hn">Hindi</option>
-                        <option value="Bn">Bengali</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  
-
-                  {/* Thumbnail Upload */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Course Thumbnail *</label>
-                    
-                    {/* URL Input First */}
-                    <div className="mb-3">
-                      <label className="block text-xs text-gray-600 mb-1">Option 1: Enter Image URL</label>
-                      <input
-                        type="url"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        placeholder="https://images.unsplash.com/photo-..."
-                        value={formData.thumbnail}
-                        onChange={(e) => {
-                          const url = e.target.value;
-                          setFormData({ ...formData, thumbnail: url });
-                          setThumbnailPreview(url);
-                        }}
-                      />
-                    </div>
-
-                    {/* Divider */}
-                    <div className="relative mb-3">
-                      <div className="absolute inset-0 flex items-center">
-                        <div className="w-full border-t border-gray-300"></div>
-                      </div>
-                      <div className="relative flex justify-center text-sm">
-                        <span className="px-2 bg-white text-gray-500">OR</span>
-                      </div>
-                    </div>
-
-                    {/* File Upload */}
-                    <div>
-                      <label className="block text-xs text-gray-600 mb-1">Option 2: Upload Image File</label>
-                      <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-400 transition-colors cursor-pointer bg-gray-50">
-                        <input
-                          type="file"
-                          id="thumbnail-upload"
-                          accept="image/*"
-                          onChange={handleThumbnailUpload}
-                          className="hidden"
-                        />
-                        <label htmlFor="thumbnail-upload" className="cursor-pointer block">
-                          {thumbnailPreview ? (
-                            <div>
-                              <img 
-                                src={thumbnailPreview} 
-                                alt="Preview" 
-                                className="max-w-full max-h-48 rounded-lg mx-auto mb-2 object-cover"
-                                onError={(e) => {
-                                  console.log('Preview image error');
-                                  e.target.src = 'https://via.placeholder.com/400x200?text=Image+Error';
-                                }}
-                              />
-                              <p className="text-sm text-gray-500">Click to change image</p>
-                            </div>
-                          ) : (
-                            <div>
-                              <FiUpload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                              <p className="text-sm text-gray-600">Click to upload thumbnail</p>
-                              <p className="text-xs text-gray-500 mt-1">PNG, JPG, WEBP up to 5MB</p>
-                            </div>
-                          )}
-                        </label>
-                        {uploading && (
-                          <div className="mt-2">
-                            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mx-auto"></div>
-                            <p className="text-sm text-gray-500 mt-1">Uploading...</p>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                    
-                    <p className="text-xs text-gray-500 mt-2">
-                      💡 Tip: Use free images from Unsplash or Pexels, or upload your own
-                    </p>
-                  </div>
-                </div>
-
-                {/* Modal Actions */}
-                <div className="flex space-x-3 mt-6">
-                  <button 
-                    type="submit" 
-                    className="flex-1 bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors font-medium"
-                    disabled={uploading}
-                  >
-                    {uploading ? 'Uploading...' : 'Create Course'}
-                  </button>
-                  <button 
-                    type="button" 
-                    className="flex-1 bg-gray-200 text-gray-700 py-3 px-4 rounded-lg hover:bg-gray-300 transition-colors"
-                    onClick={handleCloseModal}
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </form>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Duration *</label>
+                <input
+                  type="text"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Time/Date"
+                  value={formData.duration}
+                  onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
+                  required
+                />
+              </div>
             </div>
-          </div>
-        )}
+
+            {/* Category & Level */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Category *</label>
+                <input
+                  type="text"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  value={formData.category}
+                  onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                  required
+                  placeholder="e.g., Spoken English"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Level</label>
+                <select
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  value={formData.level}
+                  onChange={(e) => setFormData({ ...formData, level: e.target.value })}
+                >
+                  <option>All Levels</option>
+                  <option>Beginner</option>
+                  <option>Intermediate</option>
+                  <option>Advanced</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Language</label>
+                <select
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  value={formData.lang}
+                  onChange={(e) => setFormData({ ...formData, lang: e.target.value })}
+                >
+                  <option value="En">English</option>
+                  <option value="Hn">Hindi</option>
+                  <option value="Bn">Bengali</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                <div className="flex items-center space-x-4 mt-2">
+                  <label className="flex items-center space-x-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="isPublished"
+                      checked={formData.isPublished === true}
+                      onChange={() => setFormData({ ...formData, isPublished: true })}
+                      className="w-4 h-4 text-blue-600"
+                    />
+                    <span className="text-sm text-gray-700">Publish</span>
+                  </label>
+                  <label className="flex items-center space-x-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="isPublished"
+                      checked={formData.isPublished === false}
+                      onChange={() => setFormData({ ...formData, isPublished: false })}
+                      className="w-4 h-4 text-blue-600"
+                    />
+                    <span className="text-sm text-gray-700">Draft</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            
+
+            {/* Thumbnail Upload */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Course Thumbnail *</label>
+              
+              {/* URL Input First */}
+              <div className="mb-3">
+                <label className="block text-xs text-gray-600 mb-1">Option 1: Enter Image URL</label>
+                <input
+                  type="url"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="https://images.unsplash.com/photo-..."
+                  value={formData.thumbnail}
+                  onChange={(e) => {
+                    const url = e.target.value;
+                    setFormData({ ...formData, thumbnail: url });
+                    setThumbnailPreview(url);
+                  }}
+                />
+              </div>
+
+              {/* Divider */}
+              <div className="relative mb-3">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-gray-300"></div>
+                </div>
+                <div className="relative flex justify-center text-sm">
+                  <span className="px-2 bg-white text-gray-500">OR</span>
+                </div>
+              </div>
+
+              {/* File Upload */}
+              <div>
+                <label className="block text-xs text-gray-600 mb-1">Option 2: Upload Image File</label>
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-400 transition-colors cursor-pointer bg-gray-50">
+                  <input
+                    type="file"
+                    id="thumbnail-upload"
+                    accept="image/*"
+                    onChange={handleThumbnailUpload}
+                    className="hidden"
+                  />
+                  <label htmlFor="thumbnail-upload" className="cursor-pointer block">
+                    {thumbnailPreview ? (
+                      <div>
+                        <img 
+                          src={thumbnailPreview} 
+                          alt="Preview" 
+                          className="max-w-full max-h-48 rounded-lg mx-auto mb-2 object-cover"
+                          onError={(e) => {
+                            console.log('Preview image error');
+                            e.target.src = 'https://via.placeholder.com/400x200?text=Image+Error';
+                          }}
+                        />
+                        <p className="text-sm text-gray-500">Click to change image</p>
+                      </div>
+                    ) : (
+                      <div>
+                        <FiUpload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                        <p className="text-sm text-gray-600">Click to upload thumbnail</p>
+                        <p className="text-xs text-gray-500 mt-1">PNG, JPG, WEBP up to 5MB</p>
+                      </div>
+                    )}
+                  </label>
+                  {uploading && (
+                    <div className="mt-2">
+                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mx-auto"></div>
+                      <p className="text-sm text-gray-500 mt-1">Uploading...</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+              
+              <p className="text-xs text-gray-500 mt-2">
+                💡 Tip: Use free images from Unsplash or Pexels, or upload your own
+              </p>
+            </div>
+
+            {/* Modal Actions */}
+            <div className="flex space-x-3 mt-6 pt-4 border-t border-gray-100">
+              <button 
+                type="submit" 
+                className="flex-1 bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                disabled={uploading}
+              >
+                {uploading ? 'Uploading...' : 'Create Course'}
+              </button>
+              <button 
+                type="button" 
+                className="flex-1 bg-gray-100 text-gray-700 py-3 px-4 rounded-lg hover:bg-gray-200 transition-colors"
+                onClick={handleCloseModal}
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
+        </Modal>
       </DashboardLayout>
     );
   };

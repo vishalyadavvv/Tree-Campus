@@ -39,6 +39,18 @@ export default function ContestHome() {
       });
       const data = await res.json();
       
+      if (!res.ok) {
+        console.error("Fetch failed:", data.message || "Unknown error");
+        setAllExams([]);
+        return;
+      }
+
+      if (!Array.isArray(data)) {
+        console.error("Expected array but received:", data);
+        setAllExams([]);
+        return;
+      }
+      
       const now = new Date();
       setAllExams(data);
       
@@ -56,7 +68,7 @@ export default function ContestHome() {
       setUpcomingExams(data.filter(e => new Date(e.startDate) > now));
       
       const participated = data.filter(e => 
-          e.studentResponses.some(r => r.userId === user?._id || r.email === user?.email)
+          e.studentResponses?.some(r => r.userId === user?._id || r.email === user?.email)
       );
       setParticipatedExams(participated);
 

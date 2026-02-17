@@ -41,12 +41,17 @@ const Analytics = () => {
       setRefreshing(true);
       setError(null);
       
-      // Get data from the overview endpoint
-      const response = await api.get('/analytics/overview');
-      const overviewData = response.data.data;
+      // Get overview and enrollment trend data concurrently
+      const [overviewRes, enrollmentRes] = await Promise.all([
+        api.get('/analytics/overview'),
+        api.get('/analytics/enrollments')
+      ]);
       
-      // Generate analytics data from overview data
-      const generatedData = generateAnalyticsFromOverview(overviewData);
+      const overviewData = overviewRes.data.data;
+      const enrollmentTrend = enrollmentRes.data.data;
+      
+      // Generate analytics data using real trend data
+      const generatedData = processAnalyticsData(overviewData, enrollmentTrend);
       setAnalyticsData(generatedData);
       setLastUpdated(new Date());
       
@@ -73,25 +78,15 @@ const Analytics = () => {
     fetchAnalyticsData();
   };
 
-  // Generate analytics data from overview data
-  const generateAnalyticsFromOverview = (overviewData) => {
+  // Process analytics data from API responses
+  const processAnalyticsData = (overviewData, enrollmentTrendData) => {
     if (!overviewData) return null;
 
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    const currentMonth = new Date().getMonth();
-    
-    // Generate enrollment trend data
-    const enrollmentTrend = months.slice(0, currentMonth + 1).map((month, index) => {
-      const baseEnrollments = overviewData.stats?.totalStudents || 0;
-      const growthFactor = (index + 1) * 0.3;
-      return {
-        month,
-        enrollments: Math.floor(baseEnrollments * growthFactor)
-      };
-    });
+    // Use enrollment trend directly from API
+    const enrollmentTrend = enrollmentTrendData || [];
 
-    // Generate course category data from popular courses
-    const courseCategories = overviewData.popularCourses?.reduce((acc, course) => {
+    // Generate course category data from all courses
+    const courseCategories = overviewData.allCourses?.reduce((acc, course) => {
       const category = course.category || 'General';
       const existing = acc.find(item => item._id === category);
       
@@ -109,13 +104,13 @@ const Analytics = () => {
     }, []) || [];
 
     // Generate enrollment by course data
-    const enrollmentByCourse = overviewData.popularCourses?.map(course => ({
+    const enrollmentByCourse = overviewData.allCourses?.map(course => ({
       courseName: course.title || course.name || 'Untitled Course',
       enrollments: course.enrollmentCount || 0
     })) || [];
 
     // Calculate total enrollments from actual course data
-    const totalEnrollments = courseCategories.reduce((sum, cat) => sum + (cat.totalEnrollments || 0), 0);
+    const totalEnrollments = overviewData.stats?.totalEnrollments || 0;
 
     return {
       enrollmentTrend,
@@ -215,22 +210,28 @@ const Analytics = () => {
         )}
 
         {/* Stats Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-5 gap-4">
           <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 text-center">
             <div className="text-2xl font-bold text-gray-900 mb-1">
-              {totalEnrollments.toLocaleString()}
+              {(analyticsData.overview?.stats?.totalStudents || 0).toLocaleString()}
+            </div>
+            <div className="text-sm text-gray-600">Total Students</div>
+          </div>
+          <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 text-center">
+            <div className="text-2xl font-bold text-gray-900 mb-1">
+              {(analyticsData.overview?.stats?.totalEnrollments || 0).toLocaleString()}
             </div>
             <div className="text-sm text-gray-600">Total Enrollments</div>
           </div>
           <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 text-center">
             <div className="text-2xl font-bold text-gray-900 mb-1">
-              {courseCategories.reduce((sum, item) => sum + (item.count || 0), 0)}
+              {(analyticsData.overview?.stats?.totalCourses || 0).toLocaleString()}
             </div>
             <div className="text-sm text-gray-600">Total Courses</div>
           </div>
           <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 text-center">
             <div className="text-2xl font-bold text-gray-900 mb-1">
-              {courseCategories.length}
+              {analyticsData.overview?.stats?.categoriesCount || courseCategories.length}
             </div>
             <div className="text-sm text-gray-600">Categories</div>
           </div>

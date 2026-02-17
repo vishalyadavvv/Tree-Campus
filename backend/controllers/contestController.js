@@ -251,6 +251,7 @@ export const redeemCoupon = async (req, res) => {
     }
 
     coupon.used = true;
+    coupon.redeemedAt = new Date();
     await coupon.save();
 
     res.json({

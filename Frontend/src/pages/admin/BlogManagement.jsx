@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import DashboardLayout from '../../components/Layout/DashboardLayout';
+import Modal from '../../components/common/Modal';
 import api from '../../services/api';
 import { FiPlus, FiTrash2, FiUpload, FiX, FiEdit2, FiEye, FiCalendar, FiTag, FiUser } from 'react-icons/fi';
 import toast from 'react-hot-toast';
@@ -393,205 +394,195 @@ const BlogManagement = () => {
         )}
       </div>
 
-      {/* Create/Edit Blog Modal */}
-      {showModal && (
-        <div className="fixed inset-0 bg-black/50 bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl shadow-lg w-full max-w-4xl max-h-[90vh] overflow-hidden" onClick={(e) => e.stopPropagation()}>
-            {/* Modal Header */}
-            <div className="flex items-center justify-between p-6 border-b border-gray-200">
-              <h2 className="text-xl font-semibold text-gray-900">
-                {editingBlog ? 'Edit Blog Post' : 'Create Blog Post'}
-              </h2>
-              <button className="text-gray-400 hover:text-gray-600 transition-colors" onClick={handleCloseModal}>
-                <FiX className="w-6 h-6" />
-              </button>
+      <Modal
+        isOpen={showModal}
+        onClose={handleCloseModal}
+        title={editingBlog ? 'Edit Blog Post' : 'Create Blog Post'}
+        maxWidth="max-w-4xl"
+      >
+        <form onSubmit={handleSubmit} className="p-6 overflow-auto max-h-[calc(90vh-120px)]">
+          <div className="space-y-6">
+            {/* Blog Title */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Blog Title *</label>
+              <input
+                type="text"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                value={formData.title}
+                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                required
+                placeholder="Enter blog title..."
+              />
             </div>
 
-            {/* Modal Content */}
-            <form onSubmit={handleSubmit} className="p-6 overflow-auto max-h-[calc(90vh-120px)]">
-              <div className="space-y-6">
-                {/* Blog Title */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Blog Title *</label>
-                  <input
-                    type="text"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    value={formData.title}
-                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                    required
-                    placeholder="Enter blog title..."
-                  />
+            {/* Content */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Content *</label>
+              <textarea
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                rows="8"
+                value={formData.content}
+                onChange={(e) => setFormData({ ...formData, content: e.target.value })}
+                required
+                placeholder="Write your blog content here..."
+              />
+            </div>
+
+            {/* Author & Category */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Author *</label>
+                <input
+                  type="text"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  value={formData.author}
+                  onChange={(e) => setFormData({ ...formData, author: e.target.value })}
+                  required
+                  placeholder="Author name"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Category *</label>
+                <select
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  value={formData.category}
+                  onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                >
+                  <option>Education</option>
+                  <option>Technology</option>
+                  <option>Programming</option>
+                  <option>Design</option>
+                  <option>Business</option>
+                  <option>Other</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Tags */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                <div className="flex items-center space-x-2">
+                  <FiTag className="w-4 h-4" />
+                  <span>Tags (comma-separated)</span>
                 </div>
+              </label>
+              <input
+                type="text"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="Web Development, Learning, Tips"
+                value={formData.tags}
+                onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
+              />
+            </div>
 
-                {/* Content */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Content *</label>
-                  <textarea
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    rows="8"
-                    value={formData.content}
-                    onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-                    required
-                    placeholder="Write your blog content here..."
-                  />
-                </div>
+            {/* Previous and Next Blog Links */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Previous Blog Link (Optional)</label>
+                <input
+                  type="url"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="https://example.com/previous-blog"
+                  value={formData.previousBlogLink}
+                  onChange={(e) => setFormData({ ...formData, previousBlogLink: e.target.value })}
+                />
+                <p className="text-xs text-gray-500 mt-1">Link to the previous blog post</p>
+              </div>
 
-                {/* Author & Category */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Author *</label>
-                    <input
-                      type="text"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      value={formData.author}
-                      onChange={(e) => setFormData({ ...formData, author: e.target.value })}
-                      required
-                      placeholder="Author name"
-                    />
-                  </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Next Blog Link (Optional)</label>
+                <input
+                  type="url"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="https://example.com/next-blog"
+                  value={formData.nextBlogLink}
+                  onChange={(e) => setFormData({ ...formData, nextBlogLink: e.target.value })}
+                />
+                <p className="text-xs text-gray-500 mt-1">Link to the next blog post</p>
+              </div>
+            </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Category *</label>
-                    <select
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      value={formData.category}
-                      onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                    >
-                      <option>Education</option>
-                      <option>Technology</option>
-                      <option>Programming</option>
-                      <option>Design</option>
-                      <option>Business</option>
-                      <option>Other</option>
-                    </select>
-                  </div>
-                </div>
-
-                {/* Tags */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    <div className="flex items-center space-x-2">
-                      <FiTag className="w-4 h-4" />
-                      <span>Tags (comma-separated)</span>
+            {/* Thumbnail Upload */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Blog Thumbnail</label>
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-400 transition-colors cursor-pointer bg-gray-50">
+                <input
+                  type="file"
+                  id="blog-thumbnail-upload"
+                  accept="image/*"
+                  onChange={handleThumbnailUpload}
+                  className="hidden"
+                />
+                <label htmlFor="blog-thumbnail-upload" className="cursor-pointer block">
+                  {thumbnailPreview ? (
+                    <div>
+                      <img 
+                        src={thumbnailPreview} 
+                        alt="Preview" 
+                        className="max-w-full max-h-48 rounded-lg mx-auto mb-2"
+                      />
+                      <p className="text-sm text-gray-500">Click to change image</p>
                     </div>
-                  </label>
-                  <input
-                    type="text"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Web Development, Learning, Tips"
-                    value={formData.tags}
-                    onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
-                  />
-                </div>
-
-                {/* Previous and Next Blog Links */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Previous Blog Link (Optional)</label>
-                    <input
-                      type="url"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="https://example.com/previous-blog"
-                      value={formData.previousBlogLink}
-                      onChange={(e) => setFormData({ ...formData, previousBlogLink: e.target.value })}
-                    />
-                    <p className="text-xs text-gray-500 mt-1">Link to the previous blog post</p>
+                  ) : (
+                    <div>
+                      <FiUpload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                      <p className="text-sm text-gray-600">Click to upload thumbnail</p>
+                      <p className="text-xs text-gray-500 mt-1">PNG, JPG, WEBP up to 5MB</p>
+                    </div>
+                  )}
+                </label>
+                {uploading && (
+                  <div className="mt-2">
+                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mx-auto"></div>
+                    <p className="text-sm text-gray-500 mt-1">Uploading...</p>
                   </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Next Blog Link (Optional)</label>
-                    <input
-                      type="url"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="https://example.com/next-blog"
-                      value={formData.nextBlogLink}
-                      onChange={(e) => setFormData({ ...formData, nextBlogLink: e.target.value })}
-                    />
-                    <p className="text-xs text-gray-500 mt-1">Link to the next blog post</p>
-                  </div>
-                </div>
-
-                {/* Thumbnail Upload */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Blog Thumbnail</label>
-                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-400 transition-colors cursor-pointer bg-gray-50">
-                    <input
-                      type="file"
-                      id="blog-thumbnail-upload"
-                      accept="image/*"
-                      onChange={handleThumbnailUpload}
-                      className="hidden"
-                    />
-                    <label htmlFor="blog-thumbnail-upload" className="cursor-pointer block">
-                      {thumbnailPreview ? (
-                        <div>
-                          <img 
-                            src={thumbnailPreview} 
-                            alt="Preview" 
-                            className="max-w-full max-h-48 rounded-lg mx-auto mb-2"
-                          />
-                          <p className="text-sm text-gray-500">Click to change image</p>
-                        </div>
-                      ) : (
-                        <div>
-                          <FiUpload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                          <p className="text-sm text-gray-600">Click to upload thumbnail</p>
-                          <p className="text-xs text-gray-500 mt-1">PNG, JPG, WEBP up to 5MB</p>
-                        </div>
-                      )}
-                    </label>
-                    {uploading && (
-                      <div className="mt-2">
-                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mx-auto"></div>
-                        <p className="text-sm text-gray-500 mt-1">Uploading...</p>
-                      </div>
-                    )}
-                  </div>
-                  
-                  <p className="text-xs text-gray-500 mt-2">Or enter URL manually:</p>
-                  <input
-                    type="url"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent mt-1"
-                    placeholder="https://example.com/image.jpg"
-                    value={formData.thumbnail}
-                    onChange={(e) => setFormData({ ...formData, thumbnail: e.target.value })}
-                  />
-                </div>
-
-                {/* Status */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
-                  <select
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    value={formData.status}
-                    onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                  >
-                    <option value="draft">Draft</option>
-                    <option value="published">Published</option>
-                  </select>
-                </div>
+                )}
               </div>
+              
+              <p className="text-xs text-gray-500 mt-2">Or enter URL manually:</p>
+              <input
+                type="url"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent mt-1"
+                placeholder="https://example.com/image.jpg"
+                value={formData.thumbnail}
+                onChange={(e) => setFormData({ ...formData, thumbnail: e.target.value })}
+              />
+            </div>
 
-              {/* Modal Actions */}
-              <div className="flex space-x-3 mt-6">
-                <button 
-                  type="submit" 
-                  className="flex-1 bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors font-medium"
-                >
-                  {editingBlog ? 'Update Blog Post' : 'Create Blog Post'}
-                </button>
-                <button 
-                  type="button" 
-                  className="flex-1 bg-gray-200 text-gray-700 py-3 px-4 rounded-lg hover:bg-gray-300 transition-colors"
-                  onClick={handleCloseModal}
-                >
-                  Cancel
-                </button>
-              </div>
-            </form>
+            {/* Status */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
+              <select
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                value={formData.status}
+                onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+              >
+                <option value="draft">Draft</option>
+                <option value="published">Published</option>
+              </select>
+            </div>
           </div>
-        </div>
-      )}
+
+          {/* Modal Actions */}
+          <div className="flex space-x-3 mt-6">
+            <button 
+              type="submit" 
+              className="flex-1 bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors font-medium"
+            >
+              {editingBlog ? 'Update Blog Post' : 'Create Blog Post'}
+            </button>
+            <button 
+              type="button" 
+              className="flex-1 bg-gray-200 text-gray-700 py-3 px-4 rounded-lg hover:bg-gray-300 transition-colors"
+              onClick={handleCloseModal}
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      </Modal>
+
     </DashboardLayout>
   );
 };

@@ -74,6 +74,8 @@ export const useAITeacher = create(
             question,
             answer: data.text,
             audio_text: data.audio_text,
+            audio: data.audio, // Base64 audio from server
+            visemes: data.visemes, // Visemes from server
             id: messages.length,
             speech,
           };
@@ -104,53 +106,44 @@ export const useAITeacher = create(
           return;
         }
 
-        if (!get().isLesson) {
-          set(() => ({ loading: true }));
+        // If we have audio data from the single API call, play it
+        if (message.audio && !get().isLesson) {
           try {
-            const token = localStorage.getItem('token');
-            const baseUrl = (import.meta.env.VITE_API_URL || "").replace(/\/api$/, "");
-            const ttsUrl = `${baseUrl}/api/ai/teacher/tts?teacher=${get().teacher}&text=${encodeURIComponent(
-              message.audio_text
-            )}&language=${get().language}`;
-            const audioRes = await fetch(
-              ttsUrl,
-              {
-                headers: {
-                    "Authorization": `Bearer ${token}`
-                }
-              }
-            );
-            if (!audioRes.ok) {
-              const errorData = await audioRes.json().catch(() => ({}));
-              throw new Error(errorData.error || `Error fetching TTS: ${audioRes.status}`);
-            }
+             // Convert Base64 to Blob
+             const byteCharacters = atob(message.audio);
+             const byteNumbers = new Array(byteCharacters.length);
+             for (let i = 0; i < byteCharacters.length; i++) {
+               byteNumbers[i] = byteCharacters.charCodeAt(i);
+             }
+             const byteArray = new Uint8Array(byteNumbers);
+             const audioBlob = new Blob([byteArray], { type: 'audio/mpeg' });
+             const audioUrl = URL.createObjectURL(audioBlob);
+             
+             const audioPlayer = new Audio(audioUrl);
 
-            const visemesHeader = audioRes.headers.get("Visemes");
-            if (!visemesHeader) throw new Error("Visemes header not found.");
-            const visemes = JSON.parse(atob(visemesHeader));
+             audioPlayer.onended = () => {
+               set(() => ({ currentMessage: null }));
+               URL.revokeObjectURL(audioUrl); // Cleanup
+             };
 
-            const audioBlob = await audioRes.blob();
-            const audioUrl = URL.createObjectURL(audioBlob);
-            const audioPlayer = new Audio(audioUrl);
+             message.audioPlayer = audioPlayer;
+             audioPlayer.play();
 
-            audioPlayer.onended = () => {
-              set(() => ({ currentMessage: null }));
-            };
+             set(() => ({
+               messages: get().messages.map((m) =>
+                 m.id === message.id ? message : m
+               ),
+               loading: false,
+             }));
 
-            message.visemes = visemes;
-            message.audioPlayer = audioPlayer;
-            audioPlayer.play();
-
-            set(() => ({
-              messages: get().messages.map((m) =>
-                m.id === message.id ? message : m
-              ),
-              loading: false,
-            }));
           } catch (error) {
-            console.error("Error in playMessage:", error);
-            set(() => ({ loading: false }));
+             console.error("Error playing audio message:", error);
+             set(() => ({ loading: false }));
           }
+        } else if (!get().isLesson) {
+             // Fallback or error state if no audio was returned
+             console.warn("No audio data found in message.");
+             set(() => ({ loading: false }));
         }
       },
 

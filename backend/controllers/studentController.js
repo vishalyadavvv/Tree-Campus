@@ -241,6 +241,21 @@ export const getStudents = async (req, res) => {
       ];
     }
 
+    // Add status filter
+    const status = req.query.status;
+    if (status === 'active') {
+      // Explicitly check for an array with at least one element
+      query['enrolledCourses.0'] = { $exists: true };
+    } else if (status === 'inactive') {
+      // Check for missing, null, or empty array
+      query.$or = [
+        { enrolledCourses: { $exists: false } },
+        { enrolledCourses: { $size: 0 } },
+        { enrolledCourses: null },
+        { enrolledCourses: { $type: 'array', $size: 0 } }
+      ];
+    }
+
     const students = await User.find(query)
       .populate('enrolledCourses.courseId', 'title thumbnail')
       .select('-password')
@@ -252,7 +267,7 @@ export const getStudents = async (req, res) => {
 
     // Calculate aggregate statistics for the dashboard
     // Note: These are for the entire student population, not just the current page
-    const activeStudents = await User.countDocuments({ 
+    const activeStudentsCount = await User.countDocuments({ 
       role: 'student', 
       'enrolledCourses.0': { $exists: true } 
     });
@@ -260,7 +275,7 @@ export const getStudents = async (req, res) => {
     // Total enrollments across all students
     const enrollmentStats = await User.aggregate([
       { $match: { role: 'student' } },
-      { $project: { enrollmentCount: { $size: '$enrolledCourses' } } },
+      { $project: { enrollmentCount: { $size: { $ifNull: ['$enrolledCourses', []] } } } },
       { $group: { _id: null, total: { $sum: '$enrollmentCount' } } }
     ]);
     const totalEnrollments = enrollmentStats.length > 0 ? enrollmentStats[0].total : 0;
@@ -272,7 +287,7 @@ export const getStudents = async (req, res) => {
       success: true,
       count: students.length,
       totalStudents,
-      activeStudents,
+      activeStudents: activeStudentsCount,
       totalEnrollments,
       certificatesIssued,
       totalPages: Math.ceil(totalStudents / limit),

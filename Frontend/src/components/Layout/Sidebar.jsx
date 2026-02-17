@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import {
@@ -41,7 +41,7 @@ const adminMenuItems = [
     section: "management",
     subItems: [
       { path: "/admin/contests?section=adminPanel", label: "Admin Panel" },
-      { path: "/admin/contests?section=couponGenerator", label: "Coupon Generator" },
+      { path: "/admin/coupons", label: "Coupon Management" },
       { path: "/admin/contests?section=adminTables", label: "Admin Tables" },
       { path: "/admin/contests?section=users", label: "All Users" }
     ]
@@ -64,6 +64,20 @@ const Sidebar = () => {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [openSubMenus, setOpenSubMenus] = useState({});
   const { user, logout } = useAuth();
+  const navRef = useRef(null);
+
+  // Restore scroll position on mount
+  useEffect(() => {
+    const savedScroll = sessionStorage.getItem("sidebarScroll");
+    if (savedScroll && navRef.current) {
+      navRef.current.scrollTop = parseInt(savedScroll, 10);
+    }
+  }, []);
+
+  // Handle scroll to save position
+  const handleScroll = (e) => {
+    sessionStorage.setItem("sidebarScroll", e.target.scrollTop);
+  };
 
   // Close mobile menu on route change
   useEffect(() => {
@@ -135,11 +149,16 @@ const Sidebar = () => {
       {/* Sidebar - Consistent Fixed positioning */}
       <aside
         className={`
-          fixed top-0 md:top-[112px] left-0 z-[1000] h-screen transition-all duration-300 ease-in-out w-64
+          md:relative fixed top-0 md:top-0 left-0 z-[1000] md:h-full h-screen w-64
           ${isMobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
-          bg-white border-r border-gray-200 shadow-2xl
+          bg-white border-r border-gray-200 shadow-2xl transition-transform duration-300
         `}
-        style={{ backgroundColor: 'white', color: '#374151', height: 'calc(100vh - 112px)' }}
+        style={{ 
+          backgroundColor: 'white', 
+          color: '#374151', 
+          height: isMobileOpen ? '100vh' : 'auto',
+          minHeight: '100vh'
+        }}
       >
         <div className="flex flex-col h-full overflow-hidden">
           {/* Logo/Brand Section - Professional Header */}
@@ -180,7 +199,11 @@ const Sidebar = () => {
           </div>
 
           {/* Navigation Menu */}
-          <nav className="flex-1 p-3 overflow-y-auto custom-scrollbar">
+          <nav 
+            ref={navRef}
+            onScroll={handleScroll}
+            className="flex-1 p-3 md:overflow-visible overflow-y-auto custom-scrollbar"
+          >
             <ul className="space-y-0.5">
               {menuItems.map((item, index) => {
                 // Render divider

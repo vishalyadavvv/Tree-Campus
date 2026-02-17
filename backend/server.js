@@ -85,8 +85,8 @@ app.use(passport.session());
 app.get('/', (req, res) => {
   res.json({
     success: true,
-    message: 'Tree Campus API is running',
-    version: '1.0.0',
+    message: 'Tree Campus API is running - DEBUG VERSION 2',
+    version: '1.0.0-debug',
     timestamp: new Date().toISOString(),
   });
 });
@@ -157,4 +157,4 @@ process.on('uncaughtException', (err) => {
   process.exit(1);
 });
 
-export default app;
+export default app;// Force restart

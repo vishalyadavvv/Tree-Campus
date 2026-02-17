@@ -3,6 +3,19 @@
 html {
   scroll-behavior: smooth;
 }
+
+html,
+body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+.App {
+  overflow-x: hidden;
+  width: 100%;
+  position: relative;
+}
+
 * {
   font-family: 'Inter', sans-serif !important;
 }

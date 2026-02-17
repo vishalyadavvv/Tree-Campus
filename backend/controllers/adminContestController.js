@@ -179,3 +179,42 @@ export const getCoupons = async (req, res) => {
          res.status(500).json({ success: false, message: error.message });
     }
 };
+
+// @desc    Toggle coupon status (used/unused)
+// @route   PUT /api/admin/contest/coupons/:id/toggle
+// @access  Private (Admin)
+export const toggleCouponStatus = async (req, res) => {
+    try {
+        const coupon = await ContestCoupon.findById(req.params.id);
+        if (!coupon) {
+            return res.status(404).json({ success: false, message: 'Coupon not found' });
+        }
+
+        coupon.used = !coupon.used;
+        if (coupon.used) {
+            coupon.redeemedAt = new Date();
+        } else {
+            coupon.redeemedAt = undefined;
+        }
+        
+        await coupon.save();
+        res.json({ success: true, coupon });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+// @desc    Delete a coupon
+// @route   DELETE /api/admin/contest/coupons/:id
+// @access  Private (Admin)
+export const deleteCoupon = async (req, res) => {
+    try {
+        const coupon = await ContestCoupon.findByIdAndDelete(req.params.id);
+        if (!coupon) {
+            return res.status(404).json({ success: false, message: 'Coupon not found' });
+        }
+        res.json({ success: true, message: 'Coupon deleted successfully' });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};

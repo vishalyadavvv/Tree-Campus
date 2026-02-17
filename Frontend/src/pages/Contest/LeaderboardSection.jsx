@@ -45,7 +45,7 @@ export default function LeaderboardSection({ allExams }) {
               className="w-full md:w-1/2 bg-[#1e293b] text-white rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium"
             >
               <option value="">Select Assessment</option>
-              {allExams.map((ex) => (
+              {Array.isArray(allExams) && allExams.map((ex) => (
                 <option key={ex._id} value={ex._id}>
                   {ex.title}
                 </option>

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import DashboardLayout from '../../components/Layout/DashboardLayout';
+import Modal from '../../components/common/Modal';
 import api from '../../services/api';
 import { 
   FiPlus, FiEdit2, FiTrash2, FiSave, FiChevronDown, FiChevronUp, 
@@ -10,15 +11,7 @@ import {
 } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 
-// Course categories based on your backend enum
-const COURSE_CATEGORIES = [
-  'Spoken English Part-1',
-  'Spoken English Part-2',
-  'Spoken English Part-3',
-  'Other',
- 
-];
-
+// Course categories will be fetched from the backend
 const COURSE_LEVELS = ['All Levels','Beginner', 'Intermediate', 'Advanced'];
 const COURSE_LANGUAGES = [
   { label: 'English', value: 'En' },
@@ -114,6 +107,10 @@ const CourseBuilder = () => {
     }
   };
 
+  useEffect(() => {
+    fetchCourseStructure();
+  }, [id]);
+
   const toggleSection = (sectionId) => {
     setExpandedSections(prev => ({
       ...prev,
@@ -136,6 +133,7 @@ const CourseBuilder = () => {
         category: courseData.category,
         lang: courseData.lang,
         duration: courseData.duration,
+        isPublished: courseData.isPublished,
         price: parseFloat(courseData.price) || 0,
         discountPrice: parseFloat(courseData.discountPrice) || 0,
         featured: courseData.featured || false,
@@ -1099,6 +1097,7 @@ const CourseEditModal = ({ course, onSave, onClose, onThumbnailUpload, uploading
     price: course?.price || 0,
     discountPrice: course?.discountPrice || 0,
     featured: course?.featured || false,
+    isPublished: course?.isPublished !== undefined ? course.isPublished : true,
     requirements: Array.isArray(course?.requirements) ? course.requirements : [],
     learningOutcomes: Array.isArray(course?.learningOutcomes) ? course.learningOutcomes : [],
     tags: Array.isArray(course?.tags) ? course.tags : []
@@ -1133,36 +1132,14 @@ const handleThumbnailChange = (e) => {
  
 
   return (
-   
-
-
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-lg flex items-center justify-center p-4 z-[9999]"
-  onClick={onClose}
->
-  <div 
-    className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-hidden flex flex-col" 
-    onClick={(e) => e.stopPropagation()}
-  >
-    <div className="flex items-center justify-between p-8 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-white">
-      <div className="flex items-center space-x-3">
-        <div className="p-3 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl">
-              <FiSettings className="w-6 h-6 text-white" />
-            </div>
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900">Edit Course</h2>
-              <p className="text-gray-600">Update course details and settings</p>
-            </div>
-          </div>
-          <button 
-            className="p-3 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-xl transition-colors duration-300 hover:scale-105" 
-            onClick={onClose}
-          >
-            <FiX className="w-6 h-6" />
-          </button>
-        </div>
-
-        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+    <Modal
+      isOpen={true}
+      onClose={onClose}
+      title="Edit Course"
+      maxWidth="max-w-3xl"
+    >
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
                 Course Title *
@@ -1199,18 +1176,14 @@ const handleThumbnailChange = (e) => {
               <label className="block text-sm font-semibold text-gray-700 mb-2">
                 Category *
               </label>
-              <select
+              <input
+                type="text"
                 className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                 value={formData.category}
                 onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                 required
-              >
-                {COURSE_CATEGORIES.map(category => (
-                  <option key={category} value={category}>
-                    {category.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
-                  </option>
-                ))}
-              </select>
+                placeholder="e.g., Spoken English"
+              />
             </div>
 
             <div>
@@ -1258,51 +1231,44 @@ const handleThumbnailChange = (e) => {
                 placeholder="e.g., 8 weeks, 30 hours"
               />
             </div>
-{/* Thumbnail Upload Section */}
-<div className="md:col-span-2">
-  <label className="block text-sm font-semibold text-gray-700 mb-2">
-    Course Thumbnail
-  </label>
 
-  <div className="flex items-center space-x-4">
-    
-    {/* Thumbnail Preview */}
-    <div className="w-32 h-20 border rounded-lg overflow-hidden bg-gray-100 flex items-center justify-center">
-      {course?.thumbnail ? (
-        <img 
-          src={course.thumbnail} 
-          alt="Thumbnail" 
-          className="w-full h-full object-cover"
-        />
-      ) : (
-        <span className="text-gray-500 text-sm">No Image</span>
-      )}
-    </div>
-
-    {/* Upload Button */}
-    <div>
-      <label className="cursor-pointer bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg transition-all text-sm">
-        {uploadingThumbnail ? "Uploading..." : "Change Thumbnail"}
-        <input 
-          type="file" 
-          accept="image/*" 
-          className="hidden" 
-          onChange={handleThumbnailChange} 
-          disabled={uploadingThumbnail}
-        />
-      </label>
-
-      <p className="text-xs text-gray-500 mt-2">
-        Supported formats: JPG, PNG — Max size: 5MB
-      </p>
-    </div>
-  </div>
-</div>
-
-           
+            {/* Thumbnail Upload Section */}
+            <div className="md:col-span-2">
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Course Thumbnail
+              </label>
+              <div className="flex items-center space-x-4">
+                <div className="w-32 h-20 border rounded-lg overflow-hidden bg-gray-100 flex items-center justify-center">
+                  {course?.thumbnail ? (
+                    <img 
+                      src={course.thumbnail} 
+                      alt="Thumbnail" 
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <span className="text-gray-500 text-sm">No Image</span>
+                  )}
+                </div>
+                <div>
+                  <label className="cursor-pointer bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg transition-all text-sm">
+                    {uploadingThumbnail ? "Uploading..." : "Change Thumbnail"}
+                    <input 
+                      type="file" 
+                      accept="image/*" 
+                      className="hidden" 
+                      onChange={handleThumbnailChange} 
+                      disabled={uploadingThumbnail}
+                    />
+                  </label>
+                  <p className="text-xs text-gray-500 mt-2">
+                    Supported formats: JPG, PNG — Max size: 5MB
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
 
-          <div className="mb-6">
+          <div>
             <div className="flex items-center space-x-3">
               <input
                 type="checkbox"
@@ -1316,6 +1282,22 @@ const handleThumbnailChange = (e) => {
               </label>
             </div>
             <p className="text-sm text-gray-500 mt-1">Feature this course on the homepage</p>
+          </div>
+
+          <div>
+            <div className="flex items-center space-x-3">
+              <input
+                type="checkbox"
+                id="isPublished"
+                className="w-5 h-5 text-green-600 rounded focus:ring-green-500"
+                checked={formData.isPublished}
+                onChange={(e) => setFormData({ ...formData, isPublished: e.target.checked })}
+              />
+              <label htmlFor="isPublished" className="text-sm font-semibold text-gray-700">
+                Published Status
+              </label>
+            </div>
+            <p className="text-sm text-gray-500 mt-1">If unchecked, this course will be saved as a draft</p>
           </div>
 
           <div className="flex space-x-4 pt-6 border-t border-gray-200">
@@ -1335,9 +1317,7 @@ const handleThumbnailChange = (e) => {
             </button>
           </div>
         </form>
-      </div>
-    </div>
-    
+    </Modal>
   );
 };
 
@@ -1374,19 +1354,13 @@ const SectionModal = ({ section, onSave, onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/40 backdrop-blur-lg flex items-center justify-center p-4 z-[9999] animate-fade-in">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <h2 className="text-xl font-semibold text-gray-900">
-            {section?._id ? 'Edit Section' : 'Add New Section'}
-          </h2>
-          <button className="text-gray-400 hover:text-gray-600 transition-colors hover:scale-105" onClick={onClose}>
-            <FiX className="w-6 h-6" />
-          </button>
-        </div>
-
-        <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0">
-          <div className="flex-1 overflow-y-auto p-6 space-y-6">
+    <Modal
+      isOpen={true}
+      onClose={onClose}
+      title={section?._id ? 'Edit Section' : 'Add New Section'}
+      maxWidth="max-w-2xl"
+    >
+        <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Section Title *</label>
               <input
@@ -1459,9 +1433,8 @@ const SectionModal = ({ section, onSave, onClose }) => {
                 </div>
               )}
             </div>
-          </div>
 
-          <div className="flex space-x-3 p-6 border-t border-gray-200 bg-gray-50">
+          <div className="flex space-x-3 pt-6 border-t border-gray-200">
             <button type="submit" className="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white py-2 px-4 rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-300 hover:scale-[1.02] flex items-center justify-center space-x-2">
               <FiSave className="w-4 h-4" />
               <span>Save Section</span>
@@ -1471,8 +1444,7 @@ const SectionModal = ({ section, onSave, onClose }) => {
             </button>
           </div>
         </form>
-      </div>
-    </div>
+    </Modal>
   );
 };
 
@@ -1510,28 +1482,13 @@ const LessonModal = ({ lesson, onSave, onClose }) => {
   };
 
   return (
-  <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 z-[9999]">
-      <div 
-        className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col" 
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* Header - Fixed */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200 flex-shrink-0">
-          <h2 className="text-xl font-semibold text-gray-900">
-            {lesson?._id ? 'Edit Lesson' : 'Add New Lesson'}
-          </h2>
-          <button 
-            className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg p-2 transition-all" 
-            onClick={onClose}
-          >
-           <FiX className="w-5 h-5" />
-
-          </button>
-        </div>
-
-        {/* Form - Scrollable */}
-        <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0">
-          <div className="flex-1 overflow-y-auto p-4 space-y-3">
+    <Modal
+      isOpen={true}
+      onClose={onClose}
+      title={lesson?._id ? 'Edit Lesson' : 'Add New Lesson'}
+      maxWidth="max-w-2xl"
+    >
+        <form onSubmit={handleSubmit} className="space-y-3">
             <div>
               <label className="block text-xs font-medium text-gray-700 mb-1.5">
                 Lesson Title *
@@ -1599,10 +1556,7 @@ const LessonModal = ({ lesson, onSave, onClose }) => {
                   type="file"
                   accept=".pdf"
                   onChange={handlePdfChange}
-                 className="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg 
-focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent 
-transition-all cursor-pointer hover:bg-red-100"
-
+                  className="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all cursor-pointer hover:bg-red-100"
                 />
               </div>
               {formData.pdfFileName && (
@@ -1613,17 +1567,12 @@ transition-all cursor-pointer hover:bg-red-100"
               )}
             </div>
 
-            
-          </div>
-
-          {/* Footer - Fixed */}
-          <div className="flex space-x-3 p-4 border-t border-gray-200 bg-gray-50 flex-shrink-0">
+          <div className="flex space-x-3 pt-4 border-t border-gray-200">
             <button 
               type="submit" 
               className="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white py-2 px-4 rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-300 hover:scale-[1.02] flex items-center justify-center space-x-2 font-medium text-sm"
             >
               <FiSave className="w-4 h-4" />
-
               <span>Save Lesson</span>
             </button>
             <button 
@@ -1635,8 +1584,7 @@ transition-all cursor-pointer hover:bg-red-100"
             </button>
           </div>
         </form>
-      </div>
-    </div>
+    </Modal>
   );
 };
 
@@ -1795,19 +1743,14 @@ const handleSubmit = async (e) => {
 };
   // Render JSX remains the same...
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-70 backdrop-blur-sm flex items-center justify-center p-4 z-[9999] animate-fade-in">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col" onClick={(e) => e.stopPropagation()}>
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <h2 className="text-xl font-semibold text-gray-900">
-            {props.title || (quiz.isNew ? 'Create Quiz' : 'Edit Quiz')}
-          </h2>
-          <button className="text-gray-400 hover:text-gray-600 transition-colors hover:scale-105" onClick={onClose}>
-            <FiX className="w-6 h-6" />
-          </button>
-        </div>
-
-        <form onSubmit={handleSubmit} className="flex-1 overflow-auto">
-          <div className="p-6 space-y-6">
+    <Modal
+      isOpen={true}
+      onClose={onClose}
+      title={props.title || (quiz.isNew ? 'Create Quiz' : 'Edit Quiz')}
+      maxWidth="max-w-4xl"
+    >
+        <form onSubmit={handleSubmit}>
+          <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Quiz Title *</label>
@@ -1959,7 +1902,7 @@ const handleSubmit = async (e) => {
             </div>
           </div>
 
-          <div className="flex space-x-3 p-6 border-t border-gray-200 bg-gray-50">
+          <div className="flex space-x-3 pt-6 border-t border-gray-200 mt-6">
             <button type="submit" className="flex-1 bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2">
               <FiSave className="w-4 h-4" />
               <span>Save Quiz</span>
@@ -1969,8 +1912,7 @@ const handleSubmit = async (e) => {
             </button>
           </div>
         </form>
-      </div>
-    </div>
+    </Modal>
   );
 };
 export default CourseBuilder;
