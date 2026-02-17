@@ -110,20 +110,26 @@ userSchema.pre("save", async function () {
 // Compare password
 userSchema.methods.comparePassword = async function (candidatePassword) {
   if (!this.password) return false;
-  
-  let hashToCompare = this.password;
-  
-  // WordPress (PHP) bcrypt often adds $wp$ prefix and uses $2y$
-  // Node (bcryptjs) expects $2a$ or $2b$
-  if (hashToCompare.startsWith('$wp$2y$')) {
-    hashToCompare = '$2a$' + hashToCompare.slice(7);
-  } else if (hashToCompare.startsWith('$2y$')) {
-    hashToCompare = '$2a$' + hashToCompare.slice(4);
+
+  let hash = this.password;
+
+  // ✅ Handle WordPress phpass hashes
+  if (hash.startsWith("$P$") || hash.startsWith("$H$")) {
+    return wpHasher.CheckPassword(candidatePassword, hash);
   }
 
-  return await bcrypt.compare(candidatePassword, hashToCompare);
-};
+  // ✅ Handle WordPress bcrypt with $wp$ prefix
+  if (hash.startsWith("$wp$2y$")) {
+    hash = "$2a$" + hash.substring(6); // remove "$wp$2y$" → keep rest
+  }
 
+  // ✅ Handle $2y$ → convert to $2a$
+  if (hash.startsWith("$2y$")) {
+    hash = "$2a$" + hash.substring(4);
+  }
+
+  return await bcrypt.compare(candidatePassword, hash);
+};
 // Generate OTP
 userSchema.methods.generateOTP = function () {
   const otp = Math.floor(100000 + Math.random() * 900000).toString();

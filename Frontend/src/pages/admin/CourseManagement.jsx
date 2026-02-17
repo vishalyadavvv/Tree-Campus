@@ -132,12 +132,16 @@
 
     const handleDelete = async (id) => {
       if (window.confirm('Are you sure you want to delete this course?')) {
+        // Optimistic: remove from UI immediately
+        setCourses(prev => prev.filter(c => c._id !== id));
         try {
           await api.delete(`/courses/${id}`);
-          fetchCourses();
+          toast.success('Course deleted successfully');
         } catch (error) {
           console.error('Error deleting course:', error);
           toast.error('Failed to delete course');
+          // Revert: re-fetch on error
+          fetchCourses();
         }
       }
     };

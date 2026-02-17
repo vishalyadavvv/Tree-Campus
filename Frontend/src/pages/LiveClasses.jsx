@@ -172,31 +172,31 @@ const LiveClasses = () => {
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
       {/* Header with Background Image */}
       <div 
-        className="relative py-12 bg-cover bg-center md:py-28 px-4 text-white"
+        className="relative py-8 bg-cover bg-center md:py-28 px-4 text-white"
         style={{
           backgroundImage: `linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://plus.unsplash.com/premium_photo-1664474619075-644dd191935f?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8aW1hZ2V8ZW58MHx8MHx8fDA%3D')`,
         }}
       >
         {/* Content */}
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 z-10">
-          <div className={`flex items-center justify-center mb-4 transition-all duration-700 delay-200 ${isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-50'}`}>
-            <Video className="w-12 h-12 mr-4 text-white" />
+          <div className={`flex items-center justify-center mb-2 md:mb-4 transition-all duration-700 delay-200 ${isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-50'}`}>
+            <Video className="w-8 h-8 md:w-12 md:h-12 mr-4 text-white" />
           </div>
-          <h1 className={`text-5xl md:text-6xl font-bold mb-6 text-center text-white transition-all duration-1000 delay-300 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+          <h1 className={`text-3xl md:text-6xl font-bold mb-3 md:mb-6 text-center text-white transition-all duration-1000 delay-300 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
             Live Classes
           </h1>
-          <p className={`text-xl md:text-2xl text-white font-extrabold text-center max-w-2xl mx-auto transition-all duration-1000 delay-500 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+          <p className={`text-base md:text-2xl text-white font-extrabold text-center max-w-2xl mx-auto transition-all duration-1000 delay-500 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
             {classes.upcoming.length > 0 
               ? `Join ${classes.upcoming.length} upcoming live sessions with expert instructors`
               : 'Connect with expert teachers in real-time interactive sessions'
             }
           </p>
-          <div className={`text-center mt-8 transition-all duration-1000 delay-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+          <div className={`text-center mt-4 md:mt-8 transition-all duration-1000 delay-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
             <button
               onClick={fetchLiveClasses}
-              className="inline-flex items-center px-6 py-3 bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg hover:bg-white/20 transition-colors"
+              className="inline-flex items-center px-4 py-2 md:px-6 md:py-3 text-sm md:text-base bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg hover:bg-white/20 transition-colors"
             >
-              <Loader2 className="w-5 h-5 mr-2" />
+              <Loader2 className="w-4 h-4 md:w-5 md:h-5 mr-2" />
               Refresh Classes
             </button>
           </div>
@@ -204,36 +204,36 @@ const LiveClasses = () => {
       </div>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-12">
         {/* Helper Banner (only for upcoming tab) */}
         {activeTab === 'upcoming' && (
-          <div className={`bg-white border-2 border-[#FD5B00] rounded-2xl p-5 md:p-8 mb-12 shadow-lg transition-all duration-1000 delay-700 ${isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-10'}`}>
+          <div className={`bg-white border-2 border-[#FD5B00] rounded-xl md:rounded-2xl p-4 md:p-8 mb-6 md:mb-12 shadow-lg transition-all duration-1000 delay-700 ${isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-10'}`}>
             <div className="flex items-start">
-              <div className="flex-shrink-0">
+              <div className="flex-shrink-0 hidden md:block">
                 <div className="w-12 h-12 bg-[#FD5B00] rounded-full flex items-center justify-center">
                   <span className="text-2xl">📺</span>
                 </div>
               </div>
-              <div className="ml-6 flex-1">
-                <h3 className="text-2xl font-bold text-gray-900 mb-4">
-                  How to Join Live Classes
+              <div className="md:ml-6 flex-1">
+                <h3 className="text-lg md:text-2xl font-bold text-gray-900 mb-2 md:mb-4">
+                  📺 How to Join Live Classes
                 </h3>
-                <div className="grid sm:grid-cols-2 gap-3 md:gap-4">
+                <div className="grid sm:grid-cols-2 gap-1.5 md:gap-4">
                   <div className="flex items-start">
-                    <span className="text-[#FD5B00] font-bold mr-3 text-lg">1.</span>
-                    <p className="text-gray-700">Choose your preferred class from the list below</p>
+                    <span className="text-[#FD5B00] font-bold mr-2 md:mr-3 text-sm md:text-lg">1.</span>
+                    <p className="text-gray-700 text-sm md:text-base">Choose your class below</p>
                   </div>
                   <div className="flex items-start">
-                    <span className="text-[#FD5B00] font-bold mr-3 text-lg">2.</span>
-                    <p className="text-gray-700">Click the "Join Class" button before the start time</p>
+                    <span className="text-[#FD5B00] font-bold mr-2 md:mr-3 text-sm md:text-lg">2.</span>
+                    <p className="text-gray-700 text-sm md:text-base">Click "Join Class" before start time</p>
                   </div>
                   <div className="flex items-start">
-                    <span className="text-[#FD5B00] font-bold mr-3 text-lg">3.</span>
-                    <p className="text-gray-700">You'll be redirected to the meeting platform</p>
+                    <span className="text-[#FD5B00] font-bold mr-2 md:mr-3 text-sm md:text-lg">3.</span>
+                    <p className="text-gray-700 text-sm md:text-base">You'll be redirected to the platform</p>
                   </div>
                   <div className="flex items-start">
-                    <span className="text-[#FD5B00] font-bold mr-3 text-lg">4.</span>
-                    <p className="text-gray-700">All classes are interactive and FREE!</p>
+                    <span className="text-[#FD5B00] font-bold mr-2 md:mr-3 text-sm md:text-lg">4.</span>
+                    <p className="text-gray-700 text-sm md:text-base">All classes are interactive & FREE!</p>
                   </div>
                 </div>
               </div>
@@ -242,17 +242,17 @@ const LiveClasses = () => {
         )}
 
         {/* Tab Navigation & Heading */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between mb-8">
+        <div className="flex flex-col md:flex-row md:items-center justify-between mb-4 md:mb-8">
           <div>
-            <h2 className="text-4xl font-bold text-gray-900">
+            <h2 className="text-2xl md:text-4xl font-bold text-gray-900">
               {activeTab === 'upcoming' ? 'Upcoming Classes' : 'Past Classes'}
             </h2>
-            <p className="text-gray-600 mt-2">
+            <p className="text-gray-600 mt-1 text-sm md:text-base">
               {displayedClasses.length} {displayedClasses.length === 1 ? 'class' : 'classes'} {activeTab === 'upcoming' ? 'scheduled' : 'completed'}
             </p>
           </div>
           
-          <div className="mt-4 md:mt-0 bg-gray-100 p-1 rounded-lg flex space-x-1">
+          <div className="mt-3 md:mt-0 bg-gray-100 p-1 rounded-lg flex space-x-1">
             <button
               onClick={() => setActiveTab('upcoming')}
               className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
@@ -300,18 +300,18 @@ const LiveClasses = () => {
           </div>
         ) : (
           /* Classes Grid - OPTIMIZED FOR MOBILE */
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-8">
             {displayedClasses.map((classItem, index) => (
               <div 
                 key={classItem._id || classItem.id} 
-                className={`bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transform hover:-translate-y-2 transition-all duration-500 border border-gray-100 ${
+                className={`bg-white rounded-xl md:rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transform hover:-translate-y-2 transition-all duration-500 border border-gray-100 ${
                   visibleCards.includes(index) ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-20'
                 }`}
               >
                 {/* Card Header */}
-                <div className={`bg-gradient-to-r p-6 ${activeTab === 'upcoming' ? 'from-[#FD5B00] to-[#ff7a33]' : 'from-gray-600 to-gray-500'}`}>
-                  <div className="flex items-center space-x-4">
-                    <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center border-4 border-white shadow-lg">
+                <div className={`bg-gradient-to-r p-3 md:p-6 ${activeTab === 'upcoming' ? 'from-[#FD5B00] to-[#ff7a33]' : 'from-gray-600 to-gray-500'}`}>
+                  <div className="flex items-center space-x-3 md:space-x-4">
+                    <div className="w-10 h-10 md:w-16 md:h-16 rounded-full bg-white flex items-center justify-center border-2 md:border-4 border-white shadow-lg">
                       {classItem.instructorImage ? (
                         <img
                           src={classItem.instructorImage}
@@ -319,16 +319,16 @@ const LiveClasses = () => {
                           className="w-full h-full rounded-full object-cover"
                         />
                       ) : (
-                        <Users className={`w-8 h-8 ${activeTab === 'upcoming' ? 'text-[#FD5B00]' : 'text-gray-600'}`} />
+                        <Users className={`w-5 h-5 md:w-8 md:h-8 ${activeTab === 'upcoming' ? 'text-[#FD5B00]' : 'text-gray-600'}`} />
                       )}
                     </div>
                     <div className="text-white">
-                      <h3 className="font-bold text-lg">{classItem.instructor}</h3>
-                      <div className="flex items-center text-sm opacity-90">
+                      <h3 className="font-bold text-sm md:text-lg">{classItem.instructor}</h3>
+                      <div className="flex items-center text-xs md:text-sm opacity-90">
                         {classItem.platform === 'Zoom' ? (
-                          <Video className="w-4 h-4 mr-1" />
+                          <Video className="w-3 h-3 md:w-4 md:h-4 mr-1" />
                         ) : (
-                          <Youtube className="w-4 h-4 mr-1" />
+                          <Youtube className="w-3 h-3 md:w-4 md:h-4 mr-1" />
                         )}
                         {classItem.platform || 'Live Session'}
                       </div>
@@ -337,42 +337,42 @@ const LiveClasses = () => {
                 </div>
 
                 {/* Card Body */}
-                <div className="p-6">
-                  <h4 className="text-xl font-bold text-gray-900 mb-4 line-clamp-2">
+                <div className="p-3 md:p-6">
+                  <h4 className="text-base md:text-xl font-bold text-gray-900 mb-2 md:mb-4 line-clamp-2">
                     {classItem.title}
                   </h4>
 
-                  <div className="space-y-3 mb-6">
+                  <div className="space-y-2 md:space-y-3 mb-3 md:mb-6">
                     <div className="flex items-center text-gray-600">
-                      <Calendar className={`w-5 h-5 mr-3 ${activeTab === 'upcoming' ? 'text-[#FD5B00]' : 'text-gray-500'}`} />
-                      <span className="text-sm font-medium">
+                      <Calendar className={`w-4 h-4 md:w-5 md:h-5 mr-2 md:mr-3 ${activeTab === 'upcoming' ? 'text-[#FD5B00]' : 'text-gray-500'}`} />
+                      <span className="text-xs md:text-sm font-medium">
                         {formatDate(classItem.scheduledAt)}
                       </span>
                     </div>
                     <div className="flex items-center text-gray-600">
-                      <Clock className={`w-5 h-5 mr-3 ${activeTab === 'upcoming' ? 'text-[#FD5B00]' : 'text-gray-500'}`} />
-                      <span className="text-sm font-medium">
+                      <Clock className={`w-4 h-4 md:w-5 md:h-5 mr-2 md:mr-3 ${activeTab === 'upcoming' ? 'text-[#FD5B00]' : 'text-gray-500'}`} />
+                      <span className="text-xs md:text-sm font-medium">
                         {getDurationText(classItem.duration || 60)}
                       </span>
                     </div>
 
                     {/* Password display: Only show for upcoming */}
                     {activeTab === 'upcoming' && classItem.platform === 'Zoom' && classItem.password && (
-                      <div className="flex items-center text-gray-600 bg-orange-50 p-2 rounded-lg border border-orange-100">
-                        <div className="w-5 h-5 mr-3 flex items-center justify-center font-bold text-xs text-[#FD5B00] border border-[#FD5B00] rounded-sm">P</div>
-                        <span className="text-sm">
-                          Meeting Password: <span className="font-mono font-bold text-gray-900 selection:bg-orange-200">{classItem.password}</span>
+                      <div className="flex items-center text-gray-600 bg-orange-50 p-1.5 md:p-2 rounded-lg border border-orange-100">
+                        <div className="w-4 h-4 md:w-5 md:h-5 mr-2 md:mr-3 flex items-center justify-center font-bold text-[10px] md:text-xs text-[#FD5B00] border border-[#FD5B00] rounded-sm">P</div>
+                        <span className="text-xs md:text-sm">
+                          Password: <span className="font-mono font-bold text-gray-900">{classItem.password}</span>
                         </span>
                       </div>
                     )}
 
                     <div className="flex items-center justify-between">
-                      <span className={`px-3 py-1 ${getLevelColor(classItem.level || 'Beginner')} rounded-full text-xs font-semibold`}>
+                      <span className={`px-2 md:px-3 py-0.5 md:py-1 ${getLevelColor(classItem.level || 'Beginner')} rounded-full text-[10px] md:text-xs font-semibold`}>
                         {classItem.level || 'All Levels'}
                       </span>
                     </div>
                     {classItem.description && (
-                      <p className="text-gray-600 text-sm line-clamp-2 mt-2">
+                      <p className="text-gray-600 text-xs md:text-sm line-clamp-2 mt-1">
                         {classItem.description}
                       </p>
                     )}
@@ -381,14 +381,14 @@ const LiveClasses = () => {
                   {activeTab === 'upcoming' ? (
                     <button 
                       onClick={() => joinClass(classItem)}
-                      className="w-full py-3 bg-gradient-to-r from-[#FD5B00] to-[#ff7a33] text-white rounded-xl hover:from-[#e55200] hover:to-[#ff6b1f] transition-all duration-300 font-bold text-lg shadow-md hover:shadow-xl transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="w-full py-2.5 md:py-3 bg-gradient-to-r from-[#FD5B00] to-[#ff7a33] text-white rounded-lg md:rounded-xl hover:from-[#e55200] hover:to-[#ff6b1f] transition-all duration-300 font-bold text-sm md:text-lg shadow-md hover:shadow-xl transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
                       disabled={!classItem.link && !classItem.meetingId}
                     >
                       {(classItem.link || classItem.meetingId) ? 'Join Class' : 'Link Coming Soon'}
                     </button>
                   ) : (
                     <button 
-                      className="w-full py-3 bg-gray-100 text-gray-500 rounded-xl cursor-not-allowed font-medium text-lg border border-gray-200"
+                      className="w-full py-2.5 md:py-3 bg-gray-100 text-gray-500 rounded-lg md:rounded-xl cursor-not-allowed font-medium text-sm md:text-lg border border-gray-200"
                       disabled
                     >
                       Class Completed

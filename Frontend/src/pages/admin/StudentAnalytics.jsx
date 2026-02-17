@@ -66,13 +66,14 @@
 
     const handleDelete = async (id) => {
       if (window.confirm('Are you sure you want to delete this student?')) {
+        setStudents(prev => prev.filter(s => s._id !== id));
         try {
           await api.delete(`/students/${id}`);
-          fetchStudents(currentPage);
           toast.success('Student deleted successfully');
         } catch (error) {
           console.error('Error deleting student:', error);
           toast.error('Failed to delete student');
+          fetchStudents(currentPage);
         }
       }
     };

@@ -130,13 +130,14 @@ const BlogManagement = () => {
 
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this blog?')) {
+      setBlogs(prev => prev.filter(b => b._id !== id));
       try {
         await api.delete(`/blogs/${id}`);
         toast.success('Blog deleted successfully!');
-        fetchBlogs();
       } catch (error) {
         console.error('Error deleting blog:', error);
         toast.error('Failed to delete blog');
+        fetchBlogs();
       }
     }
   };

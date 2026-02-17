@@ -70,6 +70,7 @@ const CourseBuilder = () => {
   const [editingQuiz, setEditingQuiz] = useState(null);
   const [currentSectionId, setCurrentSectionId] = useState(null);
   const [uploadingThumbnail, setUploadingThumbnail] = useState(false);
+  const [saving, setSaving] = useState(false);
   
   // Assignment states
   const [assignments, setAssignments] = useState([]);
@@ -80,9 +81,9 @@ const CourseBuilder = () => {
     fetchCourseStructure();
   }, [id]);
 
-  const fetchCourseStructure = async () => {
+  const fetchCourseStructure = async (silent = false) => {
     try {
-      setLoading(true);
+      if (!silent) setLoading(true);
       const response = await api.get(`/courses/${id}/structure`);
       setCourse(response.data.data.course);
       setSections(response.data.data.sections);
@@ -126,6 +127,7 @@ const CourseBuilder = () => {
 
   const handleSaveCourse = async (courseData) => {
     try {
+      setSaving(true);
       const formattedData = {
         title: courseData.title,
         description: courseData.description,
@@ -147,7 +149,7 @@ const CourseBuilder = () => {
       const response = await api.put(`/courses/${id}`, formattedData);
       
       if (response.data.success) {
-        await fetchCourseStructure();
+        await fetchCourseStructure(true);
         setShowCourseEditModal(false);
         setEditingCourse(null);
       } else {
@@ -157,6 +159,8 @@ const CourseBuilder = () => {
       console.error('Error updating course:', error);
       const errorMessage = error.response?.data?.message || 'Failed to update course. Please check the form data.';
       toast.error(errorMessage);
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -203,6 +207,7 @@ const CourseBuilder = () => {
 
   const handleSaveSection = async (sectionData) => {
     try {
+      setSaving(true);
       const formattedData = {
         title: sectionData.title,
         description: sectionData.description || '',
@@ -216,12 +221,14 @@ const CourseBuilder = () => {
       } else {
         await api.post(`/courses/${id}/sections`, formattedData);
       }
-      await fetchCourseStructure();
+      await fetchCourseStructure(true);
       setShowSectionModal(false);
       setEditingSection(null);
     } catch (error) {
       console.error('Error saving section:', error);
       toast.error(error.response?.data?.message || 'Failed to save section');
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -229,7 +236,7 @@ const CourseBuilder = () => {
     if (!window.confirm('Delete this section and all its content?')) return;
     try {
       await api.delete(`/courses/sections/${sectionId}`);
-      await fetchCourseStructure();
+      await fetchCourseStructure(true);
     } catch (error) {
       console.error('Error deleting section:', error);
       toast.error('Failed to delete section');
@@ -258,6 +265,7 @@ const CourseBuilder = () => {
 
   const handleSaveLesson = async (lessonData) => {
     try {
+      setSaving(true);
       const formData = new FormData();
       formData.append('title', lessonData.title);
       formData.append('videoUrl', lessonData.videoUrl);
@@ -280,24 +288,78 @@ const CourseBuilder = () => {
           headers: { 'Content-Type': 'multipart/form-data' }
         });
       }
-      await fetchCourseStructure();
+      await fetchCourseStructure(true);
       setShowLessonModal(false);
       setEditingLesson(null);
       setCurrentSectionId(null);
     } catch (error) {
       console.error('Error saving lesson:', error);
       toast.error(error.response?.data?.message || 'Failed to save lesson');
+    } finally {
+      setSaving(false);
     }
   };
 
   const handleDeleteLesson = async (lessonId) => {
     if (!window.confirm('Delete this lesson?')) return;
+    
+    // Optimistic Delete: Remove from UI immediately
+    const sectionIndex = sections.findIndex(s => s.lessons?.some(l => l._id === lessonId));
+    if (sectionIndex !== -1) {
+      const updatedSections = [...sections];
+      updatedSections[sectionIndex] = {
+        ...updatedSections[sectionIndex],
+        lessons: updatedSections[sectionIndex].lessons.filter(l => l._id !== lessonId)
+      };
+      setSections(updatedSections);
+    }
+
     try {
       await api.delete(`/courses/lessons/${lessonId}`);
-      await fetchCourseStructure();
+      toast.success('Lesson deleted successfully');
+      // Update counts and re-sync in background
+      fetchCourseStructure(true);
     } catch (error) {
       console.error('Error deleting lesson:', error);
       toast.error('Failed to delete lesson');
+      // Revert if error
+      fetchCourseStructure(true);
+    }
+  };
+
+  const handleMoveLesson = async (sectionId, index, direction) => {
+    const sectionIndex = sections.findIndex(s => s._id === sectionId);
+    if (sectionIndex === -1) return;
+
+    const lessons = [...sections[sectionIndex].lessons];
+    const newIndex = direction === 'up' ? index - 1 : index + 1;
+
+    if (newIndex < 0 || newIndex >= lessons.length) return;
+
+    // Swap lessons locally
+    [lessons[index], lessons[newIndex]] = [lessons[newIndex], lessons[index]];
+
+    // Optimistically update UI
+    const updatedSections = [...sections];
+    updatedSections[sectionIndex] = { ...updatedSections[sectionIndex], lessons };
+    setSections(updatedSections);
+
+    try {
+      // Prepare reorder data for backend
+      const lessonOrder = lessons.map((lesson, idx) => ({
+        id: lesson._id,
+        order: idx
+      }));
+
+      console.log(`Reordering lessons for section: ${sectionId}`);
+      const url = `/courses/sections/${sectionId}/reorder-lessons`;
+      console.log(`Calling API: ${url}`);
+      await api.put(url, { lessonOrder });
+      toast.success('Lesson order updated');
+    } catch (error) {
+      console.error('Error reordering lessons:', error);
+      toast.error('Failed to update lesson order');
+      fetchCourseStructure(true); // Revert
     }
   };
 
@@ -324,6 +386,7 @@ const CourseBuilder = () => {
 
 const handleSaveQuiz = async (quizData) => {
   try {
+    setSaving(true);
     // Data is already formatted correctly from the modal
     const formattedData = {
       title: quizData.title,
@@ -338,13 +401,15 @@ const handleSaveQuiz = async (quizData) => {
     } else {
       await api.put(`/courses/quiz/${quizData._id}`, formattedData);
     }
-    await fetchCourseStructure();
+    await fetchCourseStructure(true);
     setShowQuizModal(false);
     setEditingQuiz(null);
     setCurrentSectionId(null);
   } catch (error) {
     console.error('Error saving quiz:', error);
     toast.error(error.response?.data?.message || 'Failed to save quiz');
+  } finally {
+    setSaving(false);
   }
 };
 
@@ -352,7 +417,7 @@ const handleSaveQuiz = async (quizData) => {
     if (!window.confirm('Delete this quiz?')) return;
     try {
       await api.delete(`/courses/quiz/${quizId}`);
-      await fetchCourseStructure();
+      await fetchCourseStructure(true);
     } catch (error) {
       console.error('Error deleting quiz:', error);
       toast.error('Failed to delete quiz');
@@ -378,17 +443,20 @@ const handleSaveQuiz = async (quizData) => {
 
   const handleSaveAssignment = async (assignmentData) => {
     try {
+      setSaving(true);
       if (assignmentData._id) {
         await api.put(`/assignments/${assignmentData._id}`, assignmentData);
       } else {
         await api.post(`/assignments/course/${id}`, assignmentData);
       }
-      await fetchCourseStructure(); // Will re-fetch assignments too
+      await fetchCourseStructure(true); // Will re-fetch assignments too
       setShowAssignmentModal(false);
       setEditingAssignment(null);
     } catch (error) {
       console.error('Error saving assignment:', error);
       toast.error(error.response?.data?.message || 'Failed to save assignment');
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -396,7 +464,7 @@ const handleSaveQuiz = async (quizData) => {
     if (!window.confirm('Are you sure you want to delete this assignment?')) return;
     try {
       await api.delete(`/assignments/${assignmentId}`);
-      await fetchCourseStructure();
+      await fetchCourseStructure(true);
     } catch (error) {
       console.error('Error deleting assignment:', error);
       toast.error('Failed to delete assignment');
@@ -445,6 +513,7 @@ const handleSaveQuiz = async (quizData) => {
           }}
           onThumbnailUpload={handleThumbnailUpload}
           uploadingThumbnail={uploadingThumbnail}
+          isSaving={saving}
         />
       )}
 
@@ -457,6 +526,7 @@ const handleSaveQuiz = async (quizData) => {
             setShowSectionModal(false);
             setEditingSection(null);
           }}
+          isSaving={saving}
         />
       )}
 
@@ -470,6 +540,7 @@ const handleSaveQuiz = async (quizData) => {
             setEditingLesson(null);
             setCurrentSectionId(null);
           }}
+          isSaving={saving}
         />
       )}
 
@@ -483,6 +554,20 @@ const handleSaveQuiz = async (quizData) => {
             setEditingQuiz(null);
             setCurrentSectionId(null);
           }}
+          isSaving={saving}
+        />
+      )}
+
+      {/* Assignment Modal */}
+      {showAssignmentModal && (
+        <AssignmentModal
+          assignment={editingAssignment}
+          onSave={handleSaveAssignment}
+          onClose={() => {
+            setShowAssignmentModal(false);
+            setEditingAssignment(null);
+          }}
+          isSaving={saving}
         />
       )}
 
@@ -820,7 +905,22 @@ const handleSaveQuiz = async (quizData) => {
                                       {lesson.title}
                                     </h5>
                                   </div>
-                                  <div className="flex items-center space-x-1">
+                                    <button 
+                                      className={`p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-300 ${lessonIndex === 0 ? 'opacity-30 cursor-not-allowed' : ''}`}
+                                      onClick={() => handleMoveLesson(section._id, lessonIndex, 'up')}
+                                      disabled={lessonIndex === 0}
+                                      title="Move Up"
+                                    >
+                                      <FiChevronUp className="w-3 h-3" />
+                                    </button>
+                                    <button 
+                                      className={`p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-300 ${lessonIndex === section.lessons.length - 1 ? 'opacity-30 cursor-not-allowed' : ''}`}
+                                      onClick={() => handleMoveLesson(section._id, lessonIndex, 'down')}
+                                      disabled={lessonIndex === section.lessons.length - 1}
+                                      title="Move Down"
+                                    >
+                                      <FiChevronDown className="w-3 h-3" />
+                                    </button>
                                     <button 
                                       className="p-1.5 text-blue-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-300"
                                       onClick={() => handleEditLesson(lesson, section._id)}
@@ -835,7 +935,6 @@ const handleSaveQuiz = async (quizData) => {
                                     >
                                       <FiTrash2 className="w-3 h-3" />
                                     </button>
-                                  </div>
                                 </div>
                                 
                                 <div className="space-y-2 text-xs">
@@ -1086,7 +1185,7 @@ const handleSaveQuiz = async (quizData) => {
 };
 
 // Course Edit Modal Component
-const CourseEditModal = ({ course, onSave, onClose, onThumbnailUpload, uploadingThumbnail }) => {
+const CourseEditModal = ({ course, onSave, onClose, onThumbnailUpload, uploadingThumbnail, isSaving }) => {
   const [formData, setFormData] = useState({
     title: course?.title || '',
     description: course?.description || '',
@@ -1303,10 +1402,11 @@ const handleThumbnailChange = (e) => {
           <div className="flex space-x-4 pt-6 border-t border-gray-200">
             <button 
               type="submit" 
-              className="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white py-4 px-6 rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-300 hover:scale-105 font-semibold flex items-center justify-center space-x-2"
+              disabled={isSaving}
+              className={`flex-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white py-4 px-6 rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-300 hover:scale-105 font-semibold flex items-center justify-center space-x-2 ${isSaving ? 'opacity-70 cursor-not-allowed' : ''}`}
             >
               <FiSave className="w-5 h-5" />
-              <span>Save Changes</span>
+              <span>{isSaving ? 'Saving...' : 'Save Changes'}</span>
             </button>
             <button 
               type="button" 
@@ -1322,7 +1422,7 @@ const handleThumbnailChange = (e) => {
 };
 
 // Section Modal Component - Upgraded for Multiple Notes
-const SectionModal = ({ section, onSave, onClose }) => {
+const SectionModal = ({ section, onSave, onClose, isSaving }) => {
   const [formData, setFormData] = useState({
     title: section?.title || '',
     description: section?.description || '',
@@ -1435,9 +1535,13 @@ const SectionModal = ({ section, onSave, onClose }) => {
             </div>
 
           <div className="flex space-x-3 pt-6 border-t border-gray-200">
-            <button type="submit" className="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white py-2 px-4 rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-300 hover:scale-[1.02] flex items-center justify-center space-x-2">
+            <button 
+              type="submit" 
+              disabled={isSaving}
+              className={`flex-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white py-2 px-4 rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-300 hover:scale-[1.02] flex items-center justify-center space-x-2 ${isSaving ? 'opacity-70 cursor-not-allowed' : ''}`}
+            >
               <FiSave className="w-4 h-4" />
-              <span>Save Section</span>
+              <span>{isSaving ? 'Saving...' : 'Save Section'}</span>
             </button>
             <button type="button" className="flex-1 bg-white border border-gray-300 text-gray-700 py-2 px-4 rounded-xl hover:bg-gray-50 transition-all duration-300" onClick={onClose}>
               Cancel
@@ -1449,7 +1553,7 @@ const SectionModal = ({ section, onSave, onClose }) => {
 };
 
 // Lesson Modal Component - Simplified
-const LessonModal = ({ lesson, onSave, onClose }) => {
+const LessonModal = ({ lesson, onSave, onClose, isSaving }) => {
   const [formData, setFormData] = useState({
     title: lesson?.title || '',
     videoUrl: lesson?.videoUrl || '',
@@ -1570,10 +1674,11 @@ const LessonModal = ({ lesson, onSave, onClose }) => {
           <div className="flex space-x-3 pt-4 border-t border-gray-200">
             <button 
               type="submit" 
-              className="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white py-2 px-4 rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-300 hover:scale-[1.02] flex items-center justify-center space-x-2 font-medium text-sm"
+              disabled={isSaving}
+              className={`flex-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white py-2 px-4 rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-300 hover:scale-[1.02] flex items-center justify-center space-x-2 font-medium text-sm ${isSaving ? 'opacity-70 cursor-not-allowed' : ''}`}
             >
               <FiSave className="w-4 h-4" />
-              <span>Save Lesson</span>
+              <span>{isSaving ? 'Saving...' : 'Save Lesson'}</span>
             </button>
             <button 
               type="button" 
@@ -1590,7 +1695,7 @@ const LessonModal = ({ lesson, onSave, onClose }) => {
 
 
 // Quiz Editor Modal Component - Fixed
-const QuizEditorModal = ({ quiz, onSave, onClose, ...props }) => {
+const QuizEditorModal = ({ quiz, onSave, onClose, isSaving, ...props }) => {
   const [formData, setFormData] = useState({
     title: quiz.title || '',
     description: quiz.description || '',
@@ -1903,9 +2008,13 @@ const handleSubmit = async (e) => {
           </div>
 
           <div className="flex space-x-3 pt-6 border-t border-gray-200 mt-6">
-            <button type="submit" className="flex-1 bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2">
+            <button 
+              type="submit" 
+              disabled={isSaving}
+              className={`flex-1 bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2 ${isSaving ? 'opacity-70 cursor-not-allowed' : ''}`}
+            >
               <FiSave className="w-4 h-4" />
-              <span>Save Quiz</span>
+              <span>{isSaving ? 'Saving...' : 'Save Quiz'}</span>
             </button>
             <button type="button" className="flex-1 bg-gray-200 text-gray-700 py-3 px-4 rounded-lg hover:bg-gray-300 transition-colors" onClick={onClose}>
               Cancel
@@ -1915,4 +2024,87 @@ const handleSubmit = async (e) => {
     </Modal>
   );
 };
+// Assignment Modal - Reusing Quiz Layout for simplicity as structure is similar
+const AssignmentModal = ({ assignment, onSave, onClose, isSaving }) => {
+  const [formData, setFormData] = useState({
+    title: assignment?.title || '',
+    description: assignment?.description || '',
+    passingScore: assignment?.passingScore || 60,
+    timeLimit: assignment?.timeLimit || 60,
+    questions: assignment?.questions || []
+  });
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onSave({ ...assignment, ...formData });
+  };
+
+  // Simplified version without question editor for now to prevent errors
+  // In a real scenario, we'd duplicate the question editing logic or extract it
+  return (
+    <Modal
+      isOpen={true}
+      onClose={onClose}
+      title={assignment?._id ? 'Edit Assignment' : 'Add New Assignment'}
+      maxWidth="max-w-2xl"
+    >
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Title</label>
+          <input
+            type="text"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            value={formData.title}
+            onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+            required
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
+          <textarea
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            value={formData.description}
+            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+            rows="3"
+          />
+        </div>
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Passing Score (%)</label>
+            <input
+              type="number"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              value={formData.passingScore}
+              onChange={(e) => setFormData({ ...formData, passingScore: parseInt(e.target.value) })}
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Time Limit (mins)</label>
+            <input
+              type="number"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              value={formData.timeLimit}
+              onChange={(e) => setFormData({ ...formData, timeLimit: parseInt(e.target.value) })}
+            />
+          </div>
+        </div>
+        
+        <div className="flex space-x-3 pt-6 border-t border-gray-200">
+          <button 
+            type="submit" 
+            disabled={isSaving}
+            className={`flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2 ${isSaving ? 'opacity-70 cursor-not-allowed' : ''}`}
+          >
+            <FiSave className="w-4 h-4" />
+            <span>{isSaving ? 'Saving...' : 'Save Assignment'}</span>
+          </button>
+          <button type="button" className="flex-1 bg-gray-200 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-300 transition-colors" onClick={onClose}>
+            Cancel
+          </button>
+        </div>
+      </form>
+    </Modal>
+  );
+};
+
 export default CourseBuilder;

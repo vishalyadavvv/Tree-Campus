@@ -226,14 +226,28 @@ const login = async (req, res, next) => {
       });
     }
 
-    const isPasswordMatch = await user.comparePassword(password);
-    if (!isPasswordMatch) {
-      console.warn(`⚠️ Password mismatch for ${email}`);
-      return res.status(401).json({ 
-        success: false, 
-        message: 'Invalid credentials' 
-      });
-    }
+   const isPasswordMatch = await user.comparePassword(password);
+
+if (!isPasswordMatch) {
+  return res.status(401).json({
+    success: false,
+    message: 'Invalid credentials'
+  });
+}
+
+// ✅ AUTO-UPGRADE WORDPRESS HASH → BCRYPT
+if (
+  user.password &&
+  (user.password.startsWith("$P$") ||
+   user.password.startsWith("$H$") ||
+   user.password.startsWith("$2y$") ||
+   user.password.startsWith("$wp$2y$"))
+) {
+  console.log("🔄 Upgrading WordPress hash → bcrypt for", user.email);
+
+  user.password = password; // plain password
+  await user.save();        // your pre-save hook hashes with bcrypt
+}
 
     if (!user.isVerified) {
       console.warn(`⚠️ User not verified: ${email}`);

@@ -101,20 +101,21 @@
 
     const handleDelete = async (id) => {
       if (window.confirm('Are you sure you want to delete this live class?')) {
+        setLiveClasses(prev => prev.filter(lc => lc._id !== id));
         try {
           await api.delete(`/live-classes/${id}`);
-          fetchLiveClasses();
           toast.success('Live class deleted successfully');
         } catch (error) {
           console.error('Error deleting live class:', error);
           toast.error('Failed to delete live class');
+          fetchLiveClasses();
         }
       }
     };
 
-    const handleCopyHostLink = (startUrl) => {
-      navigator.clipboard.writeText(startUrl);
-      toast.success('Host Start Link copied to clipboard!');
+    const handleCopyLink = (link) => {
+      navigator.clipboard.writeText(link);
+      toast.success('Join link copied to clipboard!');
     };
 
     const getStatus = (scheduledAt) => {
@@ -245,6 +246,14 @@
                         {liveClass.platform}
                       </span>
                     </div>
+
+                    {/* Host Passcode - Admin Only */}
+                    {liveClass.source === 'automated' && (
+                      <div className="flex items-center space-x-2 text-sm bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+                        <span className="text-amber-700 font-medium">🔑 Host Passcode:</span>
+                        <span className="font-mono font-bold text-amber-900">815865</span>
+                      </div>
+                    )}
                   </div>
 
                   {/* Action Buttons */}
@@ -271,15 +280,13 @@
                       >
                         <FiEdit className="w-4 h-4" />
                       </button>
-                      {liveClass.source === 'automated' && liveClass.zoomData?.start_url && (
-                          <button 
-                            className="p-2 text-gray-600 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
-                            onClick={() => handleCopyHostLink(liveClass.zoomData.start_url)}
-                            title="Copy Host Start Link"
-                          >
-                            <FiCopy className="w-4 h-4" />
-                          </button>
-                      )}
+                      <button 
+                      className="p-2 text-gray-600 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                      onClick={() => handleCopyLink(liveClass.link)}
+                      title="Copy Join Link"
+                    >
+                      <FiCopy className="w-4 h-4" />
+                    </button>
                     </div>
                   </div>
                 </div>

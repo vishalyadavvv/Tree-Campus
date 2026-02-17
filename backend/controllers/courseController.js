@@ -633,6 +633,41 @@ export const deleteLesson = async (req, res) => {
     });
   }
 };
+
+// @desc    Reorder lessons within a section
+// @route   PUT /api/courses/sections/:id/reorder-lessons
+// @access  Private/Admin
+export const reorderLessons = async (req, res) => {
+  try {
+    const { lessonOrder } = req.body; // [{id, order}, ...]
+
+    if (!lessonOrder || !Array.isArray(lessonOrder)) {
+      return res.status(400).json({
+        success: false,
+        message: 'lessonOrder array is required'
+      });
+    }
+
+    const bulkOps = lessonOrder.map(item => ({
+      updateOne: {
+        filter: { _id: item.id },
+        update: { $set: { order: item.order } }
+      }
+    }));
+
+    await Lesson.bulkWrite(bulkOps);
+
+    res.status(200).json({
+      success: true,
+      message: 'Lessons reordered successfully'
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
 // @desc    Upload course thumbnail
 // @route   POST /api/courses/:id/thumbnail
 // @access  Private/Admin

@@ -17,7 +17,8 @@ import {
   updateLesson,
   deleteLesson,
   uploadCourseThumbnail,
-  upload
+  upload,
+  reorderLessons
 } from '../controllers/courseController.js';
 import {
   createQuiz,
@@ -32,6 +33,9 @@ import { adminOnly } from '../middleware/adminMiddleware.js';
 import uploadMiddleware from '../middleware/uploadMiddleware.js';
 
 const router = express.Router();
+ 
+router.route('/sections/:id/reorder-lessons')
+  .put(protect, adminOnly, reorderLessons);
 
 router.route('/')
   .get(getCourses)
@@ -66,6 +70,7 @@ router.route('/sections/:id')
 router.route('/sections/:id/lessons')
   .get(getSectionLessons)
   .post(protect, adminOnly, uploadMiddleware.single('pdf'), createLesson);
+
 
 router.route('/sections/:id/quiz')
   .get(getSectionQuiz)

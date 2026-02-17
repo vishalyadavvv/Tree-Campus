@@ -53,14 +53,15 @@ const CategoryManager = ({ onUpdate }) => {
       return;
     }
 
+    setCategories(prev => prev.filter(c => c._id !== id));
     try {
       const response = await api.delete(`/categories/${id}`);
       if (response.data.success) {
         toast.success('Category deleted successfully');
-        fetchCategories();
       }
     } catch (error) {
       toast.error(error.response?.data?.message || 'Failed to delete category');
+      fetchCategories();
     }
   };
 
