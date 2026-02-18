@@ -11,7 +11,7 @@ const NoteModal = ({ isOpen, onClose, note }) => {
         className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
         onClick={onClose}
       />
-      
+      {/* Model */}
       {/* Modal Content */}
       <div className="relative bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] flex flex-col overflow-hidden animate-fade-in">
         {/* Header */}

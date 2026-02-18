@@ -72,3 +72,28 @@ tts_error.json
 !FRONTEND_README.md
 !BACKEND_README.md
 
+# Legacy and One-off Scripts
+backend/*.js
+!backend/server.js
+backend/scripts/
+backend/seed/
+**/debug_*.js
+**/test_*.js
+**/check_*.js
+**/migrate_*.js
+**/verify_*.js
+
+# Database and State
+db_state.txt
+keys_*.txt
+question_*.txt
+*.sqlite
+*.db
+
+# Archives
+*.zip
+*.tar.gz
+*.rar
+*old/
+*backup/
+
