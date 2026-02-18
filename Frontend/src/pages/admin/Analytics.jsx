@@ -103,11 +103,14 @@ const Analytics = () => {
       return acc;
     }, []) || [];
 
-    // Generate enrollment by course data
-    const enrollmentByCourse = overviewData.allCourses?.map(course => ({
-      courseName: course.title || course.name || 'Untitled Course',
-      enrollments: course.enrollmentCount || 0
-    })) || [];
+    // Generate enrollment by course data - Filter out 0 enrollments to clean up the graph
+    const enrollmentByCourse = (overviewData.allCourses || [])
+      .filter(course => (course.enrollmentCount || 0) > 0)
+      .map(course => ({
+        courseName: course.title || course.name || 'Untitled Course',
+        enrollments: course.enrollmentCount || 0
+      }))
+      .slice(0, 10); // Show top 10 to prevent overcrowding
 
     // Calculate total enrollments from actual course data
     const totalEnrollments = overviewData.stats?.totalEnrollments || 0;
@@ -292,36 +295,44 @@ const Analytics = () => {
           <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Courses by Category</h3>
             {courseCategories.length > 0 ? (
-              <ResponsiveContainer width="100%" height={300}>
-                <PieChart>
-                  <Pie
-                    data={courseCategories}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={true}
-                    label={({ _id, count }) => `${_id}: ${count}`}
-                    outerRadius={100}
-                    innerRadius={40}
-                    fill="#8884d8"
-                    dataKey="count"
-                    nameKey="_id"
-                  >
-                    {courseCategories.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip
-                    formatter={(value, name) => [value, 'Courses']}
-                    contentStyle={{
-                      background: '#ffffff',
-                      border: '1px solid #e5e7eb',
-                      borderRadius: '8px',
-                      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-                    }}
-                  />
-                  <Legend />
-                </PieChart>
-              </ResponsiveContainer>
+              <div className="h-[400px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={courseCategories}
+                      cx="50%"
+                      cy="45%"
+                      labelLine={false}
+                      label={false} // Disable overlapping labels
+                      outerRadius={110}
+                      innerRadius={60}
+                      fill="#8884d8"
+                      dataKey="count"
+                      nameKey="_id"
+                      paddingAngle={5}
+                    >
+                      {courseCategories.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip
+                      formatter={(value, name) => [value, `Courses: ${name}`]}
+                      contentStyle={{
+                        background: '#ffffff',
+                        border: '1px solid #e5e7eb',
+                        borderRadius: '8px',
+                        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                      }}
+                    />
+                    <Legend 
+                      verticalAlign="bottom" 
+                      height={80}
+                      layout="horizontal"
+                      wrapperStyle={{ paddingTop: '20px', fontSize: '12px' }}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
             ) : (
               <div className="flex justify-center items-center h-64 text-gray-500">
                 No course category data available

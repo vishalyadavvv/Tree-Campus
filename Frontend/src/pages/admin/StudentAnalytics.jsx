@@ -22,10 +22,12 @@
       totalEnrollments: 0,
       certificatesIssued: 0
     });
+    const [searching, setSearching] = useState(false);
+    const [isInitialLoad, setIsInitialLoad] = useState(true);
 
     useEffect(() => {
       const delayDebounceFn = setTimeout(() => {
-        fetchStudents(1); // Search starts from page 1
+        fetchStudents(1, true); // Search starts from page 1 in background
       }, 500);
 
       return () => clearTimeout(delayDebounceFn);
@@ -43,9 +45,14 @@
       }
     }, [filterStatus]);
 
-    const fetchStudents = async (page = 1) => {
+    const fetchStudents = async (page = 1, isBackground = false) => {
       try {
-        setLoading(true);
+        if (isBackground) {
+          setSearching(true);
+        } else {
+          setLoading(true);
+        }
+        
         const response = await api.get(`/students?page=${page}&limit=10&search=${searchTerm}&status=${filterStatus}`);
         setStudents(response.data.data || []);
         setTotalPages(response.data.totalPages || 1);
@@ -61,6 +68,8 @@
         setStudents([]);
       } finally {
         setLoading(false);
+        setSearching(false);
+        setIsInitialLoad(false);
       }
     };
 
@@ -153,7 +162,7 @@
     // For now, we'll keep the variable but it's passed to the API.
     const filteredStudents = students;
 
-    if (loading) {
+    if (isInitialLoad && loading) {
       return (
         <DashboardLayout>
           <div className="flex justify-center items-center min-h-96">
@@ -213,11 +222,16 @@
                 <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                 <input
                   type="text"
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full pl-10 pr-12 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="Search students by name or email..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
+                {searching && (
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                  </div>
+                )}
               </div>
 
               {/* Filter */}

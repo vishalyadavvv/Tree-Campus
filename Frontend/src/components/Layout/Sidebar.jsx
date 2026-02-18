@@ -146,23 +146,22 @@ const Sidebar = () => {
         />
       )}
 
-      {/* Sidebar - Consistent Fixed positioning */}
       <aside
         className={`
-          md:sticky fixed top-0 md:top-[112px] left-0 z-[2800] 
-          ${isMobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
+          fixed top-0 md:top-[112px] left-0 
+          ${isMobileOpen ? 'z-[9999] translate-x-0' : 'z-[9000] -translate-x-full md:translate-x-0'}
           bg-white border-r border-gray-200 shadow-2xl transition-transform duration-300
           w-64 h-screen md:h-[calc(100vh-112px)]
         `}
         style={{ 
           backgroundColor: 'white', 
           color: '#374151',
-          minHeight: isMobileOpen ? '100vh' : 'auto'
+          minHeight: isMobileOpen ? '100vh' : 'auto',
+          top: isMobileOpen ? '0' : '112px'
         }}
       >
         <div className="flex flex-col h-full overflow-hidden">
-          {/* Logo/Brand Section - Professional Header */}
-          <div className="p-5 border-b border-gray-100 bg-white sticky top-0 z-10 shadow-sm">
+          <div className="p-7 border-b border-gray-100 bg-white sticky top-0 z-10 shadow-sm">
             <div className="flex items-center gap-3">
               <div 
                 className="w-10 h-10 rounded-xl flex items-center justify-center text-white shadow-lg rotate-3 hover:rotate-0 transition-transform duration-300"
@@ -183,7 +182,7 @@ const Sidebar = () => {
           </div>
 
           {/* User Profile Section */}
-          <div className="p-2.5 border-b border-gray-200">
+          <div className="p-4 border-b border-gray-200">
             <div className="flex items-center gap-2.5">
               <div 
                 className="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold shadow-md text-xs"
@@ -202,7 +201,7 @@ const Sidebar = () => {
           <nav 
             ref={navRef}
             onScroll={handleScroll}
-            className="flex-1 p-3 overflow-y-auto custom-scrollbar"
+            className="flex-1 p-3 overflow-y-auto scrollbar-hide"
           >
             <ul className="space-y-0.5">
               {menuItems.map((item, index) => {
@@ -234,7 +233,7 @@ const Sidebar = () => {
                         <button
                           onClick={() => toggleSubMenu(item.label)}
                           className={`
-                            w-full flex items-center transition-all duration-300 rounded-xl px-4 py-2
+                            w-full flex items-center transition-all duration-300 rounded-xl px-4 py-3
                             ${isActive 
                               ? 'text-gray-900 bg-gray-50' 
                               : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100'
@@ -254,7 +253,7 @@ const Sidebar = () => {
                         {/* Sub-items list */}
                         <div className={`
                           overflow-hidden transition-all duration-300 ease-in-out
-                          ${isSubMenuOpen ? 'max-h-40 mt-1' : 'max-h-0'}
+                          ${isSubMenuOpen ? 'max-h-96 mt-1' : 'max-h-0'}
                         `}>
                           <ul className="pl-12 space-y-0.5">
                             {item.subItems.map((sub) => {
@@ -264,7 +263,7 @@ const Sidebar = () => {
                                     <Link
                                         to={sub.path}
                                         className={`
-                                        block transition-all duration-300 rounded-lg px-3 py-1.5 text-sm
+                                        block transition-all duration-300 rounded-lg px-3 py-2.5 text-sm
                                         ${isSubActive 
                                             ? 'text-white font-semibold' 
                                             : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
@@ -284,7 +283,7 @@ const Sidebar = () => {
                       <Link
                         to={item.path}
                         className={`
-                          flex items-center transition-all duration-300 rounded-xl px-4 py-2
+                          flex items-center transition-all duration-300 rounded-xl px-4 py-3
                           ${isActive 
                             ? 'text-white shadow-md' 
                             : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100'
@@ -343,6 +342,13 @@ const Sidebar = () => {
 
       {/* Custom Sidebar Animations */}
       <style>{`
+        .scrollbar-hide::-webkit-scrollbar {
+          display: none;
+        }
+        .scrollbar-hide {
+          -ms-overflow-style: none; /* IE and Edge */
+          scrollbar-width: none; /* Firefox */
+        }
         .custom-scrollbar::-webkit-scrollbar {
           width: 4px;
         }

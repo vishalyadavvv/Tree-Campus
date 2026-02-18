@@ -2,6 +2,7 @@ import User from '../models/User.js';
 import Course from '../models/Course.js';
 import Blog from '../models/Blog.js';
 import LiveClass from '../models/LiveClass.js';
+import Enrollment from '../models/Enrollment.js';
 
 // @desc    Get dashboard overview
 // @route   GET /api/analytics/overview
@@ -71,35 +72,9 @@ export const getOverview = async (req, res) => {
       .limit(50)
       .select('name email phone createdAt profilePicture enrolledCourses');
 
-    // --- ALL courses (no limit, no isPublished filter) ---
-    const allCourses = await Course.find()
-      .sort('-enrollmentCount')
-      .select('title enrollmentCount rating instructor isPublished category thumbnail');
-
-    // --- Total enrollments across all students ---
-    const enrollmentAgg = await User.aggregate([
-      { $match: { role: 'student' } },
-      { $project: { enrolledCount: { $size: { $ifNull: ['$enrolledCourses', []] } } } },
-      { $group: { _id: null, total: { $sum: '$enrolledCount' } } }
-    ]);
-    const totalEnrollments = enrollmentAgg.length > 0 ? enrollmentAgg[0].total : 0;
-
-    // --- Enrollments this month ---
-    const enrollmentsThisMonth = await User.aggregate([
-      { $match: { role: 'student' } },
-      { $unwind: '$enrolledCourses' },
-      { $match: { 'enrolledCourses.enrolledAt': { $gte: startOfThisMonth } } },
-      { $count: 'count' }
-    ]);
-    const enrollThisMonth = enrollmentsThisMonth.length > 0 ? enrollmentsThisMonth[0].count : 0;
-
-    const enrollmentsLastMonth = await User.aggregate([
-      { $match: { role: 'student' } },
-      { $unwind: '$enrolledCourses' },
-      { $match: { 'enrolledCourses.enrolledAt': { $gte: startOfLastMonth, $lt: startOfThisMonth } } },
-      { $count: 'count' }
-    ]);
-    const enrollLastMonth = enrollmentsLastMonth.length > 0 ? enrollmentsLastMonth[0].count : 0;
+    // --- Categories count ---
+    const categories = await Course.distinct('category');
+    const categoriesCount = categories.length;
 
     // --- Average course rating ---
     const ratingAgg = await Course.aggregate([
@@ -108,14 +83,47 @@ export const getOverview = async (req, res) => {
     ]);
     const avgRating = ratingAgg.length > 0 ? parseFloat(ratingAgg[0].avg.toFixed(1)) : 0;
 
-    // --- Categories count ---
-    const categories = await Course.distinct('category');
-    const categoriesCount = categories.length;
+    // --- Dynamic Course Stats (with accurate enrollment counts) ---
+    const courseStats = await Enrollment.aggregate([
+      {
+        $group: {
+          _id: '$course',
+          count: { $sum: 1 }
+        }
+      }
+    ]);
+
+    const courseStatsMap = new Map(courseStats.map(s => [s._id.toString(), s.count]));
+
+    // --- ALL courses (no limit, no isPublished filter) ---
+    const rawCourses = await Course.find()
+      .sort('-createdAt')
+      .select('title enrollmentCount rating instructor isPublished category thumbnail');
+
+    const allCourses = rawCourses.map(c => {
+      const actualEnrollments = courseStatsMap.get(c._id.toString()) || 0;
+      // Sync the model count if it's different (optional but good for consistency)
+      return {
+        ...c.toObject(),
+        enrollmentCount: actualEnrollments
+      };
+    });
+
+    // Re-sort by actual enrollment count for the list
+    allCourses.sort((a, b) => b.enrollmentCount - a.enrollmentCount);
 
     // --- Live classes breakdown ---
     const scheduledClasses = await LiveClass.countDocuments({ status: 'scheduled' });
     const liveNow = await LiveClass.countDocuments({ status: 'live' });
     const completedClasses = await LiveClass.countDocuments({ status: 'completed' });
+
+    // --- Enrollments growth calculation ---
+    const enrollmentsThisMonth = await Enrollment.countDocuments({
+      createdAt: { $gte: startOfThisMonth }
+    });
+    const enrollmentsLastMonth = await Enrollment.countDocuments({
+      createdAt: { $gte: startOfLastMonth, $lt: startOfThisMonth }
+    });
 
     res.status(200).json({
       success: true,
@@ -132,7 +140,7 @@ export const getOverview = async (req, res) => {
           scheduledClasses,
           liveNow,
           completedClasses,
-          totalEnrollments,
+          totalEnrollments: courseStats.reduce((sum, s) => sum + s.count, 0),
           avgRating,
           categoriesCount
         },
@@ -141,12 +149,12 @@ export const getOverview = async (req, res) => {
           courses: calcGrowth(coursesThisMonth, coursesLastMonth),
           blogs: calcGrowth(blogsThisMonth, blogsLastMonth),
           liveClasses: calcGrowth(liveClassesThisMonth, liveClassesLastMonth),
-          enrollments: calcGrowth(enrollThisMonth, enrollLastMonth),
+          enrollments: calcGrowth(enrollmentsThisMonth, enrollmentsLastMonth),
           studentsThisMonth,
           coursesThisMonth,
           blogsThisMonth,
           liveClassesThisMonth,
-          enrollThisMonth
+          enrollThisMonth: enrollmentsThisMonth
         },
         recentStudents: allStudents,
         allCourses: allCourses

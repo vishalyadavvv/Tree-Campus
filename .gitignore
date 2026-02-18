@@ -45,6 +45,7 @@ Wordpress data/
 Zoom Meeting/
 .ignored_archive/
 3D-English-Teacher2-main/
+scripts/
 
 # Temporary Text/JSON files (except key configs)
 *.txt
