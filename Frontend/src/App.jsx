@@ -119,9 +119,10 @@ function App() {
               },
             }}
           />
+          
           <Navbar />
           <AIFloatingButton />
-          
+         <main className="pt-[110px]">
           <Routes>
 
   {/* ================= PUBLIC ROUTES ================= */}
@@ -370,6 +371,7 @@ function App() {
   />
 
           </Routes>
+          </main>
           
           {!isAdminRoute && <Footer />}
         </div>

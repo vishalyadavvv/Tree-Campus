@@ -18,17 +18,28 @@ export default function ExamRoom({ examId, setSelectedExamId, email }) {
 
   const fetchExam = async () => {
     try {
-      const token = sessionStorage.getItem("token");
+      const token = localStorage.getItem("token");
       const res = await fetch(`${API_URL}/contest/exams/${examId}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       const data = await res.json();
+      
+      if (!res.ok) {
+        throw new Error(data.message || "Failed to fetch exam");
+      }
+
+      if (!data || !data.questions || data.questions.length === 0) {
+        throw new Error("Invalid exam data or no questions found");
+      }
+
       setExam(data);
       setTimeLeft(data.timeLimit * 60);
-      setLoading(false);
     } catch (err) {
-      console.error(err);
+      console.error("Exam Fetch Error:", err);
+      alert(err.message || "Error loading exam environment");
       setSelectedExamId(null);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -57,7 +68,7 @@ export default function ExamRoom({ examId, setSelectedExamId, email }) {
     if (isSubmitting) return;
     setIsSubmitting(true);
     try {
-      const token = sessionStorage.getItem("token");
+      const token = localStorage.getItem("token");
       const answersArray = exam.questions.map((_, index) => 
         answers[index] !== undefined ? answers[index] : null
       );
@@ -162,6 +173,22 @@ export default function ExamRoom({ examId, setSelectedExamId, email }) {
            </div>
         </div>
       </motion.div>
+    );
+  }
+
+  if (!exam || !exam.questions || exam.questions.length === 0) {
+    return (
+        <div className="flex flex-col items-center justify-center min-h-[60vh] text-center p-6">
+            <div className="text-4xl mb-4">⚠️</div>
+            <h2 className="text-xl font-bold text-slate-800 mb-2">Technical Disruption</h2>
+            <p className="text-slate-500 text-sm mb-6 max-w-xs mx-auto">The contest arena could not be initialized properly. This might be due to a connection issue or invalid assessment data.</p>
+            <button 
+                onClick={() => setSelectedExamId(null)}
+                className="px-8 py-3 bg-slate-900 text-white rounded-xl font-bold text-sm shadow-lg hover:bg-slate-800 transition-all"
+            >
+                Return to Safety
+            </button>
+        </div>
     );
   }
 

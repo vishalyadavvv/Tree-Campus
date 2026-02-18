@@ -8,7 +8,9 @@ import { sendEmail } from '../utils/sendEmail.js';
 // @access  Private (Student)
 export const getAllExams = async (req, res) => {
   try {
-    const exams = await ContestExam.find().sort({ startDate: -1 });
+    const exams = await ContestExam.find({ 
+      status: { $in: ['active', 'results_declared'] } // Only show active or declared results
+    }).sort({ startDate: -1 });
     res.json(exams);
   } catch (error) {
     console.error('Error fetching exams:', error);

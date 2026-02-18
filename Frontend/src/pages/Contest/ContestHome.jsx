@@ -4,6 +4,20 @@ import LeaderboardSection from "./LeaderboardSection";
 import ExamRoom from "./ExamRoom";
 import TermsAndConditions from "./TermsAndConditions";
 import { motion, AnimatePresence } from "framer-motion";
+import { 
+  FiZap, 
+  FiClock, 
+  FiCheckCircle, 
+  FiAward, 
+  FiFileText, 
+  FiMenu, 
+  FiX, 
+  FiChevronRight,
+  FiArrowLeft,
+  FiCalendar,
+  FiTarget,
+  FiStar
+} from "react-icons/fi";
 
 export default function ContestHome() {
   const { user, loading: authLoading, logout } = useAuth();
@@ -33,7 +47,7 @@ export default function ContestHome() {
     if (!user) return;
     setLoading(true);
     try {
-      const token = sessionStorage.getItem("token");
+      const token = localStorage.getItem("token");
       const res = await fetch(`${API_URL}/contest/exams`, {
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -58,7 +72,8 @@ export default function ContestHome() {
       const ongoing = data.filter(e => {
         const start = new Date(e.startDate);
         const end = new Date(e.endDate);
-        return start <= now && end > now;
+        const isActive = e.status === 'active' || !e.status; // Default to active if status is missing
+        return isActive && start <= now && end > now;
       }).map(e => ({
         ...e,
         timeLeftMs: new Date(e.endDate).getTime() - now.getTime()
@@ -109,11 +124,11 @@ export default function ContestHome() {
   };
 
   const menuItems = [
-    { id: "ongoing", label: "Ongoing Contest", icon: "🔥", count: currentExams.length },
-    { id: "upcoming", label: "Upcoming Contest", icon: "⏳", count: upcomingExams.length },
-    { id: "participated", label: "Participated Contest", icon: "✅", count: participatedExams.length },
-    { id: "leaderboard", label: "Leadership Board", icon: "🏆", count: null },
-    { id: "terms", label: "Terms And Conditions", icon: "📝", count: null },
+    { id: "ongoing", label: "Ongoing Contest", icon: <FiZap />, count: currentExams.length },
+    { id: "upcoming", label: "Upcoming Contest", icon: <FiClock />, count: upcomingExams.length },
+    { id: "participated", label: "Participated Contest", icon: <FiCheckCircle />, count: participatedExams.length },
+    { id: "leaderboard", label: "Leadership Board", icon: <FiAward />, count: null },
+    { id: "terms", label: "Terms And Conditions", icon: <FiFileText />, count: null },
   ];
 
   const [expandedParticipated, setExpandedParticipated] = useState({});
@@ -141,7 +156,9 @@ export default function ContestHome() {
       <div className="min-h-screen bg-white">
           <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between border-b border-gray-100 mb-8">
              <div className="flex items-center gap-3">
-                <button onClick={() => setSelectedExamId(null)} className="p-2 hover:bg-gray-100 rounded-xl transition-colors">←</button>
+                <button onClick={() => setSelectedExamId(null)} className="p-2 hover:bg-gray-100 rounded-xl transition-colors">
+                    <FiArrowLeft size={20} />
+                </button>
                 <h1 className="text-xl font-black text-gray-900 tracking-tight">Arena Room</h1>
              </div>
              <div className="flex items-center gap-2">
@@ -161,13 +178,14 @@ export default function ContestHome() {
       <header className="bg-white border-b border-gray-100 z-40 w-full sticky top-0 shadow-sm">
         <div className="container mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <h1 className="text-xl font-black text-orange-600 tracking-tight">Treecampus Contest</h1>
+            <div className="w-10 h-10 bg-orange-600 rounded-xl flex items-center justify-center text-white shadow-lg">
+                <FiAward size={20} />
+            </div>
+            <h1 className="text-xl font-black text-gray-900 tracking-tight">Contest Arena</h1>
           </div>
           <div className="flex items-center gap-4 lg:hidden">
              <button className="p-2 text-slate-600 hover:bg-orange-50 rounded-lg transition-colors" onClick={() => setSidebarOpen(true)}>
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 6h16M4 12h16M4 18h16" />
-                </svg>
+                <FiMenu size={24} />
              </button>
           </div>
         </div>
@@ -186,9 +204,7 @@ export default function ContestHome() {
                     <div className="flex items-center justify-between mb-8">
                         <h2 className="text-[#1e293b] font-black text-xl">Menu</h2>
                         <button onClick={() => setSidebarOpen(false)} className="text-slate-400 p-2 hover:text-orange-600 transition-colors">
-                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
-                            </svg>
+                            <FiX size={24} />
                         </button>
                     </div>
 
@@ -212,16 +228,14 @@ export default function ContestHome() {
                     </nav>
                 </div>
 
-                <div className="mt-auto p-8 pt-4 border-t border-gray-100">
-                    <button onClick={logout} className="w-full bg-orange-600 py-4 rounded-2xl text-white font-bold text-sm shadow-lg shadow-orange-100 transition-all hover:bg-orange-700">Sign Out</button>
-                </div>
+                {/* User Info or Navigation Info could go here if needed, but removing Sign Out as requested */}
             </motion.aside>
         </div>
       )}
 
-      <div className="flex flex-1">
+       <div className="flex flex-1 overflow-hidden" style={{ height: 'calc(100vh - 73px)' }}>
         {/* Admin-style Sidebar */}
-        <aside className="hidden lg:flex lg:w-72 lg:flex-col border-r border-orange-500 bg-white relative">
+        <aside className="hidden lg:flex lg:w-72 lg:flex-col border-r border-gray-100 bg-white relative">
           <div className="p-6 flex flex-col h-full overflow-y-auto">
 
             <nav className="space-y-2">
@@ -247,26 +261,12 @@ export default function ContestHome() {
                 ))}
             </nav>
 
-            <div className="mt-auto pt-8">
-              <div className="flex items-center gap-4 mb-6">
-                  <div className="flex-grow h-px bg-gray-100"></div>
-                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Navigation</span>
-                  <div className="flex-grow h-px bg-gray-100"></div>
-              </div>
-              <button
-                onClick={logout}
-                className="w-full bg-orange-600 text-white py-4 rounded-2xl font-bold text-sm shadow-lg shadow-orange-200 hover:bg-orange-700 transition-all flex items-center justify-center gap-2"
-              >
-                Sign Out
-              </button>
-            </div>
+            {/* Navigation Footer placeholder */}
           </div>
-          {/* Subtle Right Border Accent */}
-          <div className="absolute top-0 right-0 w-[4px] h-full bg-orange-600"></div>
         </aside>
 
         {/* Professional Main Content */}
-        <main className="flex-1 p-6 md:p-10 bg-white">
+        <main className="flex-1 p-6 md:p-10 bg-[#F8FAFC] overflow-y-auto">
           <div className="max-w-5xl mx-auto">
              <div className="mb-10 pb-6 border-b border-gray-100 flex justify-between items-center">
                 <div>
@@ -331,27 +331,26 @@ export default function ContestHome() {
                         <div className="py-20 text-center bg-gray-50 rounded-2xl border border-gray-100 w-full col-span-full">
                             <p className="text-slate-400 font-medium">No upcoming contests scheduled.</p>
                         </div>
-                   ) : upcomingExams.map(exam => (
-                      <div key={exam._id} className="bg-white border border-gray-100 p-8 rounded-2xl shadow-sm">
-                         <h3 className="text-2xl font-bold text-blue-700 mb-4 flex items-center gap-3">
-                            <span className="text-2xl">🏆</span> {exam.title}
+                    ) : upcomingExams.map(exam => (
+                      <div key={exam._id} className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 flex flex-col hover:shadow-md transition-all">
+                         <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-3">
+                            <div className="w-10 h-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center">
+                                <FiClock size={20} />
+                            </div>
+                            {exam.title}
                          </h3>
-                         <div className="space-y-3">
-                            <p className="text-slate-700 flex items-center gap-3 font-medium">
-                               <span className="text-lg">📅</span>
-                               <strong>Start Date:</strong> {new Date(exam.startDate).toLocaleDateString()}
-                            </p>
-                            <p className="text-slate-700 flex items-center gap-3 font-medium">
-                               <span className="text-lg">⏳</span>
-                               <strong>End Date:</strong> {new Date(exam.endDate).toLocaleDateString()}
-                            </p>
-                            <p className="text-slate-700 flex items-center gap-3 font-medium">
-                               <span className="text-lg">🎯</span>
-                               <strong>Passing Score:</strong> {exam.passingPercentage}%
-                            </p>
+                         <div className="space-y-4">
+                            <div className="flex items-center gap-3 text-gray-600">
+                               <FiCalendar className="text-blue-500" />
+                               <span className="text-sm">Starts: {new Date(exam.startDate).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+                            </div>
+                            <div className="flex items-center gap-3 text-gray-600">
+                               <FiTarget className="text-blue-500" />
+                               <span className="text-sm">Pass Mark: {exam.passingPercentage}%</span>
+                            </div>
                          </div>
                       </div>
-                   ))}
+                    ))}
                 </div>
              )}
 
@@ -370,17 +369,23 @@ export default function ContestHome() {
                       const currentRank = sortedResponses.findIndex(r => r.userId === user?._id || r.email === user?.email) + 1;
 
                       return (
-                        <div key={exam._id} className="border border-gray-200 rounded-lg overflow-hidden bg-white shadow-md">
+                        <div key={exam._id} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                            <button 
                              onClick={() => toggleParticipated(exam._id)}
-                             className="w-full p-5 flex justify-between items-center bg-blue-600 text-white font-bold transition-colors hover:bg-blue-700"
+                             className={`w-full p-6 flex justify-between items-center transition-colors ${isExpanded ? 'bg-orange-600 text-white' : 'hover:bg-gray-50'}`}
                             >
-                                <span className="text-lg">{exam.title}</span>
-                                <span className="text-sm">{isExpanded ? '▲' : '▼'}</span>
+                                <div className="flex items-center gap-4">
+                                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${isExpanded ? 'bg-white/20 text-white' : 'bg-orange-50 text-orange-600'}`}>
+                                        <FiCheckCircle size={20} />
+                                    </div>
+                                    <span className="text-lg font-bold">{exam.title}</span>
+                                </div>
+                                <span className="text-sm">{isExpanded ? <FiX size={20} /> : <FiChevronRight size={20} />}</span>
                             </button>
                            
                            {isExpanded && (
-                               <div className="p-8 space-y-3 bg-white">
+                               <div className="p-8 bg-white border-t border-gray-100 grid grid-cols-1 md:grid-cols-2 gap-6">
+                                  <div className="space-y-4">
                                   <p className="flex items-center gap-3 text-slate-800 font-semibold">
                                      <span className="text-xl">📅</span>
                                      <strong>Start Date:</strong> {new Date(exam.startDate).toLocaleDateString()}
@@ -414,7 +419,8 @@ export default function ContestHome() {
                                         <span className="ml-2">{new Date() > new Date(exam.endDate) ? <span className="text-rose-600">❌ No</span> : <span className="text-amber-500">⏳ Awaiting</span>}</span>
                                      )}
                                   </div>
-                               </div>
+                                </div>
+                             </div>
                            )}
                         </div>
                       );

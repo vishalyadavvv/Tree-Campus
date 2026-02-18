@@ -6,6 +6,8 @@ html {
 
 html,
 body {
+  margin: 0;        /* ← ADD THIS */
+  padding: 0;       /* ← ADD THIS */
   max-width: 100%;
   overflow-x: hidden;
 }
@@ -17,5 +19,7 @@ body {
 }
 
 * {
+  box-sizing: border-box;
   font-family: 'Inter', sans-serif !important;
 }
+

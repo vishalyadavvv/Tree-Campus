@@ -68,7 +68,7 @@ const Sidebar = () => {
 
   // Restore scroll position on mount
   useEffect(() => {
-    const savedScroll = sessionStorage.getItem("sidebarScroll");
+    const savedScroll = localStorage.getItem("sidebarScroll");
     if (savedScroll && navRef.current) {
       navRef.current.scrollTop = parseInt(savedScroll, 10);
     }
@@ -76,7 +76,7 @@ const Sidebar = () => {
 
   // Handle scroll to save position
   const handleScroll = (e) => {
-    sessionStorage.setItem("sidebarScroll", e.target.scrollTop);
+    localStorage.setItem("sidebarScroll", e.target.scrollTop);
   };
 
   // Close mobile menu on route change
@@ -131,7 +131,7 @@ const Sidebar = () => {
       {!isMobileOpen && (
         <button
           onClick={() => setIsMobileOpen(true)}
-          className="md:hidden fixed top-4 left-4 z-[3000] w-12 h-12 bg-[#FD5A00] text-white rounded-xl shadow-lg flex items-center justify-center hover:scale-105 active:scale-95 transition-all duration-300"
+          className="md:hidden fixed top-4 left-4 z-[3000] w-12 h-12 bg-[#FD5A00] text-white rounded-xl shadow-lg flex items-center justify-center transition-all duration-300"
           style={{ backgroundColor: primaryColor }}
         >
           <FiMenu size={24} />
@@ -149,7 +149,7 @@ const Sidebar = () => {
       <aside
         className={`
           fixed top-0 md:top-[112px] left-0 
-          ${isMobileOpen ? 'z-[9999] translate-x-0' : 'z-[9000] -translate-x-full md:translate-x-0'}
+          ${isMobileOpen ? 'z-[9999] translate-x-0' : 'z-[5000] -translate-x-full md:translate-x-0'}
           bg-white border-r border-gray-200 shadow-2xl transition-transform duration-300
           w-64 h-screen md:h-[calc(100vh-112px)]
         `}
@@ -161,10 +161,10 @@ const Sidebar = () => {
         }}
       >
         <div className="flex flex-col h-full overflow-hidden">
-          <div className="p-7 border-b border-gray-100 bg-white sticky top-0 z-10 shadow-sm">
+          <div className="p-5 border-b border-gray-100 bg-white sticky top-0 z-10 shadow-sm">
             <div className="flex items-center gap-3">
               <div 
-                className="w-10 h-10 rounded-xl flex items-center justify-center text-white shadow-lg rotate-3 hover:rotate-0 transition-transform duration-300"
+                className="w-10 h-10 rounded-xl flex items-center justify-center text-white shadow-lg transition-transform duration-300"
                 style={{ background: `linear-gradient(135deg, ${primaryColor}, ${primaryDark})` }}
               >
                 <FiBook size={20} />
@@ -182,7 +182,7 @@ const Sidebar = () => {
           </div>
 
           {/* User Profile Section */}
-          <div className="p-4 border-b border-gray-200">
+          <div className="p-3 border-b border-gray-200">
             <div className="flex items-center gap-2.5">
               <div 
                 className="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold shadow-md text-xs"
@@ -197,7 +197,6 @@ const Sidebar = () => {
             </div>
           </div>
 
-          {/* Navigation Menu */}
           <nav 
             ref={navRef}
             onScroll={handleScroll}
@@ -233,7 +232,7 @@ const Sidebar = () => {
                         <button
                           onClick={() => toggleSubMenu(item.label)}
                           className={`
-                            w-full flex items-center transition-all duration-300 rounded-xl px-4 py-3
+                            w-full flex items-center transition-all duration-300 rounded-xl px-4 py-2.5
                             ${isActive 
                               ? 'text-gray-900 bg-gray-50' 
                               : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100'
@@ -283,7 +282,7 @@ const Sidebar = () => {
                       <Link
                         to={item.path}
                         className={`
-                          flex items-center transition-all duration-300 rounded-xl px-4 py-3
+                          flex items-center transition-all duration-300 rounded-xl px-4 py-2.5
                           ${isActive 
                             ? 'text-white shadow-md' 
                             : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100'
@@ -310,7 +309,7 @@ const Sidebar = () => {
           </nav>
 
           {/* Bottom Section */}
-          <div className="p-2.5 border-t border-gray-200">
+          <div className="p-3 border-t border-gray-200">
             {/* Logout */}
             <button
               onClick={handleLogout}

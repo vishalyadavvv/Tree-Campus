@@ -185,8 +185,17 @@ export default function AdminPanel() {
     setJsonError("");
     try {
       const parsed = JSON.parse(jsonInput);
-      if (!Array.isArray(parsed)) throw new Error("Must be an array");
-      dispatch({ type: "SET_QUESTIONS", questions: parsed });
+      // Support both single question object and array of questions
+      const questionsArray = Array.isArray(parsed) ? parsed : [parsed];
+      
+      // Basic validation for each item
+      questionsArray.forEach((q, idx) => {
+        if (!q.question || !Array.isArray(q.options) || typeof q.answer !== 'number') {
+          throw new Error(`Invalid format at item ${idx + 1}. Each question must have 'question', 'options' (array), and 'answer' (number).`);
+        }
+      });
+
+      dispatch({ type: "SET_QUESTIONS", questions: questionsArray });
       setShowJsonModal(false);
       setJsonInput("");
     } catch (err) {
@@ -203,13 +212,18 @@ export default function AdminPanel() {
         : `${API_URL}/admin/contest/exams/${updateExamId}`;
       const method = mode === "create" ? "POST" : "PUT";
       
+      const payload = {
+        ...examDetails,
+        duration: Number(examDetails.timeLimit)
+      };
+
       const response = await fetch(url, {
         method,
         headers: { 
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`
         },
-        body: JSON.stringify(examDetails),
+        body: JSON.stringify(payload),
       });
 
       if (!response.ok) throw new Error("Save failed");
@@ -597,24 +611,28 @@ export default function AdminPanel() {
                             </button>
                         </div>
                         <pre className="text-xs text-[#854D0E] font-mono whitespace-pre-wrap">
-{`Convert the following question into this JSON format:
-{
-  "question": "Your question?",
-  "options": ["Option A", "Option B", "Option C", "Option D"],
-  "answer": index_of_correct_option (0-based)
-}
+{`Convert the following questions into JSON format. You can paste a single object or a list (array) of objects.
 
-Example:
-Input: What is the capital of France?
-Options: Berlin, Madrid, Paris, Lisbon
-Answer: Paris
-
-Output:
+Example (Single Question):
 {
   "question": "What is the capital of France?",
   "options": ["Berlin", "Madrid", "Paris", "Lisbon"],
   "answer": 2
-}`}
+}
+
+Example (Multiple Questions):
+[
+  {
+    "question": "Q1 text?",
+    "options": ["A", "B", "C", "D"],
+    "answer": 0
+  },
+  {
+    "question": "Q2 text?",
+    "options": ["A", "B", "C", "D"],
+    "answer": 1
+  }
+]`}
                         </pre>
                     </div>
 

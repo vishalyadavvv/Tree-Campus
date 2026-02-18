@@ -9,7 +9,7 @@ const DashboardLayout = ({ children }) => {
 
       {/* Main Content Area */}
       <div 
-        className="flex-1 transition-all duration-300 flex flex-col min-h-screen pt-[112px] md:pl-64"
+        className="flex-1 transition-all duration-300 flex flex-col min-h-screen md:pl-64"
       >
         <main className="flex-1 p-4 md:p-8">
           <div className="max-w-7xl mx-auto">

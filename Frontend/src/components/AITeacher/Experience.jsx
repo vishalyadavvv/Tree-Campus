@@ -50,7 +50,7 @@ export const Experience = () => {
 
 const handleBack = () => {
     useAITeacher.getState().reset(); // Clear chat state for fresh start
-    sessionStorage.removeItem("greetingSent");
+    localStorage.removeItem("greetingSent");
     navigate("/dashboard");
   };
 

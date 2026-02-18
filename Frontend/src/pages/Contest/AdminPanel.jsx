@@ -57,7 +57,7 @@ const AdminPanel = () => {
     const fetchExams = async () => {
         setLoading(true);
         try {
-            const token = sessionStorage.getItem("token");
+            const token = localStorage.getItem("token");
             const response = await fetch(`${API_URL}/admin/contest/exams`, {
                  headers: { Authorization: `Bearer ${token}` }
             });
@@ -129,7 +129,7 @@ const AdminPanel = () => {
     
           const url = mode === "create" ? `${API_URL}/admin/contest/exams` : `${API_URL}/admin/contest/exams/${updateExamId}`;
           const method = mode === "create" ? "POST" : "PUT";
-          const token = sessionStorage.getItem("token");
+          const token = localStorage.getItem("token");
 
           const response = await fetch(url, {
             method,
@@ -367,7 +367,7 @@ const AdminPanel = () => {
                                                         if(!confirm('Are you sure you want to delete this contest?')) return;
                                                         setLoading(true);
                                                         try {
-                                                            const token = sessionStorage.getItem("token");
+                                                            const token = localStorage.getItem("token");
                                                             await fetch(`${API_URL}/admin/contest/exams/${exam._id}`, {
                                                                 method: 'DELETE',
                                                                 headers: { Authorization: `Bearer ${token}` }
@@ -400,7 +400,7 @@ const AdminPanel = () => {
                         onClick={async () => {
                             setLoading(true);
                             try {
-                                const token = sessionStorage.getItem("token");
+                                const token = localStorage.getItem("token");
                                 const res = await fetch(`${API_URL}/admin/contest/process-expired-exams`, {
                                     headers: { Authorization: `Bearer ${token}` }
                                 });

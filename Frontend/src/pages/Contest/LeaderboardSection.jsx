@@ -17,7 +17,7 @@ export default function LeaderboardSection({ allExams }) {
   const fetchLeaderboard = async () => {
     setLoading(true);
     try {
-      const token = sessionStorage.getItem("token");
+      const token = localStorage.getItem("token");
       const res = await fetch(`${API_URL}/contest/leaderboard/${selectedExamId}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
