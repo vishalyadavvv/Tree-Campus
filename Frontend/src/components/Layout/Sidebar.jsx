@@ -131,7 +131,7 @@ const Sidebar = () => {
       {!isMobileOpen && (
         <button
           onClick={() => setIsMobileOpen(true)}
-          className="md:hidden fixed top-4 left-4 z-[2100] w-12 h-12 bg-[#FD5A00] text-white rounded-xl shadow-lg flex items-center justify-center hover:scale-105 active:scale-95 transition-all duration-300"
+          className="md:hidden fixed top-4 left-4 z-[3000] w-12 h-12 bg-[#FD5A00] text-white rounded-xl shadow-lg flex items-center justify-center hover:scale-105 active:scale-95 transition-all duration-300"
           style={{ backgroundColor: primaryColor }}
         >
           <FiMenu size={24} />
@@ -142,22 +142,22 @@ const Sidebar = () => {
       {isMobileOpen && (
         <div
           onClick={() => setIsMobileOpen(false)}
-          className="fixed inset-0 bg-black/60 z-[2050] backdrop-blur-sm transition-opacity duration-300"
+          className="fixed inset-0 bg-black/60 z-[2900] backdrop-blur-sm transition-opacity duration-300"
         />
       )}
 
       {/* Sidebar - Consistent Fixed positioning */}
       <aside
         className={`
-          md:relative fixed top-0 md:top-0 left-0 z-[1000] md:h-full h-screen w-64
+          md:sticky fixed top-0 md:top-[112px] left-0 z-[2800] 
           ${isMobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
           bg-white border-r border-gray-200 shadow-2xl transition-transform duration-300
+          w-64 h-screen md:h-[calc(100vh-112px)]
         `}
         style={{ 
           backgroundColor: 'white', 
-          color: '#374151', 
-          height: isMobileOpen ? '100vh' : 'auto',
-          minHeight: '100vh'
+          color: '#374151',
+          minHeight: isMobileOpen ? '100vh' : 'auto'
         }}
       >
         <div className="flex flex-col h-full overflow-hidden">
@@ -202,7 +202,7 @@ const Sidebar = () => {
           <nav 
             ref={navRef}
             onScroll={handleScroll}
-            className="flex-1 p-3 md:overflow-visible overflow-y-auto custom-scrollbar"
+            className="flex-1 p-3 overflow-y-auto custom-scrollbar"
           >
             <ul className="space-y-0.5">
               {menuItems.map((item, index) => {

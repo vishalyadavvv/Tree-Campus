@@ -3,7 +3,7 @@ import Footer from "../common/Footer";
 
 const DashboardLayout = ({ children }) => {
   return (
-    <div className="flex min-h-screen bg-gray-50 overflow-x-hidden relative">
+    <div className="flex min-h-screen bg-gray-50 relative">
       {/* Sidebar - Remains fixed top-112px below navbar */}
       <Sidebar />
 

@@ -5,7 +5,7 @@ import { AuthContext } from '../../context/AuthContext';
 
 const translations = {
   english: {
-    title: 'LMS Login',
+    title: 'TreeCampus Login',
     subtitle: 'Access your learning dashboard and explore courses',
     loginAs: 'Login As',
     selectRole: 'Select Role',

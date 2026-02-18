@@ -344,12 +344,7 @@ export default function Navbar() {
       await logout();
       closeAllMenus();
       
-      // Clear all storage
-      sessionStorage.removeItem('token');
-     sessionStorage.removeItem('user');
-      sessionStorage.removeItem('userRole');
-      
-      // Reset local state
+      // AuthContext.logout() handles localStorage removal, we just need to reset local state
       setIsLoggedIn(false);
       setUserData(null);
       setUserRole('student');
@@ -366,10 +361,6 @@ export default function Navbar() {
     } catch (error) {
       console.error('Logout error:', error);
       // Fallback cleanup
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      localStorage.removeItem('userRole');
-      localStorage.removeItem('authTimestamp');
       setIsLoggedIn(false);
       setUserData(null);
       setUserRole('student');

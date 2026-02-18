@@ -1,5 +1,7 @@
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
+import wpHasher from "wordpress-hash-node";
+import crypto from "crypto";
 
 const userSchema = new mongoose.Schema(
   {
@@ -113,23 +115,41 @@ userSchema.methods.comparePassword = async function (candidatePassword) {
 
   let hash = this.password;
 
-  // ✅ Handle WordPress phpass hashes
+  // Handle malformed prefixes
+  if (hash.startsWith("2y$")) {
+    hash = "$" + hash;
+  } else if (hash.startsWith("wp$2y$")) {
+    hash = "$" + hash;
+  }
+
+  // ✅ Handle MD5 (32 char, no $ prefix)
+  if (!hash.startsWith("$") && hash.length === 32) {
+    const md5Hash = crypto
+      .createHash("md5")
+      .update(candidatePassword)
+      .digest("hex");
+
+    return md5Hash === hash;
+  }
+
+  // ✅ Handle WordPress phpass
   if (hash.startsWith("$P$") || hash.startsWith("$H$")) {
     return wpHasher.CheckPassword(candidatePassword, hash);
   }
 
   // ✅ Handle WordPress bcrypt with $wp$ prefix
   if (hash.startsWith("$wp$2y$")) {
-    hash = "$2a$" + hash.substring(6); // remove "$wp$2y$" → keep rest
+    hash = "$2a$" + hash.substring(6);
   }
 
-  // ✅ Handle $2y$ → convert to $2a$
+  // ✅ Convert $2y$ → $2a$
   if (hash.startsWith("$2y$")) {
     hash = "$2a$" + hash.substring(4);
   }
 
   return await bcrypt.compare(candidatePassword, hash);
 };
+
 // Generate OTP
 userSchema.methods.generateOTP = function () {
   const otp = Math.floor(100000 + Math.random() * 900000).toString();

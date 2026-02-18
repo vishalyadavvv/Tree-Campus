@@ -143,11 +143,12 @@ export const processExpiredExams = async (req, res) => {
 
                 // Add to Winners
                 winnersData.push({
+                    userId: winner.userId,
+                    code: couponCode,
+                    email: winner.email,
                     rank: rank,
                     name: winner.name,
-                    email: winner.email,
                     phone_number: winner.phone_number,
-                    coupon: couponCode,
                     score: winner.score
                 });
             }

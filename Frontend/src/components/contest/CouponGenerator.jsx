@@ -22,7 +22,7 @@ export default function CouponGenerator() {
     e.preventDefault();
     setMessage('Generating…');
     try {
-      const token = sessionStorage.getItem("token");
+      const token = localStorage.getItem("token");
       const res = await fetch(`${API_URL}/admin/contest/coupons`, {
         method: 'POST',
         headers: { 
@@ -46,7 +46,7 @@ export default function CouponGenerator() {
   async function fetchCoupons() {
     setMessage('Loading…');
     try {
-      const token = sessionStorage.getItem("token");
+      const token = localStorage.getItem("token");
       const res = await fetch(`${API_URL}/admin/contest/coupons`, {
         headers: { Authorization: `Bearer ${token}` }
       });

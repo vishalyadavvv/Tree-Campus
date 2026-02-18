@@ -85,7 +85,7 @@ export default function AdminPanel() {
   const fetchExams = async () => {
     setLoading(true);
     try {
-      const token = sessionStorage.getItem("token");
+      const token = localStorage.getItem("token");
       const response = await fetch(`${API_URL}/admin/contest/exams`, {
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -102,7 +102,7 @@ export default function AdminPanel() {
   const handleProcessEmail = async (examId) => {
     setEmailLoading(true);
     try {
-      const token = sessionStorage.getItem("token");
+      const token = localStorage.getItem("token");
       const response = await fetch(`${API_URL}/admin/contest/process-expired-exams`, {
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -119,7 +119,7 @@ export default function AdminPanel() {
   const handleTogglePause = async (exam) => {
     const newStatus = exam.status === 'paused' ? 'active' : 'paused';
     try {
-        const token = sessionStorage.getItem("token");
+        const token = localStorage.getItem("token");
         const response = await fetch(`${API_URL}/admin/contest/exams/${exam._id}`, {
             method: 'PUT',
             headers: { 
@@ -197,7 +197,7 @@ export default function AdminPanel() {
   const handleSubmit = async () => {
     setIsSubmitLoading(true);
     try {
-      const token = sessionStorage.getItem("token");
+      const token = localStorage.getItem("token");
       const url = mode === "create"
         ? `${API_URL}/admin/contest/exams`
         : `${API_URL}/admin/contest/exams/${updateExamId}`;
@@ -569,7 +569,7 @@ export default function AdminPanel() {
       {/* JSON MODAL */}
       <AnimatePresence>
         {showJsonModal && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
             <motion.div 
                initial={{ opacity: 0 }} 
                animate={{ opacity: 1 }} 

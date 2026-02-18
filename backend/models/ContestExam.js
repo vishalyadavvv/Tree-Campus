@@ -24,6 +24,7 @@ const WinnerSchema = new mongoose.Schema({
   rank: { type: Number, required: true },
   name: { type: String, required: true },
   phone_number: { type: Number, required: true },
+  score: { type: Number, required: true },
 });
 
 // Main Exam Schema
