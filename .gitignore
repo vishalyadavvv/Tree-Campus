@@ -1,32 +1,73 @@
-3D-English-Teacher2-main/
+# Dependencies
 node_modules/
+**/node_modules/
+
+# Environment Variables
 .env
+**/.env
+.env.local
+.env.*.local
+
+# Logs and Debug
 *.log
-dist/
-build/
+**/*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# OS Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDEs
 .vscode/
 .idea/
-.DS_Store
-Thumbs.db
-Zoom Meeting/
+*.swp
+*.swo
+*.sublime-project
+*.sublime-workspace
 
-# Technical Logs & Debug
+# Build and Dist
+dist/
+build/
+out/
+**/dist/
+**/build/
+
+# Project Specific Junk
+Wordpress data/
+Zoom Meeting/
+.ignored_archive/
+3D-English-Teacher2-main/
+
+# Temporary Text/JSON files (except key configs)
 *.txt
+**/*.txt
 *.json
 !package.json
 !package-lock.json
+!composer.json
+!*.config.json
+!tsconfig.json
 
-# Specific Data Files
+# Specific tracked junk to ignore
+server_check.json
 models.json
 key_check.json
 response_*.json
 test_*.json
 tts_error.json
 
-# Cleanup Archive
-.ignored_archive/
-
 # Temporary Documentation (except README)
 *.md
 !README.md
 !API_DOCUMENTATION.md
+!FRONTEND_README.md
+!BACKEND_README.md
+
