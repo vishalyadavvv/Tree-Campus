@@ -256,6 +256,9 @@ export const createLesson = async (req, res) => {
     const pdfUrl = req.file ? req.file.path : '';
     const pdfFileName = req.file ? req.file.originalname : '';
 
+    // Auto-assign order so new lessons appear at the end
+    const existingLessonCount = await Lesson.countDocuments({ sectionId: req.params.id });
+
     const lesson = await Lesson.create({
       title: req.body.title,
       videoUrl: req.body.videoUrl,
@@ -265,7 +268,8 @@ export const createLesson = async (req, res) => {
       pdfUrl,
       pdfFileName,
       sectionId: req.params.id,
-      courseId: section.courseId
+      courseId: section.courseId,
+      order: existingLessonCount
     });
 
     // Update course total lessons count

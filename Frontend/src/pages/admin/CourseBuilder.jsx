@@ -177,8 +177,13 @@ const CourseBuilder = () => {
     });
     
     if (response.data.success) {
-      await fetchCourseStructure();
+      // Update course thumbnail immediately without full-page reload
+      const newThumbnailUrl = response.data.data.thumbnail;
+      setCourse(prev => ({ ...prev, thumbnail: newThumbnailUrl }));
+      // Silent refetch in background to sync all data
+      fetchCourseStructure(true);
       toast.success('Thumbnail uploaded successfully!');
+      return newThumbnailUrl;
     } else {
       toast.error('Failed to upload thumbnail');
     }
@@ -188,6 +193,7 @@ const CourseBuilder = () => {
   } finally {
     setUploadingThumbnail(false);
   }
+  return null;
 };
 
   // Section Management
@@ -1202,15 +1208,16 @@ const CourseEditModal = ({ course, onSave, onClose, onThumbnailUpload, uploading
     tags: Array.isArray(course?.tags) ? course.tags : []
   });
 
+  // Local thumbnail preview state — shows instant preview in modal
+  const [thumbnailPreview, setThumbnailPreview] = useState(course?.thumbnail || null);
 
   const handleSubmit = (e) => {
     e.preventDefault();
     onSave(formData);
   };
 
-
-// 2️⃣ handleThumbnailChange function (just calls onThumbnailUpload)
-const handleThumbnailChange = (e) => {
+// handleThumbnailChange — shows instant local preview + triggers upload
+const handleThumbnailChange = async (e) => {
   const file = e.target.files[0];
   if (!file) return;
 
@@ -1223,7 +1230,17 @@ const handleThumbnailChange = (e) => {
     return;
   }
 
-  onThumbnailUpload(file); // ✅ call the prop function// ✅ call existing function
+  // Show instant local preview
+  const localPreview = URL.createObjectURL(file);
+  setThumbnailPreview(localPreview);
+
+  // Upload and get the real URL back
+  const newUrl = await onThumbnailUpload(file);
+  if (newUrl) {
+    setThumbnailPreview(newUrl);
+  }
+  // Clean up the object URL
+  URL.revokeObjectURL(localPreview);
 };
 
 
@@ -1338,9 +1355,9 @@ const handleThumbnailChange = (e) => {
               </label>
               <div className="flex items-center space-x-4">
                 <div className="w-32 h-20 border rounded-lg overflow-hidden bg-gray-100 flex items-center justify-center">
-                  {course?.thumbnail ? (
+                  {thumbnailPreview ? (
                     <img 
-                      src={course.thumbnail} 
+                      src={thumbnailPreview} 
                       alt="Thumbnail" 
                       className="w-full h-full object-cover"
                     />
