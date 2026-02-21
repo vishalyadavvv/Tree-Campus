@@ -479,6 +479,10 @@ const Login = () => {
                   {t.registerNow}
                 </Link>
               </p>
+
+              <p className="text-center text-xs text-gray-500 mt-4">
+                Looking for your <Link to="/certificate" className="text-[#FD5B00] hover:underline font-medium">Certificates</Link>?
+              </p>
             </form>
           </div>
 

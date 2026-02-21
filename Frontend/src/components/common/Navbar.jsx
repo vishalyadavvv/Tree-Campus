@@ -732,7 +732,7 @@ export default function Navbar() {
                 onMouseLeave={handleMouseLeave}
               >
                 <button 
-                  className="px-5 py-2 rounded-full border border-gray-200 bg-white flex items-center gap-3 text-gray-700 font-bold tracking-wide text-xs shadow-sm hover:shadow-md hover:border-orange-200 transition-all duration-300 active:scale-95"
+                  className="px-5 py-2 rounded-full border border-gray-200 bg-white flex items-center gap-3 text-gray-700 font-bold tracking-wide text-xs shadow-sm hover:shadow-md hover:border-orange-200 transition-all duration-300 active:scale-95 cursor-pointer"
                   onClick={toggleProfileDropdown}
                 >
                   <div className="w-7 h-7 rounded-full bg-orange-500 text-white flex items-center justify-center font-bold text-xs ring-2 ring-orange-100">
@@ -771,7 +771,7 @@ export default function Navbar() {
                         <button
                           key={index}
                           onClick={() => handleMobileMenuItemClick(item)}
-                          className="w-full text-left px-4 py-3 text-gray-700 hover:text-orange-600 hover:bg-orange-50 transition-all text-sm border-b border-gray-100 last:border-b-0 last:rounded-b-lg flex items-center gap-3"
+                          className="w-full text-left px-4 py-3 text-gray-700 hover:text-orange-600 hover:bg-orange-50 transition-all text-sm border-b border-gray-100 last:border-b-0 last:rounded-b-lg flex items-center gap-3 cursor-pointer"
                         >
                           <span className="text-base">{item.icon}</span>
                           <span>{item.label}</span>
@@ -781,7 +781,7 @@ export default function Navbar() {
                           key={index}
                           href={item.href}
                           onClick={() => handleMobileMenuItemClick(item)}
-                          className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:text-orange-600 hover:bg-orange-50 transition-all text-sm border-b border-gray-100 last:border-b-0 last:rounded-b-lg"
+                          className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:text-orange-600 hover:bg-orange-50 transition-all text-sm border-b border-gray-100 last:border-b-0 last:rounded-b-lg cursor-pointer"
                         >
                           <span className="text-base">{item.icon}</span>
                           <span>{item.label}</span>

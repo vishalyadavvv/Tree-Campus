@@ -48,6 +48,7 @@ const ResetPassword = () => {
       const res = await axios.post("/auth/reset-password", {
         email,
         password,
+        otp,
       });
 
       setMessage("Password Updated Successfully!");

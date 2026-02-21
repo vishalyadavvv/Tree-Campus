@@ -308,7 +308,7 @@ function App() {
   <Route 
     path="/certificate"
     element={
-      <ProtectedRoute studentOnly>
+      <ProtectedRoute>
         <Certificate />
       </ProtectedRoute>
     }

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../services/api';
+import { useAuth } from '../context/AuthContext';
 import { FiAward, FiDownload, FiArrowRight, FiBookOpen } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import domtoimage from 'dom-to-image-more';
@@ -11,11 +12,12 @@ const Certificate = () => {
     const [loading, setLoading] = useState(true);
     const [downloading, setDownloading] = useState(null);
     const [error, setError] = useState(null);
+    const { user } = useAuth();
     const navigate = useNavigate();
 
     useEffect(() => {
         fetchCertificates();
-    }, []);
+    }, [user, navigate]);
 
     const fetchCertificates = async () => {
         try {
@@ -75,17 +77,20 @@ const Certificate = () => {
             doc.setFillColor(255, 255, 255);
             doc.rect(width / 2 - 120, height / 2 - 5, 240, 35, 'F');
 
-            // Draw Underline
-            doc.setDrawColor(150, 150, 150); // Gray color
-            doc.setLineWidth(1);
-            doc.line(width / 2 - 150, height / 2 + 25, width / 2 + 150, height / 2 + 25);
+            // Draw Horizontal Lines - Positioned to frame the name
+            doc.setDrawColor(180, 180, 180); // Lighter gray for cleaner look
+            doc.setLineWidth(0.5);
+            // Top Line
+            doc.line(width / 2 - 180, height / 2 - 5, width / 2 + 180, height / 2 - 5);
+            // Bottom Line
+            doc.line(width / 2 - 180, height / 2 + 45, width / 2 + 180, height / 2 + 45);
 
-            // Student Name
+            // Student Name - Centered between the lines
             doc.setFontSize(32);
             doc.setFont('helvetica', 'bold');
-            doc.setTextColor(50, 50, 50);
+            doc.setTextColor(40, 40, 40);
             const name = cert.userName || 'Student Name';
-            doc.text(name, width / 2, height / 2 + 20, { align: 'center' });
+            doc.text(name, width / 2, height / 2 + 28, { align: 'center' });
             
             // Date
             const date = new Date(cert.issuedAt).toLocaleDateString('en-US', { 
@@ -181,9 +186,9 @@ const Certificate = () => {
                                     {/* Text Overlays */}
                                     <div className="absolute inset-0 flex flex-col items-center justify-center" style={{ paddingTop: '5%' }}>
                                         
-                                        {/* Student Name - Positioned in the blank line area */}
+                                        {/* Student Name - Positioned between two lines */}
                                         <div className="absolute" style={{ top: '52%', left: '50%', transform: 'translate(-50%, -50%)', width: '60%' }}>
-                                            <h2 className="text-3xl font-bold text-[#1a252f] text-center border-b-2 border-gray-400 pb-2"
+                                            <h2 className="text-3xl font-bold text-[#1a252f] text-center border-y-2 border-gray-300 py-3"
                                                 style={{ fontFamily: "'Montserrat', sans-serif" }}>
                                                 {cert.userName || 'Student Name'}
                                             </h2>

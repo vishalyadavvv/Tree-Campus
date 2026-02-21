@@ -54,7 +54,7 @@ const adminMenuItems = [
 const studentMenuItems = [
   { path: '/dashboard', icon: FiHome, label: 'Dashboard' },
   { path: '/courses', icon: FiBook, label: 'Courses' },
-  { path: '/certificates', icon: FiAward, label: 'Certificates' },
+  { path: '/certificate', icon: FiAward, label: 'Certificates' },
   { path: '/live-classes', icon: FiVideo, label: 'Live Classes' },
   { path: '/blogs', icon: FiFileText, label: 'Blogs' }
 ];
@@ -127,11 +127,12 @@ const Sidebar = () => {
 
   return (
     <>
-      {/* Mobile Menu Button - Moved to top-left for professional look */}
+      {/* Mobile Menu Button - Moved below Navbar and increased z-index */}
+      {/* Mobile Menu Button - Repositioned to the right to avoid overlapping text */}
       {!isMobileOpen && (
         <button
           onClick={() => setIsMobileOpen(true)}
-          className="md:hidden fixed top-4 left-4 z-[3000] w-12 h-12 bg-[#FD5A00] text-white rounded-xl shadow-lg flex items-center justify-center transition-all duration-300"
+          className="md:hidden fixed top-[115px] right-4 z-[10000] w-12 h-12 text-white rounded-xl shadow-lg flex items-center justify-center transition-all duration-300 active:scale-90 cursor-pointer"
           style={{ backgroundColor: primaryColor }}
         >
           <FiMenu size={24} />
@@ -313,7 +314,7 @@ const Sidebar = () => {
             {/* Logout */}
             <button
               onClick={handleLogout}
-              className="w-full flex items-center px-4 py-2 transition-all duration-300 rounded-xl text-gray-700 hover:text-white"
+              className="w-full flex items-center px-4 py-2 transition-all duration-300 rounded-xl text-gray-700 hover:text-white cursor-pointer"
               style={{ backgroundColor: 'transparent' }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.backgroundColor = '#DC2626';
@@ -331,7 +332,7 @@ const Sidebar = () => {
             {/* Mobile close button */}
             <button
               onClick={() => setIsMobileOpen(false)}
-              className="md:hidden w-full mt-4 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors duration-300 font-medium"
+              className="md:hidden w-full mt-4 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors duration-300 font-medium cursor-pointer"
             >
               Close Menu
             </button>

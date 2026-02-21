@@ -321,11 +321,11 @@ useLayoutEffect(() => {
     placeholder={listening ? "Listening…" : "Ask a question?"}
     className="
       box-border
-      w-full
-      bg-white/10 p-3 rounded-xl text-white placeholder-gray-300
+      w-full text-[16px]
+      bg-white/10 p-2 md:p-3 rounded-xl text-white placeholder-gray-300
       shadow-inner focus:outline-none focus:ring-2 focus:ring-blue-400
       resize-none overflow-hidden
-      h-[48px] max-h-[80px]
+      h-[46px] md:h-[48px] max-h-[80px]
     "
   />
   {listening && (

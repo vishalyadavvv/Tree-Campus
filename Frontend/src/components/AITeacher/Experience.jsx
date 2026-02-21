@@ -255,22 +255,23 @@ const CameraManager = () => {
   useEffect(() => {
     if (loading) {
       if (isMobile) {
+        // Move to loading position but maintain current zoom to avoid dramatic "zooming on response"
         controls.current?.setPosition(0.00002621880610890309, 0.00000515037441056466, 0.00009636414192870058, true);
-        controls.current?.zoomTo(1.3560873957863966, true);
       } else {
         controls.current?.setPosition(...CAMERA_POSITIONS.loading, true);
         controls.current?.zoomTo(CAMERA_ZOOMS.loading, true);
       }
     } else if (currentMessage) {
       if (isMobile) {
-        controls.current?.setPosition(0.0000036891791593946404,0.0000039337346866935065,0.00009985447255153167, true);
-        controls.current?.zoomTo(0.6239784084873344, true);
+        // On mobile, keep the default view when speaking to avoid jittery zooming
+        controls.current?.setPosition(...CAMERA_POSITIONS.mobileDefault, true);
+        controls.current?.zoomTo(CAMERA_ZOOMS.mobileDefault, true);
       } else {
         controls.current?.setPosition(...CAMERA_POSITIONS.speaking, true);
         controls.current?.zoomTo(CAMERA_ZOOMS.speaking, true);
       }
     }
-  }, [loading]);
+  }, [loading, currentMessage, isMobile]);
 
   useEffect(() => {
     // Update the cameraData whenever the controls change

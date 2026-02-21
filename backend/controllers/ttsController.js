@@ -23,6 +23,7 @@ export const getTTS = async (req, res) => {
             model: "tts-1",
             voice: voice,
             input: text,
+            speed: 0.85,
         });
 
         const buffer = Buffer.from(await mp3.arrayBuffer());

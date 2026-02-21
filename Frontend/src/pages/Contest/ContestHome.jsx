@@ -184,7 +184,7 @@ export default function ContestHome() {
             <h1 className="text-xl font-black text-gray-900 tracking-tight">Contest Arena</h1>
           </div>
           <div className="flex items-center gap-4 lg:hidden">
-             <button className="p-2 text-slate-600 hover:bg-orange-50 rounded-lg transition-colors" onClick={() => setSidebarOpen(true)}>
+             <button className="p-2 text-slate-600 hover:bg-orange-50 rounded-lg transition-colors cursor-pointer" onClick={() => setSidebarOpen(true)}>
                 <FiMenu size={24} />
              </button>
           </div>
@@ -198,12 +198,14 @@ export default function ContestHome() {
             <motion.aside 
                 initial={{ x: "-100%" }}
                 animate={{ x: 0 }}
+                exit={{ x: "-100%" }}
+                transition={{ type: "spring", stiffness: 300, damping: 30 }}
                 className="fixed inset-y-0 left-0 w-80 bg-white shadow-2xl p-0 flex flex-col"
             >
                 <div className="p-8 pb-4">
                     <div className="flex items-center justify-between mb-8">
                         <h2 className="text-[#1e293b] font-black text-xl">Menu</h2>
-                        <button onClick={() => setSidebarOpen(false)} className="text-slate-400 p-2 hover:text-orange-600 transition-colors">
+                        <button onClick={() => setSidebarOpen(false)} className="text-slate-400 p-2 hover:text-orange-600 transition-colors cursor-pointer">
                             <FiX size={24} />
                         </button>
                     </div>
