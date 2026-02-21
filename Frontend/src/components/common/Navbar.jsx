@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import { useAuth } from "../../context/AuthContext";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   FiX, FiChevronRight, FiHome, FiBook, FiUser, 
@@ -22,6 +22,8 @@ export default function Navbar() {
   
   // FIXED: Added useNavigate for proper navigation
   const navigate = useNavigate();
+  const location = useLocation();
+  const isActive = (path) => location.pathname === path;
   
   // FIXED: Enhanced auth state management
   const { user, loading, logout } = useAuth();
@@ -939,7 +941,11 @@ export default function Navbar() {
                       <NavLink
                         href={navigation.home}
                         onClick={handleLinkClick}
-                        className="flex items-center gap-4 px-4 py-3 text-gray-700 hover:text-orange-600 hover:bg-orange-50 rounded-xl transition-all group"
+                        className={`flex items-center gap-4 px-4 py-3 rounded-xl transition-all group ${
+                          isActive(navigation.home) 
+                            ? 'bg-orange-50 text-orange-600' 
+                            : 'text-gray-700 hover:text-orange-600 hover:bg-orange-50'
+                        }`}
                       >
                         <FiHome className="text-xl group-hover:scale-110 transition-transform" />
                         <span className="font-semibold text-sm">Home</span>
@@ -948,7 +954,11 @@ export default function Navbar() {
                       <NavLink
                         href={navigation.liveClasses}
                         onClick={handleLinkClick}
-                        className="flex items-center gap-4 px-4 py-3 text-gray-700 hover:text-orange-600 hover:bg-orange-50 rounded-xl transition-all group"
+                        className={`flex items-center gap-4 px-4 py-3 rounded-xl transition-all group ${
+                          isActive(navigation.liveClasses) 
+                            ? 'bg-orange-50 text-orange-600' 
+                            : 'text-gray-700 hover:text-orange-600 hover:bg-orange-50'
+                        }`}
                       >
                         <FiVideo className="text-xl group-hover:scale-110 transition-transform" />
                         <span className="font-semibold text-sm">Live Classes</span>
@@ -957,7 +967,11 @@ export default function Navbar() {
                       <NavLink
                         href={navigation.aiTeacher}
                         onClick={handleLinkClick}
-                        className="flex items-center gap-4 px-4 py-3 text-gray-700 hover:text-orange-600 hover:bg-orange-50 rounded-xl transition-all group"
+                        className={`flex items-center gap-4 px-4 py-3 rounded-xl transition-all group ${
+                          isActive(navigation.aiTeacher) 
+                            ? 'bg-orange-50 text-orange-600' 
+                            : 'text-gray-700 hover:text-orange-600 hover:bg-orange-50'
+                        }`}
                       >
                         <span className="text-xl group-hover:scale-110 transition-transform">👩‍🏫</span>
                         <span className="font-semibold text-sm uppercase">AI Teacher</span>
@@ -990,7 +1004,11 @@ export default function Navbar() {
                               key={index}
                               href={item.href}
                               onClick={handleLinkClick}
-                              className="flex items-center gap-3 py-3 px-6 text-gray-600 hover:text-orange-600 hover:bg-white transition-colors text-sm border-l-2 border-transparent hover:border-orange-500"
+                              className={`flex items-center gap-3 py-3 px-6 transition-colors text-sm border-l-2 ${
+                                isActive(item.href)
+                                  ? 'bg-white text-orange-600 border-orange-500'
+                                  : 'text-gray-600 hover:text-orange-600 hover:bg-white border-transparent hover:border-orange-500'
+                              }`}
                             >
                               <FiChevronRight className="text-xs" />
                               {item.label}
@@ -1023,7 +1041,11 @@ export default function Navbar() {
                               key={index}
                               href={item.href}
                               onClick={handleLinkClick}
-                              className="flex items-center gap-3 py-3 px-6 text-gray-600 hover:text-orange-600 hover:bg-white transition-colors text-sm border-l-2 border-transparent hover:border-orange-500"
+                              className={`flex items-center gap-3 py-3 px-6 transition-colors text-sm border-l-2 ${
+                                isActive(item.href)
+                                  ? 'bg-white text-orange-600 border-orange-500'
+                                  : 'text-gray-600 hover:text-orange-600 hover:bg-white border-transparent hover:border-orange-500'
+                              }`}
                             >
                               <FiChevronRight className="text-xs" />
                               {item.label}
@@ -1058,7 +1080,11 @@ export default function Navbar() {
                               <button
                                 key={index}
                                 onClick={() => handleMobileMenuItemClick(item)}
-                                className="w-full flex items-center gap-4 py-3 px-6 text-gray-600 hover:text-orange-600 hover:bg-white transition-colors text-sm border-l-2 border-transparent hover:border-orange-500"
+                                className={`w-full flex items-center gap-4 py-3 px-6 transition-colors text-sm border-l-2 ${
+                                  isActive(item.href)
+                                    ? 'bg-white text-orange-600 border-orange-500'
+                                    : 'text-gray-600 hover:text-orange-600 hover:bg-white border-transparent hover:border-orange-500'
+                                }`}
                               >
                                 <span className="text-lg">{item.icon}</span>
                                 <span className="font-medium">{item.label}</span>

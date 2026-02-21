@@ -93,7 +93,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const login = async (email, password, role) => {
+  const login = async (email, password, role = null) => {
     try {
       setError(null);
       setLoading(true);

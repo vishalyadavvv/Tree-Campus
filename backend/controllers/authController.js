@@ -188,14 +188,6 @@ const login = async (req, res, next) => {
   try {
     const { email, password, role } = req.body;
 
-    // Validate request
-    if (!role) {
-      return res.status(400).json({ 
-        success: false, 
-        message: 'Please select a role' 
-      });
-    }
-
     // ⭐ POPULATE ALL USER DATA INCLUDING COURSES AND LESSONS
     const user = await User.findOne({ email })
       .select('+password')
@@ -216,14 +208,18 @@ const login = async (req, res, next) => {
       });
     }
 
-    // ⭐ CHECK ROLE MATCH
-    console.log(`🔍 Checking role match for ${email}: input_role=${role}, db_role=${user.role}`);
-    if (user.role.toLowerCase() !== role.toLowerCase()) {
-      console.warn(`⚠️ Role mismatch for ${email}: expected ${user.role}, got ${role}`);
-      return res.status(403).json({ 
-        success: false, 
-        message: `You are registered as ${user.role}, not as ${role}. Please select the correct role.` 
-      });
+    // ⭐ CHECK ROLE MATCH (Only if role is provided from frontend)
+    if (role) {
+      console.log(`🔍 Checking role match for ${email}: input_role=${role}, db_role=${user.role}`);
+      if (user.role.toLowerCase() !== role.toLowerCase()) {
+        console.warn(`⚠️ Role mismatch for ${email}: expected ${user.role}, got ${role}`);
+        return res.status(403).json({ 
+          success: false, 
+          message: `You are registered as ${user.role}, not as ${role}. Please select the correct role.` 
+        });
+      }
+    } else {
+      console.log(`🔍 No role provided in request for ${email}, using db_role=${user.role}`);
     }
 
    const isPasswordMatch = await user.comparePassword(password);

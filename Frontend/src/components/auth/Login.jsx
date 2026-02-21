@@ -7,9 +7,6 @@ const translations = {
   english: {
     title: 'TreeCampus Login',
     subtitle: 'Access your learning dashboard and explore courses',
-    loginAs: 'Login As',
-    selectRole: 'Select Role',
-    student: 'Student',
     admin: 'Admin',
     emailLabel: 'Email Address',
     emailPlaceholder: 'Enter your email',
@@ -38,9 +35,6 @@ const translations = {
   hindi: {
     title: 'LMS लॉगिन',
     subtitle: 'अपने लर्निंग डैशबोर्ड तक पहुंचें और कोर्स एक्सप्लोर करें',
-    loginAs: 'इस रूप में लॉगिन करें',
-    selectRole: 'भूमिका चुनें',
-    student: 'छात्र',
     admin: 'व्यवस्थापक',
     emailLabel: 'ईमेल पता',
     emailPlaceholder: 'अपना ईमेल दर्ज करें',
@@ -72,8 +66,7 @@ const translations = {
 const Login = () => {
   const [formData, setFormData] = useState({
     email: '',
-    password: '',
-    role: 'student'
+    password: ''
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -191,7 +184,7 @@ const Login = () => {
     
     setError('');
 
-    if (!formData.email || !formData.password || !formData.role) {
+    if (!formData.email || !formData.password) {
       setError(t.fillAllFields);
       return;
     }
@@ -199,7 +192,7 @@ const Login = () => {
     setLoading(true);
 
     try {
-      const result = await login(formData.email, formData.password, formData.role);
+      const result = await login(formData.email, formData.password);
       
       console.log('✅ Login result:', result);
       
@@ -397,23 +390,7 @@ const Login = () => {
             </div>
 
             <form className="space-y-5" onSubmit={handleSubmit}>
-              <div>
-                <label htmlFor="role" className="block text-sm font-medium text-gray-700 mb-2">
-                  {t.loginAs}
-                </label>
-                <select
-                  id="role"
-                  name="role"
-                  value={formData.role}
-                  onChange={handleChange}
-                  className="appearance-none w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FD5A00] focus:border-transparent transition"
-                  required
-                >
-                  
-                  <option value="student">{t.student}</option>
-                  <option value="admin">{t.admin}</option>
-                </select>
-              </div>
+
 
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">

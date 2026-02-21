@@ -42,9 +42,11 @@ export const authService = {
   // -------------------------
   // LOGIN
   // -------------------------
-  login: async (email, password, role) => {
+  login: async (email, password, role = null) => {
     try {
-      const res = await api.post('/auth/login', { email, password, role });
+      const payload = { email, password };
+      if (role) payload.role = role;
+      const res = await api.post('/auth/login', payload);
       return res;// MUST include accessToken, refreshToken, user
     } catch (err) {
       throw err.response?.data || err;
