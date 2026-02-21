@@ -148,11 +148,10 @@ export const useAITeacher = create(
       },
 
       stopMessage: (message) => {
-        if (!message || !message.audioPlayer) {
-          return;
+        if (message && message.audioPlayer) {
+          message.audioPlayer.pause();
+          message.audioPlayer.currentTime = 0;
         }
-        message.audioPlayer.pause();
-        message.audioPlayer.currentTime = 0;
         set(() => ({ currentMessage: null }));
       },
 
