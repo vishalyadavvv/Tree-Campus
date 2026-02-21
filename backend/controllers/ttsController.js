@@ -11,22 +11,41 @@ export const getTTS = async (req, res) => {
         .replace(/\s+/g, ' ')
         .trim();
     
-    // Voice mapping for OpenAI
-    // Nanami -> Nova (Energetic female)
-    // Others -> Onyx (Professional male)
-    const voice = teacher === "Nanami" ? "nova" : "onyx";
+    // Voice mapping for Google Cloud TTS
+    // Nanami -> en-IN-Neural2-D (Female Indian English)
+    // Others -> en-IN-Wavenet-C (Male)
+    const voiceName = teacher === "Nanami" ? "en-IN-Neural2-D" : "en-IN-Wavenet-C";
 
-    console.log(`TTS Request (OpenAI): voice=${voice}, textLength=${text.length}`);
+    console.log(`TTS Request (Google Cloud): voice=${voiceName}, textLength=${text.length}`);
 
     try {
-        const mp3 = await openai.audio.speech.create({
-            model: "tts-1",
-            voice: voice,
-            input: text,
-            speed: 0.85,
+        const apiKey = process.env.GOOGLE_CLOUD_API_KEY;
+        if (!apiKey) throw new Error("GOOGLE_CLOUD_API_KEY is missing");
+
+        const url = `https://texttospeech.googleapis.com/v1beta1/text:synthesize?key=${apiKey}`;
+        
+        const requestBody = {
+            input: { text: text },
+            voice: { languageCode: "en-IN", name: voiceName },
+            audioConfig: { 
+                audioEncoding: "MP3",
+                speakingRate: 0.85 
+            }
+        };
+
+        const ttsResponse = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(requestBody)
         });
 
-        const buffer = Buffer.from(await mp3.arrayBuffer());
+        if (!ttsResponse.ok) {
+            const errorText = await ttsResponse.text();
+            throw new Error(`Google TTS API error: ${ttsResponse.status} ${errorText}`);
+        }
+
+        const ttsData = await ttsResponse.json();
+        const buffer = Buffer.from(ttsData.audioContent, 'base64');
 
         // Hardcoded visemes for now as in the original project
         const visemes = [
