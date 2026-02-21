@@ -101,33 +101,43 @@ export const useAITeacher = create(
           return;
         }
 
-        if (message.audioPlayer && message.audioPlayer.paused) {
-          message.audioPlayer.play();
+        // If the audio player already exists, simply play/resume it!
+        if (message.audioPlayer) {
+          // If it reached the end, reset to 0 to replay
+          if (message.audioPlayer.currentTime >= message.audioPlayer.duration) {
+            message.audioPlayer.currentTime = 0;
+          }
+          
+          // Ensure onended exists in case it was lost
+          message.audioPlayer.onended = () => {
+            set(() => ({ currentMessage: null }));
+          };
+
+          message.audioPlayer.play().catch(e => console.error("Resume failed:", e));
           return;
         }
 
         // If we have audio data from the single API call, play it
         if (message.audio && !get().isLesson) {
           try {
-             // Convert Base64 to Blob
-             const byteCharacters = atob(message.audio);
-             const byteNumbers = new Array(byteCharacters.length);
-             for (let i = 0; i < byteCharacters.length; i++) {
-               byteNumbers[i] = byteCharacters.charCodeAt(i);
+             // Convert base64 to binary ArrayBuffer to a Blob URL
+             const binaryString = window.atob(message.audio);
+             const len = binaryString.length;
+             const bytes = new Uint8Array(len);
+             for (let i = 0; i < len; i++) {
+                 bytes[i] = binaryString.charCodeAt(i);
              }
-             const byteArray = new Uint8Array(byteNumbers);
-             const audioBlob = new Blob([byteArray], { type: 'audio/mpeg' });
+             const audioBlob = new Blob([bytes.buffer], { type: 'audio/mp3' });
              const audioUrl = URL.createObjectURL(audioBlob);
-             
+
              const audioPlayer = new Audio(audioUrl);
 
              audioPlayer.onended = () => {
                set(() => ({ currentMessage: null }));
-               URL.revokeObjectURL(audioUrl); // Cleanup
              };
 
              message.audioPlayer = audioPlayer;
-             audioPlayer.play();
+             audioPlayer.play().catch(e => console.error("Audio playback failed strictly during .play():", e));
 
              set(() => ({
                messages: get().messages.map((m) =>
@@ -137,7 +147,7 @@ export const useAITeacher = create(
              }));
 
           } catch (error) {
-             console.error("Error playing audio message:", error);
+             console.error("Error setting up audio message playback:", error);
              set(() => ({ loading: false }));
           }
         } else if (!get().isLesson) {
@@ -150,7 +160,7 @@ export const useAITeacher = create(
       stopMessage: (message) => {
         if (message && message.audioPlayer) {
           message.audioPlayer.pause();
-          message.audioPlayer.currentTime = 0;
+          // DO NOT set currentTime = 0 here, so we can resume later!
         }
         set(() => ({ currentMessage: null }));
       },

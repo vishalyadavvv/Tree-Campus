@@ -5,31 +5,28 @@ export const BoardSettings = ({ setShowPopup }) => {
   const Language = useAITeacher((state) => state.language); 
   const setLanguage = useAITeacher((state) => state.setLanguage);
   return (
-    <div className="absolute inset-0 pointer-events-none">
-      <div className="absolute left-1/2 -translate-x-1/2 bottom-10 flex flex-row gap-4 pointer-events-auto">
-        <button
-          className={`${
-            Language === "English" ? "text-white bg-slate-900/80" : "text-white/45 bg-slate-700/60"
-          } py-4 px-10 text-4xl rounded-full transition-colors duration-500 backdrop-blur-md`}
-          onClick={() => setLanguage("English")}>
-          English
-        </button>
-        <button
-          className={`${
-            Language === "Hindi" ? "text-white bg-slate-900/80" : "text-white/45 bg-slate-700/60"
-          } py-4 px-10 text-4xl rounded-full transition-colors duration-500 backdrop-blur-md`}
-          onClick={() => setLanguage("Hindi")}>
-          Hindi
-        </button>
-        <button
-          className={`${
-            Language === "English-Hindi" ? "text-white bg-slate-900/80" : "text-white/45 bg-slate-700/60"
-          } py-4 px-10 text-4xl rounded-full transition-colors duration-500 backdrop-blur-md`}
-          onClick={() => setLanguage("English-Hindi")}>
-          English-Hindi
-        </button>
-      </div>
-      
+    <div className="flex flex-col gap-2 pointer-events-auto items-end">
+      <button
+        className={`${
+          Language === "English" ? "text-white bg-slate-900/80 border-blue-500" : "text-white/70 bg-gray-800/90 border-transparent"
+        } py-2 px-4 text-sm md:text-base rounded-xl transition-all duration-300 backdrop-blur-md cursor-pointer border hover:bg-slate-700 shadow-xl`}
+        onClick={(e) => { e.stopPropagation(); setLanguage("English"); }}>
+        Eng
+      </button>
+      <button
+        className={`${
+          Language === "Hindi" ? "text-white bg-slate-900/80 border-blue-500" : "text-white/70 bg-gray-800/90 border-transparent"
+        } py-2 px-4 text-sm md:text-base rounded-xl transition-all duration-300 backdrop-blur-md cursor-pointer border hover:bg-slate-700 shadow-xl`}
+        onClick={(e) => { e.stopPropagation(); setLanguage("Hindi"); }}>
+        Hin
+      </button>
+      <button
+        className={`${
+          Language === "English-Hindi" ? "text-white bg-slate-900/80 border-blue-500" : "text-white/70 bg-gray-800/90 border-transparent"
+        } py-2 px-4 text-sm md:text-base rounded-xl transition-all duration-300 backdrop-blur-md cursor-pointer border hover:bg-slate-700 shadow-xl`}
+        onClick={(e) => { e.stopPropagation(); setLanguage("English-Hindi"); }}>
+        Eng-Hin
+      </button>
     </div>
   );
 };

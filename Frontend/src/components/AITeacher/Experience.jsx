@@ -34,6 +34,8 @@ const itemPlacement = {
   },
 };
 
+// ... imports
+
 export const Experience = () => {
   const teacher = useAITeacher((state) => state.teacher);
   const askAI = useAITeacher((state) => state.askAI);
@@ -58,28 +60,35 @@ const handleBack = () => {
 
 
   return (
-    <div className="relative w-full h-full"> 
+    <div className="relative z-[0] w-full h-full"> 
       <div className="z-10 absolute bottom-4 md:bottom-10 w-full flex justify-center pointer-events-none px-4">
         <TypingBox
           showTypingField={showTypingField}
         />
       </div>
 
-      {/* Settings Toggle Button */}
-      <button
-        className="absolute top-8 right-4 md:right-8 p-2 md:p-3 bg-gray-800/90 text-white rounded-xl shadow-2xl z-[70] backdrop-blur-md border border-white/20 hover:bg-gray-700 hover:scale-110 active:scale-95 transition-all duration-300 pointer-events-auto"
-        onClick={() => setShowPopup(true)}
-        title="Settings"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" className="md:w-7 md:h-7 w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <circle cx="12" cy="12" r="3"></circle>
-          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-        </svg>
-      </button>
+      {/* Settings & Language Controls */}
+      <div className="absolute top-8 right-4 md:right-8 flex flex-col items-end gap-4 z-[40]">
+        
+        {/* Settings Toggle Button */}
+        <button
+          className="p-2 md:p-3 bg-gray-800/90 text-white rounded-xl shadow-2xl backdrop-blur-md border border-white/20 hover:bg-gray-700 hover:scale-110 active:scale-95 transition-all duration-300 pointer-events-auto"
+          onClick={() => setShowPopup(true)}
+          title="Settings"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" className="md:w-7 md:h-7 w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          </svg>
+        </button>
+
+        {/* Language Selection Buttons - Now firmly anchored to the top-right Settings area */}
+        <BoardSettings />
+      </div>
 
 {/* Popup Modal */}
 {showPopup && (
-  <div className="absolute inset-0 flex items-center justify-center bg-black/60 backdrop-blur-lg z-[100]">
+  <div className="absolute inset-0 flex items-center justify-center bg-black/60 backdrop-blur-lg z-[50]">
     <div
       className="relative bg-white/10 backdrop-blur-2xl p-8 md:p-10 rounded-3xl shadow-2xl 
       w-96 md:w-[28rem] text-center border border-white/20"
@@ -160,11 +169,11 @@ const handleBack = () => {
               transform
               {...itemPlacement[classroom].board}
               distanceFactor={1}
+              wrapperClass="ai-teacher-html-wrapper"
             >
               {!showPopup && (
                 <>
                 <MessagesList />
-                <BoardSettings setShowPopup={setShowPopup} />
                 </>
               )}
               
@@ -299,17 +308,21 @@ const CameraManager = () => {
   return (
     <CameraControls
       ref={controls}
+      makeDefault
       minZoom={isMobile ? 0.6 : 1} // Default zoom for mobile will be 0.7, else 1 for desktop
       maxZoom={isMobile ? 2 : 3}
       polarRotateSpeed={-0.3} // REVERSE FOR NATURAL EFFECT
       azimuthRotateSpeed={-0.3} // REVERSE FOR NATURAL EFFECT
       mouseButtons={{
-        left: 1, // ACTION.ROTATE
-        wheel: 16, // ACTION.ZOOM
+        left: 0, // ACTION.NONE
+        middle: 0, // ACTION.NONE
+        right: 0, // ACTION.NONE
+        wheel: 0, // ACTION.NONE
       }}
       touches={{
-        one: 32, // ACTION.TOUCH_ROTATE
-        two: 512, // ACTION.TOUCH_ZOOM
+        one: 0, // ACTION.NONE
+        two: 0, // ACTION.NONE
+        three: 0, // ACTION.NONE
       }}
     />
   );

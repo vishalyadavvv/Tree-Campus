@@ -14,11 +14,12 @@ export const askTeacher = async (req, res) => {
         let { language } = req.body;
         language = language || "English";
 
-        const displayLanguage = language === "English-Hindi" ? "English" : language;
+        // User requested: Always write on the board in English, only vary the spoken audio
+        const displayLanguage = "English";
         const audioLanguage = language === "English-Hindi" ? "Hinglish" : language;
 
         const sessionHistory = history || [];
-        const recentChatHistory = sessionHistory.slice(-5);
+        const recentChatHistory = sessionHistory.slice(-3); // Reduced from 5 to 3 for faster context processing
         
         const isGreeting = /^(hi|hello|hey|greetings|good morning|good evening|namaste|namsate|नमस्ते)([\s\W]*)$/i.test(question.trim());
         
@@ -40,24 +41,29 @@ export const askTeacher = async (req, res) => {
 1. **Persona**: You are a warm, supportive Indian teacher. You speak in clear, natural, and polite Indian English. Use a pacing that is comfortable and easy to understand for beginners.
 2. **Correction Policy**: 
    - **Do NOT correct minor typos** or casual spellings (e.g., "hii", "ok", "thx") unless they impede understanding or are major grammatical errors properly.
-   - **Focus on major errors** only (e.g., wrong tense, incorrect sentence structure).
+   - **Focus on major errors** only.
    - If a correction is needed, do it gently and briefly before answering the core question.
-3. **English Focus**:
+3. **Brevity & English Focus**:
+   - **Brevity**: Keep responses EXTREMELY short, punchy, and concise (maximum 2-3 sentences). Do not write long paragraphs.
    - **Explain**: Use clear, simple English.
    - **Vocabulary**: Naturally introduce 1 advanced word or idiom relevant to the topic.
-   - **Engagement**: Always end with a relevant follow-up question to keep the conversation going.
+   - **Engagement**: Always end with a short relevant follow-up question to keep the conversation going.
 4. **Structured Layout**: Use simple HTML/Markdown in ReplyForUser:
    - Use **<b>** for emphasis.
    - Use <br/> for paragraph breaks.
    - Keep it visually clean.
 5. **Language Logic**:
    - ReplyForUser: Explanations can be in ${displayLanguage}, but **examples and practice must be in English**.
-   - ReplyForUserAudio: Natural spoken version in ${audioLanguage}. Write the text exactly as it should be spoken smoothly at a moderate, calm pace by an Indian teacher. **Do NOT include HTML tags, emojis, or structural markers** in the audio text.
+   - ReplyForUserAudio: Natural spoken version based on the Target Audio Language:
+     * If the language is **Hindi**, write the fully spoken explanation in **simple, everyday conversational Hindi (Devanagari script)** exactly as it will be read by an Indian voice. Do NOT use overly formal or complex Hindi words. Keep only the core grammar examples in English.
+     * If the language is **Hinglish**, output the text in **normal conversational Hinglish (written in Latin script)**. Speak naturally like an Indian teacher mixing Hindi and English (e.g. "Aaj hum grammar practice karenge..."). Keep grammar examples in English.
+     * If the language is **English**, write it in fully natural Indian English.
+   - **Target Audio Language**: ${audioLanguage}. Write the text exactly as it should be spoken smoothly at a moderate, calm pace by an Indian teacher. **Do NOT include HTML tags, emojis, or structural markers** in the audio text.
 
 ---
 
 ## **💬 Interaction Logic**
-* **Greeting**: Warmly greet ${user.name || "Learner"} in a polite Indian style. Briefly ask what they'd like to focus on (Grammar, Vocabulary, Speaking) if it's the start of a session.
+* **Greeting**: Warmly greet ${user.name || "Learner"}. Speak in natural conversational ${audioLanguage}. Briefly ask what they'd like to focus on (Grammar, Vocabulary, Speaking) if it's the start of a session.
 * **Topic Explanation**: Explanation -> Example -> Question.
 * **Off-Topic**: Politely steer back to English learning.
 
@@ -81,10 +87,12 @@ export const askTeacher = async (req, res) => {
         const completion = await openai.chat.completions.create({
             model: "gpt-4o-mini",
             messages: [
-                { role: "system", content: "You are the Tree Campus AI English Teacher. You are professional, encouraging, and focused on helping students learn. Output strictly valid JSON." },
+                { role: "system", content: "You are the Tree Campus AI English Teacher. You are professional, encouraging, and focused on helping students learn. KEEP RESPONSES EXTREMELY CONCISE. Output strictly valid JSON." },
                 { role: "user", content: prompt }
             ],
-            response_format: { type: "json_object" }
+            response_format: { type: "json_object" },
+            max_tokens: 300,
+            temperature: 0.7
         });
         console.timeEnd("OpenAI Text Generation");
 
@@ -106,17 +114,24 @@ export const askTeacher = async (req, res) => {
                 // Using en-IN-Neural2-D (Female Indian English) or en-IN-Wavenet-C (Male)
                 // If nanami (female) -> en-IN-Neural2-D, else en-IN-Wavenet-C
                 const teacherName = "Nanami"; 
-                const voiceName = teacherName === "Nanami" ? "en-IN-Neural2-D" : "en-IN-Wavenet-C";
+                
+                let languageCode = "en-IN";
+                let voiceName = teacherName === "Nanami" ? "en-IN-Neural2-D" : "en-IN-Wavenet-C";
+
+                // Switch to a Hindi voice if the user requested Hindi or English-Hindi (Hinglish)
+                if (language === "Hindi" || language === "English-Hindi") {
+                    languageCode = "hi-IN";
+                    // Using Wavenet instead of Neural2 because Neural2 Hindi voices are occasionally restricted/unavailable, causing silent crashes
+                    voiceName = teacherName === "Nanami" ? "hi-IN-Wavenet-A" : "hi-IN-Wavenet-C"; // Female / Male Hindi voices
+                }
 
                 const requestBody = {
                     input: { text: response.ReplyForUserAudio },
-                    voice: { languageCode: "en-IN", name: voiceName },
+                    voice: { languageCode: languageCode, name: voiceName },
                     audioConfig: { 
                         audioEncoding: "MP3",
-                        speakingRate: 0.85 // Slower pace for teacher feel
-                    },
-                    // Request Timepoints for accurate lip-syncing!
-                    enableTimePointing: ["VISUAL_MARK"]
+                        speakingRate: 0.98
+                    }
                 };
 
                 console.time("Google TTS Generation");
@@ -174,7 +189,7 @@ export const askTeacher = async (req, res) => {
             }
 
         } catch (audioError) {
-            console.error("Audio Generation Error:", audioError);
+            console.error("Audio Generation Error Details:", audioError.message, audioError.stack);
             // Non-blocking error: we still return text even if audio fails
         }
 

@@ -19,7 +19,13 @@ const Home = () => {
         const res = await api.get("/courses");
         console.log("Courses API Response: ", res.data);
 
-        setCourses(res.data.courses || res.data.data || res.data || []);
+        let coursesData = res.data.courses || res.data.data || res.data || [];
+        
+        if (Array.isArray(coursesData)) {
+            coursesData = coursesData.sort((a, b) => a.title.localeCompare(b.title));
+        }
+
+        setCourses(coursesData);
 
       } catch (err) {
         console.log("Error fetching courses:", err);

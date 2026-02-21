@@ -6,8 +6,10 @@ html {
 
 html,
 body {
-  margin: 0;        /* ← ADD THIS */
-  padding: 0;       /* ← ADD THIS */
+  margin: 0;
+  /* ← ADD THIS */
+  padding: 0;
+  /* ← ADD THIS */
   max-width: 100%;
   overflow-x: hidden;
 }
@@ -18,8 +20,15 @@ body {
   min-height: 100vh;
 }
 
+/* Fix for AITeacher React Three Fiber Html Raycast Offset Bug */
+.ai-teacher-html-wrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: top left;
+}
+
 * {
   box-sizing: border-box;
   font-family: 'Inter', sans-serif !important;
 }
-
