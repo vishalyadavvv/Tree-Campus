@@ -101,11 +101,32 @@ const CourseOverview = () => {
   const fetchAssignments = async () => {
     try {
       const res = await api.get(`/assignments/course/${id}`);
-      setAssignments(res.data.data || []);
+      const assignmentsData = res.data.data || [];
+      setAssignments(assignmentsData);
+
+      // If enrolled, check eligibility for each assignment
+      if (isAuthenticated && isEnrolled) {
+        const eligibilityPromises = assignmentsData.map(async (ass) => {
+            try {
+                const eligRes = await api.get(`/assignments/${ass._id}/check-eligibility`);
+                return { id: ass._id, ...eligRes.data };
+            } catch (err) {
+                return { id: ass._id, canTake: false, reason: 'Error checking eligibility' };
+            }
+        });
+        const eligibilityResults = await Promise.all(eligibilityPromises);
+        const eligibilityMap = {};
+        eligibilityResults.forEach(res => {
+            eligibilityMap[res.id] = res;
+        });
+        setAssignmentEligibility(eligibilityMap);
+      }
     } catch (error) {
       console.error('Error fetching assignments:', error);
     }
   };
+
+  const [assignmentEligibility, setAssignmentEligibility] = useState({});
 
   const toggleSection = (sectionId) => {
     setExpandedSections(prev => ({
@@ -846,7 +867,7 @@ const CourseOverview = () => {
 
                         <div className="flex flex-col items-end gap-2">
                           {isAuthenticated && isEnrolled ? (
-                            courseProgress >= 90 ? (
+                            assignmentEligibility[assignment._id]?.canTake ? (
                               <button
                                 onClick={() => navigate(`/courses/${id}/assignment/${assignment._id}`)}
                                 className="bg-[#FC5A00] hover:bg-[#FF6B1A] text-white px-6 py-2.5 rounded-lg font-bold transition-colors flex items-center gap-2"
@@ -860,10 +881,19 @@ const CourseOverview = () => {
                                   <FiLock size={14} />
                                   Locked
                                 </span>
-                                <p className="text-xs text-orange-600 font-semibold mt-1">
-                                  Current Progress: {Math.round(courseProgress)}% <br/>
-                                  Complete {Math.max(0, Math.ceil(90 - courseProgress))}% more to unlock
-                                </p>
+                                {assignmentEligibility[assignment._id]?.reason ? (
+                                    <div className="mt-2 text-xs text-red-600 font-bold max-w-[250px] bg-red-50 p-2 rounded-lg border border-red-100">
+                                        Requirements pending:
+                                        <p className="mt-1 font-semibold text-gray-700 leading-tight">
+                                            {assignmentEligibility[assignment._id].reason}
+                                        </p>
+                                    </div>
+                                ) : (
+                                    <p className="text-xs text-orange-600 font-semibold mt-1">
+                                        Current Progress: {Math.round(courseProgress)}% <br/>
+                                        Complete {Math.max(0, Math.ceil(90 - courseProgress))}% more to unlock
+                                    </p>
+                                )}
                               </div>
                             )
                           ) : (

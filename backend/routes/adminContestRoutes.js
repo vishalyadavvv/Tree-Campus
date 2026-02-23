@@ -1,7 +1,7 @@
 import express from 'express';
 import { protect } from '../middleware/auth.js';
 import { adminOnly as admin } from '../middleware/adminMiddleware.js';
-import { createExam, updateExam, deleteExam, getAdminExams, generateCoupons, getCoupons, processExpiredExams, deleteCoupon, toggleCouponStatus } from '../controllers/adminContestController.js';
+import { createExam, updateExam, deleteExam, getAdminExams, generateCoupons, getCoupons, processExpiredExams, deleteCoupon, toggleCouponStatus, bulkUploadCoupons } from '../controllers/adminContestController.js';
 
 const router = express.Router();
 
@@ -12,6 +12,8 @@ router.route('/exams')
 router.route('/coupons')
     .get(protect, admin, getCoupons)
     .post(protect, admin, generateCoupons);
+
+router.post('/coupons/bulk', protect, admin, bulkUploadCoupons);
 
 router.route('/coupons/:id')
     .delete(protect, admin, deleteCoupon);

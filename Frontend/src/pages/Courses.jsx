@@ -114,77 +114,15 @@ const Courses = () => {
 
   return (
     <div className="min-h-screen ">
-      {/* Header with Background Image */}
-      <div 
-        className="relative bg-cover bg-center py-20 md:py-28 px-4 text-white"
-        style={{
-          backgroundImage: `linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)),url('https://plus.unsplash.com/premium_photo-1664474619075-644dd191935f?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8aW1hZ2V8ZW58MHx8MHx8fDA%3D')`,
-        }}
-      >
-        {/* Animated Background Elements */}
-        <div className="absolute inset-0 overflow-hidden">
-          <div className={`absolute top-10 left-10 w-20 h-20 bg-white/10 rounded-full blur-xl transition-all duration-1000 delay-500 ${isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-50'}`}></div>
-          <div className={`absolute bottom-20 right-20 w-16 h-16 bg-white/10 rounded-full blur-xl transition-all duration-1000 delay-700 ${isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-50'}`}></div>
-          <div className={`absolute top-1/2 left-1/4 w-12 h-12 bg-white/10 rounded-full blur-lg transition-all duration-1000 delay-900 ${isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-50'}`}></div>
-        </div>
-        
-        {/* Content */}
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className={`text-4xl md:text-5xl lg:text-6xl font-bold mb-6 text-white drop-shadow-lg transition-all duration-1000 delay-300 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+      <div className="bg-orange-200/50 py-12 mb-8 border-b border-orange-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h1 className="text-4xl md:text-5xl font-extrabold text-[#FD5A00] text-center drop-shadow-sm">
             Explore Our Courses
           </h1>
-          <p className={`text-xl md:text-2xl text-white font-extrabold max-w-3xl mx-auto leading-relaxed drop-shadow-md transition-all duration-1000 delay-500 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-            Choose the right course for your goals and start your English learning journey today
-          </p>
-          <div className={`mt-8 flex justify-center transition-all duration-1000 delay-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-            <div className="bg-white/20 backdrop-blur-sm rounded-lg px-6 py-3 border border-white/30 shadow-xl hover:bg-white/30 transition-all duration-300 transform hover:scale-105">
-              <p className="text-white font-semibold">
-                🎓 50,000+ Students Already Learning
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Decorative Wave at Bottom */}
-        <div className={`absolute bottom-0 left-0 right-0 transition-all duration-1000 delay-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-100 -translate-y-10'}`}>
-          <svg 
-            viewBox="0 0 1440 120" 
-            fill="none" 
-            xmlns="http://www.w3.org/2000/svg"
-            className="w-full h-auto"
-          >
-            <path 
-              d="M0,64L48,69.3C96,75,192,85,288,80C384,75,480,53,576,48C672,43,768,53,864,58.7C960,64,1056,64,1152,58.7C1248,53,1344,43,1392,37.3L1440,32L1440,120L1392,120C1344,120,1248,120,1152,120C1056,120,960,120,864,120C768,120,672,120,576,120C480,120,384,120,288,120C192,120,96,120,48,120L0,120Z" 
-              fill="#F9FAFB"
-            />
-          </svg>
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        {/* Stats Section - OPTIMIZED FOR MOBILE */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-12">
-          {[
-            { number: '50K+', text: 'Active Students' },
-            { number: '25+', text: 'Expert Teachers' },
-            { number: '15K+', text: 'Certificates Issued' },
-            { number: '100%', text: 'Free Courses' }
-          ].map((stat, index) => (
-            <div 
-              key={index}
-              className={`bg-white rounded-xl p-6 text-center shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-500 transform hover:-translate-y-2 ${
-                visibleStats.includes(index) 
-                  ? 'opacity-100 translate-y-0' 
-                  : 'opacity-0 translate-y-10'
-              }`}
-              style={{ transitionDelay: `${300 + (index * 150)}ms` }}
-            >
-              <div className="text-3xl font-bold text-[#FD5A00] mb-2">{stat.number}</div>
-              <div className="text-gray-600 font-medium">{stat.text}</div>
-            </div>
-          ))}
-        </div>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         {/* Error Message */}
         {error && (
@@ -206,18 +144,18 @@ const Courses = () => {
         )}
 
         {/* Course Filter with Animation */}
-        <div className={`transition-all duration-700 delay-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+        <div className={`transition-all duration-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
           <CourseFilter filters={filters} setFilters={setFilters} />
         </div>
 
         {/* Course List with Animation */}
-        <div className={`transition-all duration-700 delay-1200 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+        <div className={`transition-all duration-700 delay-200 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
           <CourseList courses={filteredCourses} loading={loading} />
         </div>
 
         {/* No Results Message */}
         {!loading && !error && filteredCourses.length === 0 && (
-          <div className={`text-center py-12 transition-all duration-700 ${isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}>
+          <div className="text-center py-12">
             <div className="text-gray-400 text-6xl mb-4">🔍</div>
             <h3 className="text-2xl font-bold text-gray-600 mb-2">No courses found</h3>
             <p className="text-gray-500 max-w-md mx-auto">
@@ -225,22 +163,6 @@ const Courses = () => {
             </p>
           </div>
         )}
-
-        {/* Call to Action Section */}
-        <div
-  className={`mt-16 bg-gradient-to-r from-[#FD5A00] to-orange-600 rounded-2xl p-8 text-center text-white shadow-2xl transition-all duration-1000 delay-1500 ${
-    isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
-  }`}
->
-  <h3 className="text-3xl font-bold mb-4">
-    Ready to Start Learning?
-  </h3>
-
-  <p className="text-lg text-orange-100 max-w-2xl mx-auto">
-    Join thousands of students who have transformed their English skills with our free courses
-  </p>
-</div>
-
       </div>
     </div>
   );

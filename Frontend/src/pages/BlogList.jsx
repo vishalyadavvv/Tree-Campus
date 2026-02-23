@@ -50,7 +50,7 @@ const BlogList = () => {
         case 'views':
           return b.views - a.views;
         case 'likes':
-          return b.likes - a.likes;
+          return b.likesCount - a.likesCount;
         default:
           return 0;
       }
@@ -261,7 +261,7 @@ const BlogList = () => {
                     </div>
                     <div className="flex items-center gap-1 text-gray-500 group/likes">
                       <FiBookmark className="w-4 h-4 group-hover/likes:text-red-500 transition-colors" />
-                      <span className="text-sm font-medium">{blog.likes || 0}</span>
+                      <span className="text-sm font-medium">{blog.likesCount || 0}</span>
                     </div>
                   </div>
                 </div>

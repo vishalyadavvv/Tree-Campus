@@ -11,12 +11,19 @@ const LiveClasses = () => {
   const [classes, setClasses] = useState({ upcoming: [], past: [] });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [currentTime, setCurrentTime] = useState(new Date());
   const navigate = useNavigate();
 
   useEffect(() => {
     // Trigger header animation
     setIsVisible(true);
     fetchLiveClasses();
+
+    // Update current time every minute to refresh "Live" status
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 60000);
+    return () => clearInterval(timer);
   }, []);
 
   const fetchLiveClasses = async () => {
@@ -97,13 +104,21 @@ const LiveClasses = () => {
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
-    const now = new Date();
-    const diffTime = Math.abs(date - now);
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    const now = currentTime;
     
-    if (diffDays === 0) {
+    const isToday = date.getDate() === now.getDate() && 
+                    date.getMonth() === now.getMonth() && 
+                    date.getFullYear() === now.getFullYear();
+    
+    const tomorrow = new Date(now);
+    tomorrow.setDate(now.getDate() + 1);
+    const isTomorrow = date.getDate() === tomorrow.getDate() && 
+                       date.getMonth() === tomorrow.getMonth() && 
+                       date.getFullYear() === tomorrow.getFullYear();
+    
+    if (isToday) {
       return `Today, ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
-    } else if (diffDays === 1) {
+    } else if (isTomorrow) {
       return `Tomorrow, ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
     } else {
       return date.toLocaleDateString('en-US', { 
@@ -114,6 +129,12 @@ const LiveClasses = () => {
         minute: '2-digit'
       });
     }
+  };
+
+  const isLiveNow = (scheduledAt, duration) => {
+    const start = new Date(scheduledAt);
+    const end = new Date(start.getTime() + (duration || 60) * 60000);
+    return currentTime >= start && currentTime <= end;
   };
 
   const getDurationText = (duration) => {
@@ -170,76 +191,16 @@ const LiveClasses = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
-      {/* Header with Background Image */}
-      <div 
-        className="relative py-8 bg-cover bg-center md:py-28 px-4 text-white"
-        style={{
-          backgroundImage: `linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://plus.unsplash.com/premium_photo-1664474619075-644dd191935f?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8aW1hZ2V8ZW58MHx8MHx8fDA%3D')`,
-        }}
-      >
-        {/* Content */}
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 z-10">
-          <div className={`flex items-center justify-center mb-2 md:mb-4 transition-all duration-700 delay-200 ${isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-50'}`}>
-            <Video className="w-8 h-8 md:w-12 md:h-12 mr-4 text-white" />
-          </div>
-          <h1 className={`text-3xl md:text-6xl font-bold mb-3 md:mb-6 text-center text-white transition-all duration-1000 delay-300 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+      <div className="bg-orange-200/50 py-12 mb-8 border-b border-orange-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h1 className="text-4xl md:text-5xl font-extrabold text-[#FD5A00] text-center drop-shadow-sm">
             Live Classes
           </h1>
-          <p className={`text-base md:text-2xl text-white font-extrabold text-center max-w-2xl mx-auto transition-all duration-1000 delay-500 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-            {classes.upcoming.length > 0 
-              ? `Join ${classes.upcoming.length} upcoming live sessions with expert instructors`
-              : 'Connect with expert teachers in real-time interactive sessions'
-            }
-          </p>
-          <div className={`text-center mt-4 md:mt-8 transition-all duration-1000 delay-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-            <button
-              onClick={fetchLiveClasses}
-              className="inline-flex items-center px-4 py-2 md:px-6 md:py-3 text-sm md:text-base bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg hover:bg-white/20 transition-colors"
-            >
-              <Loader2 className="w-4 h-4 md:w-5 md:h-5 mr-2" />
-              Refresh Classes
-            </button>
-          </div>
         </div>
       </div>
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-12">
-        {/* Helper Banner (only for upcoming tab) */}
-        {activeTab === 'upcoming' && (
-          <div className={`bg-white border-2 border-[#FD5B00] rounded-xl md:rounded-2xl p-4 md:p-8 mb-6 md:mb-12 shadow-lg transition-all duration-1000 delay-700 ${isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-10'}`}>
-            <div className="flex items-start">
-              <div className="flex-shrink-0 hidden md:block">
-                <div className="w-12 h-12 bg-[#FD5B00] rounded-full flex items-center justify-center">
-                  <span className="text-2xl">📺</span>
-                </div>
-              </div>
-              <div className="md:ml-6 flex-1">
-                <h3 className="text-lg md:text-2xl font-bold text-gray-900 mb-2 md:mb-4">
-                  📺 How to Join Live Classes
-                </h3>
-                <div className="grid sm:grid-cols-2 gap-1.5 md:gap-4">
-                  <div className="flex items-start">
-                    <span className="text-[#FD5B00] font-bold mr-2 md:mr-3 text-sm md:text-lg">1.</span>
-                    <p className="text-gray-700 text-sm md:text-base">Choose your class below</p>
-                  </div>
-                  <div className="flex items-start">
-                    <span className="text-[#FD5B00] font-bold mr-2 md:mr-3 text-sm md:text-lg">2.</span>
-                    <p className="text-gray-700 text-sm md:text-base">Click "Join Class" before start time</p>
-                  </div>
-                  <div className="flex items-start">
-                    <span className="text-[#FD5B00] font-bold mr-2 md:mr-3 text-sm md:text-lg">3.</span>
-                    <p className="text-gray-700 text-sm md:text-base">You'll be redirected to the platform</p>
-                  </div>
-                  <div className="flex items-start">
-                    <span className="text-[#FD5B00] font-bold mr-2 md:mr-3 text-sm md:text-lg">4.</span>
-                    <p className="text-gray-700 text-sm md:text-base">All classes are interactive & FREE!</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
 
         {/* Tab Navigation & Heading */}
         <div className="flex flex-col md:flex-row md:items-center justify-between mb-4 md:mb-8">
@@ -255,7 +216,7 @@ const LiveClasses = () => {
           <div className="mt-3 md:mt-0 bg-gray-100 p-1 rounded-lg flex space-x-1">
             <button
               onClick={() => setActiveTab('upcoming')}
-              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors cursor-pointer ${
                 activeTab === 'upcoming' 
                   ? 'bg-white text-[#FD5B00] shadow-sm' 
                   : 'text-gray-600 hover:text-gray-900'
@@ -265,7 +226,7 @@ const LiveClasses = () => {
             </button>
             <button
               onClick={() => setActiveTab('past')}
-              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors cursor-pointer ${
                 activeTab === 'past' 
                   ? 'bg-white text-[#FD5B00] shadow-sm' 
                   : 'text-gray-600 hover:text-gray-900'
@@ -292,7 +253,7 @@ const LiveClasses = () => {
             {activeTab === 'upcoming' && (
               <button
                 onClick={fetchLiveClasses}
-                className="px-6 py-3 bg-[#FD5B00] text-white rounded-lg hover:bg-[#e55200] transition-colors"
+                className="px-6 py-3 bg-[#FD5B00] text-white rounded-lg hover:bg-[#e55200] transition-colors cursor-pointer"
               >
                 Check Again
               </button>
@@ -340,6 +301,12 @@ const LiveClasses = () => {
                 <div className="p-3 md:p-6">
                   <h4 className="text-base md:text-xl font-bold text-gray-900 mb-2 md:mb-4 line-clamp-2">
                     {classItem.title}
+                    {activeTab === 'upcoming' && isLiveNow(classItem.scheduledAt, classItem.duration) && (
+                      <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800 animate-pulse">
+                        <span className="w-2 h-2 mr-1 bg-red-600 rounded-full"></span>
+                        LIVE
+                      </span>
+                    )}
                   </h4>
 
                   <div className="space-y-2 md:space-y-3 mb-3 md:mb-6">
@@ -379,13 +346,22 @@ const LiveClasses = () => {
                   </div>
 
                   {activeTab === 'upcoming' ? (
-                    <button 
-                      onClick={() => joinClass(classItem)}
-                      className="w-full py-2.5 md:py-3 bg-gradient-to-r from-[#FD5B00] to-[#ff7a33] text-white rounded-lg md:rounded-xl hover:from-[#e55200] hover:to-[#ff6b1f] transition-all duration-300 font-bold text-sm md:text-lg shadow-md hover:shadow-xl transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
-                      disabled={!classItem.link && !classItem.meetingId}
-                    >
-                      {(classItem.link || classItem.meetingId) ? 'Join Class' : 'Link Coming Soon'}
-                    </button>
+                    (() => {
+                      const isLive = isLiveNow(classItem.scheduledAt, classItem.duration);
+                      return (
+                        <button 
+                          onClick={() => joinClass(classItem)}
+                          className={`w-full py-2.5 md:py-3 text-white rounded-lg md:rounded-xl transition-all duration-300 font-bold text-sm md:text-lg shadow-md hover:shadow-xl transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer ${
+                            isLive 
+                              ? 'bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 animate-pulse ring-4 ring-green-100' 
+                              : 'bg-gradient-to-r from-[#FD5B00] to-[#ff7a33] hover:from-[#e55200] hover:to-[#ff6b1f]'
+                          }`}
+                          disabled={!classItem.link && !classItem.meetingId}
+                        >
+                          {isLive ? 'JOIN LIVE NOW' : (classItem.link || classItem.meetingId) ? 'Join Class' : 'Link Coming Soon'}
+                        </button>
+                      );
+                    })()
                   ) : (
                     <button 
                       className="w-full py-2.5 md:py-3 bg-gray-100 text-gray-500 rounded-lg md:rounded-xl cursor-not-allowed font-medium text-sm md:text-lg border border-gray-200"

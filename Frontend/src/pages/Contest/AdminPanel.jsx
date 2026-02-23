@@ -1,4 +1,4 @@
-import React, { useState, useReducer, useCallback, useEffect } from "react";
+import React, { useState, useReducer, useCallback, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const examReducer = (state, action) => {
@@ -40,6 +40,7 @@ const AdminPanel = () => {
     const [error, setError] = useState(null);
     const [exams, setExams] = useState([]);
     const [updateExamId, setUpdateExamId] = useState(null);
+    const fileInputRef = useRef(null);
 
     const API_URL = import.meta.env.VITE_API_URL;
 
@@ -96,6 +97,49 @@ const AdminPanel = () => {
         } catch (err) {
             alert("Invalid JSON: " + err.message);
         }
+    };
+
+    const handleJsonFileUpload = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            try {
+                const json = JSON.parse(event.target.result);
+                
+                // Format could be:
+                // 1. Array of questions: [ {question, options, answer}, ... ]
+                // 2. Object with questions property: { questions: [...], ... }
+                let questions = Array.isArray(json) ? json : (json.questions || []);
+
+                if (questions.length === 0) {
+                    alert("No questions found in JSON file");
+                    return;
+                }
+
+                // Map format if necessary
+                const formattedQuestions = questions.map(q => ({
+                    question: q.question || q.questionText || "",
+                    options: q.options || [],
+                    answer: q.answer !== undefined ? q.answer : q.correctAnswer
+                }));
+
+                dispatch({ type: "SET_QUESTIONS", questions: formattedQuestions });
+                
+                // Also update metadata if present in JSON object
+                if (!Array.isArray(json)) {
+                    if (json.title) dispatch({ type: "UPDATE_FIELD", field: "title", value: json.title });
+                    if (json.subTitle || json.description) dispatch({ type: "UPDATE_FIELD", field: "description", value: json.subTitle || json.description });
+                }
+
+                setStep(2);
+            } catch (err) {
+                alert("Failed to parse JSON file: " + err.message);
+            }
+        };
+        reader.readAsText(file);
+        e.target.value = '';
     };
 
     const handleChange = (e) => dispatch({ type: "UPDATE_FIELD", field: e.target.name, value: e.target.value });
@@ -190,7 +234,7 @@ const AdminPanel = () => {
                                 </div>
                              </div>
 
-                             <div className="space-y-6 max-w-2xl">
+                             <div className="space-y-6">
                                 <div>
                                     <label className="block text-sm font-bold text-gray-700 mb-2">Question Entry Mode</label>
                                     <div className="grid grid-cols-2 gap-4">
@@ -230,19 +274,67 @@ const AdminPanel = () => {
                                         </div>
                                     </div>
                                 ) : (
-                                    <div className="animate-in fade-in slide-in-from-top-2">
-                                        <label className="block text-sm font-bold text-gray-700 mb-2">Paste JSON Schema</label>
-                                        <textarea 
-                                            value={jsonInput} 
-                                            onChange={(e) => setJsonInput(e.target.value)} 
-                                            placeholder="[ { 'question': '...', 'options': [...], 'answer': '...' }, ... ]"
-                                            className="w-full h-48 p-4 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-indigo-500 outline-none font-mono text-sm mb-4"
-                                        />
-                                        <button onClick={handleJsonParse} className="w-full p-4 bg-indigo-600 text-white font-black rounded-2xl shadow-lg shadow-indigo-100 active:scale-95 transition">
-                                            Import JSON Content
-                                        </button>
-                                    </div>
-                                )}
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+                                            <div>
+                                                <label className="block text-sm font-bold text-gray-700 mb-2">Paste JSON or Upload File</label>
+                                                <textarea 
+                                                    value={jsonInput} 
+                                                    onChange={(e) => setJsonInput(e.target.value)} 
+                                                    placeholder="[ { 'question': '...', 'options': [...], 'answer': '...' }, ... ]"
+                                                    className="w-full h-32 p-4 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-indigo-500 outline-none font-mono text-sm mb-4"
+                                                />
+                                                <div className="flex gap-4">
+                                                    <button onClick={handleJsonParse} className="flex-1 p-4 bg-indigo-600 text-white font-black rounded-2xl shadow-lg shadow-indigo-100 active:scale-95 transition">
+                                                        Import Paste
+                                                    </button>
+                                                    <input 
+                                                        type="file" 
+                                                        ref={fileInputRef} 
+                                                        className="hidden" 
+                                                        accept=".json" 
+                                                        onChange={handleJsonFileUpload} 
+                                                    />
+                                                    <button 
+                                                        onClick={() => fileInputRef.current.click()} 
+                                                        className="flex-1 p-4 bg-white border-2 border-indigo-600 text-indigo-600 font-black rounded-2xl shadow-sm active:scale-95 transition"
+                                                    >
+                                                        📁 Upload File
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div className="bg-white p-6 rounded-2xl border-2 border-dashed border-indigo-100">
+                                                <h4 className="text-xs font-black text-indigo-600 uppercase tracking-widest mb-4 flex items-center gap-2">
+                                                    <span>📋 JSON Format Criteria</span>
+                                                </h4>
+                                                <div className="space-y-4 text-xs text-gray-600 leading-relaxed">
+                                                    <p>Your JSON should be an <span className="font-bold text-gray-900">array of objects</span> or an object with a <span className="font-bold text-gray-900">"questions"</span> property.</p>
+                                                    <ul className="space-y-2">
+                                                        <li className="flex items-start gap-2">
+                                                            <span className="text-indigo-600 font-bold">●</span>
+                                                            <span><code className="bg-indigo-50 px-1 rounded text-indigo-700">questionText</code>: The question string</span>
+                                                        </li>
+                                                        <li className="flex items-start gap-2">
+                                                            <span className="text-indigo-600 font-bold">●</span>
+                                                            <span><code className="bg-indigo-50 px-1 rounded text-indigo-700">options</code>: Array of exactly 4 strings</span>
+                                                        </li>
+                                                        <li className="flex items-start gap-2">
+                                                            <span className="text-indigo-600 font-bold">●</span>
+                                                            <span><code className="bg-indigo-50 px-1 rounded text-indigo-700">answer</code>: The correct option string (exact match)</span>
+                                                        </li>
+                                                    </ul>
+                                                    <div className="mt-4 p-3 bg-gray-900 rounded-xl">
+                                                        <code className="text-[10px] text-indigo-300 block whitespace-pre">
+{`[{
+  "question": "...",
+  "options": ["A", "B", ...],
+  "answer": "A"
+}]`}
+                                                        </code>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
                              </div>
                         </motion.div>
                     )}

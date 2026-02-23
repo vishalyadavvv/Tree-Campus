@@ -80,14 +80,17 @@ const BlogPost = () => {
       const blogData = response.data.data;
       setBlog(blogData);
       
-      // Get likes from localStorage first, then from API
-      const savedLikes = JSON.parse(localStorage.getItem('blogLikes') || '{}');
-      const savedLikeCount = savedLikes[id] || 0;
-      setLikes((blogData.likes || 0) + savedLikeCount);
+      // Update counts and status from API data
+      setLikes(blogData.likesCount || 0);
       
-      // Get bookmarks from localStorage
+      // Check if current user has liked/bookmarked (this logic will be refined when we have auth context)
+      // For now, we still check localStorage as a secondary fallback for guest/local preference
+      const savedLikes = JSON.parse(localStorage.getItem('blogLikes') || '{}');
       const savedBookmarks = JSON.parse(localStorage.getItem('blogBookmarks') || '{}');
-      setIsBookmarked(!!savedBookmarks[id]);
+      
+      // If the backend says we liked it, or local says we liked it
+      setHasLiked(!!(blogData.likedBy?.includes(localStorage.getItem('userId')) || savedLikes[id]));
+      setIsBookmarked(!!(savedBookmarks[id])); 
       
     } catch (error) {
       console.error('Error fetching blog:', error);
@@ -104,47 +107,59 @@ const BlogPost = () => {
     setScrollProgress(progress);
   };
 
-  const handleBookmark = () => {
+  const handleBookmark = async () => {
     if (!blog) return;
     
-    const savedBookmarks = JSON.parse(localStorage.getItem('blogBookmarks') || '{}');
-    const newBookmarkStatus = !isBookmarked;
-    const updatedBookmarks = {
-      ...savedBookmarks,
-      [blog.id]: newBookmarkStatus
-    };
-    
-    localStorage.setItem('blogBookmarks', JSON.stringify(updatedBookmarks));
-    setIsBookmarked(newBookmarkStatus);
+    try {
+      const response = await api.post(`/blogs/${id}/save`);
+      const isNowSaved = response.data.data.isSaved;
+      
+      // Sync with localStorage
+      const savedBookmarks = JSON.parse(localStorage.getItem('blogBookmarks') || '{}');
+      const updatedBookmarks = {
+        ...savedBookmarks,
+        [id]: isNowSaved
+      };
+      
+      localStorage.setItem('blogBookmarks', JSON.stringify(updatedBookmarks));
+      setIsBookmarked(isNowSaved);
+      
+      if (isNowSaved) {
+        toast.success('Successfully saved to your profile!');
+      } else {
+        toast.success('Removed from saved blogs');
+      }
+    } catch (error) {
+      console.error('Error updating bookmark:', error);
+      toast.error('Login to save this article');
+    }
   };
 
   const handleLike = async () => {
     if (!blog) return;
     
     try {
-      const savedLikes = JSON.parse(localStorage.getItem('blogLikes') || '{}');
-      const newLikeStatus = !hasLiked;
+      const response = await api.post(`/blogs/${id}/like`);
+      const { likesCount, hasLiked: newHasLiked } = response.data.data;
       
-      // Update local storage
+      // Update local storage for guest-like tracking
+      const savedLikes = JSON.parse(localStorage.getItem('blogLikes') || '{}');
       const updatedLikes = {
         ...savedLikes,
-        [blog.id]: newLikeStatus
+        [id]: newHasLiked
       };
-      
       localStorage.setItem('blogLikes', JSON.stringify(updatedLikes));
       
-      // Update state
-      setHasLiked(newLikeStatus);
-      setLikes(prev => newLikeStatus ? prev + 1 : prev - 1);
+      // Update state from authoritative source (backend)
+      setHasLiked(newHasLiked);
+      setLikes(likesCount);
       
-      // Update on server
-      if (newLikeStatus) {
-        await api.post(`/blogs/${id}/like`);
-      } else {
-        await api.delete(`/blogs/${id}/like`);
+      if (newHasLiked) {
+        toast.success('Glad you liked it!');
       }
     } catch (error) {
       console.error('Error updating like:', error);
+      toast.error('Please login to like this post');
     }
   };
 

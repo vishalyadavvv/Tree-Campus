@@ -73,6 +73,19 @@ const courseSchema = new mongoose.Schema({
     type: String,
     enum: ['Hn', 'Bn', 'En'],
     default: 'En'
+  },
+  seriesKey: {
+    type: String,
+    index: true,
+    default: ''
+  },
+  certificateTitle: {
+    type: String,
+    default: ''
+  },
+  seriesOrder: {
+    type: Number,
+    default: 0
   }
 }, {
   timestamps: true

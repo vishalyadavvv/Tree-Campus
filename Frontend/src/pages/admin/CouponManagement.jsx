@@ -4,7 +4,8 @@ import api from '../../services/api';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   FiSearch, FiFilter, FiDownload, FiPlus, FiTrash2, FiCopy, 
-  FiRefreshCw, FiCheckCircle, FiXCircle, FiClock, FiTag, FiMoreVertical
+  FiRefreshCw, FiCheckCircle, FiXCircle, FiClock, FiTag, FiMoreVertical,
+  FiUpload
 } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import * as XLSX from 'xlsx';
@@ -14,9 +15,13 @@ export default function CouponManagement() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all'); // all, active, used
   const [search, setSearch] = useState('');
-  const [generating, setGenerating] = useState(false);
-  const [generateCount, setGenerateCount] = useState(1);
   const [showGenerateModal, setShowGenerateModal] = useState(false);
+  const [showBulkModal, setShowBulkModal] = useState(false);
+  const [uploadMode, setUploadMode] = useState('file'); // 'file' or 'paste'
+  const [pastedText, setPastedText] = useState('');
+  const [bulkData, setBulkData] = useState([]);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef(null);
   const intervalRef = useRef(null);
 
   useEffect(() => {
@@ -106,6 +111,86 @@ export default function CouponManagement() {
     XLSX.writeFile(wb, `Coupons_${new Date().toISOString().split('T')[0]}.xlsx`);
   };
 
+  const handleFileSelect = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+        try {
+            const bstr = evt.target.result;
+            const wb = XLSX.read(bstr, { type: 'binary' });
+            const wsname = wb.SheetNames[0];
+            const ws = wb.Sheets[wsname];
+            const data = XLSX.utils.sheet_to_json(ws);
+
+            // Flexible Column Detection
+            const findKey = (row, patterns) => {
+                return Object.keys(row).find(key => 
+                    patterns.some(p => key.toLowerCase().includes(p.toLowerCase()))
+                );
+            };
+
+            const sanitized = data.map(row => {
+                const codeKey = findKey(row, ['code', 'coupon', 'voucher']);
+
+                return {
+                    code: row[codeKey] || ''
+                };
+            }).filter(row => row.code);
+
+            if (sanitized.length === 0) {
+                toast.error('No valid coupons found. Ensure your file has a column named "Code" or "Coupon".');
+                return;
+            }
+
+            setBulkData(sanitized);
+        } catch (err) {
+            toast.error('Failed to parse file: ' + err.message);
+        }
+    };
+    reader.readAsBinaryString(file);
+    e.target.value = '';
+  };
+
+  const handlePasteProcess = () => {
+    if (!pastedText.trim()) return;
+    
+    // Split by lines and then by (comma, tab, or space)
+    const lines = pastedText.split('\n');
+    const processed = lines.map(line => {
+        const code = line.trim();
+        return {
+            code: code
+        };
+    }).filter(row => row.code);
+
+    if (processed.length === 0) {
+        toast.error('No valid codes detected.');
+        return;
+    }
+
+    setBulkData(processed);
+  };
+
+  const handleBulkUpload = async () => {
+    if (bulkData.length === 0) return;
+    setUploading(true);
+    try {
+        const res = await api.post('/admin/contest/coupons/bulk', { coupons: bulkData });
+        if (res.data.success) {
+            toast.success(res.data.message);
+            setShowBulkModal(false);
+            setBulkData([]);
+            fetchCoupons();
+        }
+    } catch (err) {
+        toast.error(err.response?.data?.message || 'Bulk upload failed');
+    } finally {
+        setUploading(false);
+    }
+  };
+
   // Filter Logic
   const filteredCoupons = coupons.filter(c => {
     const matchesSearch = c.code.toLowerCase().includes(search.toLowerCase());
@@ -138,6 +223,13 @@ export default function CouponManagement() {
                 >
                     <FiPlus className="w-4 h-4" />
                     <span>Generate Coupons</span>
+                </button>
+                <button 
+                    onClick={() => setShowBulkModal(true)}
+                    className="flex items-center space-x-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition shadow-sm font-medium"
+                >
+                    <FiUpload className="w-4 h-4" />
+                    <span>Bulk Upload</span>
                 </button>
                 <button 
                     onClick={handleExport}
@@ -333,7 +425,7 @@ export default function CouponManagement() {
                                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
                             />
                             <p className="text-xs text-gray-500 mt-1">
-                                Generates unique, random 8-character codes.
+                                Generates unique codes in format: <code className="bg-gray-100 px-1 rounded text-blue-600 font-bold">TC-XXXXXXX</code>
                             </p>
                         </div>
                         
@@ -354,6 +446,136 @@ export default function CouponManagement() {
                             </button>
                         </div>
                     </form>
+                </motion.div>
+            </div>
+        )}
+      </AnimatePresence>
+
+      {/* Bulk Upload Modal */}
+      <AnimatePresence>
+        {showBulkModal && (
+            <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                <motion.div 
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    className="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden"
+                >
+                    <div className="p-6 border-b border-gray-100 flex justify-between items-center">
+                        <h3 className="text-xl font-bold text-gray-900">Bulk Upload Coupons</h3>
+                        <button onClick={() => { setShowBulkModal(false); setBulkData([]); setPastedText(''); }} className="text-gray-400 hover:text-gray-600 transition-colors">
+                            <FiXCircle className="w-6 h-6" />
+                        </button>
+                    </div>
+                    
+                    <div className="p-6 space-y-6">
+                        {bulkData.length === 0 ? (
+                            <div className="space-y-4">
+                                <div className="flex p-1 bg-gray-100 rounded-lg">
+                                    <button 
+                                        onClick={() => setUploadMode('file')}
+                                        className={`flex-1 py-2 text-sm font-bold rounded-md transition-all ${uploadMode === 'file' ? 'bg-white shadow-sm text-blue-600' : 'text-gray-500 hover:text-gray-700'}`}
+                                    >
+                                        📁 File Upload
+                                    </button>
+                                    <button 
+                                        onClick={() => setUploadMode('paste')}
+                                        className={`flex-1 py-2 text-sm font-bold rounded-md transition-all ${uploadMode === 'paste' ? 'bg-white shadow-sm text-blue-600' : 'text-gray-500 hover:text-gray-700'}`}
+                                    >
+                                        📋 Direct Paste
+                                    </button>
+                                </div>
+
+                                {uploadMode === 'file' ? (
+                                    <div className="text-center py-10 border-2 border-dashed border-gray-200 rounded-xl bg-gray-50">
+                                        <input 
+                                            type="file" 
+                                            ref={fileInputRef}
+                                            onChange={handleFileSelect}
+                                            className="hidden" 
+                                            accept=".csv,.xlsx,.xls"
+                                        />
+                                        <FiUpload className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+                                        <p className="text-gray-600 font-medium mb-1">Select your CSV or Excel file</p>
+                                        <p className="text-xs text-gray-400 mb-6 px-10">Flexible headers! We look for columns like <code className="bg-gray-200 px-1 rounded">code</code> or <code className="bg-gray-200 px-1 rounded">coupon</code>.</p>
+                                        <button 
+                                            onClick={() => fileInputRef.current.click()}
+                                            className="bg-blue-600 text-white px-8 py-2.5 rounded-lg hover:bg-blue-700 transition font-bold text-sm shadow-md"
+                                        >
+                                            Choose File
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <div className="space-y-3">
+                                        <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider">Paste Coupon Codes (One per line)</label>
+                                        <textarea 
+                                            className="w-full h-40 p-4 bg-gray-50 border border-gray-200 rounded-xl text-sm font-mono focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                                            placeholder={`TC-XYZ123\nTC-ABC789\nTC-999000`}
+                                            value={pastedText}
+                                            onChange={(e) => setPastedText(e.target.value)}
+                                        />
+                                        <button 
+                                            onClick={handlePasteProcess}
+                                            className="w-full py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition font-black shadow-lg shadow-blue-100"
+                                        >
+                                            Process Pasted Text
+                                        </button>
+                                        <p className="text-[10px] text-gray-400 text-center uppercase tracking-widest font-bold">Simply paste your codes, one per line</p>
+                                    </div>
+                                )}
+                            </div>
+                        ) : (
+                            <div className="space-y-4">
+                                <div className="bg-blue-50 p-4 rounded-xl flex items-center justify-between">
+                                    <div className="flex items-center space-x-3">
+                                        <div className="p-2 bg-blue-100 text-blue-600 rounded-lg">
+                                            <FiTag className="w-5 h-5" />
+                                        </div>
+                                        <div>
+                                            <p className="text-sm font-bold text-blue-900">{bulkData.length} Coupons Found</p>
+                                            <p className="text-xs text-blue-700">Ready to upload to database</p>
+                                        </div>
+                                    </div>
+                                    <button 
+                                        onClick={() => setBulkData([])}
+                                        className="text-xs font-bold text-blue-600 hover:text-blue-800 uppercase tracking-wider"
+                                    >
+                                        Change File
+                                    </button>
+                                </div>
+
+                                <div className="max-h-60 overflow-y-auto border border-gray-100 rounded-lg bg-gray-50">
+                                    <table className="w-full text-left text-xs">
+                                        <thead className="sticky top-0 bg-white border-b border-gray-100 text-gray-400 font-bold uppercase">
+                                            <tr>
+                                                <th className="px-3 py-2">Code</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-gray-100">
+                                            {bulkData.slice(0, 50).map((row, idx) => (
+                                                <tr key={idx}>
+                                                    <td className="px-3 py-2 font-mono text-gray-700">{row.code}</td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                    {bulkData.length > 50 && (
+                                        <div className="p-2 text-center text-gray-400 text-[10px]">
+                                            And {bulkData.length - 50} more...
+                                        </div>
+                                    )}
+                                </div>
+
+                                <button 
+                                    onClick={handleBulkUpload}
+                                    disabled={uploading}
+                                    className="w-full py-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition font-black shadow-lg shadow-indigo-100 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+                                >
+                                    {uploading ? <FiRefreshCw className="w-5 h-5 animate-spin" /> : <span>🚀 Start Upload</span>}
+                                </button>
+                            </div>
+                        ) }
+                    </div>
                 </motion.div>
             </div>
         )}

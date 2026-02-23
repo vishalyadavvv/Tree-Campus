@@ -1,5 +1,6 @@
 import ContestExam from '../models/ContestExam.js';
 import ContestCoupon from '../models/ContestCoupon.js';
+import { v4 as uuidv4 } from 'uuid';
 
 // @desc    Create a new exam
 // @route   POST /api/admin/contest/exams
@@ -70,7 +71,8 @@ const generateUniqueCode = async () => {
     let code;
     let exists = true;
     while (exists) {
-        code = Math.random().toString(36).substring(2, 10).toUpperCase();
+        // Format: TC-XXXXXXX
+        code = `TC-${uuidv4().replace(/-/g, '').substring(0, 7).toUpperCase()}`;
         const existing = await ContestCoupon.findOne({ code });
         if (!existing) exists = false;
     }
@@ -89,7 +91,48 @@ export const generateCoupons = async (req, res) => {
         }
 
         await ContestCoupon.insertMany(coupons);
-        res.status(201).json({ success: true, message: `${numCoupons} coupons generated successfully.` });
+        res.status(201).json({ success: true, message: `${numCoupons} coupons generated successfully. Format: TC-XXXXXXX` });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+export const bulkUploadCoupons = async (req, res) => {
+    try {
+        const { coupons } = req.body; // Array of { code }
+        if (!coupons || !Array.isArray(coupons)) {
+            return res.status(400).json({ success: false, message: 'Invalid coupons data' });
+        }
+
+        const stats = {
+            added: 0,
+            skipped: 0
+        };
+
+        for (const item of coupons) {
+            const { code } = item;
+            if (!code) {
+                stats.skipped++;
+                continue;
+            }
+
+            // Check if code already exists
+            const existing = await ContestCoupon.findOne({ code });
+            if (existing) {
+                stats.skipped++;
+                continue;
+            }
+
+            // Create coupon
+            await ContestCoupon.create({ code });
+            stats.added++;
+        }
+
+        res.status(200).json({ 
+            success: true, 
+            message: `Bulk upload complete. Added: ${stats.added}, Skipped/Duplicates: ${stats.skipped}`,
+            stats
+        });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }

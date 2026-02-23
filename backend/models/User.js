@@ -86,6 +86,9 @@ const userSchema = new mongoose.Schema(
     profilePicture: { type: String, default: "" },
     age: { type: Number },
     education: { type: String },
+    savedBlogs: [
+      { type: mongoose.Schema.Types.ObjectId, ref: "Blog" }
+    ],
   },
   { timestamps: true }
 );

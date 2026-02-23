@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import DashboardLayout from '../../components/Layout/DashboardLayout';
 import Modal from '../../components/common/Modal';
@@ -7,7 +7,8 @@ import {
   FiPlus, FiEdit2, FiTrash2, FiSave, FiChevronDown, FiChevronUp, 
   FiVideo, FiFileText, FiCheckCircle, FiArrowLeft, FiX, FiClock,
   FiSettings, FiInfo, FiBookOpen, FiBarChart2, FiUsers, FiGlobe,
-  FiUpload, FiImage, FiYoutube, FiExternalLink, FiEye, FiEyeOff,FiAward
+  FiUpload, FiImage, FiYoutube, FiExternalLink, FiEye, FiEyeOff, FiAward,
+  FiClipboard
 } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 
@@ -141,7 +142,10 @@ const CourseBuilder = () => {
         featured: courseData.featured || false,
         requirements: courseData.requirements || [],
         learningOutcomes: courseData.learningOutcomes || [],
-        tags: courseData.tags || []
+        tags: courseData.tags || [],
+        seriesKey: courseData.seriesKey || '',
+        certificateTitle: courseData.certificateTitle || '',
+        seriesOrder: parseInt(courseData.seriesOrder) || 0
       };
       console.log('Level being sent:', courseData.level); // ✅ Add this
     console.log('Full data:', formattedData); // ✅ Add this
@@ -564,15 +568,17 @@ const handleSaveQuiz = async (quizData) => {
         />
       )}
 
-      {/* Assignment Modal */}
+      {/* Assignment Modal - unified with QuizEditorModal */}
       {showAssignmentModal && (
-        <AssignmentModal
-          assignment={editingAssignment}
+        <QuizEditorModal
+          quiz={editingAssignment}
           onSave={handleSaveAssignment}
           onClose={() => {
             setShowAssignmentModal(false);
             setEditingAssignment(null);
           }}
+          title={editingAssignment?._id ? "Edit Assignment" : "New Assignment"}
+          isAssignment={true}
           isSaving={saving}
         />
       )}
@@ -790,18 +796,6 @@ const handleSaveQuiz = async (quizData) => {
         )}
       </div>
 
-      {showAssignmentModal && (
-        <QuizEditorModal
-          quiz={editingAssignment}
-          onSave={handleSaveAssignment}
-          onClose={() => {
-            setShowAssignmentModal(false);
-            setEditingAssignment(null);
-          }}
-          title={editingAssignment?._id ? "Edit Assignment" : "New Assignment"}
-          isAssignment={true}
-        />
-      )}
 
         {/* Sections List */}
         <div className="space-y-6">
@@ -1205,7 +1199,10 @@ const CourseEditModal = ({ course, onSave, onClose, onThumbnailUpload, uploading
     isPublished: course?.isPublished !== undefined ? course.isPublished : true,
     requirements: Array.isArray(course?.requirements) ? course.requirements : [],
     learningOutcomes: Array.isArray(course?.learningOutcomes) ? course.learningOutcomes : [],
-    tags: Array.isArray(course?.tags) ? course.tags : []
+    tags: Array.isArray(course?.tags) ? course.tags : [],
+    seriesKey: course?.seriesKey || '',
+    certificateTitle: course?.certificateTitle || '',
+    seriesOrder: course?.seriesOrder || 0
   });
 
   // Local thumbnail preview state — shows instant preview in modal
@@ -1346,6 +1343,48 @@ const handleThumbnailChange = async (e) => {
                 required
                 placeholder="e.g., 8 weeks, 30 hours"
               />
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Course Series Key (Optional)
+              </label>
+              <input
+                type="text"
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                value={formData.seriesKey}
+                onChange={(e) => setFormData({ ...formData, seriesKey: e.target.value })}
+                placeholder="e.g., spoken-english-series"
+              />
+              <p className="text-[10px] text-gray-400 mt-1 uppercase font-bold tracking-tighter">Use the same key for English 1, 2, and 3 to group them</p>
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Certificate Course Title (Optional)
+              </label>
+              <input
+                type="text"
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                value={formData.certificateTitle}
+                onChange={(e) => setFormData({ ...formData, certificateTitle: e.target.value })}
+                placeholder="e.g. Spoken English"
+              />
+              <p className="text-[10px] text-gray-400 mt-1 uppercase font-bold tracking-tighter">This title will appear on the final certificate</p>
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Series Part Number / Order
+              </label>
+              <input
+                type="number"
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                value={formData.seriesOrder}
+                onChange={(e) => setFormData({ ...formData, seriesOrder: e.target.value })}
+                placeholder="e.g. 1"
+              />
+              <p className="text-[10px] text-gray-400 mt-1 uppercase font-bold tracking-tighter">Set 1 for Part 1, 2 for Part 2, etc. Unlocks assignments in order.</p>
             </div>
 
             {/* Thumbnail Upload Section */}
@@ -1736,6 +1775,82 @@ const QuizEditorModal = ({ quiz, onSave, onClose, isSaving, ...props }) => {
     })) || []
   });
 
+  const [showPasteJson, setShowPasteJson] = useState(false);
+  const [pastedJson, setPastedJson] = useState('');
+  const fileInputRef = useRef(null);
+
+  const processJson = (json) => {
+    try {
+      if (!json.questions || !Array.isArray(json.questions)) {
+        toast.error("Invalid JSON format: 'questions' array is missing");
+        return;
+      }
+
+      const newQuestions = json.questions.map((q, index) => {
+        if (!q.question || !q.options || !Array.isArray(q.options)) {
+          throw new Error(`Invalid format in question ${index + 1}`);
+        }
+
+        return {
+          questionText: q.question,
+          options: q.options.map(opt => ({
+            optionText: opt,
+            isCorrect: opt === q.answer
+          })),
+          points: 1,
+          explanation: q.explanation || ''
+        };
+      });
+
+      setFormData(prev => ({
+        ...prev,
+        title: json.title || prev.title,
+        description: json.subTitle || json.description || prev.description,
+        questions: [...prev.questions, ...newQuestions]
+      }));
+
+      toast.success(`Successfully imported ${newQuestions.length} questions`);
+      return true;
+    } catch (err) {
+      console.error("JSON Processing Error:", err);
+      toast.error("Failed to process JSON: " + err.message);
+      return false;
+    }
+  };
+
+  const handleJsonUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const json = JSON.parse(event.target.result);
+        processJson(json);
+      } catch (err) {
+        toast.error("Failed to parse JSON file");
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+  };
+
+  const handleJsonPaste = () => {
+    if (!pastedJson.trim()) {
+      toast.error("Please paste JSON content first");
+      return;
+    }
+    try {
+      const json = JSON.parse(pastedJson);
+      if (processJson(json)) {
+        setPastedJson('');
+        setShowPasteJson(false);
+      }
+    } catch (err) {
+      toast.error("Invalid JSON format. Please check the structure.");
+    }
+  };
+
   const addQuestion = () => {
     setFormData(prev => ({
       ...prev,
@@ -1924,17 +2039,96 @@ const handleSubmit = async (e) => {
             </div>
 
             <div className="border-t border-gray-200 pt-6">
-              <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center justify-between mb-2">
                 <h3 className="text-lg font-semibold text-gray-900">Questions</h3>
+                <div className="flex items-center space-x-2 text-xs text-gray-500">
+                  <FiInfo className="w-3 h-3" />
+                  <span>Supports JSON import</span>
+                </div>
+              </div>
+
+              {/* Import Options */}
+              <div className="flex flex-wrap gap-2 mb-6">
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  className="hidden"
+                  accept=".json"
+                  onChange={handleJsonUpload}
+                />
                 <button 
                   type="button" 
-                  className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                  className="flex items-center space-x-2 bg-orange-50 text-orange-600 px-3 py-1.5 rounded-lg hover:bg-orange-100 transition-colors border border-orange-100 text-sm font-medium"
+                  onClick={() => fileInputRef.current.click()}
+                >
+                  <FiUpload className="w-4 h-4" />
+                  <span>Upload JSON File</span>
+                </button>
+                <button 
+                  type="button" 
+                  className="flex items-center space-x-2 bg-indigo-50 text-indigo-600 px-3 py-1.5 rounded-lg hover:bg-indigo-100 transition-colors border border-indigo-100 text-sm font-medium"
+                  onClick={() => setShowPasteJson(!showPasteJson)}
+                >
+                  <FiClipboard className="w-4 h-4" />
+                  <span>{showPasteJson ? 'Hide Paste Area' : 'Paste JSON Text'}</span>
+                </button>
+                <button 
+                  type="button" 
+                  className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-1.5 rounded-lg hover:bg-blue-700 transition-colors shadow-sm ml-auto text-sm font-medium"
                   onClick={addQuestion}
                 >
                   <FiPlus className="w-4 h-4" />
-                  <span>Add Question</span>
+                  <span>New Question</span>
                 </button>
               </div>
+
+              {/* Paste Area & Criteria */}
+              {showPasteJson && (
+                <div className="mb-6 space-y-4 p-4 bg-gray-50 rounded-xl border border-gray-200 animate-fade-in">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-bold text-gray-600 uppercase mb-2">Paste JSON Schema</label>
+                      <textarea
+                        className="w-full h-40 p-3 text-xs font-mono border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
+                        placeholder='{"title": "...", "questions": [...] }'
+                        value={pastedJson}
+                        onChange={(e) => setPastedJson(e.target.value)}
+                      />
+                      <button 
+                        type="button"
+                        onClick={handleJsonPaste}
+                        className="w-full mt-2 py-2 bg-indigo-600 text-white text-xs font-bold rounded-lg hover:bg-indigo-700 transition-all shadow-md active:scale-95"
+                      >
+                        Import Paste Content
+                      </button>
+                    </div>
+                    <div className="bg-white p-3 rounded-lg border border-gray-200">
+                      <h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Required Criteria</h4>
+                      <div className="text-[11px] space-y-2 text-gray-600">
+                        <p><strong className="text-gray-900">Root:</strong> Object with <code className="bg-gray-100 px-1 rounded text-red-500">"questions"</code> array.</p>
+                        <p><strong className="text-gray-900">Question Item:</strong></p>
+                        <ul className="list-disc ml-4 space-y-1">
+                          <li><code className="bg-gray-100 px-1 rounded">"question"</code>: String text</li>
+                          <li><code className="bg-gray-100 px-1 rounded">"options"</code>: Array of strings</li>
+                          <li><code className="bg-gray-100 px-1 rounded">"answer"</code>: Matches one string in options</li>
+                        </ul>
+                        <div className="mt-4 p-1.5 bg-gray-50 rounded border border-dashed border-gray-300">
+                          <code className="text-[10px] block whitespace-pre overflow-x-auto text-gray-400">
+{`{
+  "title": "Topic",
+  "questions": [{
+    "question": "...",
+    "options": ["A", "B"],
+    "answer": "A"
+  }]
+}`}
+                          </code>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {formData.questions.map((question, qIndex) => (
                 <div key={qIndex} className="bg-gray-50 rounded-lg p-4 mb-4 border border-gray-200">
@@ -2038,88 +2232,6 @@ const handleSubmit = async (e) => {
             </button>
           </div>
         </form>
-    </Modal>
-  );
-};
-// Assignment Modal - Reusing Quiz Layout for simplicity as structure is similar
-const AssignmentModal = ({ assignment, onSave, onClose, isSaving }) => {
-  const [formData, setFormData] = useState({
-    title: assignment?.title || '',
-    description: assignment?.description || '',
-    passingScore: assignment?.passingScore || 60,
-    timeLimit: assignment?.timeLimit || 60,
-    questions: assignment?.questions || []
-  });
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    onSave({ ...assignment, ...formData });
-  };
-
-  // Simplified version without question editor for now to prevent errors
-  // In a real scenario, we'd duplicate the question editing logic or extract it
-  return (
-    <Modal
-      isOpen={true}
-      onClose={onClose}
-      title={assignment?._id ? 'Edit Assignment' : 'Add New Assignment'}
-      maxWidth="max-w-2xl"
-    >
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Title</label>
-          <input
-            type="text"
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            value={formData.title}
-            onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-            required
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
-          <textarea
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            value={formData.description}
-            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-            rows="3"
-          />
-        </div>
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Passing Score (%)</label>
-            <input
-              type="number"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              value={formData.passingScore}
-              onChange={(e) => setFormData({ ...formData, passingScore: parseInt(e.target.value) })}
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Time Limit (mins)</label>
-            <input
-              type="number"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              value={formData.timeLimit}
-              onChange={(e) => setFormData({ ...formData, timeLimit: parseInt(e.target.value) })}
-            />
-          </div>
-        </div>
-        
-        <div className="flex space-x-3 pt-6 border-t border-gray-200">
-          <button 
-            type="submit" 
-            disabled={isSaving}
-            className={`flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2 ${isSaving ? 'opacity-70 cursor-not-allowed' : ''}`}
-          >
-            <FiSave className="w-4 h-4" />
-            <span>{isSaving ? 'Saving...' : 'Save Assignment'}</span>
-          </button>
-          <button type="button" className="flex-1 bg-gray-200 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-300 transition-colors" onClick={onClose}>
-            Cancel
-          </button>
-        </div>
-      </form>
     </Modal>
   );
 };
