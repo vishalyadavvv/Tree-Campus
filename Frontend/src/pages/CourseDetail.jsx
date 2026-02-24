@@ -72,7 +72,7 @@ const CourseOverview = () => {
       // Fetch progress and assignments if enrolled
       if (enrollmentData.isEnrolled) {
         fetchCourseProgress();
-        fetchAssignments();
+        fetchAssignments(true);
       }
     } catch (error) {
       console.error('Error checking enrollment:', error);
@@ -98,14 +98,14 @@ const CourseOverview = () => {
     }
   };
 
-  const fetchAssignments = async () => {
+  const fetchAssignments = async (enrolled = false) => {
     try {
       const res = await api.get(`/assignments/course/${id}`);
       const assignmentsData = res.data.data || [];
       setAssignments(assignmentsData);
 
-      // If enrolled, check eligibility for each assignment
-      if (isAuthenticated && isEnrolled) {
+      // Check eligibility for each assignment (use passed param, not stale state)
+      if (isAuthenticated && enrolled) {
         const eligibilityPromises = assignmentsData.map(async (ass) => {
             try {
                 const eligRes = await api.get(`/assignments/${ass._id}/check-eligibility`);

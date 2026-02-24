@@ -17,6 +17,7 @@ const AssignmentTest = () => {
   const [timeRemaining, setTimeRemaining] = useState(null);
   const [testStarted, setTestStarted] = useState(false);
   const [eligibilityError, setEligibilityError] = useState(null);
+  const [eligibilityStatus, setEligibilityStatus] = useState(null);
 
   useEffect(() => {
     fetchAssignmentAndCheckEligibility();
@@ -29,17 +30,13 @@ const AssignmentTest = () => {
       // Check eligibility first
       const eligibilityRes = await api.get(`/assignments/${assignmentId}/check-eligibility`);
       
+      // Store eligibility status for later use
+      setEligibilityStatus(eligibilityRes.data);
+
       if (!eligibilityRes.data.canTake) {
-        setEligibilityError(eligibilityRes.data.reason);
+        setEligibilityError(eligibilityRes.data.message || eligibilityRes.data.reason);
         setLoading(false);
         return;
-      }
-
-      if (eligibilityRes.data.alreadySubmitted) {
-        // alert("You have already given this assignment.");
-        // navigate(`/courses/${courseId}`);
-        // return;
-        console.log("Allowing retake for testing purposes");
       }
 
       // Fetch assignment
@@ -142,6 +139,84 @@ const AssignmentTest = () => {
   }
 
   if (eligibilityError) {
+    // Check if already passed
+    if (eligibilityStatus?.alreadyPassed) {
+      return (
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-emerald-50 px-4">
+          <div className="bg-white p-8 rounded-lg shadow-xl text-center max-w-md border-2 border-green-500">
+            <div className="mb-6">
+              <svg className="w-20 h-20 text-green-500 mx-auto" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"></path>
+              </svg>
+            </div>
+            <h2 className="text-3xl font-bold text-green-600 mb-4">🎉 Already Passed!</h2>
+            <div className="bg-green-50 p-6 rounded-lg mb-6 border border-green-200">
+              <p className="text-gray-700 mb-3 text-lg">
+                You have successfully passed this assignment
+              </p>
+              <div className="text-4xl font-bold text-green-600 mb-2">
+                {eligibilityStatus?.score}%
+              </div>
+              {eligibilityStatus?.certificateId && (
+                <div className="mt-4 bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500">
+                  <p className="text-blue-700 font-semibold">
+                    ✓ Certificate Earned
+                  </p>
+                  <p className="text-blue-600 text-sm mt-1">You have earned a certificate for this achievement.</p>
+                </div>
+              )}
+            </div>
+            <p className="text-gray-600 mb-6">
+              You are not allowed to retake this assignment since you have already passed and earned the certificate.
+            </p>
+            <button
+              onClick={() => navigate(`/courses/${courseId}`)}
+              className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition font-semibold"
+            >
+              Back to Course
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    // Check if attempts exhausted
+    if (eligibilityStatus?.attemptsExhausted) {
+      return (
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-red-50 to-orange-50 px-4">
+          <div className="bg-white p-8 rounded-lg shadow-xl text-center max-w-md border-2 border-red-500">
+            <div className="mb-6">
+              <svg className="w-20 h-20 text-red-500 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.35 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+              </svg>
+            </div>
+            <h2 className="text-2xl font-bold text-red-600 mb-4">❌ Attempts Exhausted</h2>
+            <div className="bg-red-50 p-6 rounded-lg mb-6 border border-red-200">
+              <p className="text-gray-700 mb-4">
+                You have used all allowed attempts for this assignment.
+              </p>
+              <div className="text-lg font-bold text-gray-800 mb-3">
+                Attempts Used: <span className="text-red-600">{eligibilityStatus?.attemptCount}/{eligibilityStatus?.maxAttempts}</span>
+              </div>
+              <div className="text-lg font-bold text-gray-800">
+                Best Score: <span className="text-orange-600">{eligibilityStatus?.score}%</span>
+              </div>
+            </div>
+            <p className="text-gray-600 mb-6">
+              Unfortunately, you did not pass this assignment within the allowed attempts. Please contact your instructor for assistance or consider reviewing the course materials.
+            </p>
+            <button
+              onClick={() => navigate(`/courses/${courseId}`)}
+              className="bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 transition font-semibold"
+            >
+              Back to Course
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    // Default eligibility error (course progress, series requirements, etc.)
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
         <div className="bg-white p-8 rounded-lg shadow-lg text-center max-w-md">
@@ -182,6 +257,20 @@ const AssignmentTest = () => {
             <div>
               <h1 className="text-3xl font-bold text-gray-800 mb-2">{assignment.title}</h1>
               <p className="text-gray-600">{assignment.description}</p>
+              
+              {/* Attempt Counter */}
+              {eligibilityStatus?.attemptCount !== undefined && !testStarted && (
+                <div className="mt-4 inline-block bg-blue-50 border-l-4 border-blue-500 p-3 rounded">
+                  <p className="text-blue-700 font-semibold">
+                    Attempt {eligibilityStatus.attemptCount + 1} of {eligibilityStatus.maxAttempts}
+                  </p>
+                  {eligibilityStatus.remainingAttempts > 0 && (
+                    <p className="text-blue-600 text-sm">
+                      {eligibilityStatus.remainingAttempts} attempt{eligibilityStatus.remainingAttempts > 1 ? 's' : ''} remaining
+                    </p>
+                  )}
+                </div>
+              )}
             </div>
             {testStarted && (
               <div className={`text-3xl font-bold p-3 rounded-lg ${
@@ -232,6 +321,16 @@ const AssignmentTest = () => {
                              Important Instructions
                         </h3>
                         <ul className="space-y-2 text-gray-600 text-sm">
+                            <li className="flex items-start gap-2">
+                                <span className="w-1.5 h-1.5 bg-gray-400 rounded-full mt-1.5 flex-shrink-0"></span>
+                                You have up to <span className="font-bold text-gray-900">{eligibilityStatus?.maxAttempts || 3} attempts</span> to pass this assignment.
+                            </li>
+                            {eligibilityStatus?.attemptCount > 0 && (
+                              <li className="flex items-start gap-2">
+                                <span className="w-1.5 h-1.5 bg-gray-400 rounded-full mt-1.5 flex-shrink-0"></span>
+                                This is attempt <span className="font-bold text-orange-600">{eligibilityStatus.attemptCount + 1} of {eligibilityStatus.maxAttempts}</span>
+                              </li>
+                            )}
                             <li className="flex items-start gap-2">
                                 <span className="w-1.5 h-1.5 bg-gray-400 rounded-full mt-1.5 flex-shrink-0"></span>
                                 The timer will start immediately once you click the button below.

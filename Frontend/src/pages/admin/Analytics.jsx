@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import DashboardLayout from '../../components/Layout/DashboardLayout';
 import api from '../../services/api';
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { FiUsers, FiBook, FiAward, FiPieChart, FiTrendingUp, FiLayers } from 'react-icons/fi';
 
 const Analytics = () => {
   const [searchParams] = useSearchParams();
@@ -204,45 +205,75 @@ const Analytics = () => {
                 <p className="text-sm text-gray-600">{selectedStudent.email}</p>
                 <p className="text-sm text-gray-600">{selectedStudent.phone || 'No phone'}</p>
               </div>
-              <div className="text-right">
-                <p className="text-sm text-gray-600">Joined</p>
-                <p className="font-semibold text-gray-900">{new Date(selectedStudent.createdAt).toLocaleDateString()}</p>
+              <div className="flex items-center space-x-6 text-right">
+                <div className="bg-white px-4 py-2 rounded-lg border border-blue-100 shadow-sm">
+                  <p className="text-xs text-blue-600 font-medium uppercase tracking-wider">Total Enrollments</p>
+                  <p className="text-xl font-bold text-gray-900">{selectedStudent.enrolledCourses?.length || 0}</p>
+                </div>
+                <div className="hidden sm:block">
+                  <p className="text-sm text-gray-600">Joined</p>
+                  <p className="font-semibold text-gray-900">{new Date(selectedStudent.createdAt).toLocaleDateString()}</p>
+                </div>
               </div>
             </div>
           </div>
         )}
 
-        {/* Stats Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-5 gap-4">
-          <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 text-center">
-            <div className="text-2xl font-bold text-gray-900 mb-1">
-              {(analyticsData.overview?.stats?.totalStudents || 0).toLocaleString()}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+          <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 flex items-center space-x-4">
+            <div className="p-3 bg-blue-50 rounded-lg text-blue-600">
+              <FiUsers className="w-6 h-6" />
             </div>
-            <div className="text-sm text-gray-600">Total Students</div>
+            <div>
+              <div className="text-2xl font-bold text-gray-900">
+                {(analyticsData.overview?.stats?.totalStudents || 0).toLocaleString()}
+              </div>
+              <div className="text-sm text-gray-600">Total Students</div>
+            </div>
           </div>
-          <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 text-center">
-            <div className="text-2xl font-bold text-gray-900 mb-1">
-              {(analyticsData.overview?.stats?.totalEnrollments || 0).toLocaleString()}
+          <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 flex items-center space-x-4">
+            <div className="p-3 bg-indigo-50 rounded-lg text-indigo-600">
+              <FiAward className="w-6 h-6" />
             </div>
-            <div className="text-sm text-gray-600">Total Enrollments</div>
+            <div>
+              <div className="text-2xl font-bold text-gray-900">
+                {(analyticsData.overview?.stats?.totalEnrollments || 0).toLocaleString()}
+              </div>
+              <div className="text-sm text-gray-600">Total Enrollments</div>
+            </div>
           </div>
-          <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 text-center">
-            <div className="text-2xl font-bold text-gray-900 mb-1">
-              {(analyticsData.overview?.stats?.totalCourses || 0).toLocaleString()}
+          <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 flex items-center space-x-4">
+            <div className="p-3 bg-teal-50 rounded-lg text-teal-600">
+              <FiBook className="w-6 h-6" />
             </div>
-            <div className="text-sm text-gray-600">Total Courses</div>
+            <div>
+              <div className="text-2xl font-bold text-gray-900">
+                {(analyticsData.overview?.stats?.totalCourses || 0).toLocaleString()}
+              </div>
+              <div className="text-sm text-gray-600">Total Courses</div>
+            </div>
           </div>
-          <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 text-center">
-            <div className="text-2xl font-bold text-gray-900 mb-1">
-              {analyticsData.overview?.stats?.categoriesCount || courseCategories.length}
+          <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 flex items-center space-x-4">
+            <div className="p-3 bg-amber-50 rounded-lg text-amber-600">
+              <FiLayers className="w-6 h-6" />
             </div>
-            <div className="text-sm text-gray-600">Categories</div>
+            <div>
+              <div className="text-2xl font-bold text-gray-900">
+                {analyticsData.overview?.stats?.categoriesCount || courseCategories.length}
+              </div>
+              <div className="text-sm text-gray-600">Categories</div>
+            </div>
           </div>
-          <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 text-center">
-            <div className="text-2xl font-bold text-gray-900 mb-1">
-              {Math.max(...enrollmentTrend.map(item => item.enrollments), 0)}
+          <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 flex items-center space-x-4">
+            <div className="p-3 bg-rose-50 rounded-lg text-rose-600">
+              <FiTrendingUp className="w-6 h-6" />
             </div>
-            <div className="text-sm text-gray-600">Peak Enrollments</div>
+            <div>
+              <div className="text-2xl font-bold text-gray-900">
+                {Math.max(...enrollmentTrend.map(item => item.enrollments), 0)}
+              </div>
+              <div className="text-sm text-gray-600">Peak Enrollments</div>
+            </div>
           </div>
         </div>
 

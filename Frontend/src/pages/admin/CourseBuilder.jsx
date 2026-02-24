@@ -91,7 +91,7 @@ const CourseBuilder = () => {
       
       // Fetch assignments separately since they are course-level, not section-level
       try {
-        const assignmentsRes = await api.get(`/assignments/course/${id}`);
+        const assignmentsRes = await api.get(`/assignments/course/${id}/admin`);
         setAssignments(assignmentsRes.data.data || []);
       } catch (err) {
         console.error('Error fetching assignments:', err);
@@ -1762,7 +1762,7 @@ const QuizEditorModal = ({ quiz, onSave, onClose, isSaving, ...props }) => {
       options: q.options && Array.isArray(q.options)
         ? q.options.map((optText, index) => ({
             optionText: optText || '',
-            isCorrect: index === q.correctAnswer
+            isCorrect: index === Number(q.correctAnswer)
           }))
         : [
             { optionText: '', isCorrect: false },

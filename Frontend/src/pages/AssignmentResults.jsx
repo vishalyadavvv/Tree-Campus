@@ -53,26 +53,39 @@ const AssignmentResults = () => {
 
       doc.addImage(img, 'PNG', 0, 0, width, height);
 
-      // Cover potential garbage text on template - reduced area to avoid clipping ribbon
+      // ✅ NAME SECTION - Centered on horizontal line
+      const nameLineY = height / 2 + 28; // Position of the underline
+      
+      // Draw white rectangle to cover template text
       doc.setFillColor(255, 255, 255);
-      doc.rect(width / 2 - 120, height / 2 - 5, 240, 35, 'F');
+      doc.rect(width / 2 - 140, nameLineY - 30, 280, 50, 'F');
 
       // Draw Underline
-      doc.setDrawColor(150, 150, 150); // Gray color
-      doc.setLineWidth(1);
-      doc.line(width / 2 - 150, height / 2 + 25, width / 2 + 150, height / 2 + 25);
+      doc.setDrawColor(80, 80, 80); // Darker gray
+      doc.setLineWidth(0.8);
+      doc.line(width / 2 - 150, nameLineY, width / 2 + 150, nameLineY);
 
-      // Name - Centered vertically and horizontally
-      doc.setFontSize(40);
+      // Name - Centered on the line
+      doc.setFontSize(42);
       doc.setFont('helvetica', 'bold');
-      doc.setTextColor(50, 50, 50);
+      doc.setTextColor(40, 40, 40);
       const name = certificate?.userName || 'Candidate Name';
-      doc.text(name, width / 2, height / 2 + 20, { align: 'center' });
+      doc.text(name, width / 2, nameLineY - 8, { align: 'center' }); // Above the line
+
+      // ✅ DATE SECTION - Bottom left, above DATE label
+      const dateLineY = height - 85; // Position of date value (above DATE label)
+      const dateX = 140; // Left position
       
-      // Date
       const date = new Date(certificate?.issuedAt || Date.now()).toLocaleDateString();
-      doc.setFontSize(14);
-      doc.text(date, width / 2 - 50, height - 70); // Estimating position for Date line if exists, or just bottom center
+      doc.setFontSize(16);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(40, 40, 40);
+      doc.text(date, dateX, dateLineY); // Date value positioned above DATE label
+      
+      // Draw underline for date
+      doc.setDrawColor(80, 80, 80);
+      doc.setLineWidth(0.8);
+      doc.line(dateX - 20, dateLineY + 5, dateX + 60, dateLineY + 5);
 
       // Add signature or other details if available
 

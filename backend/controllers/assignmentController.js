@@ -4,6 +4,7 @@ import Certificate from '../models/Certificate.js';
 import User from '../models/User.js';
 import Progress from '../models/Progress.js';
 import Course from '../models/Course.js';
+import Enrollment from '../models/Enrollment.js';
 import { sendAssignmentResultsEmail } from '../utils/sendEmail.js';
 
 // @desc    Create assignment (admin only)
@@ -53,6 +54,26 @@ export const getCourseAssignments = async (req, res, next) => {
 
     const assignments = await Assignment.find({ courseId })
       .select('-questions.correctAnswer') // Don't show answers to students
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({
+      success: true,
+      data: assignments
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Get course assignments for ADMIN (includes correct answers)
+// @route   GET /api/assignments/course/:courseId/admin
+// @access  Private/Admin
+export const getCourseAssignmentsAdmin = async (req, res, next) => {
+  try {
+    const { courseId } = req.params;
+    console.log(`DEBUG: Fetching assignments for course (admin): ${courseId}`);
+
+    const assignments = await Assignment.find({ courseId })
       .sort({ createdAt: -1 });
 
     res.status(200).json({
@@ -171,19 +192,53 @@ export const checkAssignmentEligibility = async (req, res, next) => {
       });
     }
 
-    // Check if already submitted
-    const submission = await AssignmentSubmission.findOne({
+    // Check all submissions for the student
+    const allSubmissions = await AssignmentSubmission.find({
       userId,
       assignmentId
-    });
+    }).sort({ submittedAt: -1 });
 
+    const attemptCount = allSubmissions.length;
+    const maxAttempts = 3;
+    const lastSubmission = allSubmissions[0]; // Most recent submission
+
+    // If student passed, don't allow retake
+    if (lastSubmission?.passed) {
+      return res.status(200).json({
+        success: true,
+        canTake: false,
+        alreadySubmitted: true,
+        alreadyPassed: true,
+        passed: lastSubmission.passed,
+        score: lastSubmission.percentageScore,
+        certificateId: lastSubmission.certificateId,
+        message: `🎉 Congratulations! You already passed this assignment with ${lastSubmission.percentageScore}% score and earned a certificate.`
+      });
+    }
+
+    // If student failed but attempts exhausted
+    if (attemptCount >= maxAttempts) {
+      return res.status(200).json({
+        success: true,
+        canTake: false,
+        attemptsExhausted: true,
+        attemptCount,
+        maxAttempts,
+        score: lastSubmission?.percentageScore || 0,
+        message: `❌ You have used all ${maxAttempts} attempts. Unfortunately, you did not pass this assignment.`
+      });
+    }
+
+    // Student can retake (failed and attempts < 3)
     res.status(200).json({
       success: true,
       canTake: true,
-      alreadySubmitted: !!submission,
-      score: submission?.percentageScore || null,
-      passed: submission?.passed || null,
-      certificateId: submission?.certificateId || null
+      alreadySubmitted: attemptCount > 0,
+      attemptCount,
+      maxAttempts,
+      remainingAttempts: maxAttempts - attemptCount,
+      score: lastSubmission?.percentageScore || null,
+      passed: lastSubmission?.passed || null
     });
   } catch (error) {
     next(error);
@@ -215,7 +270,9 @@ export const submitAssignment = async (req, res, next) => {
 
       totalPoints += question.points || 1;
 
-      const isCorrect = question.correctAnswer === answer.userAnswer;
+      // Convert numeric correctAnswer index to the actual option text for comparison
+      const correctOptionText = question.options[Number(question.correctAnswer)] || question.correctAnswer;
+      const isCorrect = correctOptionText === answer.userAnswer;
       const pointsEarned = isCorrect ? (question.points || 1) : 0;
 
       if (isCorrect) earnedPoints += pointsEarned;
@@ -285,12 +342,47 @@ export const submitAssignment = async (req, res, next) => {
           });
       }
 
+      // ✅ SYNC: Update Progress model
+      await Progress.findOneAndUpdate(
+        { user: userId, course: assignment.courseId },
+        {
+          $set: {
+            certificateIssued: true,
+            certificateUrl: certificate ? `/certificates/${certificate._id}` : ''
+          }
+        },
+        { upsert: false }
+      );
+      console.log(`✅ Progress synced: certificateIssued=true for user ${userId}`);
+
+      // ✅ SYNC: Update Enrollment model
+      await Enrollment.findOneAndUpdate(
+        { user: userId, course: assignment.courseId },
+        {
+          $set: {
+            status: 'completed',
+            completedAt: new Date()
+          }
+        },
+        { upsert: false }
+      );
+      console.log(`✅ Enrollment synced: status=completed for user ${userId}`);
+
+      // ✅ SYNC: Update User.enrolledCourses completedAt
+      await User.updateOne(
+        { _id: userId, 'enrolledCourses.courseId': assignment.courseId },
+        {
+          $set: { 'enrolledCourses.$.completedAt': new Date() }
+        }
+      );
+      console.log(`✅ User.enrolledCourses synced: completedAt set for user ${userId}`);
+
       // Send email notification in background
       sendAssignmentResultsEmail(user.email, user.name, {
         courseTitle: course.title,
         score: percentageScore,
         passed: true,
-        certificateId: certificate._id
+        certificateId: certificate?._id
       }).catch(err => {
         console.error('❌ Failed to send assignment results email:', err.message);
       });

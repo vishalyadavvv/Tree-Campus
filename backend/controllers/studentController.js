@@ -3,6 +3,7 @@ import Course from '../models/Course.js';
 import Lesson from '../models/Lesson.js';
 import Certificate from '../models/Certificate.js';
 import LiveClass from '../models/LiveClass.js';
+import Enrollment from '../models/Enrollment.js';
 
 // @desc    Get student dashboard analytics
 // @route   GET /api/students/dashboard
@@ -229,32 +230,43 @@ export const getStudents = async (req, res) => {
     const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
     const searchTerm = req.query.search || '';
-
-    // Build query
-    let query = { role: 'student' };
-    
-    if (searchTerm) {
-      query.$or = [
-        { name: { $regex: searchTerm, $options: 'i' } },
-        { email: { $regex: searchTerm, $options: 'i' } },
-        { phone: { $regex: searchTerm, $options: 'i' } }
-      ];
-    }
-
-    // Add status filter
     const status = req.query.status;
-    if (status === 'active') {
-      // Explicitly check for an array with at least one element
-      query['enrolledCourses.0'] = { $exists: true };
-    } else if (status === 'inactive') {
-      // Check for missing, null, or empty array
-      query.$or = [
-        { enrolledCourses: { $exists: false } },
-        { enrolledCourses: { $size: 0 } },
-        { enrolledCourses: null },
-        { enrolledCourses: { $type: 'array', $size: 0 } }
-      ];
+
+    // --- Use Enrollment collection as source of truth ---
+    // Get enrollment counts per user from the Enrollment collection
+    const enrollmentCountsByUser = await Enrollment.aggregate([
+      { $group: { _id: '$user', enrollmentCount: { $sum: 1 } } }
+    ]);
+    const enrollmentMap = new Map(
+      enrollmentCountsByUser.map(e => [e._id.toString(), e.enrollmentCount])
+    );
+
+    // Get list of user IDs who have at least 1 enrollment
+    const activeUserIds = enrollmentCountsByUser
+      .filter(e => e.enrollmentCount > 0)
+      .map(e => e._id);
+
+    // Build base query using $and to safely combine conditions
+    const conditions = [{ role: 'student' }];
+
+    if (searchTerm) {
+      conditions.push({
+        $or: [
+          { name: { $regex: searchTerm, $options: 'i' } },
+          { email: { $regex: searchTerm, $options: 'i' } },
+          { phone: { $regex: searchTerm, $options: 'i' } }
+        ]
+      });
     }
+
+    // Status filter using Enrollment collection data
+    if (status === 'active') {
+      conditions.push({ _id: { $in: activeUserIds } });
+    } else if (status === 'inactive') {
+      conditions.push({ _id: { $nin: activeUserIds } });
+    }
+
+    const query = conditions.length === 1 ? conditions[0] : { $and: conditions };
 
     const students = await User.find(query)
       .populate('enrolledCourses.courseId', 'title thumbnail')
@@ -265,23 +277,28 @@ export const getStudents = async (req, res) => {
 
     const totalStudents = await User.countDocuments(query);
 
-    // Calculate aggregate statistics for the dashboard
-    // Note: These are for the entire student population, not just the current page
-    const activeStudentsCount = await User.countDocuments({ 
-      role: 'student', 
-      'enrolledCourses.0': { $exists: true } 
-    });
-
-    // Total enrollments across all students
-    const enrollmentStats = await User.aggregate([
-      { $match: { role: 'student' } },
-      { $project: { enrollmentCount: { $size: { $ifNull: ['$enrolledCourses', []] } } } },
-      { $group: { _id: null, total: { $sum: '$enrollmentCount' } } }
-    ]);
-    const totalEnrollments = enrollmentStats.length > 0 ? enrollmentStats[0].total : 0;
-
-    // Certificates issued
+    // --- Aggregate stats from Enrollment collection (source of truth) ---
+    const activeStudentsCount = activeUserIds.length;
+    const totalEnrollments = await Enrollment.countDocuments();
     const certificatesIssued = await Certificate.countDocuments();
+
+    // Get enrollment counts for THIS page's students from Enrollment collection
+    const studentIds = students.map(s => s._id);
+    const perStudentEnrollments = await Enrollment.aggregate([
+      { $match: { user: { $in: studentIds } } },
+      { $group: { _id: '$user', enrollmentCount: { $sum: 1 } } }
+    ]);
+    const pageEnrollmentMap = new Map(
+      perStudentEnrollments.map(e => [String(e._id), e.enrollmentCount])
+    );
+
+    // Attach real enrollment count and active status to each student
+    const studentsWithRealEnrollments = students.map(student => {
+      const s = student.toObject();
+      s.realEnrollmentCount = pageEnrollmentMap.get(String(s._id)) || 0;
+      s.isActive = s.realEnrollmentCount > 0;
+      return s;
+    });
 
     res.status(200).json({
       success: true,
@@ -292,7 +309,7 @@ export const getStudents = async (req, res) => {
       certificatesIssued,
       totalPages: Math.ceil(totalStudents / limit),
       currentPage: page,
-      data: students
+      data: studentsWithRealEnrollments
     });
   } catch (error) {
     res.status(500).json({

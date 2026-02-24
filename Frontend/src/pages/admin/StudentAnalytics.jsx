@@ -100,7 +100,7 @@
             student.enrolledCourses?.length || 0,
             student.certificates?.length || 0,
             new Date(student.createdAt).toLocaleDateString(),
-            student.enrolledCourses?.length > 0 ? 'Active' : 'Inactive'
+            student.isActive ? 'Active' : 'Inactive'
           ].join(','))
         ].join('\n');
 
@@ -298,7 +298,7 @@
                         <div className="flex items-center space-x-2">
                           <FiBook className="w-4 h-4 text-blue-500" />
                           <span className="text-sm font-medium text-gray-900">
-                            {student.enrolledCourses?.length || 0}
+                            {student.realEnrollmentCount || student.enrolledCourses?.length || 0}
                           </span>
                         </div>
                       </td>
@@ -318,11 +318,11 @@
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                          student.enrolledCourses?.length > 0 
+                          student.isActive
                             ? 'bg-green-100 text-green-800' 
                             : 'bg-gray-100 text-gray-800'
                         }`}>
-                          {student.enrolledCourses?.length > 0 ? 'Active' : 'Inactive'}
+                          {student.isActive ? 'Active' : 'Inactive'}
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
@@ -369,15 +369,15 @@
                       </div>
                       <div className="flex flex-wrap gap-2">
                         <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                          student.enrolledCourses?.length > 0 
+                          student.isActive
                             ? 'bg-green-100 text-green-800' 
                             : 'bg-gray-100 text-gray-800'
                         }`}>
-                          {student.enrolledCourses?.length > 0 ? 'Active' : 'Inactive'}
+                          {student.isActive ? 'Active' : 'Inactive'}
                         </span>
                         <span className="flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                           <FiBook className="w-3 h-3" />
-                          <span>{student.enrolledCourses?.length || 0}</span>
+                          <span>{student.realEnrollmentCount || student.enrolledCourses?.length || 0}</span>
                         </span>
                         <span className="flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
                           <FiAward className="w-3 h-3" />
