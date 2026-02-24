@@ -108,6 +108,19 @@ userSchema.index({ phone: 1 }, {
 userSchema.pre("save", async function () {
   if (!this.isModified("password")) return;
 
+  // Detect if the password is already hashed (WordPress or bcrypt)
+  const hash = this.password;
+  if (
+    hash.startsWith("$P$") || // WordPress Phpass
+    hash.startsWith("$H$") || // WordPress alternative Phpass
+    hash.startsWith("$2y$") || // WordPress bcrypt
+    hash.startsWith("$2a$") || // Standard bcrypt
+    hash.startsWith("$2b$") || // Modern bcrypt
+    hash.startsWith("$wp$")    // Legacy prefix
+  ) {
+    return; // Don't re-hash already hashed passwords
+  }
+
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
 });
@@ -118,39 +131,45 @@ userSchema.methods.comparePassword = async function (candidatePassword) {
 
   let hash = this.password;
 
-  // Handle malformed prefixes
-  if (hash.startsWith("2y$")) {
-    hash = "$" + hash;
-  } else if (hash.startsWith("wp$2y$")) {
-    hash = "$" + hash;
+  // 1. Fix malformed or double-prefixed hashes FIRST
+  // (e.g., "$wp$2y$..." or missing leading $)
+  console.log("🔍 [DEBUG] Original Hash in DB:", hash);
+  if (hash.startsWith("2y$")) hash = "$" + hash;
+  if (hash.startsWith("wp$2y$")) hash = "$" + hash;
+  
+  if (hash.startsWith("$wp$2y$")) {
+    hash = "$2b$" + hash.substring(7);
+  } else if (hash.startsWith("$2y$")) {
+    hash = "$2b$" + hash.substring(4);
   }
+  console.log("🔍 [DEBUG] Transformed Hash:", hash);
 
-  // ✅ Handle MD5 (32 char, no $ prefix)
-  if (!hash.startsWith("$") && hash.length === 32) {
-    const md5Hash = crypto
-      .createHash("md5")
-      .update(candidatePassword)
-      .digest("hex");
-
-    return md5Hash === hash;
-  }
-
-  // ✅ Handle WordPress phpass
+  // 2. Handle WordPress phpass ($P$ or $H$)
   if (hash.startsWith("$P$") || hash.startsWith("$H$")) {
     return wpHasher.CheckPassword(candidatePassword, hash);
   }
 
-  // ✅ Handle WordPress bcrypt with $wp$ prefix
-  if (hash.startsWith("$wp$2y$")) {
-    hash = "$2a$" + hash.substring(6);
+  // 3. Handle MD5 (32 hex characters, no prefix)
+  if (!hash.startsWith("$") && hash.length === 32) {
+    const md5Hash = crypto.createHash("md5").update(candidatePassword).digest("hex");
+    return md5Hash === hash;
   }
 
-  // ✅ Convert $2y$ → $2a$
-  if (hash.startsWith("$2y$")) {
-    hash = "$2a$" + hash.substring(4);
+  // 4. Standard Bcrypt (including corrected $2y$ -> $2b$)
+  if (hash.startsWith("$")) {
+    try {
+      return await bcrypt.compare(candidatePassword, hash);
+    } catch (err) {
+      console.error("❌ Bcrypt comparison error:", err.message, "for hash:", hash);
+      // Fallback: if bcrypt fails because of truncation, but it's a migrated hash, 
+      // there's not much we can do unless we know the format.
+      return false;
+    }
   }
 
-  return await bcrypt.compare(candidatePassword, hash);
+  // 5. Plain Text Fallback (for older WordPress imports)
+  // ONLY if not a known hash format
+  return candidatePassword === hash;
 };
 
 // Generate OTP

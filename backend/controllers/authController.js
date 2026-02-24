@@ -208,6 +208,15 @@ const login = async (req, res, next) => {
       });
     }
 
+    console.log('🔍 DEBUG LOGIN:', {
+      email: user.email,
+      isVerified: user.isVerified,
+      hasPassword: !!user.password,
+      passPrefix: user.password ? user.password.substring(0, 10) : 'NO PASSWORD',
+      role: user.role,
+      inputRole: role
+    });
+    
     // ⭐ CHECK ROLE MATCH (Only if role is provided from frontend)
     if (role) {
       console.log(`🔍 Checking role match for ${email}: input_role=${role}, db_role=${user.role}`);
@@ -223,6 +232,7 @@ const login = async (req, res, next) => {
     }
 
    const isPasswordMatch = await user.comparePassword(password);
+   console.log('🔍 Password match result:', isPasswordMatch);
 
 if (!isPasswordMatch) {
   return res.status(401).json({
@@ -231,19 +241,19 @@ if (!isPasswordMatch) {
   });
 }
 
-// ✅ AUTO-UPGRADE WORDPRESS HASH → BCRYPT
-if (
-  user.password &&
-  (user.password.startsWith("$P$") ||
-   user.password.startsWith("$H$") ||
-   user.password.startsWith("$2y$") ||
-   user.password.startsWith("$wp$2y$"))
-) {
-  console.log("🔄 Upgrading WordPress hash → bcrypt for", user.email);
-
-  user.password = password; // plain password
-  await user.save();        // your pre-save hook hashes with bcrypt
-}
+    // ✅ AUTO-UPGRADE WORDPRESS HASH / PLAIN TEXT → BCRYPT
+    if (
+      user.password &&
+      (user.password.startsWith("$P$") ||
+       user.password.startsWith("$H$") ||
+       user.password.startsWith("$2y$") ||
+       user.password.startsWith("$wp$2y$") ||
+       !user.password.startsWith("$")) // Plain text
+    ) {
+      console.log("🔄 Upgrading legacy/plain password → bcrypt for", user.email);
+      user.password = password; // Set plain password, pre-save hook will hash it
+      await user.save();
+    }
 
     if (!user.isVerified) {
       console.warn(`⚠️ User not verified: ${email}`);
