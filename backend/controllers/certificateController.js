@@ -3,6 +3,8 @@ import User from '../models/User.js';
 import Course from '../models/Course.js';
 import Progress from '../models/Progress.js';
 import Enrollment from '../models/Enrollment.js';
+import Assignment from '../models/Assignment.js';
+import AssignmentSubmission from '../models/AssignmentSubmission.js';
 
 // @desc    Get user certificates
 // @route   GET /api/certificates
@@ -103,123 +105,259 @@ export const saveCertificateFromMobile = async (req, res) => {
   try {
     const userId = req.user._id;
     const {
-      assignmentId,
-      courseId,
+      assignmentId: providedAssignmentId,
+      courseId: providedCourseId,
+      seriesKey,
       score,
       courseTitle,
       userName,
       certificateUrl
     } = req.body;
 
-    console.log('📱 Saving certificate from mobile...');
+    console.log('📱 Processing sync request from mobile...');
     console.log('User:', userId);
-    console.log('Course:', courseId);
-    console.log('Score:', score);
+    console.log('Identifier:', seriesKey ? `Series: ${seriesKey}` : `Course: ${providedCourseId}`);
 
     // ═══════════════════════════════════════════════════════════════
-    // 1️⃣ CREATE CERTIFICATE IN MONGODB
+    // 1️⃣ RESOLVE COURSE AND ASSIGNMENT
     // ═══════════════════════════════════════════════════════════════
-    const certificate = await Certificate.create({
-      userId: userId,
-      courseId: courseId,
-      assignmentId: assignmentId,
-      type: 'assignment',
-      score: score,
-      courseTitle: courseTitle,
-      userName: userName,
-      certificateUrl: certificateUrl || `/certificates/${courseId}`,
-      platform: 'mobile',  // Track which platform issued it
-      createdAt: new Date(),
-      issuedAt: new Date()
-    });
+    let courseId = providedCourseId;
+    let assignmentId = providedAssignmentId;
 
-    console.log('✅ Certificate created:', certificate._id);
-
-    // ═══════════════════════════════════════════════════════════════
-    // 2️⃣ UPDATE USER - ADD CERTIFICATE TO ARRAY
-    // ═══════════════════════════════════════════════════════════════
-    await User.findByIdAndUpdate(
-      userId,
-      {
-        $push: { certificates: certificate._id },
-        $set: { updatedAt: new Date() }
-      },
-      { new: true }
-    );
-
-    console.log('✅ User updated with certificate');
-
-    // ═══════════════════════════════════════════════════════════════
-    // 3️⃣ UPDATE PROGRESS - MARK CERTIFICATE ISSUED
-    // ═══════════════════════════════════════════════════════════════
-    await Progress.findOneAndUpdate(
-      { user: userId, course: courseId },
-      {
-        $set: {
-          certificateIssued: true,
-          certificateUrl: `/certificates/${certificate._id}`,
-          completedAt: new Date(),
-          updatedAt: new Date()
-        }
-      },
-      { new: true }
-    );
-
-    console.log('✅ Progress updated');
-
-    // ═══════════════════════════════════════════════════════════════
-    // 4️⃣ UPDATE ENROLLMENT - MARK COMPLETED
-    // ═══════════════════════════════════════════════════════════════
-    await Enrollment.findOneAndUpdate(
-      { user: userId, course: courseId },
-      {
-        $set: {
-          status: 'completed',
-          completedAt: new Date(),
-          certificateId: certificate._id,
-          updatedAt: new Date()
-        }
-      },
-      { new: true }
-    );
-
-    console.log('✅ Enrollment updated');
-
-    // ═══════════════════════════════════════════════════════════════
-    // 5️⃣ UPDATE USER.enrolledCourses
-    // ═══════════════════════════════════════════════════════════════
-    await User.updateOne(
-      { _id: userId, 'enrolledCourses.courseId': courseId },
-      {
-        $set: { 'enrolledCourses.$.completedAt': new Date() }
+    // 1. If seriesKey is provided, find the FIRST incomplete part the user is enrolled in
+    if (seriesKey) {
+      const seriesCourses = await Course.find({ seriesKey }).sort({ seriesOrder: 1 });
+      
+      if (seriesCourses.length === 0) {
+        return res.status(404).json({ success: false, message: `Series ${seriesKey} not found` });
       }
-    );
 
-    console.log('✅ User enrolledCourses updated');
+      const user = await User.findById(userId);
+      const enrolledCourseIds = user.enrolledCourses.map(e => e.courseId.toString());
+
+      // Find the first course in the series that isn't completed yet
+      const currentPart = seriesCourses.find(c => {
+        const isEnrolled = enrolledCourseIds.includes(c._id.toString());
+        const enrollment = user.enrolledCourses.find(e => e.courseId.toString() === c._id.toString());
+        return isEnrolled && !enrollment.completedAt;
+      });
+
+      if (!currentPart) {
+        // If all enrolled parts are done, or user isn't enrolled in anything yet
+        // Default to the first part or return error if they already finished all
+        const allCompleted = seriesCourses.every(c => {
+          const enrollment = user.enrolledCourses.find(e => e.courseId.toString() === c._id.toString());
+          return enrollment && enrollment.completedAt;
+        });
+
+        if (allCompleted) {
+          console.log('ℹ️ User has already completed all enrolled parts of this series.');
+          // Find the final part's certificate to return it
+          const finalCourseId = seriesCourses[seriesCourses.length - 1]._id;
+          const cert = await Certificate.findOne({ userId, courseId: finalCourseId });
+          if (cert) {
+            return res.status(200).json({ success: true, message: 'Series already fully completed', data: { certificate: cert } });
+          }
+        }
+
+        // Default to the first enrolled part if we can't determine current
+        courseId = seriesCourses.find(c => enrolledCourseIds.includes(c._id.toString()))?._id || seriesCourses[0]._id;
+      } else {
+        courseId = currentPart._id;
+      }
+      
+      console.log(`ℹ️ Auto-identified current part in series: ${courseId}`);
+    } 
+    // 2. If no courseId but courseTitle is provided, find by Title
+    else if (!courseId && courseTitle) {
+      const foundCourse = await Course.findOne({ 
+        $or: [
+          { title: { $regex: new RegExp(`^${courseTitle}$`, 'i') } },
+          { certificateTitle: { $regex: new RegExp(`^${courseTitle}$`, 'i') } }
+        ]
+      });
+      if (foundCourse) {
+        courseId = foundCourse._id;
+        console.log(`ℹ️ Resolved courseId from title: ${courseId}`);
+      }
+    }
+
+    if (!courseId) {
+      return res.status(400).json({ success: false, message: 'courseId or seriesKey is required' });
+    }
+
+    // Find the course details
+    const course = await Course.findById(courseId);
+    if (!course) {
+      return res.status(404).json({ success: false, message: 'Course not found' });
+    }
+
+    // Find specific assignment for this course if not provided
+    if (!assignmentId) {
+      const assignment = await Assignment.findOne({ courseId });
+      assignmentId = assignment?._id;
+    }
 
     // ═══════════════════════════════════════════════════════════════
-    // 6️⃣ SEND RESPONSE
+    // 2️⃣ CHECK FOR EXISTING CERTIFICATE (PREVENT DUPLICATES)
     // ═══════════════════════════════════════════════════════════════
+    const existingCertificate = await Certificate.findOne({ userId, courseId });
+    if (existingCertificate) {
+      console.log('ℹ️ Certificate already exists, returning existing.');
+      return res.status(200).json({
+        success: true,
+        message: 'Certificate already exists',
+        data: { certificate: existingCertificate }
+      });
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // 3️⃣ SYNC ASSIGNMENT SUBMISSION (FOR WEBSITE PROGRESS)
+    // ═══════════════════════════════════════════════════════════════
+    let submission = null;
+    if (assignmentId) {
+      // Find or create a submission record to "trick" the website logic
+      submission = await AssignmentSubmission.findOneAndUpdate(
+        { userId, assignmentId },
+        {
+          $set: {
+            courseId,
+            totalScore: score || 100,
+            percentageScore: score || 100,
+            passed: true,
+            status: 'submitted',
+            submittedAt: new Date()
+          }
+        },
+        { upsert: true, new: true }
+      );
+      console.log('✅ AssignmentSubmission synced');
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // 4️⃣ APPLY SINGLE CERTIFICATE RULE (SERIES LOGIC)
+    // ═══════════════════════════════════════════════════════════════
+    let certificate = null;
+    let isFinalPart = true;
+
+    if (course.seriesKey) {
+      const higherOrderCourse = await Course.findOne({
+        seriesKey: course.seriesKey,
+        seriesOrder: { $gt: course.seriesOrder || 0 }
+      });
+      if (higherOrderCourse) {
+        isFinalPart = false;
+        console.log(`ℹ️ Part ${course.seriesOrder} completed, but skipping certificate (not final part).`);
+      }
+    }
+
+    if (isFinalPart) {
+      certificate = await Certificate.create({
+        userId: userId,
+        courseId: courseId,
+        assignmentId: assignmentId,
+        type: 'assignment',
+        score: score,
+        courseTitle: course.certificateTitle || courseTitle || course.title,
+        userName: userName,
+        certificateUrl: certificateUrl || `/certificates/${courseId}`,
+        platform: 'mobile',
+        issuedAt: new Date()
+      });
+
+      // Link certificate to submission if available
+      if (submission) {
+        await AssignmentSubmission.findByIdAndUpdate(submission._id, {
+          certificateId: certificate._id
+        });
+      }
+
+      // Add certificate to user
+      await User.findByIdAndUpdate(userId, {
+        $push: { certificates: certificate._id }
+      });
+      console.log('✅ Certificate created and linked');
+    }
+
+
+    // ═══════════════════════════════════════════════════════════════
+    // 5️⃣ UPDATE PROGRESS & ENROLLMENT (SYNC ONLY EXISTING)
+    // ═══════════════════════════════════════════════════════════════
+    const user = await User.findById(userId);
+    const enrolledCourseIds = user.enrolledCourses.map(e => e.courseId.toString());
+
+    const coursesToUpdate = [courseId];
+    
+    // If it's a series and we are at the final part, check other parts
+    if (course.seriesKey && isFinalPart) {
+      const seriesCourses = await Course.find({ seriesKey: course.seriesKey });
+      seriesCourses.forEach(c => {
+        const cidStr = c._id.toString();
+        if (cidStr !== courseId.toString() && enrolledCourseIds.includes(cidStr)) {
+          coursesToUpdate.push(c._id);
+        }
+      });
+      console.log(`ℹ️ Syncing progress for ${coursesToUpdate.length} enrolled courses in series ${course.seriesKey}`);
+    }
+
+    await Promise.all(coursesToUpdate.map(cid => (async () => {
+      const cidStr = cid.toString();
+      
+      // Update Progress only if already enrolled/exists
+      await Progress.findOneAndUpdate(
+        { user: userId, course: cid },
+        {
+          $set: {
+            certificateIssued: cidStr === courseId.toString() ? isFinalPart : false,
+            certificateUrl: (cidStr === courseId.toString() && certificate) ? `/certificates/${certificate._id}` : '',
+            completedAt: new Date(),
+            overallProgress: 100
+          }
+        },
+        { upsert: false } // ❌ DO NOT AUTO-CREATE PROGRESS
+      );
+
+      // Update Enrollment only if already exists
+      await Enrollment.findOneAndUpdate(
+        { user: userId, course: cid },
+        {
+          $set: {
+            status: 'completed',
+            completedAt: new Date(),
+            certificateId: cidStr === courseId.toString() ? certificate?._id : undefined
+          }
+        },
+        { upsert: false } // ❌ DO NOT AUTO-CREATE ENROLLMENT
+      );
+
+      // Update User enrolledCourses array only for existing
+      await User.updateOne(
+        { _id: userId, 'enrolledCourses.courseId': cid },
+        { $set: { 'enrolledCourses.$.completedAt': new Date() } }
+      );
+    })()));
+
+    console.log('✅ All related courses in series marked as completed');
+
     res.status(201).json({
       success: true,
-      message: 'Certificate saved successfully',
+      message: isFinalPart ? 'Series completed! Certificate issued.' : 'Part completed! Progress saved.',
       data: {
-        certificate: {
+        certificate: certificate ? {
           _id: certificate._id,
           courseTitle: certificate.courseTitle,
-          userName: certificate.userName,
           score: certificate.score,
-          certificateUrl: certificate.certificateUrl,
-          createdAt: certificate.createdAt
-        }
+          certificateUrl: certificate.certificateUrl
+        } : null,
+        isFinalPart
       }
     });
 
   } catch (error) {
-    console.error('❌ Error saving certificate:', error);
+    console.error('❌ Sync Error:', error);
     res.status(500).json({
       success: false,
-      message: 'Error saving certificate',
+      message: 'Error syncing mobile progress',
       error: error.message
     });
   }
