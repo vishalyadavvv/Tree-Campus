@@ -65,12 +65,12 @@ response_*.json
 test_*.json
 tts_error.json
 
-# Temporary Documentation (except README)
+# Temporary Documentation and Code logic
 *.md
+**/*.md
+*.dart
+**/*.dart
 !README.md
-!API_DOCUMENTATION.md
-!FRONTEND_README.md
-!BACKEND_README.md
 
 # Legacy and One-off Scripts
 backend/*.js

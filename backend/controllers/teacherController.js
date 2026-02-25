@@ -108,6 +108,8 @@ export const askTeacher = async (req, res) => {
             
             if (!apiKey) {
                 console.warn("GOOGLE_CLOUD_API_KEY is missing. Skipping audio generation.");
+            } else if (!response.ReplyForUserAudio || response.ReplyForUserAudio.trim() === "") {
+                console.warn("⚠️ AI returned empty audio text. Skipping TTS to prevent 400 error.");
             } else {
                 const url = `https://texttospeech.googleapis.com/v1beta1/text:synthesize?key=${apiKey}`;
                 
