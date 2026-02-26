@@ -31,6 +31,7 @@ import ContestHome from './pages/Contest/ContestHome';
 import AITeacherPage from './pages/AITeacherPage';
 import AIFloatingButton from './components/common/AIFloatingButton';
 import MeetingRoom from './components/LiveClass/MeetingRoom';
+import UserAccountDeletionNew from './pages/UserAccountDeletionNew';
 
 import ForgotPassword from './components/auth/ForgotPassword';
 import ResetPassword from './components/auth/ResetPassword';
@@ -73,6 +74,7 @@ import VocabularyBuilder from './components/games/VocabularyBuilder';
 function App() {
   const location = useLocation();
   const isAdminRoute = location.pathname.startsWith('/admin');
+  const isStandaloneRoute = location.pathname === '/user-account-deletion';
 
   useEffect(() => {
     if ("scrollRestoration" in window.history) {
@@ -120,9 +122,9 @@ function App() {
             }}
           />
           
-          <Navbar />
-          <AIFloatingButton />
-         <main className="pt-[110px]">
+          {!isStandaloneRoute && <Navbar />}
+          {!isStandaloneRoute && <AIFloatingButton />}
+         <main className={isStandaloneRoute ? "" : "pt-[110px]"}>
           <Routes>
 
   {/* ================= PUBLIC ROUTES ================= */}
@@ -142,6 +144,7 @@ function App() {
   <Route path="/volunteer" element={<Volunteer />} />
   <Route path="/englishspeaking" element={<EnglishSpeaking />} />
   <Route path="/accountdeletion" element={<AccountDeletionForm />} />
+  <Route path="/user-account-deletion" element={<UserAccountDeletionNew />} />
   <Route path="/contest/schoolregistration" element={<SchoolRegistration />} />
   <Route path="/courses/:courseId/lesson/:lessonId" element={<LessonView />} />
   <Route path="/forgot-password" element={<ForgotPassword />} />
@@ -373,7 +376,7 @@ function App() {
           </Routes>
           </main>
           
-          {!isAdminRoute && <Footer />}
+          {!isAdminRoute && !isStandaloneRoute && <Footer />}
         </div>
       </CourseProvider>
     </AuthProvider>
