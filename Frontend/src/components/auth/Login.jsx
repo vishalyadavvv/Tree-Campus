@@ -171,6 +171,20 @@ const Login = () => {
     if (storedToken && storedUser) {
       try {
         const parsedUser = JSON.parse(storedUser);
+        
+        // ⭐ If logged in but not verified, go to verification
+        if (parsedUser.isVerified === false) {
+           navigate('/verify-otp', { 
+             replace: true, 
+             state: { 
+               email: parsedUser.email, 
+               phone: parsedUser.phone, 
+               mode: 'register' 
+             } 
+           });
+           return;
+        }
+
         navigate(parsedUser.role === 'admin' ? '/admin' : '/dashboard', { replace: true });
         return;
       } catch (e) {

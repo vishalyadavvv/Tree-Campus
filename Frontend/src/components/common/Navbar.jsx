@@ -125,10 +125,14 @@ export default function Navbar() {
 
   // Get current profile menu based on user role
   const getProfileMenuItems = () => {
-    if (userRole === 'admin') {
-      return adminMenuItems;
+    let items = userRole === 'admin' ? adminMenuItems : studentMenuItems;
+    
+    // ⭐ Filter items for unverified users
+    if (userData && userData.isVerified === false) {
+      return items.filter(item => item.action === 'logout');
     }
-    return studentMenuItems;
+    
+    return items;
   };
 
   // FIXED: Use initials instead of default avatar

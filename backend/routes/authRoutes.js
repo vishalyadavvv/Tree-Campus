@@ -97,6 +97,7 @@ router.get('/google/callback',
         id: req.user._id,
         name: req.user.name,
         email: req.user.email,
+        phone: req.user.phone, // ⭐ Added phone
         role: req.user.role,
         profilePicture: req.user.profilePicture,
         isVerified: req.user.isVerified,

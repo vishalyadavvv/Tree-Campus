@@ -21,6 +21,12 @@ const ProtectedRoute = ({ children, adminOnly = false, studentOnly = false }) =>
     return <Navigate to="/login" replace />;
   }
 
+  // ⭐ ENFORCE VERIFICATION
+  if (user.isVerified === false) {
+    console.log('🟠 User not verified, redirecting to verification page');
+    return <Navigate to="/verify-otp" replace state={{ email: user.email, phone: user.phone, mode: 'register' }} />;
+  }
+
   console.log('🛡️ ProtectedRoute Check:', {
     user: user?.email,
     role: user?.role,

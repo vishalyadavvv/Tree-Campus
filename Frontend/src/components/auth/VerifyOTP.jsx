@@ -6,6 +6,8 @@ const VerifyOTP = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
+  const { verifyOTP, resendOTP, user: authUser } = useContext(AuthContext);
+
   const [otp, setOtp] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -15,15 +17,13 @@ const VerifyOTP = () => {
   const [timer, setTimer] = useState(30);
   const [canResend, setCanResend] = useState(false);
   const [isEditingPhone, setIsEditingPhone] = useState(false);
-  const [currentPhone, setCurrentPhone] = useState(location.state?.phone || '');
-  const [tempPhone, setTempPhone] = useState(location.state?.phone || '');
+  const [currentPhone, setCurrentPhone] = useState(location.state?.phone || authUser?.phone || '');
+  const [tempPhone, setTempPhone] = useState(location.state?.phone || authUser?.phone || '');
 
   // Email & mode (register or forgot-password)
   const email = location.state?.email;
   const name = location.state?.name || '';
   const mode = location.state?.mode || 'register'; // default is registration
-
-  const { verifyOTP, resendOTP } = useContext(AuthContext);
 
   useEffect(() => {
     if (!email) {
