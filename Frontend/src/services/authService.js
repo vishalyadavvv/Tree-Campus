@@ -30,9 +30,9 @@ export const authService = {
   // -------------------------
   // RESEND OTP
   // -------------------------
-  resendOTP: async (email) => {
+  resendOTP: async (email, phone) => {
     try {
-      const res = await api.post('/auth/resend-otp', { email });
+      const res = await api.post('/auth/resend-otp', { email, newPhone: phone });
       return res.data;
     } catch (err) {
       throw err.response?.data || err;

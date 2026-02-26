@@ -1,9 +1,11 @@
 import React, { useState, useContext, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
 import { authService } from '../../services/authService';
 
 const Profile = () => {
   const { user, updateUser } = useContext(AuthContext);
+  const navigate = useNavigate();
   const [editing, setEditing] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -193,11 +195,27 @@ const handleSubmit = async (e) => {
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       Verification Status
                     </label>
-                    <p className="text-lg">
+                    <p className="text-lg flex items-center">
                       {user?.isVerified ? (
                         <span className="text-green-600 font-semibold">✅ Verified</span>
                       ) : (
-                        <span className="text-yellow-600 font-semibold">⏳ Pending</span>
+                        <div className="flex items-center space-x-3">
+                          <span className="text-yellow-600 font-semibold">⏳ Pending</span>
+                          <button
+                            onClick={() => navigate('/verify-otp', { 
+                              state: { 
+                                email: user.email, 
+                                phone: user.phone, 
+                                mode: 'register',
+                                triggerAutoResend: true 
+                              } 
+                            })}
+                            className="text-white text-xs px-3 py-1 rounded-full hover:opacity-90 transition font-medium"
+                            style={{ backgroundColor: '#FD5A00' }}
+                          >
+                            Verify Now
+                          </button>
+                        </div>
                       )}
                     </p>
                   </div>

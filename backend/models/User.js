@@ -126,49 +126,68 @@ userSchema.pre("save", async function () {
 });
 
 // Compare password
+// Compare password
+// Compare password
+// Compare password
+// Compare password
+// Update your comparePassword method in User.js:
+
 userSchema.methods.comparePassword = async function (candidatePassword) {
   if (!this.password) return false;
 
-  let hash = this.password;
-
-  // 1. Fix malformed or double-prefixed hashes FIRST
-  // (e.g., "$wp$2y$..." or missing leading $)
+  const hash = this.password;
   console.log("🔍 [DEBUG] Original Hash in DB:", hash);
-  if (hash.startsWith("2y$")) hash = "$" + hash;
-  if (hash.startsWith("wp$2y$")) hash = "$" + hash;
-  
-  if (hash.startsWith("$wp$2y$")) {
-    hash = "$2b$" + hash.substring(7);
-  } else if (hash.startsWith("$2y$")) {
-    hash = "$2b$" + hash.substring(4);
-  }
-  console.log("🔍 [DEBUG] Transformed Hash:", hash);
 
-  // 2. Handle WordPress phpass ($P$ or $H$)
+  // Handle WordPress bcrypt ($2y$)
+  if (hash.startsWith("$2y$")) {
+    console.log("🔍 [DEBUG] Found $2y$ hash, converting to $2b$ for comparison");
+    
+    // Convert $2y$ to $2b$ for bcrypt comparison
+    const convertedHash = "$2b$" + hash.substring(4);
+    console.log("🔍 [DEBUG] Converted hash:", convertedHash);
+    
+    try {
+      const match = await bcrypt.compare(candidatePassword, convertedHash);
+      console.log("🔍 [DEBUG] Bcrypt comparison result:", match);
+      return match;
+    } catch (e) {
+      console.error("❌ Bcrypt comparison error:", e.message);
+      
+      // Try with original $2y$ as fallback
+      try {
+        const match = await bcrypt.compare(candidatePassword, hash);
+        console.log("🔍 [DEBUG] Bcrypt comparison with original $2y$:", match);
+        return match;
+      } catch (e2) {
+        console.error("❌ Bcrypt comparison with $2y$ also failed:", e2.message);
+        return false;
+      }
+    }
+  }
+
+  // Handle WordPress phpass ($P$ or $H$)
   if (hash.startsWith("$P$") || hash.startsWith("$H$")) {
     return wpHasher.CheckPassword(candidatePassword, hash);
   }
 
-  // 3. Handle MD5 (32 hex characters, no prefix)
+  // Handle MD5
   if (!hash.startsWith("$") && hash.length === 32) {
     const md5Hash = crypto.createHash("md5").update(candidatePassword).digest("hex");
     return md5Hash === hash;
   }
 
-  // 4. Standard Bcrypt (including corrected $2y$ -> $2b$)
-  if (hash.startsWith("$")) {
+  // Standard bcrypt ($2a$ or $2b$)
+  if (hash.startsWith("$2a$") || hash.startsWith("$2b$")) {
     try {
       return await bcrypt.compare(candidatePassword, hash);
     } catch (err) {
-      console.error("❌ Bcrypt comparison error:", err.message, "for hash:", hash);
-      // Fallback: if bcrypt fails because of truncation, but it's a migrated hash, 
-      // there's not much we can do unless we know the format.
+      console.error("❌ Bcrypt error:", err.message);
       return false;
     }
   }
 
-  // 5. Plain Text Fallback (for older WordPress imports)
-  // ONLY if not a known hash format
+  // Plain text fallback (remove this in production)
+  console.log("🔍 [DEBUG] Trying plain text comparison");
   return candidatePassword === hash;
 };
 

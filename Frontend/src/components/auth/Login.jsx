@@ -141,6 +141,21 @@ const Login = () => {
           return;
         }
 
+        // ⭐ REDIRECT TO VERIFICATION IF NOT VERIFIED
+        if (user.isVerified === false) {
+          console.log('🟠 Google user not verified. Redirecting to verification page...');
+          navigate('/verify-otp', { 
+            replace: true, 
+            state: { 
+              email: user.email, 
+              phone: user.phone, 
+              mode: 'register',
+              triggerAutoResend: true
+            } 
+          });
+          return;
+        }
+
         // Update context (this will trigger re-render and navigate)
         window.location.href = user.role === 'admin' ? '/admin' : '/dashboard';
         return;

@@ -3,6 +3,9 @@ import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
 
 const VerifyOTP = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const [otp, setOtp] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -11,13 +14,12 @@ const VerifyOTP = () => {
   const [verificationSuccess, setVerificationSuccess] = useState(false);
   const [timer, setTimer] = useState(30);
   const [canResend, setCanResend] = useState(false);
-
-  const navigate = useNavigate();
-  const location = useLocation();
+  const [isEditingPhone, setIsEditingPhone] = useState(false);
+  const [currentPhone, setCurrentPhone] = useState(location.state?.phone || '');
+  const [tempPhone, setTempPhone] = useState(location.state?.phone || '');
 
   // Email & mode (register or forgot-password)
   const email = location.state?.email;
-  const phone = location.state?.phone;
   const name = location.state?.name || '';
   const mode = location.state?.mode || 'register'; // default is registration
 
@@ -105,20 +107,26 @@ const VerifyOTP = () => {
   };
 
   const handleResendOTP = async (force = false) => {
-    if (!canResend && !force) return;
+    if (!canResend && !force && !isEditingPhone) return;
     
     setError('');
     setSuccessMessage('');
     setResending(true);
-    setTimer(30);
+    
+    // When editing phone, we use the tempPhone
+    const phoneToUse = isEditingPhone ? tempPhone : currentPhone;
 
     try {
-      const result = await resendOTP(email, mode); // optionally pass mode to backend
+      const result = await resendOTP(email, isEditingPhone ? tempPhone : undefined); 
       setSuccessMessage(result.message || 'A new OTP has been sent to your WhatsApp');
+      
+      if (isEditingPhone) {
+        setCurrentPhone(tempPhone);
+        setIsEditingPhone(false);
+      }
+      setTimer(30);
     } catch (err) {
       setError(err.message || 'Failed to resend OTP');
-      // If resend fails, allow user to try again immediately or keep timer?
-      // Usually keep timer to prevent spamming the failure.
     } finally {
       setResending(false);
     }
@@ -160,10 +168,48 @@ const VerifyOTP = () => {
                 ? 'Your phone number has been verified successfully'
                 : 'WhatsApp OTP verified! Redirecting to reset password...'
             ) : (
-              <>
-                We've sent a 6-digit OTP to your WhatsApp<br />
-                <span className="font-medium text-gray-900">{phone || email}</span>
-              </>
+              <div className="space-y-2">
+                <p>We've sent a 6-digit OTP to your WhatsApp</p>
+                {isEditingPhone ? (
+                  <div className="flex items-center justify-center space-x-2 mt-2">
+                    <input
+                      type="text"
+                      value={tempPhone}
+                      onChange={(e) => setTempPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                      className="w-40 px-3 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-orange-500 text-center font-medium text-gray-900"
+                      placeholder="10 digit number"
+                      maxLength="10"
+                    />
+                    <button
+                      onClick={() => handleResendOTP(true)}
+                      disabled={resending || tempPhone.length !== 10}
+                      className="text-white px-3 py-1 rounded-md text-xs font-medium transition"
+                      style={{ backgroundColor: '#FD5B00' }}
+                    >
+                      {resending ? 'Sending...' : 'Save & Resend'}
+                    </button>
+                    <button
+                      onClick={() => {
+                        setIsEditingPhone(false);
+                        setTempPhone(currentPhone);
+                      }}
+                      className="text-gray-500 hover:text-gray-700 text-xs font-medium"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-center space-x-2">
+                    <span className="font-medium text-gray-900">{currentPhone || email}</span>
+                    <button 
+                      onClick={() => setIsEditingPhone(true)}
+                      className="text-xs text-orange-600 hover:underline font-medium"
+                    >
+                      Edit
+                    </button>
+                  </div>
+                )}
+              </div>
             )}
           </p>
         </div>

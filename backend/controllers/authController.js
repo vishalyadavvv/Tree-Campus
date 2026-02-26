@@ -135,7 +135,7 @@ const verifyOTP = async (req, res, next) => {
  */
 const resendOTP = async (req, res, next) => {
   try {
-    const { email } = req.body;
+    const { email, newPhone } = req.body;
 
     const user = await User.findOne({ email });
     if (!user) {
@@ -144,6 +144,23 @@ const resendOTP = async (req, res, next) => {
 
     if (user.isVerified) {
       return res.status(400).json({ success: false, message: 'User already verified' });
+    }
+
+    // If new phone number is provided, update it
+    if (newPhone) {
+      // Validate phone number
+      if (newPhone.length !== 10) {
+        return res.status(400).json({ success: false, message: 'Phone number must be 10 digits' });
+      }
+
+      // Check if phone number is already in use by another user
+      const existingPhone = await User.findOne({ phone: newPhone, _id: { $ne: user._id } });
+      if (existingPhone) {
+        return res.status(400).json({ success: false, message: 'Phone number already registered to another account' });
+      }
+
+      user.phone = newPhone;
+      await user.save();
     }
 
     if (!user.phone) {
@@ -231,29 +248,29 @@ const login = async (req, res, next) => {
       console.log(`🔍 No role provided in request for ${email}, using db_role=${user.role}`);
     }
 
-   const isPasswordMatch = await user.comparePassword(password);
-   console.log('🔍 Password match result:', isPasswordMatch);
+    const isPasswordMatch = await user.comparePassword(password);
+    console.log('🔍 Password match result:', isPasswordMatch);
 
-if (!isPasswordMatch) {
-  return res.status(401).json({
-    success: false,
-    message: 'Invalid credentials'
-  });
-}
-
-    // ✅ AUTO-UPGRADE WORDPRESS HASH / PLAIN TEXT → BCRYPT
-    if (
-      user.password &&
-      (user.password.startsWith("$P$") ||
-       user.password.startsWith("$H$") ||
-       user.password.startsWith("$2y$") ||
-       user.password.startsWith("$wp$2y$") ||
-       !user.password.startsWith("$")) // Plain text
-    ) {
-      console.log("🔄 Upgrading legacy/plain password → bcrypt for", user.email);
-      user.password = password; // Set plain password, pre-save hook will hash it
-      await user.save();
+    if (!isPasswordMatch) {
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid credentials'
+      });
     }
+
+    // ✅ COMMENT OUT OR REMOVE THIS AUTO-UPGRADE SECTION
+    // if (
+    //   user.password &&
+    //   (user.password.startsWith("$P$") ||
+    //    user.password.startsWith("$H$") ||
+    //    user.password.startsWith("$2y$") ||
+    //    user.password.startsWith("$wp$2y$") ||
+    //    !user.password.startsWith("$"))
+    // ) {
+    //   console.log("🔄 Upgrading legacy/plain password → bcrypt for", user.email);
+    //   user.password = password;
+    //   await user.save();
+    // }
 
     if (!user.isVerified) {
       console.warn(`⚠️ User not verified: ${email}`);
@@ -275,13 +292,7 @@ if (!isPasswordMatch) {
     delete userObject.resetPasswordToken;
     delete userObject.resetPasswordExpiry;
 
-    console.log('✅ Login successful, sending user data:', {
-      id: userObject._id,
-      email: userObject.email,
-      role: userObject.role,
-      enrolledCoursesCount: userObject.enrolledCourses?.length || 0,
-      completedLessonsCount: userObject.completedLessons?.length || 0
-    });
+    console.log('✅ Login successful');
 
     res.status(200).json({
       success: true,

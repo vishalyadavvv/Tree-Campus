@@ -163,10 +163,10 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const resendOTP = async (email) => {
+  const resendOTP = async (email, phone) => {
     try {
       setError(null);
-      const response = await authService.resendOTP(email);
+      const response = await authService.resendOTP(email, phone);
       return response;
     } catch (err) {
       setError(err.message || 'Failed to resend OTP');
