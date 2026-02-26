@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../services/api';
+import { useAuth } from '../context/AuthContext';
 import { FiAward, FiDownload, FiArrowRight, FiBookOpen } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import domtoimage from 'dom-to-image-more';
@@ -12,6 +13,7 @@ const Certificate = () => {
     const [downloading, setDownloading] = useState(null);
     const [error, setError] = useState(null);
     const navigate = useNavigate();
+    const { user } = useAuth();
 
     useEffect(() => {
         fetchCertificates();
@@ -74,7 +76,7 @@ const Certificate = () => {
             // Student Name
             doc.setFontSize(32);
             doc.setFont('helvetica', 'bold');
-            const name = cert.userName || 'Student Name';
+            const name = cert.userName || user?.name || '';
             doc.text(name, width / 2, height / 2 + 10, { align: 'center' });
 
             // Course Name
@@ -99,7 +101,7 @@ const Certificate = () => {
             doc.text(`ID: ${cert.certificateNumber}`, width - 120, height - 15);
 
             // Download
-            const fileName = `Certificate-${cert.userName?.replace(/\s+/g, '_') || 'TreeCampus'}-${cert.certificateNumber || 'cert'}.pdf`;
+            const fileName = `Certificate-${(cert.userName || user?.name || 'User').replace(/\s+/g, '_')}-${cert.certificateNumber || 'cert'}.pdf`;
             doc.save(fileName);
             
             toast.success('Certificate downloaded successfully!');
@@ -181,7 +183,7 @@ const Certificate = () => {
                                         <div className="absolute" style={{ top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '50%' }}>
                                             <h2 className="text-xl font-bold text-[#1a252f] text-center border-b-2 border-gray-400 pb-2"
                                                 style={{ fontFamily: "'Montserrat', sans-serif" }}>
-                                                {cert.userName || 'Student Name'}
+                                                {cert.userName || user?.name || ''}
                                             </h2>
                                         </div>
                                         

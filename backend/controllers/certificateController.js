@@ -259,7 +259,7 @@ export const saveCertificateFromMobile = async (req, res) => {
         type: 'assignment',
         score: score,
         courseTitle: course.certificateTitle || courseTitle || course.title,
-        userName: userName,
+        userName: userName || user.name, // Use user.name from DB if not provided
         certificateUrl: certificateUrl || `/certificates/${courseId}`,
         platform: 'mobile',
         issuedAt: new Date()

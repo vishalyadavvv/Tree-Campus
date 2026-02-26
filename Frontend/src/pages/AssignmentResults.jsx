@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import api from '../services/api';
 import { jsPDF } from 'jspdf';
+import { useAuth } from '../context/AuthContext';
 
 const AssignmentResults = () => {
   const { courseId, assignmentId } = useParams();
@@ -9,6 +10,7 @@ const AssignmentResults = () => {
   const location = useLocation();
   const [certificate, setCertificate] = useState(null);
   const [loading, setLoading] = useState(false);
+  const { user } = useAuth();
 
   const { score, passed, totalScore, totalPoints, certificateId } = location.state || {};
 
@@ -69,7 +71,7 @@ const AssignmentResults = () => {
       doc.setFontSize(42);
       doc.setFont('helvetica', 'bold');
       doc.setTextColor(40, 40, 40);
-      const name = certificate?.userName || 'Candidate Name';
+      const name = certificate?.userName || user?.name || '';
       doc.text(name, width / 2, nameLineY - 8, { align: 'center' }); // Above the line
 
       // ✅ DATE SECTION - Bottom left, above DATE label
@@ -89,7 +91,8 @@ const AssignmentResults = () => {
 
       // Add signature or other details if available
 
-      doc.save(`Certificate-${certificate?.userName?.replace(/\s+/g, '_') || 'TreeCampus'}.pdf`);
+      const fileName = (certificate?.userName || user?.name || 'User').replace(/\s+/g, '_');
+      doc.save(`Certificate-${fileName}.pdf`);
     } catch (error) {
       console.error('Error generating certificate:', error);
       alert('Failed to generate certificate. Please try again.');
@@ -154,7 +157,7 @@ const AssignmentResults = () => {
             <div className="border border-[#FD5A00]/20 rounded-lg p-4 mb-6 bg-orange-50">
               <h3 className="text-lg font-bold text-[#FD5A00] mb-2 flex items-center gap-2">🎓 Certificate Earned</h3>
               <p className="text-gray-600 text-sm mb-4">
-                <strong>{certificate?.userName || 'Candidate'}</strong>, your certificate of completion is ready.
+                <strong>{certificate?.userName || user?.name || 'User'}</strong>, your certificate of completion is ready.
               </p>
               <button
                 onClick={handleDownloadCertificate}

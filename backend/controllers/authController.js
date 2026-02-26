@@ -3,6 +3,7 @@ import { generateTokens, generateResetToken } from '../utils/generateToken.js';
 import { sendOTPEmail, sendPasswordResetEmail } from '../utils/sendEmail.js';
 import * as messageCentral from '../utils/messageCentral.js';
 import { verifyRefreshToken } from '../middleware/auth.js';
+import { findWpUserByEmail } from '../utils/wpDatabase.js';
 import bcrypt from 'bcryptjs';
 
 /**
@@ -219,6 +220,66 @@ const login = async (req, res, next) => {
       .populate('certificates');
 
     if (!user) {
+      console.log(`🔍 User ${email} not found in MongoDB. Checking WordPress...`);
+      
+      // ⭐ TRY JIT MIGRATION FROM WORDPRESS
+      const wpUser = await findWpUserByEmail(email);
+      
+      if (wpUser) {
+        console.log(`✅ Found user ${email} in WordPress. ID: ${wpUser.ID}`);
+        
+        // Check password against WP hash
+        // We use the same comparePassword logic but we need an instance of User model
+        // To avoid complexity, we create a temporary instance or just check the hash directly
+        const tempUser = new User({
+          email: wpUser.user_email,
+          password: wpUser.user_pass // WP hash
+        });
+        
+        const isWpPasswordMatch = await tempUser.comparePassword(password);
+        console.log(`🔍 WordPress password match for ${email}:`, isWpPasswordMatch);
+        
+        if (isWpPasswordMatch) {
+          console.log(`🚀 Migrating WordPress user ${email} to MongoDB...`);
+          
+          // Create user in MongoDB
+          const migratedUser = await User.create({
+            name: wpUser.display_name || wpUser.user_login,
+            email: wpUser.user_email,
+            password: password, // This will be hashed as bcrypt by MongoDB pre-save hook
+            role: 'student', // Default migrated users to student
+            isVerified: true, // Assuming migrated WP users are verified (or you can set to false if needed)
+            phone: '0000000000' // Placeholder as WP doesn't have phone in wp_users
+          });
+          
+          console.log(`✅ User ${email} migrated successfully.`);
+          
+          // Use the migrated user for the rest of login logic
+          const tokens = generateTokens(migratedUser._id);
+          
+          return res.status(200).json({
+            success: true,
+            message: 'Login successful (Migrated from WordPress)',
+            data: {
+              user: {
+                id: migratedUser._id,
+                name: migratedUser.name,
+                email: migratedUser.email,
+                role: migratedUser.role,
+                isVerified: migratedUser.isVerified,
+                phone: migratedUser.phone,
+                createdAt: migratedUser.createdAt,
+                profilePicture: '',
+                enrolledCourses: [],
+                completedLessons: [],
+                certificates: [],
+              },
+              ...tokens,
+            },
+          });
+        }
+      }
+
       return res.status(401).json({ 
         success: false, 
         message: 'Invalid credentials' 

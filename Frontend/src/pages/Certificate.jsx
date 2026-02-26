@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../services/api';
-import { useAuth } from '../context/AuthContext';
+import { AuthContext, useAuth } from '../context/AuthContext';
 import { FiAward, FiDownload, FiArrowRight, FiBookOpen } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import domtoimage from 'dom-to-image-more';
@@ -89,7 +89,8 @@ const Certificate = () => {
             doc.setFontSize(32);
             doc.setFont('helvetica', 'bold');
             doc.setTextColor(40, 40, 40);
-            const name = cert.userName || 'Student Name';
+            // Use userName from certificate, fallback to user name from context, then generic string
+            const name = cert.userName || user?.name || '';
             doc.text(name, width / 2, height / 2 + 28, { align: 'center' });
             
             // Date
@@ -108,7 +109,7 @@ const Certificate = () => {
             doc.text(`ID: ${cert.certificateNumber}`, width - 120, height - 15);
 
             // Download
-            const fileName = `Certificate-${cert.userName?.replace(/\s+/g, '_') || 'TreeCampus'}-${cert.certificateNumber || 'cert'}.pdf`;
+            const fileName = `Certificate-${(cert.userName || user?.name || 'User').replace(/\s+/g, '_')}-${cert.certificateNumber || 'cert'}.pdf`;
             doc.save(fileName);
             
             toast.success('Certificate downloaded successfully!');
@@ -190,7 +191,9 @@ const Certificate = () => {
                                         <div className="absolute" style={{ top: '52%', left: '50%', transform: 'translate(-50%, -50%)', width: '60%' }}>
                                             <h2 className="text-3xl font-bold text-[#1a252f] text-center border-y-2 border-gray-300 py-3"
                                                 style={{ fontFamily: "'Montserrat', sans-serif" }}>
-                                                {cert.userName || 'Student Name'}
+                                                <p className="text-gray-600 font-medium">
+                                                    {cert.userName || user?.name || ''}
+                                                </p>
                                             </h2>
                                         </div>
                                         
