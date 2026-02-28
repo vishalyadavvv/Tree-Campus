@@ -229,59 +229,11 @@ const login = async (req, res, next) => {
       if (isMatch) authenticatedUser = user;
     }
 
-    // Step 3: Fallback to WordPress MySQL
-    if (!authenticatedUser) {
-      console.log(`🔍 Fallback: Searching MySQL for ${email}...`);
-      const wpUser = await findWpUserByEmail(email);
-
-      if (wpUser) {
-        console.log(`✅ Found in MySQL. Verifying WordPress hash for ${email}...`);
-
-        const rawHash = wpUser.user_pass.trim();
-        const tempUser = { password: rawHash };
-        const isWpMatch = await User.schema.methods.comparePassword.call(tempUser, password);
-
-        if (isWpMatch) {
-          console.log(`✅ MySQL password matches! Syncing user...`);
-
-          if (user) {
-            // ── User exists in Mongo but password was outdated → update it ──
-            user.password = password; // pre-save hook will bcrypt this
-            // ✅ FIX 5: Better placeholder — includes both timestamp and _id to guarantee uniqueness
-            if (isPlaceholderPhone(user.phone)) {
-              user.phone = `wp_${Date.now()}_${user._id}`;
-            }
-            await user.save({ validateBeforeSave: false });
-            authenticatedUser = user;
-            loginSource = 'sql-sync';
-          } else {
-            // ── User doesn't exist in Mongo at all → migrate them ──
-            authenticatedUser = await User.create({
-              name: wpUser.display_name || wpUser.user_login || 'User',
-              email: wpUser.user_email,
-              password: password, // pre-save hook will bcrypt this
-              role: 'student',
-              isVerified: true,       // trusted from WordPress
-              isWpMigrated: true,     // ✅ FIX 1: mark as migrated so phone unique index is skipped
-              phone: `wp_${Date.now()}`, // placeholder — unique per migration
-              profilePicture: '',
-              enrolledCourses: [],
-              completedLessons: [],
-              certificates: [],
-              savedBlogs: [],
-            });
-            loginSource = 'sql-migration';
-          }
-        } else {
-          console.log(`❌ MySQL password mismatch for ${email}`);
-        }
-      }
-    }
-
     // Step 4: Final result
     if (!authenticatedUser) {
       // ✅ Handle migrated user password expiry prompt
-      if (user || (await findWpUserByEmail(email))) {
+      // If the user exists in the DB but the password was incorrect, trigger the Expiry/OTP modal
+      if (user) {
         return res.status(401).json({ 
           success: false, 
           errorCode: 'PASSWORD_EXPIRED',

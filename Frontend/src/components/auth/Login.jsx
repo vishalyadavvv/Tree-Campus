@@ -50,6 +50,8 @@ const translations = {
     claimAccountMsg: 'This phone number is not registered. If you already have an account, enter your email to link this phone.',
     claimEmailPlaceholder: 'Enter your account email',
     verifyAndLink: 'Verify & Link Phone',
+    showPassword: 'Show',
+    hidePassword: 'Hide',
   },
   hindi: {
     title: 'LMS लॉगिन',
@@ -97,6 +99,8 @@ const translations = {
     claimAccountMsg: 'यह फोन नंबर पंजीकृत नहीं है। यदि आपके पास पहले से ही एक खाता है, तो इस फोन को लिंक करने के लिए अपना ईमेल दर्ज करें।',
     claimEmailPlaceholder: 'अपना खाता ईमेल दर्ज करें',
     verifyAndLink: 'सत्यापित करें और फोन लिंक करें',
+    showPassword: 'दिखाएं',
+    hidePassword: 'छुपाएं',
   }
 };
 
@@ -580,16 +584,26 @@ const Login = () => {
                     <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
                       {t.passwordLabel}
                     </label>
-                    <input
-                      id="password"
-                      name="password"
-                      type="password"
-                      required
-                      value={formData.password}
-                      onChange={handleChange}
-                      className="appearance-none w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FD5A00] focus:border-transparent transition"
-                      placeholder={t.passwordPlaceholder}
-                    />
+                    <div className="relative">
+                      <input
+                        id="password"
+                        name="password"
+                        type={showPassword ? "text" : "password"}
+                        required
+                        value={formData.password}
+                        onChange={handleChange}
+                        className="appearance-none w-full px-4 py-3 pr-16 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FD5A00] focus:border-transparent transition"
+                        placeholder={t.passwordPlaceholder}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-3.5 text-sm font-medium hover:opacity-80 transition"
+                        style={{ color: '#FD5B00' }}
+                      >
+                        {showPassword ? t.hidePassword : t.showPassword}
+                      </button>
+                    </div>
                   </div>
 
                   <div className="flex items-center justify-between">
