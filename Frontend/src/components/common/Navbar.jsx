@@ -37,6 +37,7 @@ export default function Navbar() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userData, setUserData] = useState(null);
   const [userRole, setUserRole] = useState('student');
+  const isUnverified = isLoggedIn && userData && userData.isVerified === false;
 
   // Navigation links data - FIXED: Removed settings from navigation
   const navigation = {
@@ -569,6 +570,22 @@ export default function Navbar() {
               </div>
             </NavLink>
 
+            {/* ⚠️ Verification Banner for unverified users */}
+            {isUnverified && (
+              <div className="flex items-center gap-3 px-4 py-2 bg-yellow-50 border border-yellow-300 rounded-full shadow-sm">
+                <span className="text-yellow-800 text-sm font-semibold">⚠️ Please verify your phone to access all features</span>
+                <NavLink
+                  href="/verify-otp"
+                  state={{ email: userData?.email, phone: userData?.phone, mode: 'register' }}
+                  className="px-3 py-1 bg-orange-500 text-white text-xs font-bold rounded-lg hover:bg-orange-600 transition shadow-sm ml-2"
+                >
+                  Verify Now
+                </NavLink>
+              </div>
+            )}
+
+            {!isUnverified && (
+            <>
             {/* English Course Dropdown */}
             <div 
               className="relative h-full flex items-center"
@@ -716,8 +733,11 @@ export default function Navbar() {
               )}
             </div>
 
+            </>
+            )}
+
             {/* Admin Dashboard Link for Admin Users */}
-            {isLoggedIn && userRole === 'admin' && (
+            {isLoggedIn && !isUnverified && userRole === 'admin' && (
               <NavLink 
                 href={navigation.admin}
                 className="px-6 py-2.5 rounded-full flex items-center bg-gradient-to-r from-purple-500 to-indigo-600 text-white font-bold tracking-wide text-sm shadow-lg hover:shadow-purple-500/30 hover:scale-105 transition-all duration-300 active:scale-95 ml-2"
@@ -955,6 +975,24 @@ export default function Navbar() {
                         <span className="font-semibold text-sm">Home</span>
                       </NavLink>
 
+                      {/* ⚠️ Verification banner in mobile */}
+                      {isUnverified && (
+                        <div className="mx-1 my-3 p-4 bg-yellow-50 border border-yellow-300 rounded-xl">
+                          <p className="text-yellow-800 text-sm font-semibold mb-2">⚠️ Verify Your Account</p>
+                          <p className="text-yellow-700 text-xs mb-3">Please verify your phone number to access courses, live classes, and all features.</p>
+                          <NavLink
+                            href="/verify-otp"
+                            state={{ email: userData?.email, phone: userData?.phone, mode: 'register' }}
+                            onClick={handleLinkClick}
+                            className="block text-center px-4 py-2 bg-orange-500 text-white text-sm font-bold rounded-lg hover:bg-orange-600 transition"
+                          >
+                            Verify Now
+                          </NavLink>
+                        </div>
+                      )}
+
+                      {!isUnverified && (
+                      <div className="w-full">
                       <NavLink
                         href={navigation.liveClasses}
                         onClick={handleLinkClick}
@@ -980,9 +1018,13 @@ export default function Navbar() {
                         <span className="text-xl group-hover:scale-110 transition-transform">👩‍🏫</span>
                         <span className="font-semibold text-sm uppercase">AI Teacher</span>
                       </NavLink>
+                      </div>
+                      )}
                     </div>
 
                     {/* Expandable Sections */}
+                    {!isUnverified && (
+                    <div className="w-full">
                     <div className="space-y-1">
                       {/* English Course */}
                       <div className="px-3">
@@ -1098,6 +1140,8 @@ export default function Navbar() {
                         </div>
                       )}
                     </div>
+                    </div>
+                    )}
                   </div>
 
                   {/* Contact Info in Sidebar */}

@@ -30,7 +30,26 @@ const translations = {
     rightPanelTitle: 'Welcome to TreeCampus',
     rightPanelSubtitle: 'Continue your learning journey and access unlimited courses',
     continueWithGoogle: 'Continue with Google',
-    or: 'OR'
+    or: 'OR',
+    loginModeEmail: 'Login with Email',
+    loginModePhone: 'Login with Phone (OTP)',
+    phoneLabel: 'Phone Number',
+    phonePlaceholder: 'Enter 10-digit phone number',
+    otpLabel: 'OTP',
+    otpPlaceholder: 'Enter 6-digit OTP',
+    sendOTP: 'Send OTP',
+    sendingOTP: 'Sending...',
+    otpSentSuccess: 'OTP sent to your WhatsApp',
+    resendOTP: 'Resend OTP',
+    resendIn: 'Resend OTP in',
+    passwordExpiredTitle: 'Password Expired',
+    passwordExpiredMsg: 'Your password has expired for security reasons. What would you like to do?',
+    switchToPhone: 'Login with Phone OTP',
+    changePassword: 'Change Password',
+    claimAccountTitle: 'Link Your Account',
+    claimAccountMsg: 'This phone number is not registered. If you already have an account, enter your email to link this phone.',
+    claimEmailPlaceholder: 'Enter your account email',
+    verifyAndLink: 'Verify & Link Phone',
   },
   hindi: {
     title: 'LMS लॉगिन',
@@ -58,7 +77,26 @@ const translations = {
     rightPanelTitle: 'LMS में आपका स्वागत है',
     rightPanelSubtitle: 'अपने सीखने की यात्रा को जारी रखें और असीमित कोर्स तक पहुंचें',
     continueWithGoogle: 'गूगल के साथ जारी रखें',
-    or: 'या'
+    or: 'या',
+    loginModeEmail: 'ईमेल से लॉगिन करें',
+    loginModePhone: 'फोन (OTP) से लॉगिन करें',
+    phoneLabel: 'फ़ोन नंबर',
+    phonePlaceholder: '10 अंकों का फ़ोन नंबर दर्ज करें',
+    otpLabel: 'ओटीपी',
+    otpPlaceholder: '6 अंकों का ओटीपी दर्ज करें',
+    sendOTP: 'ओटीपी भेजें',
+    sendingOTP: 'भेजा जा रहा है...',
+    otpSentSuccess: 'आपकी व्हाट्सएप पर ओटीपी भेज दिया गया है',
+    resendOTP: 'ओटीपी पुनः भेजें',
+    resendIn: 'ओटीपी पुनः भेजें ',
+    passwordExpiredTitle: 'पासवर्ड समाप्त हो गया',
+    passwordExpiredMsg: 'सुरक्षा कारणों से आपका पासवर्ड समाप्त हो गया है। आप क्या करना चाहेंगे?',
+    switchToPhone: 'फोन ओटीपी से लॉगिन करें',
+    changePassword: 'पासवर्ड बदलें',
+    claimAccountTitle: 'अपना खाता लिंक करें',
+    claimAccountMsg: 'यह फोन नंबर पंजीकृत नहीं है। यदि आपके पास पहले से ही एक खाता है, तो इस फोन को लिंक करने के लिए अपना ईमेल दर्ज करें।',
+    claimEmailPlaceholder: 'अपना खाता ईमेल दर्ज करें',
+    verifyAndLink: 'सत्यापित करें और फोन लिंक करें',
   }
 };
 
@@ -66,18 +104,30 @@ const translations = {
 const Login = () => {
   const [formData, setFormData] = useState({
     email: '',
-    password: ''
+    password: '',
+    phone: '',
+    otp: ''
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [loginMode, setLoginMode] = useState('email'); // 'email' or 'phone'
+  const [otpSent, setOtpSent] = useState(false);
+  const [otpLoading, setOtpLoading] = useState(false);
+  const [otpMessage, setOtpMessage] = useState('');
+  const [timer, setTimer] = useState(0);
   const [showLanguageDropdown, setShowLanguageDropdown] = useState(false);
   const [showFullScreenWelcome, setShowFullScreenWelcome] = useState(true);
   const [currentLanguage, setCurrentLanguage] = useState(() => {
     const savedLanguage = localStorage.getItem('lms-language');
     return savedLanguage || 'english';
   });
+  const [showExpiryModal, setShowExpiryModal] = useState(false);
+  const [showClaimAccount, setShowClaimAccount] = useState(false);
+  const [claimEmail, setClaimEmail] = useState('');
+  const [claimPassword, setClaimPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
-  const { login, refreshUser } = useContext(AuthContext); // ⭐ ADD refreshUser
+  const { login, refreshUser, requestLoginOTP, loginWithOTP } = useContext(AuthContext); // ⭐ ADD refreshUser
   const navigate = useNavigate();
   const location = useLocation();
   
@@ -85,6 +135,19 @@ const Login = () => {
   const prefillEmail = location.state?.email;
 
   const t = translations[currentLanguage];
+
+  // Timer logic for Resend OTP
+  useEffect(() => {
+    let interval = null;
+    if (timer > 0) {
+      interval = setInterval(() => {
+        setTimer((prev) => prev - 1);
+      }, 1000);
+    } else {
+      clearInterval(interval);
+    }
+    return () => clearInterval(interval);
+  }, [timer]);
 
   const languages = [
     { code: 'english', name: 'English', flag: '🇬🇧' },
@@ -168,7 +231,9 @@ const Login = () => {
     // ⭐ REDIRECT IF ALREADY LOGGED IN (AND NOT DOING OAUTH)
     const storedToken = localStorage.getItem('token');
     const storedUser = localStorage.getItem('user');
-    if (storedToken && storedUser) {
+    
+    // Only redirect if we have stored data AND we aren't currently in the middle of a login process
+    if (storedToken && storedUser && !loading) {
       try {
         const parsedUser = JSON.parse(storedUser);
         
@@ -203,6 +268,45 @@ const Login = () => {
       [e.target.name]: e.target.value
     });
     setError('');
+    setOtpMessage('');
+  };
+
+  const handleSendOTP = async () => {
+    if (!formData.phone || formData.phone.length !== 10) {
+      setError(t.phonePlaceholder);
+      return;
+    }
+
+    setOtpLoading(true);
+    setError('');
+    setOtpMessage('');
+
+    try {
+      // ✅ Include claimEmail if available (Smart Linking)
+      const data = await requestLoginOTP(formData.phone, showClaimAccount ? claimEmail : null);
+
+      if (data.success) {
+        setOtpSent(true);
+        setOtpMessage(t.otpSentSuccess);
+        setTimer(30); // Start 30s timer
+      } else {
+        // ✅ If user not found, show the claim account UI
+        if (data.errorCode === 'USER_NOT_FOUND' || data.errorCode === 'MULTIPLE_ACCOUNTS') {
+          setShowClaimAccount(true);
+        }
+        setError(data.message || 'Failed to send OTP');
+      }
+    } catch (err) {
+      // authService throws err.response?.data directly, so errorCode is on err itself
+      if (err?.errorCode === 'USER_NOT_FOUND' || err?.errorCode === 'MULTIPLE_ACCOUNTS') {
+          setShowClaimAccount(true);
+          setError(err.message || 'Please enter your email to link your account.');
+      } else {
+          setError(err.message || 'Network error. Please try again.');
+      }
+    } finally {
+      setOtpLoading(false);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -213,31 +317,42 @@ const Login = () => {
     
     setError('');
 
-    if (!formData.email || !formData.password) {
-      setError(t.fillAllFields);
-      return;
+    if (loginMode === 'email') {
+      if (!formData.email || !formData.password) {
+        setError(t.fillAllFields);
+        return;
+      }
+    } else {
+      if (!formData.phone || !formData.otp) {
+        setError(t.fillAllFields);
+        return;
+      }
     }
 
     setLoading(true);
 
     try {
-      const result = await login(formData.email, formData.password);
+      let result;
+      if (loginMode === 'email') {
+        result = await login(formData.email, formData.password);
+      } else {
+        // ✅ Include claimEmail and claimPassword for final linking
+        result = await loginWithOTP(
+          formData.phone, 
+          formData.otp, 
+          showClaimAccount ? claimEmail : null,
+          showClaimAccount && claimPassword ? claimPassword : null
+        );
+      }
       
       console.log('✅ Login result:', result);
       
       if (result && result.success) {
-        // ⭐ FETCH FRESH PROFILE DATA FROM DATABASE
-        console.log('🔄 Fetching fresh profile data...');
-        const freshUser = await refreshUser();
-        console.log('✅ Profile data refreshed:', freshUser);
-        
-        // Get user role from REFRESHED user data
-        const userRole = freshUser?.role || result.user?.role;
+        // Get user role from the login result
+        const userRole = result.user?.role || 'student';
         
         console.log('👤 User Role Info:', {
-          fromRefresh: freshUser?.role,
-          fromResult: result.user?.role,
-          finalRole: userRole,
+          role: userRole,
           resultData: result.user
         });
         
@@ -254,6 +369,13 @@ const Login = () => {
         const errorMessage = result?.message || t.loginFailed;
         const errorMsgLower = errorMessage.toLowerCase();
 
+        // ✅ CHECK FOR PASSWORD EXPIRED ERROR FIRST
+        if (result?.errorCode === 'PASSWORD_EXPIRED') {
+          setShowExpiryModal(true);
+          setLoading(false);
+          return;
+        }
+
         // ⭐ PRIORITIZE VERIFICATION REDIRECT
         if (errorMsgLower.includes('verify your email') || errorMsgLower.includes('verify your phone')) {
           console.log('User not verified. Redirecting to verification page...', result.phone);
@@ -262,7 +384,7 @@ const Login = () => {
             replace: true, 
             state: { 
               email: formData.email, 
-              phone: result.phone, 
+              phone: result.phone || formData.phone, 
               mode: 'register', 
               triggerAutoResend: true 
             } 
@@ -295,6 +417,13 @@ const Login = () => {
         } else {
           errorMessage = responseMsg || t.loginFailed;
         }
+
+        // ✅ CHECK FOR PASSWORD EXPIRED ERROR
+        if (err.response?.data?.errorCode === 'PASSWORD_EXPIRED') {
+          setShowExpiryModal(true);
+          setLoading(false);
+          return;
+        }
       }
       
       setError(errorMessage);
@@ -303,23 +432,7 @@ const Login = () => {
   };
   return (
     <>
-      {showFullScreenWelcome && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#FD5B00] animate-fade-in">
-          <div className="text-center text-white px-4">
-            <div className="mb-8 animate-bounce-slow">
-              <svg className="w-24 h-24 mx-auto text-white" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 3L1 9l4 2.18v6L12 21l7-3.82v-6l2-1.09V17h2V9L12 3zm6.82 6L12 12.72 5.18 9 12 5.28 18.82 9zM17 15.99l-5 2.73-5-2.73v-3.72L12 15l5-2.73v3.72z"/>
-              </svg>
-            </div>
-            <h1 className="text-5xl md:text-6xl font-bold mb-4 animate-slide-up">
-              {t.welcomeTitle}
-            </h1>
-            <p className="text-xl md:text-2xl text-orange-100 animate-slide-up-delay">
-              {t.welcomeSubtitle}
-            </p>
-          </div>
-        </div>
-      )}
+
 
       <div className="min-h-screen bg-gradient-to-br from-green-50 via-blue-50 to-teal-50 flex items-center justify-center p-4 relative">
         <div className="absolute top-4 right-4 z-40">
@@ -398,6 +511,30 @@ const Login = () => {
               </div>
             )}
 
+            {otpMessage && (
+              <div className="mb-6 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg flex items-center gap-2">
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+                <p className="text-sm font-medium">{otpMessage}</p>
+              </div>
+            )}
+
+            <div className="flex bg-gray-100 p-1 rounded-xl mb-6">
+              <button 
+                onClick={() => { setLoginMode('email'); setError(''); setOtpMessage(''); }}
+                className={`flex-1 py-2 text-sm font-medium rounded-lg transition ${loginMode === 'email' ? 'bg-white shadow-sm text-[#FD5B00]' : 'text-gray-500 hover:text-gray-700'}`}
+              >
+                {t.loginModeEmail}
+              </button>
+              <button 
+                onClick={() => { setLoginMode('phone'); setError(''); setOtpMessage(''); }}
+                className={`flex-1 py-2 text-sm font-medium rounded-lg transition ${loginMode === 'phone' ? 'bg-white shadow-sm text-[#FD5B00]' : 'text-gray-500 hover:text-gray-700'}`}
+              >
+                {t.loginModePhone}
+              </button>
+            </div>
+
             <div className="space-y-4">
               <button
                 onClick={() => window.location.href = `${import.meta.env.VITE_API_ORIGIN}/api/auth/google`}
@@ -421,45 +558,168 @@ const Login = () => {
             <form className="space-y-5" onSubmit={handleSubmit}>
 
 
-              <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                  {t.emailLabel}
-                </label>
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  required
-                  value={formData.email}
-                  onChange={handleChange}
-                  className="appearance-none w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FD5A00] focus:border-transparent transition"
-                  placeholder={t.emailPlaceholder}
-                />
-              </div>
+              {loginMode === 'email' ? (
+                <>
+                  <div>
+                    <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                      {t.emailLabel}
+                    </label>
+                    <input
+                      id="email"
+                      name="email"
+                      type="email"
+                      required
+                      value={formData.email}
+                      onChange={handleChange}
+                      className="appearance-none w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FD5A00] focus:border-transparent transition"
+                      placeholder={t.emailPlaceholder}
+                    />
+                  </div>
 
-              <div>
-                <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-                  {t.passwordLabel}
-                </label>
-                <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  required
-                  value={formData.password}
-                  onChange={handleChange}
-                  className="appearance-none w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FD5A00] focus:border-transparent transition"
-                  placeholder={t.passwordPlaceholder}
-                />
-              </div>
+                  <div>
+                    <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+                      {t.passwordLabel}
+                    </label>
+                    <input
+                      id="password"
+                      name="password"
+                      type="password"
+                      required
+                      value={formData.password}
+                      onChange={handleChange}
+                      className="appearance-none w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FD5A00] focus:border-transparent transition"
+                      placeholder={t.passwordPlaceholder}
+                    />
+                  </div>
 
-              <div className="flex items-center justify-between">
-                <div className="text-sm">
-                  <Link to="/forgot-password" className="font-medium text-[#FD5B00] hover:text-black transition">
-                    {t.forgotPassword}
-                  </Link>
-                </div>
-              </div>
+                  <div className="flex items-center justify-between">
+                    <div className="text-sm">
+                      <Link to="/forgot-password" className="font-medium text-[#FD5B00] hover:text-black transition">
+                        {t.forgotPassword}
+                      </Link>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                 <>
+                  {showClaimAccount && (
+                    <div className="p-4 bg-orange-50 border border-orange-200 rounded-xl mb-4 animate-fade-in text-left">
+                      <h4 className="flex items-center text-orange-800 font-bold mb-1">
+                        <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        {t.claimAccountTitle}
+                      </h4>
+                      <p className="text-sm text-orange-700 mb-3 leading-relaxed">{t.claimAccountMsg}</p>
+                      
+                      <div className="space-y-3">
+                        <input
+                          type="email"
+                          value={claimEmail}
+                          onChange={(e) => setClaimEmail(e.target.value)}
+                          placeholder={t.claimEmailPlaceholder}
+                          className="w-full px-4 py-2 border border-orange-300 rounded-lg focus:ring-2 focus:ring-[#FD5A00] outline-none"
+                        />
+                        
+                        {/* ✅ Password field for Smart Linking */}
+                        <div className="relative">
+                          <input
+                            type={showPassword ? 'text' : 'password'}
+                            value={claimPassword}
+                            onChange={(e) => setClaimPassword(e.target.value)}
+                            placeholder="Create a new password"
+                            className="w-full px-4 py-2 border border-orange-300 rounded-lg focus:ring-2 focus:ring-[#FD5A00] outline-none pr-10"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-[#FD5B00] transition-colors"
+                          >
+                            {showPassword ? (
+                              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.29 3.29m0 0a10.05 10.05 0 015.188-1.583 10.05 10.05 0 019.543 7 10.05 10.05 0 01-1.563 3.029m-5.858.908l3.29 3.29" />
+                              </svg>
+                            ) : (
+                              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                              </svg>
+                            )}
+                          </button>
+                        </div>
+                        <p className="text-xs text-orange-600 font-medium">This will be your new password to login with Email + Password</p>
+                      </div>
+                    </div>
+                  )}
+
+                  <div>
+                    <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
+                      {t.phoneLabel}
+                    </label>
+                    <div className="flex space-x-2">
+                      <input
+                        id="phone"
+                        name="phone"
+                        type="tel"
+                        required
+                        value={formData.phone}
+                        onChange={handleChange}
+                        className="appearance-none flex-1 px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FD5A00] focus:border-transparent transition"
+                        placeholder={t.phonePlaceholder}
+                      />
+                      <button
+                        type="button"
+                        onClick={handleSendOTP}
+                        disabled={otpLoading || formData.phone.length !== 10}
+                        className="px-4 py-2 bg-orange-100 text-[#FD5B00] font-medium rounded-lg hover:bg-orange-200 transition disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+                      >
+                        {otpLoading ? t.sendingOTP : (showClaimAccount ? t.verifyAndLink : t.sendOTP)}
+                      </button>
+                    </div>
+                  </div>
+
+                  {otpSent && (
+                    <div className="space-y-3">
+                      <div>
+                        <label htmlFor="otp" className="block text-sm font-medium text-gray-700 mb-2">
+                          {t.otpLabel}
+                        </label>
+                        <input
+                          id="otp"
+                          name="otp"
+                          type="text"
+                          required
+                          maxLength="6"
+                          value={formData.otp}
+                          onChange={handleChange}
+                          className="appearance-none w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FD5A00] focus:border-transparent transition text-center tracking-widest font-bold text-xl"
+                          placeholder={t.otpPlaceholder}
+                        />
+                      </div>
+                      
+                      <div className="flex justify-end pr-1">
+                        {timer > 0 ? (
+                          <span className="text-sm text-gray-500 font-medium">
+                            {t.resendIn} {timer}s
+                          </span>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={handleSendOTP}
+                            disabled={otpLoading}
+                            className="text-sm font-bold text-[#FD5B00] hover:text-black transition-colors flex items-center gap-1"
+                          >
+                            {otpLoading ? (
+                              <div className="w-3 h-3 border-2 border-[#FD5B00] border-t-transparent rounded-full animate-spin"></div>
+                            ) : null}
+                            {t.resendOTP}
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </>
+              )}
 
               <button
                 type="submit"
@@ -486,9 +746,7 @@ const Login = () => {
                 </Link>
               </p>
 
-              <p className="text-center text-xs text-gray-500 mt-4">
-                Looking for your <Link to="/certificate" className="text-[#FD5B00] hover:underline font-medium">Certificates</Link>?
-              </p>
+              
             </form>
           </div>
 
@@ -533,32 +791,18 @@ const Login = () => {
 
         <style>{`
           @keyframes fade-in {
-            from {
-              opacity: 0;
-            }
-            to {
-              opacity: 1;
-            }
+            from { opacity: 0; }
+            to { opacity: 1; }
           }
           
           @keyframes slide-up {
-            from {
-              transform: translateY(30px);
-              opacity: 0;
-            }
-            to {
-              transform: translateY(0);
-              opacity: 1;
-            }
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
           }
           
           @keyframes bounce-slow {
-            0%, 100% {
-              transform: translateY(0);
-            }
-            50% {
-              transform: translateY(-20px);
-            }
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
           }
           
           .animate-fade-in {
@@ -577,6 +821,50 @@ const Login = () => {
             animation: bounce-slow 2s ease-in-out infinite;
           }
         `}</style>
+
+        {/* Password Expired Modal */}
+        {showExpiryModal && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
+            <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 transform animate-slide-up">
+              <div className="text-center">
+                <div className="w-20 h-20 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <svg className="w-10 h-10 text-[#FD5B00]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m0 0v2m0-2h2m-2 0H10m4-11a4 4 0 11-8 0 4 4 0 018 0zM7 10v4a5 5 0 0010 0v-4" />
+                  </svg>
+                </div>
+                <h3 className="text-2xl font-bold text-gray-900 mb-2">{t.passwordExpiredTitle}</h3>
+                <p className="text-gray-600 mb-8">{t.passwordExpiredMsg}</p>
+                
+                <div className="space-y-3">
+                  <button
+                    onClick={() => {
+                      setShowExpiryModal(false);
+                      navigate('/forgot-password', { state: { email: formData.email } });
+                    }}
+                    className="w-full py-3 bg-[#FD5B00] text-white font-bold rounded-xl hover:bg-black transition transform hover:-translate-y-1 cursor-pointer"
+                  >
+                    {t.changePassword}
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowExpiryModal(false);
+                      setLoginMode('phone');
+                    }}
+                    className="w-full py-3 bg-white border-2 border-[#FD5B00] text-[#FD5B00] font-bold rounded-xl hover:bg-orange-50 transition cursor-pointer"
+                  >
+                    {t.switchToPhone}
+                  </button>
+                  <button
+                    onClick={() => setShowExpiryModal(false)}
+                    className="w-full py-2 text-gray-500 text-sm hover:text-gray-700 transition cursor-pointer"
+                  >
+                    Dismiss
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </>
   );

@@ -137,7 +137,66 @@ export const AuthProvider = ({ children }) => {
       return {
         success: false,
         message: err.message || "Login failed",
+        errorCode: err.errorCode || null,
         phone: err.phone
+      };
+    }
+  };
+
+  const requestLoginOTP = async (phone, email = null) => {
+    try {
+      setError(null);
+      const response = await authService.requestLoginOTP(phone, email);
+      return response;
+    } catch (err) {
+      setError(err.message || 'Failed to send OTP');
+      throw err;
+    }
+  };
+
+  const loginWithOTP = async (phone, otp, email = null, newPassword = null) => {
+    try {
+      setError(null);
+      setLoading(true);
+
+      const response = await authService.loginWithOTP(phone, otp, email, newPassword);
+      const apiData = response.data;
+
+      if (!apiData || apiData.success === false) {
+        throw new Error(apiData?.message || "Invalid OTP");
+      }
+
+      // Save tokens
+      if (apiData.data?.accessToken) { 
+        localStorage.setItem('token', apiData.data.accessToken);
+        localStorage.setItem('authTimestamp', Date.now().toString());
+      }
+      if (apiData.data?.refreshToken) {
+        localStorage.setItem('refreshToken', apiData.data.refreshToken);
+      }
+
+      // Save user
+      if (apiData.data?.user) {
+        const userData = apiData.data.user;
+        localStorage.setItem('user', JSON.stringify(userData));
+        setUser(userData);
+      }
+
+      setLoading(false);
+
+      return {
+        success: apiData.success,
+        user: apiData.data.user,
+        message: apiData.message
+      };
+    } catch (err) {
+      console.error('OTP login error:', err);
+      setError(err.message || "Login failed");
+      setLoading(false);
+      
+      return {
+        success: false,
+        message: err.message || "Login failed"
       };
     }
   };
@@ -245,6 +304,8 @@ export const AuthProvider = ({ children }) => {
     login,
     logout,
     register,
+    requestLoginOTP,
+    loginWithOTP,
     verifyOTP,
     resendOTP,
     checkAuth

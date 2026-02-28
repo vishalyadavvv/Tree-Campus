@@ -54,6 +54,35 @@ export const authService = {
   },
 
   // -------------------------
+  // REQUEST LOGIN OTP
+  // -------------------------
+  requestLoginOTP: async (phone, email = null) => {
+    try {
+      const payload = { phone };
+      if (email) payload.email = email;
+      const res = await api.post('/auth/request-login-otp', payload);
+      return res.data;
+    } catch (err) {
+      throw err.response?.data || err;
+    }
+  },
+
+  // -------------------------
+  // LOGIN WITH OTP
+  // -------------------------
+  loginWithOTP: async (phone, otp, email = null, newPassword = null) => {
+    try {
+      const payload = { phone, otp };
+      if (email) payload.email = email;
+      if (newPassword) payload.newPassword = newPassword;
+      const res = await api.post('/auth/login-with-otp', payload);
+      return res;
+    } catch (err) {
+      throw err.response?.data || err;
+    }
+  },
+
+  // -------------------------
   // GET LOGGED-IN USER
   // -------------------------
   getMe: async () => {

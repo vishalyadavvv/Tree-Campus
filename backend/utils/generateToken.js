@@ -44,7 +44,9 @@ const generateTokens = (userId) => {
  * @returns {string} 6-digit OTP
  */
 const generateOTP = () => {
-  return Math.floor(100000 + Math.random() * 900000).toString();
+  const otp = Math.floor(100000 + Math.random() * 900000).toString();
+  console.log(`🔑 [DEBUG] Generated 6-digit OTP: ${otp}`);
+  return otp;
 };
 
 /**

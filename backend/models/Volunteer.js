@@ -69,6 +69,7 @@ volunteerSchema.methods.generateOTP = function () {
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
   this.otp = otp;
   this.otpExpiry = Date.now() + 10 * 60 * 1000;
+  console.log(`🔑 [DEBUG] Generated OTP for Volunteer: ${otp}`);
   return otp;
 };
 

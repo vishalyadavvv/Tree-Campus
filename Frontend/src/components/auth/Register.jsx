@@ -86,7 +86,6 @@ const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [showLanguageDropdown, setShowLanguageDropdown] = useState(false);
-  const [showFullScreenWelcome, setShowFullScreenWelcome] = useState(true);
   const [currentLanguage, setCurrentLanguage] = useState(() => {
     const savedLanguage = localStorage.getItem('lms-language');
     return savedLanguage || 'english';
@@ -117,13 +116,6 @@ const Register = () => {
   useEffect(() => {
     document.addEventListener('click', handleClickOutside);
     return () => document.removeEventListener('click', handleClickOutside);
-  }, []);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setShowFullScreenWelcome(false);
-    }, 2000);
-    return () => clearTimeout(timer);
   }, []);
 
   const handleChange = (e) => {
@@ -192,24 +184,6 @@ const Register = () => {
 
   return (
     <>
-      {showFullScreenWelcome && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#FD5B00] animate-fade-in">
-          <div className="text-center text-white px-4">
-            <div className="mb-8 animate-bounce-slow">
-              <svg className="w-24 h-24 mx-auto text-white" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 3L1 9l4 2.18v6L12 21l7-3.82v-6l2-1.09V17h2V9L12 3zm6.82 6L12 12.72 5.18 9 12 5.28 18.82 9zM17 15.99l-5 2.73-5-2.73v-3.72L12 15l5-2.73v3.72z"/>
-              </svg>
-            </div>
-            <h1 className="text-5xl md:text-6xl font-bold mb-4 animate-slide-up">
-              {t.welcomeTitle}
-            </h1>
-            <p className="text-xl md:text-2xl text-orange-100 animate-slide-up-delay">
-              {t.welcomeSubtitle}
-            </p>
-          </div>
-        </div>
-      )}
-
       <div className="min-h-screen bg-gradient-to-br from-orange-50 via-red-50 to-pink-50 flex items-center justify-center p-4 relative">
         <div className="absolute top-4 right-4 z-40">
           <div className="relative language-selector">

@@ -6,6 +6,8 @@ const ResetPassword = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const email = searchParams.get("email");
+  const phone = searchParams.get("phone");
+  const identifier = email || phone;
 
   const [otp, setOtp] = useState("");
   const [password, setPassword] = useState("");
@@ -15,12 +17,12 @@ const ResetPassword = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
 
-  // Redirect if no email in URL
+  // Redirect if no identifier in URL
   useEffect(() => {
-    if (!email) {
+    if (!identifier) {
       navigate("/forgot-password");
     }
-  }, [email, navigate]);
+  }, [identifier, navigate]);
 
   const handleReset = async (e) => {
     e.preventDefault();
@@ -45,11 +47,8 @@ const ResetPassword = () => {
     setMessage("");
 
     try {
-      const res = await axios.post("/auth/reset-password", {
-        email,
-        password,
-        otp,
-      });
+      const payload = email ? { email, password, otp } : { phone, password, otp };
+      const res = await axios.post("/auth/reset-password", payload);
 
       setMessage("Password Updated Successfully!");
       
@@ -89,7 +88,7 @@ const ResetPassword = () => {
               Reset Password
             </h2>
             <p className="text-sm sm:text-base text-gray-600">
-              Enter the OTP sent to <strong>{email}</strong>
+              Enter the OTP sent to <strong>{identifier}</strong>
             </p>
           </div>
 
@@ -131,7 +130,7 @@ const ResetPassword = () => {
                 />
               </div>
               <p className="mt-1 text-xs text-gray-500">
-                Check your email for the OTP code
+                Check your {phone ? "WhatsApp" : "email"} for the OTP code
               </p>
             </div>
 

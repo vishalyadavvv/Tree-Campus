@@ -15,6 +15,8 @@ import {
   logout,
   getProfile, // ✅ Import getProfile
   completeGoogleProfile, // ✅ Import completeGoogleProfile
+  requestLoginOTP,
+  loginWithOTP,
 } from '../controllers/authController.js';
 
 import { validateSignup, validateLogin, validateOTP, validate } from '../middleware/validate.js';
@@ -37,6 +39,18 @@ router.post('/resend-otp', [
 // Login
 router.post('/login', validateLogin, login);
 
+// Login with OTP
+router.post('/request-login-otp', [
+  body('phone').isLength({ min: 10, max: 10 }).withMessage('Phone number must be 10 digits'),
+  validate
+], requestLoginOTP);
+
+router.post('/login-with-otp', [
+  body('phone').isLength({ min: 10, max: 10 }).withMessage('Phone number must be 10 digits'),
+  body('otp').isLength({ min: 6, max: 6 }).withMessage('OTP must be 6 digits'),
+  validate
+], loginWithOTP);
+
 // Refresh token
 router.post('/refresh-token', [
   body('refreshToken').notEmpty().withMessage('Refresh token is required'),
@@ -44,15 +58,16 @@ router.post('/refresh-token', [
 ], refreshToken);
 
 
-// ✅ Forgot password - Clean route, logic in controller
+// ✅ Forgot password - email is optional (user may provide phone only)
 router.post('/forgot-password', [
-  body('email').isEmail().withMessage('Valid email is required'),
+  body('email').optional({ values: 'falsy' }).isEmail().withMessage('Valid email is required'),
+  body('phone').optional({ values: 'falsy' }).isLength({ min: 10, max: 10 }).withMessage('Phone must be 10 digits'),
   validate
 ], forgotPassword);
 
-// ✅ Reset password - Clean route, logic in controller  
+// ✅ Reset password - email is optional (user may identify by phone)
 router.post('/reset-password', [
-  body('email').isEmail().withMessage('Valid email is required'),
+  body('email').optional({ values: 'falsy' }).isEmail().withMessage('Valid email is required'),
   body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
   validate
 ], resetPassword);

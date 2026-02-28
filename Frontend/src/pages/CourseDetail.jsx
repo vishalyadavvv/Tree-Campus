@@ -867,7 +867,27 @@ const CourseOverview = () => {
 
                         <div className="flex flex-col items-end gap-2">
                           {isAuthenticated && isEnrolled ? (
-                            assignmentEligibility[assignment._id]?.canTake ? (
+                            assignmentEligibility[assignment._id]?.alreadyPassed ? (
+                              <div className="text-right">
+                                <span className="inline-flex items-center gap-1 px-4 py-2 bg-green-100 text-green-600 rounded-lg font-bold text-sm">
+                                  <FiCheckCircle size={14} />
+                                  Passed
+                                </span>
+                                <button
+                                  onClick={() => navigate(`/courses/${id}/assignment/${assignment._id}/results`, {
+                                    state: {
+                                      score: assignmentEligibility[assignment._id].score,
+                                      passed: true,
+                                      certificateId: assignmentEligibility[assignment._id].certificateId
+                                    }
+                                  })}
+                                  className="mt-2 text-[#FC5A00] hover:text-[#FF6B1A] font-bold text-sm flex items-center gap-1 bg-orange-50 px-3 py-1.5 rounded-lg transition-colors border border-orange-100"
+                                >
+                                  View Result & Certificate
+                                  <FiChevronRight size={14} />
+                                </button>
+                              </div>
+                            ) : assignmentEligibility[assignment._id]?.canTake ? (
                               <button
                                 onClick={() => navigate(`/courses/${id}/assignment/${assignment._id}`)}
                                 className="bg-[#FC5A00] hover:bg-[#FF6B1A] text-white px-6 py-2.5 rounded-lg font-bold transition-colors flex items-center gap-2"

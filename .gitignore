@@ -56,6 +56,7 @@ scripts/
 !composer.json
 !*.config.json
 !tsconfig.json
+!backend/utils/phoneEmailMap.json
 
 # Specific tracked junk to ignore
 server_check.json
@@ -82,6 +83,15 @@ backend/seed/
 **/check_*.js
 **/migrate_*.js
 **/verify_*.js
+**/inspect_*.js
+**/investigate_*.js
+**/analyze_*.js
+**/list_*.js
+**/diagnose_*.js
+**/fix_*.js
+**/apply_*.js
+find_user_by_id.js
+backend/find_user_by_id.js
 
 # Database and State
 db_state.txt
@@ -98,3 +108,32 @@ question_*.txt
 *backup/
 *treecampus_wp_xoyw1(1).sql
 
+
+# ----------------------------------------
+# Recent One-Off Fix and Debug Scripts
+# ----------------------------------------
+users_clean.csv
+fix_otp_logic_v2.js
+fix_auth_controller_v3.js
+
+# Specific diagnostic / reporting files in backend
+backend/csv_dup_report.txt
+backend/duplicate_report.txt
+backend/final_audit_report.txt
+backend/final_stats.txt
+backend/invalid_phones_list.txt
+backend/users_debug_report.txt
+backend/users_meta_report.txt
+backend/wp_debug_report.txt
+backend/wp_options_report.txt
+backend/bcrypt_diag.txt
+backend/debug_hit.txt
+backend/user_details.txt
+backend/verify_output.txt
+
+# New runner scripts
+backend/test.js
+backend/server.js
+backend/verify_email.js
+backend/server.jsp_user.js
+backend/test.jsgate_meta.js

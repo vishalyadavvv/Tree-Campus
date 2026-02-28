@@ -1,25 +1,36 @@
 import React, { useState } from "react";
 import axios from "../../services/api";
-import { useNavigate } from "react-router-dom"; // ✅ Add useNavigate
+import { useNavigate, useLocation } from "react-router-dom"; // ✅ Add useLocation
+import { useEffect } from "react";
 
 const ForgotPassword = () => {
-  const [email, setEmail] = useState("");
+  const location = useLocation();
+  const prefilledEmail = location.state?.email || "";
+  
+  const [email, setEmail] = useState(prefilledEmail);
+  const [phone, setPhone] = useState("");
   const [message, setMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const navigate = useNavigate(); // ✅ Initialize navigate
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
     setMessage(""); // Clear previous messages
-
+   
     try {
-      const res = await axios.post("/auth/forgot-password", { email });
+      // Send either email or phone depending on what's available
+      // ✅ Send both for migrated users to assist backend lookup
+      const payload = { email, phone };
+      const res = await axios.post("/auth/forgot-password", payload);
       setMessage(res.data.message);
-
-      // ✅ Navigate to reset password page with email
+    
+      // ✅ Navigate to reset password page with both identifiers if available
       setTimeout(() => {
-        navigate(`/reset-password?email=${email}`);
+        const params = new URLSearchParams();
+        if (email) params.append("email", email);
+        if (phone) params.append("phone", phone);
+        navigate(`/reset-password?${params.toString()}`);
       }, 1500);
 
     } catch (err) {
@@ -45,15 +56,18 @@ const ForgotPassword = () => {
               </svg>
             </div>
             <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-2">
-              Forgot Password?
+              {prefilledEmail ? "Verify Identity" : "Forgot Password?"}
             </h2>
             <p className="text-sm sm:text-base text-gray-600">
-              Enter your registered email and we'll send you an OTP on WhatsApp to reset your password
+              {prefilledEmail 
+                ? `To reset your password for ${prefilledEmail}, please enter your registered Phone Number to receive a WhatsApp OTP.`
+                : "Enter your registered Phone Number and we'll send you an OTP on WhatsApp to reset your password"}
             </p>
           </div>
 
           {/* Form */}
           <div className="space-y-6">
+            {/* Email Field */}
             <div>
               <label
                 htmlFor="email"
@@ -63,24 +77,13 @@ const ForgotPassword = () => {
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <svg
-                    className="h-5 w-5 text-gray-400"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"
-                    />
+                  <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
                   </svg>
                 </div>
                 <input
                   id="email"
                   type="email"
-                  required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="Enter your registered email"
@@ -89,9 +92,37 @@ const ForgotPassword = () => {
               </div>
             </div>
 
+            {/* Phone Field */}
+            <div>
+              <label
+                htmlFor="phone"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
+                Phone Number (for OTP)
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                  </svg>
+                </div>
+                <input
+                  id="phone"
+                  type="tel"
+                  required
+                  maxLength="10"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value.replace(/\D/g, ''))}
+                  placeholder="Enter 10-digit phone number"
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-sm sm:text-base"
+                />
+              </div>
+              <p className="text-xs text-gray-500 mt-1">We'll send a WhatsApp OTP to this number</p>
+            </div>
+
             <button
               onClick={handleSubmit}
-              disabled={isLoading || !email}
+              disabled={isLoading || !phone || phone.length !== 10}
               className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 shadow-lg hover:shadow-xl text-sm sm:text-base"
             >
               {isLoading ? (

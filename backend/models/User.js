@@ -24,16 +24,15 @@ const userSchema = new mongoose.Schema(
       trim: true,
       required: function() { return !this.googleId; },
       validate: {
-        validator: function(v) {
-          // Allow undefined/null for Google users or if field is being cleared and not required
-          if (!v) {
-            return this.googleId ? true : false;
-          }
-          // If value exists, it must be 10 digits
-          return v.length === 10;
-        },
-        message: "Phone number must be 10 digits"
-      }
+  validator: function(v) {
+    if (!v) {
+      return this.googleId ? true : false;
+    }
+    if (v.startsWith('wp_')) return true; // allow WordPress migrated users
+    return v.length === 10;
+  },
+  message: "Phone number must be 10 digits"
+}
     },
 
     password: {
@@ -99,7 +98,10 @@ const userSchema = new mongoose.Schema(
 userSchema.index({ email: 1 }, { unique: true, sparse: true });
 userSchema.index({ phone: 1 }, { 
   unique: true, 
-  partialFilterExpression: { phone: { $type: "string" } } 
+  partialFilterExpression: { 
+    phone: { $type: "string" },
+    isWpMigrated: { $ne: true }  // wp_ users skip unique check
+  } 
 });
 
 // ----------------------------------
@@ -126,69 +128,78 @@ userSchema.pre("save", async function () {
 });
 
 // Compare password
-// Compare password
-// Compare password
-// Compare password
-// Compare password
 // Update your comparePassword method in User.js:
 
 userSchema.methods.comparePassword = async function (candidatePassword) {
-  if (!this.password) return false;
-
-  const hash = this.password;
-  console.log("🔍 [DEBUG] Original Hash in DB:", hash);
-
-  // Handle WordPress bcrypt ($2y$)
-  if (hash.startsWith("$2y$")) {
-    console.log("🔍 [DEBUG] Found $2y$ hash, converting to $2b$ for comparison");
-    
-    // Convert $2y$ to $2b$ for bcrypt comparison
-    const convertedHash = "$2b$" + hash.substring(4);
-    console.log("🔍 [DEBUG] Converted hash:", convertedHash);
-    
-    try {
-      const match = await bcrypt.compare(candidatePassword, convertedHash);
-      console.log("🔍 [DEBUG] Bcrypt comparison result:", match);
-      return match;
-    } catch (e) {
-      console.error("❌ Bcrypt comparison error:", e.message);
-      
-      // Try with original $2y$ as fallback
-      try {
-        const match = await bcrypt.compare(candidatePassword, hash);
-        console.log("🔍 [DEBUG] Bcrypt comparison with original $2y$:", match);
-        return match;
-      } catch (e2) {
-        console.error("❌ Bcrypt comparison with $2y$ also failed:", e2.message);
-        return false;
-      }
-    }
+  if (!this.password || !candidatePassword) {
+    console.log("🔍 [DEBUG] Missing password or candidate");
+    return false;
   }
 
-  // Handle WordPress phpass ($P$ or $H$)
-  if (hash.startsWith("$P$") || hash.startsWith("$H$")) {
+  let hash = this.password.trim();
+  
+  // 1. Strip $wp$ prefix if present
+if (hash.startsWith("$wp$")) {
+  hash = hash.replace("$wp$", "$"); // replace "$wp$" with just "$"
+}
+
+  // 2. Format Detection
+  const isPHPass = hash.startsWith("$P$") || hash.startsWith("$H$");
+  const isBcrypt = hash.startsWith("$2y$") || hash.startsWith("$2a$") || hash.startsWith("$2b$");
+  const isMD5 = !hash.startsWith("$") && hash.length === 32;
+
+  console.log("🔍 [DEBUG] Password Check:", {
+    hashStart: hash.substring(0, 10),
+    candidateLength: candidatePassword.length,
+    format: isPHPass ? "PHPass" : (isBcrypt ? "Bcrypt" : (isMD5 ? "MD5" : "Unknown"))
+  });
+
+  // 3. Handle WordPress Portable Hashes ($P$ or $H$)
+  if (isPHPass) {
+    console.log("🔍 [DEBUG] Using wordpress-hash-node (Portable)");
     return wpHasher.CheckPassword(candidatePassword, hash);
   }
 
-  // Handle MD5
-  if (!hash.startsWith("$") && hash.length === 32) {
-    const md5Hash = crypto.createHash("md5").update(candidatePassword).digest("hex");
-    return md5Hash === hash;
-  }
+    // 4. Handle Bcrypt Hashes ($2y$, $2a$, $2b$)
+  if (isBcrypt) {
+    // CRITICAL: Standardize $2y$ to $2a$ for library compatibility
+    const normalizedHash = hash.replace(/^\$2y\$/, '$2a$');
+    console.log("🔍 [DEBUG] Using bcryptjs (Normalized to $2a$)");
+    
+    // Hex Debug
+    const candidateHex = Buffer.from(candidatePassword).toString('hex');
+    const hashHex = Buffer.from(normalizedHash).toString('hex');
+    console.log(`🔍 [DEBUG] HEX: cand=${candidateHex}, hash=${hashHex.substring(0, 20)}...`);
 
-  // Standard bcrypt ($2a$ or $2b$)
-  if (hash.startsWith("$2a$") || hash.startsWith("$2b$")) {
     try {
-      return await bcrypt.compare(candidatePassword, hash);
+      // Try exact password
+      let match = await bcrypt.compare(candidatePassword, normalizedHash);
+      
+      // Fallback: Try trimmed password if exact fails
+      if (!match && candidatePassword.trim() !== candidatePassword) {
+        console.log("🔍 [DEBUG] Retrying with trimmed candidate password");
+        match = await bcrypt.compare(candidatePassword.trim(), normalizedHash);
+      }
+      
+      return match;
     } catch (err) {
       console.error("❌ Bcrypt error:", err.message);
       return false;
     }
   }
 
-  // Plain text fallback (remove this in production)
-  console.log("🔍 [DEBUG] Trying plain text comparison");
-  return candidatePassword === hash;
+  // 5. MD5 fallback (Legacy WP)
+  if (isMD5) {
+    console.log("🔍 [DEBUG] Using MD5 fallback");
+    const md5Hash = crypto.createHash("md5")
+      .update(candidatePassword)
+      .digest("hex");
+    return md5Hash === hash;
+  }
+
+  // ❌ Unknown format
+  console.log("⚠️ Unknown password format:", hash.substring(0, 5));
+  return false;
 };
 
 // Generate OTP
@@ -196,6 +207,7 @@ userSchema.methods.generateOTP = function () {
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
   this.otp = otp;
   this.otpExpiry = Date.now() + 10 * 60 * 1000;
+  console.log(`🔑 [DEBUG] Generated OTP for User: ${otp}`);
   return otp;
 };
 

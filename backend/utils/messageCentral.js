@@ -72,6 +72,7 @@ export const sendWhatsAppOTP = async (mobileNumber) => {
     const data = await response.json();
 
     if (data && (data.responseCode === 200 || data.status === 200) && data.data) {
+      console.log(`📱 [DEBUG] WhatsApp OTP request successful. Mobile: ${mobileNumber}, VerificationId: ${data.data.verificationId}`);
       return {
         success: true,
         verificationId: data.data.verificationId,

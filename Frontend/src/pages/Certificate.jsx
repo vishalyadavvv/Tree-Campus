@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../services/api';
-import { AuthContext, useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/AuthContext';
 import { FiAward, FiDownload, FiArrowRight, FiBookOpen } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import jsPDF from 'jspdf';
@@ -47,7 +47,7 @@ const Certificate = () => {
             const doc = new jsPDF({
                 orientation: 'landscape',
                 unit: 'px',
-                format: [842, 595]
+                format: [842, 595] // Standard landscape letter size
             });
 
             const img = new Image();
@@ -66,29 +66,44 @@ const Certificate = () => {
             doc.addImage(img, 'JPEG', 0, 0, width, height);
 
             // ─── NAME ────────────────────────────────────────────────────────────────
-            // White out the original name area on the template
+            // Based on the template, the name area should be between two lines
+            // Top line at approximately 47% of height, bottom line at 57% of height
+            const nameY = height * 0.52; // Midpoint between the two lines (centered)
+            
+            // White out the area where name goes
             doc.setFillColor(255, 255, 255);
-            doc.rect(width / 2 - 200, height / 2 - 18, 400, 55, 'F');
+            doc.rect(width * 0.25, nameY - 25, width * 0.5, 50, 'F');
 
-            // Horizontal lines framing the name
+            // Add horizontal lines (matching template)
             doc.setDrawColor(170, 170, 170);
             doc.setLineWidth(0.8);
-            doc.line(width / 2 - 200, height / 2 - 10, width / 2 + 200, height / 2 - 10); // top
-            doc.line(width / 2 - 200, height / 2 + 36, width / 2 + 200, height / 2 + 36); // bottom
+            doc.line(width * 0.25, nameY - 12, width * 0.75, nameY - 12); // top line
+            doc.line(width * 0.25, nameY + 12, width * 0.75, nameY + 12); // bottom line
 
-            // Name text — perfectly centered between the two lines
+            // Name text
             const name = cert.userName || user?.name || '';
             doc.setFontSize(28);
             doc.setFont('helvetica', 'bold');
             doc.setTextColor(26, 37, 47);
-            // Vertical center between top line (h/2 - 10) and bottom line (h/2 + 36) → midpoint = h/2 + 13
-            doc.text(name, width / 2, height / 2 + 18, { align: 'center', baseline: 'middle' });
+            doc.text(name, width / 2, nameY, { align: 'center', baseline: 'middle' });
+
+            // ─── COURSE NAME ────────────────────────────────────────────────────────
+            // Course name appears at approximately 63% of height
+            const courseY = height * 0.63;
+            
+            const courseTitle = cert.courseId?.title || cert.courseTitle || 'Online English Speaking Course';
+            doc.setFontSize(16);
+            doc.setFont('helvetica', 'bold');
+            doc.setTextColor(26, 37, 47);
+            doc.text(courseTitle, width / 2, courseY, { align: 'center', baseline: 'middle' });
 
             // ─── DATE ────────────────────────────────────────────────────────────────
-            // The DATE label on the template is at approx x=225 (26% from left), y≈505 (85% from top on 595h)
-            // Cover old date if any
+            // Date appears above the "DATE" label at approximately 14.5% from bottom
+            const dateY = height * 0.855; // 100% - 14.5% = 85.5% from top
+            
+            // Clear area for date
             doc.setFillColor(255, 255, 255);
-            doc.rect(140, height - 115, 180, 20, 'F');
+            doc.rect(width * 0.15, dateY - 10, width * 0.2, 20, 'F');
 
             const date = new Date(cert.issuedAt).toLocaleDateString('en-US', {
                 year: 'numeric',
@@ -98,13 +113,12 @@ const Certificate = () => {
             doc.setFontSize(11);
             doc.setFont('helvetica', 'normal');
             doc.setTextColor(26, 37, 47);
-            // Place date centered over the DATE label line (~x=225, y=height-100)
-            doc.text(date, 225, height - 103, { align: 'center' });
+            doc.text(date, width * 0.25, dateY, { align: 'center', baseline: 'middle' });
 
             // ─── CERTIFICATE ID ───────────────────────────────────────────────────────
             doc.setFontSize(8);
             doc.setTextColor(128, 128, 128);
-            doc.text(`ID: ${cert.certificateNumber}`, width - 20, height - 8, { align: 'right' });
+            doc.text(`ID: ${cert.certificateNumber}`, width - 20, height - 10, { align: 'right' });
 
             // Save
             const fileName = `Certificate-${(cert.userName || user?.name || 'User').replace(/\s+/g, '_')}-${cert.certificateNumber || 'cert'}.pdf`;
@@ -168,11 +182,10 @@ const Certificate = () => {
                                     @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap');
                                 `}</style>
 
-                                {/* ── Certificate Preview ── */}
+                                {/* Certificate Preview */}
                                 <div
-                                    id={`certificate-${cert._id}`}
                                     className="relative w-full bg-white"
-                                    style={{ aspectRatio: '1000/707' }}
+                                    style={{ aspectRatio: '842/595' }} // Match PDF dimensions
                                 >
                                     {/* Background template */}
                                     <img
@@ -182,80 +195,85 @@ const Certificate = () => {
                                         crossOrigin="anonymous"
                                     />
 
-                                    {/* ── NAME — perfectly centered between the two horizontal lines ── */}
-                                    {/*
-                                        The template's two lines sit at roughly 47% and 57% of the height.
-                                        Mid-point ≈ 52%. We use flexbox so the text is always centred
-                                        vertically AND horizontally regardless of length.
-                                    */}
+                                    {/* Name - centered between two lines */}
                                     <div
-                                        className="absolute"
+                                        className="absolute left-1/2 transform -translate-x-1/2"
                                         style={{
-                                            top: '47%',
-                                            left: '50%',
-                                            transform: 'translate(-50%, 0)',
-                                            width: '58%',
-                                            borderTop: '1.5px solid #aaaaaa',
-                                            borderBottom: '1.5px solid #aaaaaa',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            padding: '1.2% 0',
+                                            top: '52%', // Centered between the two lines
+                                            width: '50%',
                                         }}
                                     >
+                                        {/* White background to cover template text */}
+                                        <div className="absolute inset-0 bg-white" style={{ 
+                                            top: '-25px', 
+                                            bottom: '-25px',
+                                            left: '-10px',
+                                            right: '-10px'
+                                        }}></div>
+                                        
+                                        {/* Lines */}
+                                        <div className="absolute w-full" style={{ top: '-12px' }}>
+                                            <div className="h-[1.5px] bg-gray-300 w-full"></div>
+                                        </div>
+                                        <div className="absolute w-full" style={{ bottom: '-12px' }}>
+                                            <div className="h-[1.5px] bg-gray-300 w-full"></div>
+                                        </div>
+                                        
+                                        {/* Name text */}
                                         <p
-                                            className="font-bold text-[#1a252f] text-center leading-tight"
+                                            className="relative font-bold text-[#1a252f] text-center"
                                             style={{
                                                 fontFamily: "'Montserrat', sans-serif",
-                                                fontSize: 'clamp(14px, 2.6vw, 26px)',
-                                                margin: 0,
+                                                fontSize: 'clamp(16px, 3vw, 28px)',
+                                                lineHeight: '1.2',
                                             }}
                                         >
                                             {cert.userName || user?.name || ''}
                                         </p>
                                     </div>
 
-                                    {/* ── COURSE NAME ── */}
+                                    {/* Course Name */}
                                     <div
-                                        className="absolute"
+                                        className="absolute left-1/2 transform -translate-x-1/2"
                                         style={{
                                             top: '63%',
-                                            left: '50%',
-                                            transform: 'translate(-50%, -50%)',
                                             width: '70%',
                                         }}
                                     >
                                         <p
-                                            className="font-bold text-[#1a252f] text-center"
+                                            className="relative font-bold text-[#1a252f] text-center"
                                             style={{
                                                 fontFamily: "'Montserrat', sans-serif",
-                                                fontSize: 'clamp(10px, 1.6vw, 17px)',
+                                                fontSize: 'clamp(12px, 2vw, 18px)',
                                             }}
                                         >
                                             {cert.courseId?.title || cert.courseTitle || 'Online English Speaking Course'}
                                         </p>
                                     </div>
 
-                                    {/* ── DATE — placed directly above the "DATE" label line ── */}
-                                    {/*
-                                        The DATE label is at roughly left=23%, bottom=14% of the card.
-                                        We position our text just above it so it sits ON the underline.
-                                    */}
+                                    {/* Date */}
                                     <div
                                         className="absolute"
                                         style={{
-                                            bottom: '14.5%',
-                                            left: '23%',
+                                            left: '25%',
+                                            top: '85.5%',
                                             transform: 'translateX(-50%)',
-                                            textAlign: 'center',
-                                            whiteSpace: 'nowrap',
+                                            width: '20%',
                                         }}
                                     >
+                                        {/* White background for date */}
+                                        <div className="absolute inset-0 bg-white" style={{ 
+                                            top: '-10px', 
+                                            bottom: '-10px',
+                                            left: '-5px',
+                                            right: '-5px'
+                                        }}></div>
+                                        
                                         <p
-                                            className="font-medium text-[#1a252f]"
+                                            className="relative text-[#1a252f] text-center"
                                             style={{
                                                 fontFamily: "'Montserrat', sans-serif",
-                                                fontSize: 'clamp(8px, 1.1vw, 12px)',
+                                                fontSize: 'clamp(9px, 1.2vw, 13px)',
                                             }}
                                         >
                                             {new Date(cert.issuedAt).toLocaleDateString('en-US', {
@@ -267,13 +285,20 @@ const Certificate = () => {
                                     </div>
 
                                     {/* Certificate ID */}
-                                    <p className="absolute bottom-1 right-3 text-xs text-gray-400 font-mono"
-                                       style={{ fontSize: 'clamp(6px, 0.7vw, 9px)' }}>
+                                    <p 
+                                        className="absolute text-gray-400 font-mono"
+                                        style={{
+                                            bottom: '10px',
+                                            right: '20px',
+                                            fontSize: 'clamp(8px, 0.9vw, 11px)',
+                                            zIndex: 10,
+                                        }}
+                                    >
                                         ID: {cert.certificateNumber}
                                     </p>
                                 </div>
 
-                                {/* ── Hover overlay ── */}
+                                {/* Hover overlay */}
                                 <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center rounded-xl backdrop-blur-sm z-20">
                                     <button
                                         onClick={(e) => {
