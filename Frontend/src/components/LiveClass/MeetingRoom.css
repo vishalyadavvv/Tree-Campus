@@ -1,8 +1,5 @@
 /* Zoom Meeting Scoped Styles */
-.meeting-room-wrapper #zmmtg-root {
-    display: none;
-    /* Hide global root if it appears */
-}
+/* Root container styling if needed */
 
 .meeting-room-container {
     width: 100%;

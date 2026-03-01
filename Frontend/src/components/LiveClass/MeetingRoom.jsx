@@ -1,10 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import ZoomMtgEmbedded from '@zoom/meetingsdk/dist/zoomus-websdk-embedded.umd.min.js';
+import ZoomMtgEmbedded from '@zoom/meetingsdk/embedded';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
 import './MeetingRoom.css';
 import { Loader2, X } from 'lucide-react';
+
+// Zoom SDK Required CSS
+import '@zoom/meetingsdk/dist/css/react-select.css';
 
 const MeetingRoom = () => {
   const { id } = useParams();
@@ -18,47 +21,73 @@ const MeetingRoom = () => {
     let isMounted = true;
 
     const initMeeting = async () => {
+      console.log('🚀 initMeeting started. ID:', id);
+      console.log('🔍 window.ReactDOM test:', window.ReactDOM?.version, 'createRoot:', !!window.ReactDOM?.createRoot);
+      
       if (isInitialized.current) return;
       isInitialized.current = true;
 
+      // Safety timeout: If loading for more than 15 seconds, force show the container
+      const timeoutId = setTimeout(() => {
+        if (loading && isMounted) {
+          console.warn('⚠️ Meeting initialization TIMEOUT reached (15s)');
+          setLoading(false); // Force hide the loader
+          toast.error('Connect taking too long. Attempting to show meeting regardless...');
+        }
+      }, 15000);
+
       try {
         if (isMounted) setLoading(true);
-        // 1. Get signature from backend
+        
+        console.log('⏳ Fetching signature from backend...');
         const response = await api.post(`/live-classes/${id}/signature`, {
-          role: 0 // Default to participant
+          role: 0
         });
+        console.log('✅ Signature received:', response.data.data.meetingNumber);
 
         const { signature, sdkKey, meetingNumber, password, userName } = response.data.data;
 
-        // 2. Init SDK
+        console.log('⏳ Calling ZoomMtgEmbedded.createClient()...');
         const client = ZoomMtgEmbedded.createClient();
         clientRef.current = client;
 
+        console.log('⏳ Calling client.init()...');
         await client.init({
           zoomAppRoot: meetingContainerRef.current,
           language: 'en-US',
           patchJsMedia: true,
           leaveOnPageUnload: true
         });
+        console.log('✅ client.init() SUCCESS');
 
-        // Clean display name
+        // FORCE loader to hide here so Zoom can render its internal UI
+        // Some Zoom SDK versions hang in join() if the container is hidden/opacity 0
+        if (isMounted) {
+            console.log('🏁 Early loader exit after init SUCCESS');
+            setLoading(false);
+        }
+
         let displayName = userName || 'Student';
         displayName = displayName.replace(/[^\w\s-]/gi, '').trim() || 'Attendee';
 
-        // 3. Join Meeting
+        console.log('⏳ Calling client.join() as:', displayName);
         await client.join({
           signature,
           sdkKey,
           meetingNumber,
           password: password || '',
           userName: displayName,
-          userEmail: '', // Optional
-          tk: '' // Optional
+          userEmail: '',
+          tk: ''
         });
+        console.log('✅ client.join() SUCCESS');
 
+        clearTimeout(timeoutId);
+        // Ensure loader is definitely off
         if (isMounted) setLoading(false);
       } catch (error) {
-        console.error('Zoom Error:', error);
+        clearTimeout(timeoutId);
+        console.error('❌ Zoom SDK Error:', error);
         if (isMounted) {
           toast.error(error.message || 'Failed to join meeting');
           navigate('/live-classes');
@@ -107,7 +136,6 @@ const MeetingRoom = () => {
         <div 
           ref={meetingContainerRef} 
           className="w-full h-full"
-          style={{ display: loading ? 'none' : 'block' }}
         />
       </div>
       

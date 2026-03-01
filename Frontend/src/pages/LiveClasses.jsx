@@ -148,9 +148,9 @@ const LiveClasses = () => {
 
   const joinClass = (classItem) => {
     if (classItem.platform === 'Zoom' && classItem.source === 'automated' && classItem._id) {
-      navigate(`/live-classes/join/${classItem._id}`);
+      window.open(`/live-classes/join/${classItem._id}`, '_blank');
     } else if (classItem.link) {
-      window.open(classItem.link, '_blank', 'noopener,noreferrer');
+      window.open(classItem.link, '_blank');
     } else {
       toast.error('No class link available');
     }
@@ -264,7 +264,7 @@ const LiveClasses = () => {
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-8">
             {displayedClasses.map((classItem, index) => (
               <div 
-                key={classItem._id || classItem.id} 
+                key={classItem._id || classItem.id || `class-${index}`} 
                 className={`bg-white rounded-xl md:rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transform hover:-translate-y-2 transition-all duration-500 border border-gray-100 ${
                   visibleCards.includes(index) ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-20'
                 }`}

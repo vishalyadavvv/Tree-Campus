@@ -50,6 +50,7 @@ import AccountDeletionManagement from './pages/admin/AccountDeletionManagement';
 import ContestManagement from './pages/admin/ContestManagement';
 import CouponManagement from './pages/admin/CouponManagement';
 import ContestAdminDashboard from './pages/admin/ContestAdminDashboard';
+import AdminManagement from './pages/admin/AdminManagement';
 // Category management removed
 
 // Layout
@@ -282,6 +283,15 @@ function App() {
     element={
       <ProtectedRoute adminOnly>
         <AccountDeletionManagement />
+      </ProtectedRoute>
+    }
+  />
+
+  <Route 
+    path="/admin/management"
+    element={
+      <ProtectedRoute adminOnly>
+        <AdminManagement />
       </ProtectedRoute>
     }
   />

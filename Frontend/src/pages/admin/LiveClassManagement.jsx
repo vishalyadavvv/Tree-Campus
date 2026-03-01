@@ -2,7 +2,7 @@
   import DashboardLayout from '../../components/Layout/DashboardLayout';
   import Modal from '../../components/common/Modal';
   import api from '../../services/api';
-  import { FiPlus, FiTrash2, FiExternalLink, FiClock, FiCalendar, FiUser, FiVideo, FiX, FiEdit, FiCopy } from 'react-icons/fi';
+  import { FiPlus, FiTrash2, FiExternalLink, FiClock, FiCalendar, FiUser, FiVideo, FiX, FiEdit, FiCopy, FiCheckCircle } from 'react-icons/fi';
   import { format } from 'date-fns';
   import toast from 'react-hot-toast';
 
@@ -25,9 +25,13 @@
       recurrenceEndDate: ''
     });
     const [editingId, setEditingId] = useState(null);
+    const [currentTime, setCurrentTime] = useState(new Date());
 
     useEffect(() => {
       fetchLiveClasses();
+      // Tick every minute to refresh Live status
+      const timer = setInterval(() => setCurrentTime(new Date()), 60000);
+      return () => clearInterval(timer);
     }, []);
 
     const fetchLiveClasses = async () => {
@@ -118,10 +122,31 @@
       toast.success('Join link copied to clipboard!');
     };
 
-    const getStatus = (scheduledAt) => {
-      const now = new Date();
-      const scheduled = new Date(scheduledAt);
-      return scheduled > now ? 'scheduled' : 'completed';
+    const handleMarkCompleted = async (id) => {
+      try {
+        await api.put(`/live-classes/${id}`, { status: 'completed' });
+        toast.success('Class marked as completed');
+        fetchLiveClasses();
+      } catch (error) {
+        console.error('Error updating class status:', error);
+        toast.error('Failed to update class status');
+      }
+    };
+
+    const isLiveNow = (scheduledAt, duration) => {
+      const start = new Date(scheduledAt);
+      const end = new Date(start.getTime() + (duration || 60) * 60000);
+      return currentTime >= start && currentTime <= end;
+    };
+
+    const getStatus = (liveClass) => {
+      if (liveClass.status === 'completed' || liveClass.status === 'cancelled') {
+        return liveClass.status;
+      }
+      if (isLiveNow(liveClass.scheduledAt, liveClass.duration)) {
+        return 'live';
+      }
+      return new Date(liveClass.scheduledAt) > currentTime ? 'scheduled' : 'completed';
     };
 
     const getPlatformColor = (platform) => {
@@ -164,20 +189,26 @@
           </div>
 
           {/* Stats Overview */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
             <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 text-center">
               <div className="text-2xl font-bold text-gray-900 mb-1">{liveClasses.length}</div>
               <div className="text-sm text-gray-600">Total Classes</div>
             </div>
             <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 text-center">
               <div className="text-2xl font-bold text-gray-900 mb-1">
-                {liveClasses.filter(lc => getStatus(lc.scheduledAt) === 'scheduled').length}
+                {liveClasses.filter(lc => getStatus(lc) === 'scheduled').length}
               </div>
               <div className="text-sm text-gray-600">Upcoming</div>
             </div>
+            <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 text-center ring-2 ring-red-100">
+              <div className="text-2xl font-bold text-red-600 mb-1 animate-pulse">
+                {liveClasses.filter(lc => getStatus(lc) === 'live').length}
+              </div>
+              <div className="text-sm text-red-600 font-medium">Live Now</div>
+            </div>
             <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 text-center">
               <div className="text-2xl font-bold text-gray-900 mb-1">
-                {liveClasses.filter(lc => getStatus(lc.scheduledAt) === 'completed').length}
+                {liveClasses.filter(lc => getStatus(lc) === 'completed').length}
               </div>
               <div className="text-sm text-gray-600">Completed</div>
             </div>
@@ -192,8 +223,9 @@
           {/* Live Classes Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
             {liveClasses.map((liveClass) => {
-              const status = getStatus(liveClass.scheduledAt);
+              const status = getStatus(liveClass);
               const isUpcoming = status === 'scheduled';
+              const isLive = status === 'live';
               
               return (
                 <div key={liveClass._id} className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden hover:shadow-lg transition-shadow">
@@ -201,11 +233,18 @@
                   <div className="p-4 border-b border-gray-200">
                     <div className="flex items-start justify-between mb-2">
                       <h3 className="font-semibold text-gray-900 line-clamp-2 flex-1">{liveClass.title}</h3>
-                      <span className={`ml-2 px-2 py-1 rounded-full text-xs font-medium ${
-                        isUpcoming ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
-                      }`}>
-                        {isUpcoming ? 'Upcoming' : 'Completed'}
-                      </span>
+                      <div className="flex flex-col items-end space-y-1">
+                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                          status === 'live' ? 'bg-red-100 text-red-600 animate-pulse ring-1 ring-red-200' :
+                          status === 'scheduled' ? 'bg-green-100 text-green-800' :
+                          'bg-gray-100 text-gray-600'
+                        }`}>
+                          {status === 'live' ? '● Live' : status === 'scheduled' ? 'Upcoming' : 'Completed'}
+                        </span>
+                        {liveClass.status === 'cancelled' && (
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-black text-white uppercase">Cancelled</span>
+                        )}
+                      </div>
                     </div>
                     <p className="text-gray-600 text-sm line-clamp-2">{liveClass.description}</p>
                   </div>
@@ -266,7 +305,7 @@
                         className="flex-1 bg-blue-600 text-white py-2 px-3 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2 text-sm"
                       >
                         <FiExternalLink className="w-3 h-3" />
-                        <span>{isUpcoming ? 'Join Class' : 'View Recording'}</span>
+                        <span>{isLive ? 'Join Live Now' : isUpcoming ? 'Join Class' : 'View Recording'}</span>
                       </a>
                       <button 
                         className="p-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
@@ -281,12 +320,21 @@
                         <FiEdit className="w-4 h-4" />
                       </button>
                       <button 
-                      className="p-2 text-gray-600 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
-                      onClick={() => handleCopyLink(liveClass.link)}
-                      title="Copy Join Link"
-                    >
-                      <FiCopy className="w-4 h-4" />
-                    </button>
+                        className="p-2 text-gray-600 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                        onClick={() => handleCopyLink(liveClass.link)}
+                        title="Copy Join Link"
+                      >
+                        <FiCopy className="w-4 h-4" />
+                      </button>
+                      {status !== 'completed' && (
+                        <button 
+                          className="p-2 text-gray-600 hover:text-orange-600 hover:bg-orange-50 rounded-lg transition-colors"
+                          onClick={() => handleMarkCompleted(liveClass._id)}
+                          title="Mark as Completed"
+                        >
+                          <FiCheckCircle className="w-4 h-4" />
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -326,7 +374,7 @@
                 value={formData.title}
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                 required
-                placeholder="e.g., Advanced JavaScript Workshop"
+                placeholder="e.g., English Speaking Class"
               />
             </div>
 

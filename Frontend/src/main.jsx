@@ -1,6 +1,12 @@
-// src/main.jsx
 import React from 'react';
-import ReactDOM from 'react-dom/client';
+import * as ReactDOMClient from 'react-dom/client';
+import * as ReactDOM from 'react-dom';
+
+// Zoom SDK Compatibility (React 18)
+// Provide basic globals for the SDK's UMD bundle
+window.React = React;
+window.ReactDOM = ReactDOM;
+
 import { BrowserRouter } from 'react-router-dom';
 import App from './App.jsx';
 
@@ -16,10 +22,10 @@ AOS.init({
   mirror: true,
 });
 
-ReactDOM.createRoot(document.getElementById('root')).render(
-  <React.StrictMode>
+// NOTE: StrictMode is disabled to prevent the double-initialization 
+// that can break the Zoom Meeting SDK in development.
+ReactDOMClient.createRoot(document.getElementById('root')).render(
     <BrowserRouter>
       <App />
     </BrowserRouter>
-  </React.StrictMode>
 );

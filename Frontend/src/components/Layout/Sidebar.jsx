@@ -40,7 +40,7 @@ const adminMenuItems = [
     icon: FiAward, 
     section: "management",
     subItems: [
-      { path: "/admin/contests?section=adminPanel", label: "Admin Panel" },
+      { path: "/admin/contests?section=adminPanel", label: "Contest Panel" },
       { path: "/admin/coupons", label: "Coupon Management" },
       { path: "/admin/contests?section=adminTables", label: "Admin Tables" },
       { path: "/admin/contests?section=users", label: "All Users" }
@@ -49,6 +49,7 @@ const adminMenuItems = [
   { path: "/admin/schools", icon: FiSettings, label: "School Registrations", section: "management" },
   { path: "/admin/volunteers", icon: FiUsers, label: "Volunteers", section: "management" },
   { path: "/admin/account-deletions", icon: FiUserX, label: "Account Deletions", section: "management" },
+  { path: "/admin/management", icon: FiUsers, label: "Admin Management", section: "management" },
 ];
 
 const studentMenuItems = [

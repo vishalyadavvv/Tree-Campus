@@ -8,6 +8,7 @@ import {
   getUserById,
   updateUserRole,
   deleteUser,
+  createUser,
 } from '../controllers/userController.js';
 import { protect, authorize } from '../middleware/auth.js';
 import { body } from 'express-validator';
@@ -33,6 +34,7 @@ router.put('/change-password', protect, [
 
 // Admin only routes
 router.get('/', protect, authorize('admin'), getAllUsers);
+router.post('/', protect, authorize('admin'), createUser);
 router.get('/:id', protect, authorize('admin'), validateObjectId, getUserById);
 router.put('/:id/role', protect, authorize('admin'), [
   body('role').isIn(['student', 'admin']).withMessage('Valid role is required'),

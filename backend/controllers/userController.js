@@ -300,6 +300,49 @@
     }
   };
 
+  /**
+   * @desc    Create a new user (Admin only)
+   * @route   POST /api/users
+   * @access  Private (Admin)
+   */
+  const createUser = async (req, res, next) => {
+    try {
+      const { name, email, password, phone, role } = req.body;
+
+      // Check if user already exists
+      const userExists = await User.findOne({ $or: [{ email }, { phone }] });
+      if (userExists) {
+        return res.status(400).json({
+          success: false,
+          message: 'User already exists with this email or phone',
+        });
+      }
+
+      // Create user
+      const user = await User.create({
+        name,
+        email,
+        password,
+        phone,
+        role: role || 'student',
+        isVerified: true, // Admins don't need to verify via OTP
+      });
+
+      res.status(201).json({
+        success: true,
+        message: 'User created successfully',
+        data: {
+          id: user._id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+        },
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
   export {
     getProfile,
     updateProfile,
@@ -308,4 +351,5 @@
     getUserById,
     updateUserRole,
     deleteUser,
+    createUser,
   };

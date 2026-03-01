@@ -1,10 +1,28 @@
 import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig({
   plugins: [
+    react(),
     tailwindcss(),
+    // Custom plugin to strip missing source map references in Zoom SDK
+    {
+      name: 'strip-zoom-sourcemaps',
+      enforce: 'post',
+      transform(code, id) {
+        if (id.includes('@zoom/meetingsdk') && id.endsWith('.css')) {
+          return {
+            code: code.replace(/\/\*# sourceMappingURL=.* \*\//g, ''),
+            map: null
+          }
+        }
+      }
+    }
   ],
+  resolve: {
+    dedupe: ['react', 'react-dom']
+  },
   css: {
     devSourcemap: false
   },
@@ -35,6 +53,6 @@ export default defineConfig({
   },
   
   optimizeDeps: {
-    include: ['three', 'three-stdlib', '@zoom/meetingsdk']
+    include: ['react', 'react-dom', 'three', 'three-stdlib', '@zoom/meetingsdk']
   }
 })
