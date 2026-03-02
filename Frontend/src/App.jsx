@@ -125,7 +125,7 @@ function App() {
           
           {!isStandaloneRoute && <Navbar />}
           {!isStandaloneRoute && <AIFloatingButton />}
-         <main className={isStandaloneRoute ? "" : "pt-[110px]"}>
+         <main className={`${isStandaloneRoute ? "" : "pt-[110px]"} fade-in`}>
           <Routes>
 
   {/* ================= PUBLIC ROUTES ================= */}

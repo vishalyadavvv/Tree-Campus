@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { 
   FiX, FiChevronRight, FiHome, FiBook, FiUser, 
   FiInfo, FiMessageCircle, FiAward, FiLogIn, FiLogOut,
-  FiChevronDown, FiMail, FiPhone, FiSettings, FiVideo
+  FiChevronDown, FiMail, FiSettings, FiVideo
 } from "react-icons/fi";
 
 
@@ -363,7 +363,6 @@ export default function Navbar() {
       // Redirect to home
       setTimeout(() => {
         navigate(navigation.home);
-        window.location.reload(); // Force reload to clear any cached state
       }, 100);
     } catch (error) {
       console.error('Logout error:', error);
@@ -372,7 +371,6 @@ export default function Navbar() {
       setUserData(null);
       setUserRole('student');
       navigate(navigation.home);
-      window.location.reload();
     }
   };
 
@@ -452,35 +450,36 @@ export default function Navbar() {
     );
   };
 
-  // FIXED: Enhanced loading state with better auth detection
   if (loading) {
     return (
-      <nav className="w-full bg-white sticky top-0 z-50 shadow-sm">
-        <div className="px-6 py-2 border-b" style={{ backgroundImage: 'linear-gradient(to right, #FD5A00, #E54F00)', borderColor: '#FD5A00' }}>
+      <nav className="w-full bg-white fixed top-0 left-0 right-0 z-[9999] shadow-sm">
+        {/* Top Contact Bar Skeleton */}
+        <div className="bg-gradient-to-r from-orange-500 to-orange-600 px-6 py-2 border-b border-orange-400">
           <div className="max-w-7xl mx-auto flex items-center justify-between">
-            <div className="h-4 rounded w-32 animate-pulse" style={{ backgroundColor: '#FD5A00', opacity: 0.3 }}></div>
-            <div className="h-4 rounded w-24 animate-pulse" style={{ backgroundColor: '#FD5A00', opacity: 0.3 }}></div>
+            <div className="h-4 bg-white/20 rounded w-32 animate-pulse"></div>
+            <div className="h-4 bg-white/20 rounded w-24 animate-pulse"></div>
           </div>
         </div>
+        
+        {/* Main Nav Skeleton */}
         <div className="bg-white px-6 py-0 border-b border-gray-100">
           <div className="max-w-7xl mx-auto flex items-center justify-between py-3">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-gray-200 rounded animate-pulse"></div>
+              <div className="w-12 h-12 bg-gray-100 rounded animate-pulse"></div>
               <div className="hidden sm:block">
-                <div className="h-4 bg-gray-200 rounded w-24 animate-pulse mb-1"></div>
-                <div className="h-3 bg-gray-200 rounded w-16 animate-pulse"></div>
+                <div className="h-4 bg-gray-100 rounded w-24 animate-pulse mb-1"></div>
+                <div className="h-3 bg-gray-100 rounded w-16 animate-pulse"></div>
               </div>
             </div>
-            <div className="hidden lg:flex items-center gap-2">
-              <div className="h-10 bg-gray-200 rounded w-20 animate-pulse"></div>
-              <div className="h-10 bg-gray-200 rounded w-32 animate-pulse"></div>
-              <div className="h-10 bg-gray-200 rounded w-24 animate-pulse"></div>
-              <div className="h-10 bg-gray-200 rounded w-20 animate-pulse"></div>
-              <div className="h-10 bg-gray-200 rounded w-20 animate-pulse"></div>
+            <div className="hidden lg:flex items-center gap-4">
+              <div className="h-10 bg-gray-50 rounded-full w-24 animate-pulse"></div>
+              <div className="h-10 bg-gray-50 rounded-full w-32 animate-pulse"></div>
+              <div className="h-10 bg-gray-50 rounded-full w-28 animate-pulse"></div>
+              <div className="h-10 bg-gray-100 rounded-full w-24 animate-pulse"></div>
             </div>
             <div className="lg:hidden flex items-center gap-3">
-              <div className="h-10 bg-gray-200 rounded w-20 animate-pulse"></div>
-              <div className="h-10 bg-gray-200 rounded w-10 animate-pulse"></div>
+              <div className="h-10 bg-gray-100 rounded w-24 animate-pulse"></div>
+              <div className="h-10 bg-gray-100 rounded-full w-10 animate-pulse"></div>
             </div>
           </div>
         </div>
@@ -507,31 +506,6 @@ export default function Navbar() {
             </span>
           </a>
 
-          <div className="relative group cursor-pointer text-white">
-            <div className="flex items-center gap-2 hover:text-gray-200 transition">
-              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M6.62 10.79a15.053 15.053 0 006.59 6.59l2.2-2.2a1 1 0 011.01-.24c1.12.37 2.33.57 3.58.57a1 1 0 011 1V20a1 1 0 01-1 1C11.29 21 3 12.71 3 2a1 1 0 011-1h3.5a1 1 0 011 1c0 1.25.19 2.46.57 3.58a1 1 0 01-.24 1.01l-2.21 2.2z"/>
-              </svg>
-              <span className="text-sm font-medium tracking-wide">+91 xxxxxxxxxx</span>
-            </div>
-
-            <div className="absolute right-0 mt-2 w-40 bg-white text-black shadow-lg rounded-lg py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-20">
-              <a
-                href="tel:+91-xxxxxxxxxx"
-                className="block px-4 py-2 text-sm hover:bg-gray-100"
-              >
-                📞 Call Now
-              </a>
-              <a
-                href="https://wa.me/91xxxxxxxxxx"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="block px-4 py-2 text-sm hover:bg-gray-100"
-              >
-                💬 WhatsApp
-              </a>
-            </div>
-          </div>
         </div>
       </div>
 
@@ -1151,10 +1125,6 @@ export default function Navbar() {
                       <a href="mailto:info@treecampus.in" className="flex items-center gap-3 text-gray-600 hover:text-orange-600 transition-colors">
                         <FiMail className="text-lg" />
                         <span className="text-xs font-medium">info@treecampus.in</span>
-                      </a>
-                      <a href="tel:+91xxxxxxxxxx" className="flex items-center gap-3 text-gray-600 hover:text-orange-600 transition-colors">
-                        <FiPhone className="text-lg" />
-                        <span className="text-xs font-medium">+91 xxxxxxxxxx</span>
                       </a>
                     </div>
                   </div>

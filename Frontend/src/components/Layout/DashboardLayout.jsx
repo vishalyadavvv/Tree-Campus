@@ -11,7 +11,7 @@ const DashboardLayout = ({ children }) => {
       <div 
         className="flex-1 transition-all duration-300 flex flex-col min-h-screen md:pl-64"
       >
-        <main className="flex-1 p-4 md:p-8">
+        <main className="flex-1 p-4 md:p-8 fade-in">
           <div className="max-w-7xl mx-auto">
             {children}
           </div>

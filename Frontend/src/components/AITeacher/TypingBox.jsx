@@ -240,12 +240,13 @@ useLayoutEffect(() => {
 
   return (
     <div
+  onClick={() => textareaRef.current?.focus()}
   className={`
     pointer-events-auto
     relative z-20 flex flex-col items-center justify-center
     bg-gradient-to-br from-gray-700/60 via-gray-800/60 to-gray-900/60
     p-4 md:p-6 backdrop-blur-md rounded-xl border border-gray-600/40 shadow-2xl
-    transition-all duration-300
+    transition-all duration-300 cursor-text
     ${showTypingField 
        ? "w-full max-w-3xl" 
        : "w-30"} 

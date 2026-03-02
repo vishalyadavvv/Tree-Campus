@@ -19,7 +19,8 @@ export const askTeacher = async (req, res) => {
         const audioLanguage = language === "English-Hindi" ? "Hinglish" : language;
 
         const sessionHistory = history || [];
-        const recentChatHistory = sessionHistory.slice(-3); // Reduced from 5 to 3 for faster context processing
+        // Each turn has 2 messages (user + assistant). Slice -6 to get last 3 turns.
+        const recentChatHistory = sessionHistory.slice(-6); 
         
         const isGreeting = /^(hi|hello|hey|greetings|good morning|good evening|namaste|namsate|नमस्ते)([\s\W]*)$/i.test(question.trim());
         

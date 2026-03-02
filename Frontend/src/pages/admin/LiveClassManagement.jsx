@@ -96,11 +96,28 @@
     const handleSubmit = async (e) => {
       e.preventDefault();
       try {
+        // Create a copy of formData to transform dates to UTC
+        const submitData = { ...formData };
+        
+        // Convert local datetime-local string to proper ISO string
+        if (submitData.scheduledAt) {
+          submitData.scheduledAt = new Date(submitData.scheduledAt).toISOString();
+        }
+        
+        // Handle recurrence end date if provided
+        if (submitData.isRecurring && submitData.recurrenceEndDate) {
+          // Recurrence end date is a date only string (YYYY-MM-DD)
+          // Ensure it's treated as the end of that day in local time
+          const end = new Date(submitData.recurrenceEndDate);
+          end.setHours(23, 59, 59, 999);
+          submitData.recurrenceEndDate = end.toISOString();
+        }
+
         if (editingId) {
-          await api.put(`/live-classes/${editingId}`, formData);
+          await api.put(`/live-classes/${editingId}`, submitData);
           toast.success('Live class updated successfully!');
         } else {
-          await api.post('/live-classes', formData);
+          await api.post('/live-classes', submitData);
           toast.success('Live class scheduled successfully!');
         }
         
@@ -114,18 +131,24 @@
 
     const handleEdit = (liveClass) => {
       setEditingId(liveClass._id);
+      
+      // Convert UTC date from backend to local string for datetime-local input
+      const localDate = new Date(liveClass.scheduledAt);
+      const offset = localDate.getTimezoneOffset() * 60000;
+      const localISO = new Date(localDate.getTime() - offset).toISOString().slice(0, 16);
+
       setFormData({
         title: liveClass.title,
         description: liveClass.description,
         platform: liveClass.platform,
         link: liveClass.link,
-        scheduledAt: new Date(liveClass.scheduledAt).toISOString().slice(0, 16), // Format for datetime-local
+        scheduledAt: localISO,
         duration: liveClass.duration,
         instructor: liveClass.instructor,
         maxParticipants: liveClass.maxParticipants || 100,
         password: liveClass.password || '',
         autoGenerateZoom: liveClass.source === 'automated',
-        isRecurring: false, // Editing recurrence is complex, default to false for now or handle if backend supports it
+        isRecurring: false,
         recurrenceEndDate: '' 
       });
       setShowModal(true);

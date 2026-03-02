@@ -63,10 +63,10 @@ export const useAITeacher = create(
 
         set(() => ({ loading: true }));
         try {
-          const history = messages.map(m => ({
-            user: m.question,
-            assistant: m.answer
-          }));
+          const history = messages.flatMap(m => [
+            { role: 'user', content: m.question },
+            { role: 'assistant', content: m.answer }
+          ]);
 
           const data = await fetchAIResponse(question, language, history);
           

@@ -5,14 +5,9 @@ import { useAuth } from "../../context/AuthContext";
 const ProtectedRoute = ({ children, adminOnly = false, studentOnly = false }) => {
   const { user, loading } = useAuth();
 
-  // ⛔ IMPORTANT FIX: Wait for auth check to finish
+  // ⛔ Wait for auth check to finish - but avoid intrusive full-screen text
   if (loading) {
-    console.log('⏳ Auth still loading...');
-    return (
-      <div className="w-full h-screen flex items-center justify-center text-xl font-semibold">
-        Checking authentication...
-      </div>
-    );
+    return null; // Returning null keeps the layout stable until we know the auth status
   }
 
   // If still no user after loading → redirect
