@@ -37,7 +37,35 @@
     const fetchLiveClasses = async () => {
       try {
         const response = await api.get('/live-classes');
-        setLiveClasses(response.data.data || []);
+        const classesData = response.data.data || [];
+        
+        // Group by seriesId
+        const grouped = {};
+        const singles = [];
+        
+        classesData.forEach(lc => {
+          if (lc.seriesId) {
+            if (!grouped[lc.seriesId]) grouped[lc.seriesId] = [];
+            grouped[lc.seriesId].push(lc);
+          } else {
+            singles.push(lc);
+          }
+        });
+        
+        const processed = Object.keys(grouped).map(sid => {
+          const sessions = grouped[sid].sort((a, b) => new Date(a.scheduledAt) - new Date(b.scheduledAt));
+          // Use the next upcoming or the first one as representative
+          const now = new Date();
+          const representative = sessions.find(s => new Date(s.scheduledAt) > now) || sessions[0];
+          return {
+            ...representative,
+            isSeries: true,
+            sessionCount: sessions.length,
+            allSessions: sessions
+          };
+        });
+
+        setLiveClasses([...singles, ...processed].sort((a, b) => new Date(a.scheduledAt) - new Date(b.scheduledAt)));
       } catch (error) {
         console.error('Error fetching live classes:', error);
         setLiveClasses([]);
@@ -103,7 +131,27 @@
       setShowModal(true);
     };
 
-    const handleDelete = async (id) => {
+    const handleDelete = async (id, seriesId = null) => {
+      const msg = seriesId 
+        ? 'This is part of a series. Do you want to delete only this session or the entire series?'
+        : 'Are you sure you want to delete this live class?';
+      
+      if (seriesId) {
+        if (window.confirm('Delete the ENTIRE series? Click Cancel to delete only this occurrence.')) {
+          // This would ideally be a single API call, but if not implemented, we can loop
+          // Let's assume we'll implement a DELETE /api/live-classes/series/:seriesId
+          try {
+            await api.delete(`/live-classes/series/${seriesId}`);
+            toast.success('Entire series deleted successfully');
+            fetchLiveClasses();
+          } catch (error) {
+            console.error('Error deleting series:', error);
+            toast.error('Failed to delete series');
+          }
+          return;
+        }
+      }
+
       if (window.confirm('Are you sure you want to delete this live class?')) {
         setLiveClasses(prev => prev.filter(lc => lc._id !== id));
         try {
@@ -279,11 +327,16 @@
                       </div>
                     )}
 
-                    {/* Platform */}
+                    {/* Platform & Series Info */}
                     <div className="flex items-center justify-between">
                       <span className={`px-2 py-1 rounded text-xs font-medium ${getPlatformColor(liveClass.platform)}`}>
                         {liveClass.platform}
                       </span>
+                      {liveClass.isSeries && (
+                        <span className="px-2 py-1 bg-amber-100 text-amber-700 rounded text-[10px] font-bold border border-amber-200 uppercase">
+                          {liveClass.sessionCount} Sessions
+                        </span>
+                      )}
                     </div>
 
                     {/* Host Passcode - Admin Only */}
@@ -309,7 +362,8 @@
                       </a>
                       <button 
                         className="p-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                        onClick={() => handleDelete(liveClass._id)}
+                        onClick={() => handleDelete(liveClass._id, liveClass.seriesId)}
+                        title={liveClass.isSeries ? "Delete Series" : "Delete Class"}
                       >
                         <FiTrash2 className="w-4 h-4" />
                       </button>

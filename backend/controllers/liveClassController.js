@@ -1,5 +1,6 @@
 import LiveClass from '../models/LiveClass.js';
 import { zoomApiRequest, generateSDKSignature } from '../utils/zoomAuth.js';
+import { v4 as uuidv4 } from 'uuid';
 
 const MAX_CONCURRENT_MEETINGS = 5;
 
@@ -60,7 +61,7 @@ export const createLiveClass = async (req, res) => {
     const { title, description, platform, scheduledAt, duration, instructor, autoGenerateZoom, isRecurring, recurrenceEndDate } = req.body;
 
     // Helper to create a single class instance
-    const createSingleClass = async (date) => {
+    const createSingleClass = async (date, sid = null) => {
       // Check concurrent meetings limit
       if (platform === 'Zoom' && autoGenerateZoom) {
         const liveMeetingsCount = await LiveClass.countDocuments({ status: 'live' });
@@ -106,6 +107,7 @@ export const createLiveClass = async (req, res) => {
         ...req.body,
         scheduledAt: date,
         link: meetingLink,
+        seriesId: sid,
         ...zoomMeetingData
       });
     };
@@ -116,6 +118,12 @@ export const createLiveClass = async (req, res) => {
       const startDate = new Date(scheduledAt);
       const endDate = new Date(recurrenceEndDate);
       
+      // FIX: Ensure end date includes the entire day (up to 23:59:59)
+      // This ensures that if a class is at 10:00 PM on the end date, it is still created.
+      endDate.setHours(23, 59, 59, 999);
+      
+      const seriesId = uuidv4();
+
       // Validate dates
       if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
          return res.status(400).json({ success: false, message: 'Invalid start or end date' });
@@ -126,10 +134,10 @@ export const createLiveClass = async (req, res) => {
       }
 
       // Loop through dates
-      for (let d = startDate; d <= endDate; d.setDate(d.getDate() + 1)) {
+      for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
         // Create class for this date
         // Note: Creating classes sequentially to avoid rate limits or race conditions
-        const newClass = await createSingleClass(new Date(d));
+        const newClass = await createSingleClass(new Date(d), seriesId);
         createdClasses.push(newClass);
       }
     } else {
@@ -141,7 +149,7 @@ export const createLiveClass = async (req, res) => {
     res.status(201).json({
       success: true,
       count: createdClasses.length,
-      data: isRecurring ? createdClasses : createdClasses[0]
+      data: (isRecurring || createdClasses.length > 1) ? createdClasses : createdClasses[0]
     });
 
   } catch (error) {
@@ -214,6 +222,46 @@ export const deleteLiveClass = async (req, res) => {
     res.status(200).json({
       success: true,
       message: 'Live class deleted successfully'
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
+// @desc    Delete entire live class series
+// @route   DELETE /api/live-classes/series/:seriesId
+// @access  Private/Admin
+export const deleteLiveClassSeries = async (req, res) => {
+  try {
+    const { seriesId } = req.params;
+    const liveClasses = await LiveClass.find({ seriesId });
+
+    if (!liveClasses || liveClasses.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Live class series not found'
+      });
+    }
+
+    // Delete from Zoom for each automated meeting in the series
+    for (const lc of liveClasses) {
+      if (lc.source === 'automated' && lc.meetingId) {
+        try {
+          await zoomApiRequest(`/meetings/${lc.meetingId}`, 'DELETE');
+        } catch (error) {
+          console.error(`Error deleting meeting ${lc.meetingId} from Zoom:`, error.message);
+        }
+      }
+    }
+
+    await LiveClass.deleteMany({ seriesId });
+
+    res.status(200).json({
+      success: true,
+      message: `Deleted ${liveClasses.length} classes in the series`
     });
   } catch (error) {
     res.status(500).json({

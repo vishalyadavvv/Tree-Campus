@@ -126,7 +126,7 @@ export default function AdminPanel() {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${token}` 
             },
-            body: JSON.stringify({ ...exam, status: newStatus })
+            body: JSON.stringify({ status: newStatus })
         });
         if (!response.ok) throw new Error("Failed to update status");
         
@@ -146,13 +146,25 @@ export default function AdminPanel() {
     setView("details");
   };
 
+  // Helper to format a date as local datetime string for datetime-local input
+  const toLocalDatetimeString = (dateStr) => {
+    if (!dateStr) return "";
+    const d = new Date(dateStr);
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    const hours = String(d.getHours()).padStart(2, '0');
+    const minutes = String(d.getMinutes()).padStart(2, '0');
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+  };
+
   const handleEdit = (exam) => {
     dispatch({ 
         type: "SET_EXAM", 
         exam: {
             ...exam,
-            startDate: exam.startDate ? new Date(exam.startDate).toISOString().slice(0, 16) : "",
-            endDate: exam.endDate ? new Date(exam.endDate).toISOString().slice(0, 16) : "",
+            startDate: toLocalDatetimeString(exam.startDate),
+            endDate: toLocalDatetimeString(exam.endDate),
         } 
     });
     setUpdateExamId(exam._id);
@@ -214,7 +226,12 @@ export default function AdminPanel() {
       
       const payload = {
         ...examDetails,
-        duration: Number(examDetails.timeLimit)
+        passingPercentage: Number(examDetails.passingPercentage),
+        timeLimit: Number(examDetails.timeLimit),
+        winner_numbers: Number(examDetails.winner_numbers),
+        duration: Number(examDetails.timeLimit),
+        startDate: new Date(examDetails.startDate).toISOString(),
+        endDate: new Date(examDetails.endDate).toISOString(),
       };
 
       const response = await fetch(url, {

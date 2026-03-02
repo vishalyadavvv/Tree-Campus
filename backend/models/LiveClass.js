@@ -66,6 +66,10 @@ const liveClassSchema = new mongoose.Schema({
   currentParticipants: {
     type: Number,
     default: 0
+  },
+  seriesId: {
+    type: String,
+    sparse: true
   }
 }, {
   timestamps: true

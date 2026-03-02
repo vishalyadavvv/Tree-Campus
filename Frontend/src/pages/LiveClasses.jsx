@@ -50,10 +50,46 @@ const LiveClasses = () => {
         console.warn('⚠️ Unexpected API response structure:', response.data);
       }
 
-      // Filter upcoming & live classes (show until they end)
+      // Group classes by seriesId
       const now = new Date();
-      
-      const upcoming = classesData.filter(liveClass => {
+      const groupedData = {};
+      const singleClasses = [];
+
+      classesData.forEach(lc => {
+        if (lc.seriesId) {
+          if (!groupedData[lc.seriesId]) {
+            groupedData[lc.seriesId] = [];
+          }
+          groupedData[lc.seriesId].push(lc);
+        } else {
+          singleClasses.push(lc);
+        }
+      });
+
+      // Process grouped series
+      const seriesRepresentatives = Object.keys(groupedData).map(sid => {
+        const series = groupedData[sid].sort((a, b) => new Date(a.scheduledAt) - new Date(b.scheduledAt));
+        
+        // Find the next upcoming session in the series
+        const nextSession = series.find(lc => {
+          const classDate = new Date(lc.scheduledAt);
+          const durationMinutes = lc.duration || 60;
+          const endDate = new Date(classDate.getTime() + durationMinutes * 60000);
+          return lc.status === 'live' || endDate > now;
+        }) || series[series.length - 1]; // Use last session if all are past
+
+        return {
+          ...nextSession,
+          isSeries: true,
+          totalSessions: series.length,
+          allSessions: series
+        };
+      });
+
+      const finalClasses = [...singleClasses, ...seriesRepresentatives];
+
+      // Filter upcoming & live classes (show until they end)
+      const upcoming = finalClasses.filter(liveClass => {
         const classDate = new Date(liveClass.scheduledAt);
         const durationMinutes = liveClass.duration || 60;
         const endDate = new Date(classDate.getTime() + durationMinutes * 60000);
@@ -62,7 +98,7 @@ const LiveClasses = () => {
         return liveClass.status === 'live' || endDate > now;
       }).sort((a, b) => new Date(a.scheduledAt) - new Date(b.scheduledAt));
 
-      const past = classesData.filter(liveClass => {
+      const past = finalClasses.filter(liveClass => {
         const classDate = new Date(liveClass.scheduledAt);
         const durationMinutes = liveClass.duration || 60;
         const endDate = new Date(classDate.getTime() + durationMinutes * 60000);
@@ -76,7 +112,8 @@ const LiveClasses = () => {
 
       // Stagger card animations
       setTimeout(() => {
-        upcoming.concat(past).forEach((_, index) => {
+        const totalCount = upcoming.length + past.length;
+        Array.from({ length: totalCount }).forEach((_, index) => {
           setTimeout(() => {
             setVisibleCards(prev => [...prev, index]);
           }, 200 + (index * 100));
@@ -337,6 +374,11 @@ const LiveClasses = () => {
                       <span className={`px-2 md:px-3 py-0.5 md:py-1 ${getLevelColor(classItem.level || 'Beginner')} rounded-full text-[10px] md:text-xs font-semibold`}>
                         {classItem.level || 'All Levels'}
                       </span>
+                      {classItem.isSeries && (
+                        <span className="px-2 md:px-3 py-0.5 md:py-1 bg-amber-100 text-amber-700 rounded-full text-[10px] md:text-xs font-bold border border-amber-200">
+                          {classItem.totalSessions} Sessions
+                        </span>
+                      )}
                     </div>
                     {classItem.description && (
                       <p className="text-gray-600 text-xs md:text-sm line-clamp-2 mt-1">
