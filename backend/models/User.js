@@ -74,6 +74,7 @@ const userSchema = new mongoose.Schema(
     ],
 
     isVerified: { type: Boolean, default: false },
+    isWpMigrated: { type: Boolean, default: false },
 
     otp: { type: String, select: false },
     otpExpiry: { type: Date, select: false },
