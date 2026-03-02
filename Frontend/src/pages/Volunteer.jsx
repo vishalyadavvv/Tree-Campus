@@ -12,21 +12,67 @@ export default function Volunteer() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState(null);
   const [pageLoaded, setPageLoaded] = useState(false);
+  const [errors, setErrors] = useState({});
 
   useEffect(() => {
-    // Trigger page load animation
     setPageLoaded(true);
   }, []);
 
+  const validateForm = () => {
+    const newErrors = {};
+
+    if (!formData.name.trim()) {
+      newErrors.name = 'Full name is required';
+    } else if (formData.name.trim().length < 3) {
+      newErrors.name = 'Name must be at least 3 characters long';
+    }
+
+    if (!formData.email.trim()) {
+      newErrors.email = 'Email address is required';
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = 'Please enter a valid email address';
+    }
+
+    if (!formData.phone.trim()) {
+      newErrors.phone = 'Phone number is required';
+    } else if (!/^\d{10,15}$/.test(formData.phone.replace(/\D/g, ''))) {
+      newErrors.phone = 'Phone number must be 10-15 digits';
+    }
+
+    if (!formData.address.trim()) {
+      newErrors.address = 'Address is required';
+    } else if (formData.address.trim().length < 10) {
+      newErrors.address = 'Address must be at least 10 characters long';
+    }
+
+    if (!formData.motivation.trim()) {
+      newErrors.motivation = 'Please share your motivation for volunteering';
+    } else if (formData.motivation.trim().length < 20) {
+      newErrors.motivation = `Motivation must be at least 20 characters (currently ${formData.motivation.trim().length})`;
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+    if (errors[name]) {
+      setErrors(prev => ({ ...prev, [name]: '' }));
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!validateForm()) {
+      return;
+    }
+
     setIsSubmitting(true);
     setSubmitStatus(null);
 
@@ -50,6 +96,7 @@ export default function Volunteer() {
           address: '',
           motivation: ''
         });
+        setErrors({});
       } else {
         setSubmitStatus('error');
       }
@@ -172,25 +219,25 @@ export default function Volunteer() {
                   {/* Name Field */}
                   <div className="transform transition-all duration-500 delay-100 hover:scale-105">
                     <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
-                      Full Name *
+                      Full Name * <span className="text-gray-400 font-normal">(min 3 characters)</span>
                     </label>
                     <div className="relative">
                       <input
                         type="text"
                         id="name"
                         name="name"
-                        required
                         value={formData.name}
                         onChange={handleChange}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FD5A00] focus:border-[#FD5A00] transition-all duration-300 bg-white text-sm sm:text-base"
+                        className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#FD5A00] focus:border-[#FD5A00] transition-all duration-300 text-sm sm:text-base ${errors.name ? 'border-red-500 bg-red-50' : 'border-gray-300 bg-white'}`}
                         placeholder="Enter your full name"
                       />
                       <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                        <svg className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                        <svg className={`h-4 w-4 sm:h-5 sm:w-5 ${errors.name ? 'text-red-400' : 'text-gray-400'}`} fill="currentColor" viewBox="0 0 20 20">
                           <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
                         </svg>
                       </div>
                     </div>
+                    {errors.name && <p className="mt-1.5 text-sm text-red-600 flex items-center"><svg className="w-4 h-4 mr-1 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd"/></svg>{errors.name}</p>}
                   </div>
 
                   {/* Email Field */}
@@ -203,19 +250,19 @@ export default function Volunteer() {
                         type="email"
                         id="email"
                         name="email"
-                        required
                         value={formData.email}
                         onChange={handleChange}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FD5A00] focus:border-[#FD5A00] transition-all duration-300 bg-white text-sm sm:text-base"
+                        className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#FD5A00] focus:border-[#FD5A00] transition-all duration-300 text-sm sm:text-base ${errors.email ? 'border-red-500 bg-red-50' : 'border-gray-300 bg-white'}`}
                         placeholder="Enter your email address"
                       />
                       <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                        <svg className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                        <svg className={`h-4 w-4 sm:h-5 sm:w-5 ${errors.email ? 'text-red-400' : 'text-gray-400'}`} fill="currentColor" viewBox="0 0 20 20">
                           <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
                           <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
                         </svg>
                       </div>
                     </div>
+                    {errors.email && <p className="mt-1.5 text-sm text-red-600 flex items-center"><svg className="w-4 h-4 mr-1 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd"/></svg>{errors.email}</p>}
                   </div>
                 </div>
 
@@ -223,73 +270,76 @@ export default function Volunteer() {
                   {/* Phone Field */}
                   <div className="transform transition-all duration-500 delay-300 hover:scale-105">
                     <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
-                      Phone Number *
+                      Phone Number * <span className="text-gray-400 font-normal">(10-15 digits)</span>
                     </label>
                     <div className="relative">
                       <input
                         type="tel"
                         id="phone"
                         name="phone"
-                        required
                         value={formData.phone}
                         onChange={handleChange}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FD5A00] focus:border-[#FD5A00] transition-all duration-300 bg-white text-sm sm:text-base"
+                        className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#FD5A00] focus:border-[#FD5A00] transition-all duration-300 text-sm sm:text-base ${errors.phone ? 'border-red-500 bg-red-50' : 'border-gray-300 bg-white'}`}
                         placeholder="Enter your phone number"
                       />
                       <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                        <svg className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                        <svg className={`h-4 w-4 sm:h-5 sm:w-5 ${errors.phone ? 'text-red-400' : 'text-gray-400'}`} fill="currentColor" viewBox="0 0 20 20">
                           <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
                         </svg>
                       </div>
                     </div>
+                    {errors.phone && <p className="mt-1.5 text-sm text-red-600 flex items-center"><svg className="w-4 h-4 mr-1 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd"/></svg>{errors.phone}</p>}
                   </div>
 
                   {/* Address Field */}
                   <div className="transform transition-all duration-500 delay-400 hover:scale-105">
                     <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-2">
-                      Address *
+                      Address * <span className="text-gray-400 font-normal">(min 10 characters)</span>
                     </label>
                     <div className="relative">
                       <input
                         type="text"
                         id="address"
                         name="address"
-                        required
                         value={formData.address}
                         onChange={handleChange}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FD5A00] focus:border-[#FD5A00] transition-all duration-300 bg-white text-sm sm:text-base"
+                        className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#FD5A00] focus:border-[#FD5A00] transition-all duration-300 text-sm sm:text-base ${errors.address ? 'border-red-500 bg-red-50' : 'border-gray-300 bg-white'}`}
                         placeholder="Enter your complete address"
                       />
                       <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                        <svg className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                        <svg className={`h-4 w-4 sm:h-5 sm:w-5 ${errors.address ? 'text-red-400' : 'text-gray-400'}`} fill="currentColor" viewBox="0 0 20 20">
                           <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
                         </svg>
                       </div>
                     </div>
+                    {errors.address && <p className="mt-1.5 text-sm text-red-600 flex items-center"><svg className="w-4 h-4 mr-1 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd"/></svg>{errors.address}</p>}
                   </div>
                 </div>
 
                 {/* Motivation Field */}
                 <div className="transform transition-all duration-500 delay-500 hover:scale-105">
                   <label htmlFor="motivation" className="block text-sm font-medium text-gray-700 mb-2">
-                    Why do you want to volunteer with us? *
+                    Why do you want to volunteer with us? * <span className="text-gray-400 font-normal">(min 20 characters)</span>
                   </label>
                   <div className="relative">
                     <textarea
                       id="motivation"
                       name="motivation"
-                      required
                       rows={5}
                       value={formData.motivation}
                       onChange={handleChange}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FD5A00] focus:border-[#FD5A00] transition-all duration-300 bg-white resize-none text-sm sm:text-base"
+                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#FD5A00] focus:border-[#FD5A00] transition-all duration-300 resize-none text-sm sm:text-base ${errors.motivation ? 'border-red-500 bg-red-50' : 'border-gray-300 bg-white'}`}
                       placeholder="Share your motivation, relevant experience, and how you can contribute to our mission..."
                     />
                     <div className="absolute top-3 right-3 flex items-center pointer-events-none">
-                      <svg className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                      <svg className={`h-4 w-4 sm:h-5 sm:w-5 ${errors.motivation ? 'text-red-400' : 'text-gray-400'}`} fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M18 13V5a2 2 0 00-2-2H4a2 2 0 00-2 2v8a2 2 0 002 2h3l3 3 3-3h3a2 2 0 002-2zM5 7a1 1 0 011-1h8a1 1 0 110 2H6a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H6z" clipRule="evenodd" />
                       </svg>
                     </div>
+                  </div>
+                  <div className="flex justify-between mt-1.5">
+                    {errors.motivation ? <p className="text-sm text-red-600 flex items-center"><svg className="w-4 h-4 mr-1 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd"/></svg>{errors.motivation}</p> : <span />}
+                    <span className={`text-xs ${formData.motivation.trim().length >= 20 ? 'text-green-600' : 'text-gray-400'}`}>{formData.motivation.trim().length}/20</span>
                   </div>
                 </div>
 

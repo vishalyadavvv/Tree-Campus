@@ -23,49 +23,55 @@ const SchoolRegistration = () => {
     // School Name validation
     if (!formData.schoolName.trim()) {
       newErrors.schoolName = 'School name is required';
+    } else if (formData.schoolName.trim().length < 3) {
+      newErrors.schoolName = 'School name must be at least 3 characters long';
     }
 
     // School Email validation
     if (!formData.schoolEmail.trim()) {
       newErrors.schoolEmail = 'School email is required';
     } else if (!/\S+@\S+\.\S+/.test(formData.schoolEmail)) {
-      newErrors.schoolEmail = 'School email is invalid';
+      newErrors.schoolEmail = 'Please enter a valid email address (e.g. school@example.com)';
     }
 
     // School Address validation
     if (!formData.schoolAddress.trim()) {
       newErrors.schoolAddress = 'School address is required';
+    } else if (formData.schoolAddress.trim().length < 10) {
+      newErrors.schoolAddress = `Address must be at least 10 characters long (currently ${formData.schoolAddress.trim().length})`;
     }
 
     // School Phone validation
     if (!formData.schoolPhone.trim()) {
       newErrors.schoolPhone = 'School phone number is required';
     } else if (!/^\d{10,15}$/.test(formData.schoolPhone.replace(/\D/g, ''))) {
-      newErrors.schoolPhone = 'School phone number is invalid';
+      newErrors.schoolPhone = 'Phone number must be 10-15 digits';
     }
 
     // Contact Person Name validation
     if (!formData.contactPersonName.trim()) {
       newErrors.contactPersonName = 'Contact person name is required';
+    } else if (formData.contactPersonName.trim().length < 3) {
+      newErrors.contactPersonName = 'Contact person name must be at least 3 characters long';
     }
 
     // Contact Person Phone validation
     if (!formData.contactPersonPhone.trim()) {
       newErrors.contactPersonPhone = 'Contact person phone number is required';
     } else if (!/^\d{10,15}$/.test(formData.contactPersonPhone.replace(/\D/g, ''))) {
-      newErrors.contactPersonPhone = 'Contact person phone number is invalid';
+      newErrors.contactPersonPhone = 'Phone number must be 10-15 digits';
     }
 
     // Contact Person Email validation
     if (!formData.contactPersonEmail.trim()) {
       newErrors.contactPersonEmail = 'Contact person email is required';
     } else if (!/\S+@\S+\.\S+/.test(formData.contactPersonEmail)) {
-      newErrors.contactPersonEmail = 'Contact person email is invalid';
+      newErrors.contactPersonEmail = 'Please enter a valid email address (e.g. contact@example.com)';
     }
 
     // Terms acceptance validation
     if (!formData.termsAccepted) {
-      newErrors.termsAccepted = 'You must accept the terms and conditions';
+      newErrors.termsAccepted = 'You must accept the terms and conditions to proceed';
     }
 
     setErrors(newErrors);

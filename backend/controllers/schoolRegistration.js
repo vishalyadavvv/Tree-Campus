@@ -55,7 +55,7 @@ export const createSchoolRegistration = async (req, res, next) => {
     });
 
     // Send confirmation emails in background (non-blocking)
-    sendSchoolRegistrationConfirmation(schoolEmail, schoolName, contactPersonName, {
+    sendSchoolRegistrationConfirmation(schoolEmail, schoolName, {
       schoolName,
       schoolEmail,
       schoolAddress,

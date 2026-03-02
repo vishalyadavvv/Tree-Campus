@@ -17,23 +17,25 @@ const AccountDeletionForm = () => {
     const newErrors = {};
 
     if (!formData.name.trim()) {
-      newErrors.name = 'Name is required';
+      newErrors.name = 'Full name is required';
+    } else if (formData.name.trim().length < 3) {
+      newErrors.name = 'Name must be at least 3 characters long';
     }
 
     if (!formData.email.trim()) {
-      newErrors.email = 'Email is required';
+      newErrors.email = 'Email address is required';
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'Email is invalid';
+      newErrors.email = 'Please enter a valid email address (e.g. user@example.com)';
     }
 
     if (!formData.phone.trim()) {
       newErrors.phone = 'Phone number is required';
     } else if (!/^\d{10,15}$/.test(formData.phone.replace(/\D/g, ''))) {
-      newErrors.phone = 'Phone number is invalid';
+      newErrors.phone = 'Phone number must be 10-15 digits';
     }
 
     if (!formData.confirmation) {
-      newErrors.confirmation = 'You must confirm understanding the deletion process';
+      newErrors.confirmation = 'You must confirm that you understand the deletion process';
     }
 
     setErrors(newErrors);
@@ -245,22 +247,22 @@ const AccountDeletionForm = () => {
                       Phone Number *
                     </label>
                     <input
-                      type="email"
-                      id="email"
-                      name="email"
-                      value={formData.email}
+                      type="tel"
+                      id="phone"
+                      name="phone"
+                      value={formData.phone}
                       onChange={handleChange}
                       className={`w-full px-4 py-4 border-2 rounded-xl focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-300 ${
-                        errors.email ? 'border-red-500 bg-red-50' : 'border-gray-300 hover:border-gray-400'
+                        errors.phone ? 'border-red-500 bg-red-50' : 'border-gray-300 hover:border-gray-400'
                       }`}
-                      placeholder="Enter your registered email"
+                      placeholder="Enter your registered phone number"
                     />
-                    {errors.email && (
+                    {errors.phone && (
                       <p className="mt-2 text-sm text-red-600 flex items-center">
                         <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                           <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd"></path>
                         </svg>
-                        {errors.email}
+                        {errors.phone}
                       </p>
                     )}
                   </div>
