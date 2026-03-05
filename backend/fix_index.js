@@ -17,19 +17,12 @@ const run = async () => {
             console.log('ℹ️ phone_1 does not exist or already dropped');
         }
 
-        console.log('🚀 Creating correct conditional phone index...');
+        console.log('🚀 Creating standard phone index (Non-unique for now)...');
         await users.createIndex(
             { phone: 1 },
-            { 
-              unique: true, 
-              name: 'phone_1',
-              partialFilterExpression: { 
-                phone: { $type: "string" },
-                isWpMigrated: { $exists: false } 
-              } 
-            }
+            { name: 'phone_1' }
         );
-        console.log('✅ Created phone_1 with isWpMigrated filter');
+        console.log('✅ Created standard phone_1 index');
 
         const idxs = await users.indexes();
         console.log('Updated Indexes:', JSON.stringify(idxs, null, 2));
