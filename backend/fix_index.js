@@ -25,7 +25,7 @@ const run = async () => {
               name: 'phone_1',
               partialFilterExpression: { 
                 phone: { $type: "string" },
-                isWpMigrated: { $ne: true } 
+                isWpMigrated: { $exists: false } 
               } 
             }
         );
