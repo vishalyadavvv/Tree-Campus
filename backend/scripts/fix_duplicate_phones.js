@@ -50,37 +50,19 @@ const run = async () => {
         );
         console.log(`✅ Flagged ${flagResult.modifiedCount} users as isWpMigrated.`);
 
-        // 2. Read CSV and prepare updates
-        console.log(`📖 Phase 2: Reading CSV from ${CSV_PATH}...`);
-        if (!fs.existsSync(CSV_PATH)) {
-            console.error('❌ CSV file not found!');
+        // 2. Read Patch JSON
+        console.log(`📖 Phase 2: Reading Patch JSON...`);
+        const patchPath = path.join(__dirname, 'phone_patch.json');
+        if (!fs.existsSync(patchPath)) {
+            console.error('❌ Patch JSON file not found! Please ensure phone_patch.json exists in scripts folder.');
             return;
         }
 
-        const updates = [];
-        const fileStream = fs.createReadStream(CSV_PATH);
-        const rl = readline.createInterface({
-            input: fileStream,
-            crlfDelay: Infinity
-        });
-
-        for await (const line of rl) {
-            const columns = line.split('\t');
-            if (columns.length < 5) continue;
-
-            const name = columns[1]?.trim();
-            const email = columns[2]?.trim().toLowerCase();
-            const rawPhone = columns[4]?.trim();
-            const normalizedPhone = normalizePhone(rawPhone);
-
-            if (email && normalizedPhone) {
-                updates.push({ email, name: name || email.split('@')[0], phone: normalizedPhone });
-            }
-        }
-        console.log(`📊 Found ${updates.length} records with valid phones in CSV.`);
+        const updates = JSON.parse(fs.readFileSync(patchPath, 'utf8'));
+        console.log(`📊 Found ${updates.length} records in patch.`);
 
         // 3. Apply updates in chunks
-        console.log('🚀 Phase 3: Applying phone updates (with UPSERT). Duplicates will be allowed due to isWpMigrated flag.');
+        console.log('🚀 Phase 3: Applying phone updates (with UPSERT).');
         let updatedCount = 0;
         let insertedCount = 0;
         let chunkErrors = 0;
@@ -90,15 +72,15 @@ const run = async () => {
             const chunk = updates.slice(i, i + CHUNK_SIZE);
             const bulkOps = chunk.map(u => ({
                 updateOne: {
-                    filter: { email: u.email },
+                    filter: { email: u.e }, // e = email in patch
                     update: { 
                         $setOnInsert: {
-                            name: u.name,
+                            name: u.n, // n = name
                             isVerified: true,
                             role: 'student'
                         },
                         $set: { 
-                            phone: u.phone,
+                            phone: normalizePhone(u.p), // p = phone
                             isWpMigrated: true 
                         } 
                     },
