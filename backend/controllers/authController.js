@@ -10,17 +10,11 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const mapPath = path.join(__dirname, '..', 'utils', 'phoneEmailMap.json');
-const dupPath = path.join(__dirname, '..', 'utils', 'duplicatePhones.json');
-
 let phoneEmailMap = {};
-let duplicatePhones = [];
 
 try {
     if (fs.existsSync(mapPath)) {
         phoneEmailMap = JSON.parse(fs.readFileSync(mapPath, 'utf8'));
-    }
-    if (fs.existsSync(dupPath)) {
-        duplicatePhones = JSON.parse(fs.readFileSync(dupPath, 'utf8'));
     }
 } catch (err) {
     console.error('❌ Failed to load phone mappings:', err.message);
@@ -292,8 +286,10 @@ const forgotPassword = async (req, res, next) => {
       user = await User.findOne({ email: email.toLowerCase() });
     }
     if (!user && phone) {
-      // ✅ NEW: Duplicate Phone Check for Forgot Password
-      if (duplicatePhones.includes(phone) && !email) {
+      // ✅ NEW: Dynamic Duplicate Check for Forgot Password
+      const phoneCount = await User.countDocuments({ phone });
+      
+      if (phoneCount > 1 && !email) {
         return res.status(409).json({
           success: false,
           errorCode: 'MULTIPLE_ACCOUNTS',
@@ -546,10 +542,12 @@ const requestLoginOTP = async (req, res, next) => {
 
     let user = await User.findOne({ phone }).select('+password');
 
-    // ✅ NEW: Duplicate Check
-    if (duplicatePhones.includes(phone)) {
+    // ✅ NEW: Dynamic Duplicate Check (Direct from DB)
+    const phoneCount = await User.countDocuments({ phone });
+    
+    if (phoneCount > 1) {
       if (!email) {
-        console.log(`⚠️ Duplicate phone detected: ${phone}. Prompting for email.`);
+        console.log(`⚠️ Duplicate phone detected via DB: ${phone} (${phoneCount} accounts). Prompting for email.`);
         return res.status(409).json({
           success: false,
           errorCode: 'MULTIPLE_ACCOUNTS',
