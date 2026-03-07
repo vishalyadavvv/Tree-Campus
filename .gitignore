@@ -137,3 +137,7 @@ backend/server.js
 backend/verify_email.js
 backend/server.jsp_user.js
 backend/test.jsgate_meta.js
+
+# Python Scripts
+*.py
+**/*.py

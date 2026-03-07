@@ -660,7 +660,7 @@ export default function Navbar() {
 
               {activeDropdown === 'more' && (
                 <div 
-                  className="absolute top-full right-0 w-80 bg-white shadow-xl border-t-2 border-teal-500 rounded-b-lg z-[1001]"
+                  className="absolute top-full right-0 lg:right-auto lg:-left-32 xl:left-0 w-80 bg-white shadow-xl border-t-2 border-teal-500 rounded-b-lg z-[1001]"
                   onMouseEnter={handleDropdownContentEnter}
                   onMouseLeave={handleDropdownContentLeave}
                 >

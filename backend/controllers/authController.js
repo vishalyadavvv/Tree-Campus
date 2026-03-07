@@ -331,12 +331,14 @@ const forgotPassword = async (req, res, next) => {
       }
     }
     
+    user.generateOTP(); // Generate new OTP and reset expiry time
+
     try {
       const mcResponse = await messageCentral.sendWhatsAppOTP(targetPhone);
       if (mcResponse.success) {
         user.verificationId = mcResponse.verificationId;
-        await user.save();
       }
+      await user.save();
     } catch (err) {
       console.error('❌ Failed to send OTP for password reset:', err.message);
       return res.status(500).json({
