@@ -183,7 +183,7 @@ const AssignmentTest = () => {
     // Check if attempts exhausted
     if (eligibilityStatus?.attemptsExhausted) {
       return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-red-50 to-orange-50 px-4">
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-red-50 to-teal-50 px-4">
           <div className="bg-white p-8 rounded-lg shadow-xl text-center max-w-md border-2 border-red-500">
             <div className="mb-6">
               <svg className="w-20 h-20 text-red-500 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -199,7 +199,7 @@ const AssignmentTest = () => {
                 Attempts Used: <span className="text-red-600">{eligibilityStatus?.attemptCount}/{eligibilityStatus?.maxAttempts}</span>
               </div>
               <div className="text-lg font-bold text-gray-800">
-                Best Score: <span className="text-orange-600">{eligibilityStatus?.score}%</span>
+                Best Score: <span className="text-teal-600">{eligibilityStatus?.score}%</span>
               </div>
             </div>
             <p className="text-gray-600 mb-6">
@@ -224,7 +224,7 @@ const AssignmentTest = () => {
           <p className="text-gray-700 mb-6">{eligibilityError}</p>
           <button
             onClick={() => navigate(`/courses/${courseId}`)}
-            className="bg-[#FD5A00] text-white px-6 py-2 rounded-lg hover:bg-orange-600 transition"
+            className="bg-[#115E59] text-white px-6 py-2 rounded-lg hover:bg-[#0F766E] transition"
           >
             Back to Course
           </button>
@@ -244,7 +244,7 @@ const AssignmentTest = () => {
         <div className="mb-4">
           <button
             onClick={() => navigate(`/courses/${courseId}`)}
-            className="flex items-center text-gray-600 hover:text-[#FD5A00] transition-colors font-medium"
+            className="flex items-center text-gray-600 hover:text-[#14B8A6] transition-colors font-medium"
           >
             <FiChevronLeft className="mr-1" size={20} />
             Back to Course
@@ -283,18 +283,18 @@ const AssignmentTest = () => {
 
           {!testStarted ? (
             <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
-                <div className="bg-gradient-to-r from-orange-500 to-pink-500 p-8 text-white text-center">
+                <div className="bg-gradient-to-r from-teal-500 to-pink-500 p-8 text-white text-center">
                     <div className="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center mx-auto mb-6">
                         <FiFileText className="w-10 h-10 text-white" />
                     </div>
                     <h2 className="text-3xl font-bold mb-2">Ready to start?</h2>
-                    <p className="text-orange-50 opacity-90 text-lg">Please review the assignment details below before beginning.</p>
+                    <p className="text-teal-50 opacity-90 text-lg">Please review the assignment details below before beginning.</p>
                 </div>
                 
                 <div className="p-6">
                     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-                        <div className="bg-orange-50 p-3 rounded-lg text-center border border-orange-100">
-                            <FiClock className="w-5 h-5 text-orange-500 mx-auto mb-1" />
+                        <div className="bg-teal-50 p-3 rounded-lg text-center border border-teal-100">
+                            <FiClock className="w-5 h-5 text-teal-500 mx-auto mb-1" />
                             <p className="text-gray-500 text-xs font-medium">Duration</p>
                             <p className="text-gray-900 font-bold text-base">{assignment.timeLimit} mins</p>
                         </div>
@@ -317,7 +317,7 @@ const AssignmentTest = () => {
 
                     <div className="bg-gray-50 rounded-lg p-5 mb-8 border border-gray-100">
                         <h3 className="text-base font-bold text-gray-900 mb-3 flex items-center gap-2">
-                             <FiAlertCircle className="text-orange-500" />
+                             <FiAlertCircle className="text-teal-500" />
                              Important Instructions
                         </h3>
                         <ul className="space-y-2 text-gray-600 text-sm">
@@ -328,7 +328,7 @@ const AssignmentTest = () => {
                             {eligibilityStatus?.attemptCount > 0 && (
                               <li className="flex items-start gap-2">
                                 <span className="w-1.5 h-1.5 bg-gray-400 rounded-full mt-1.5 flex-shrink-0"></span>
-                                This is attempt <span className="font-bold text-orange-600">{eligibilityStatus.attemptCount + 1} of {eligibilityStatus.maxAttempts}</span>
+                                This is attempt <span className="font-bold text-teal-600">{eligibilityStatus.attemptCount + 1} of {eligibilityStatus.maxAttempts}</span>
                               </li>
                             )}
                             <li className="flex items-start gap-2">
@@ -352,7 +352,7 @@ const AssignmentTest = () => {
 
                     <button
                         onClick={() => setTestStarted(true)}
-                        className="w-full bg-gradient-to-r from-orange-500 to-pink-500 text-white py-3 rounded-lg font-bold text-lg hover:from-orange-600 hover:to-pink-600 transition-all duration-300 transform hover:-translate-y-1 shadow-md hover:shadow-lg flex items-center justify-center gap-2"
+                        className="w-full bg-gradient-to-r from-teal-500 to-pink-500 text-white py-3 rounded-lg font-bold text-lg hover:from-teal-600 hover:to-pink-600 transition-all duration-300 transform hover:-translate-y-1 shadow-md hover:shadow-lg flex items-center justify-center gap-2"
                     >
                         <FiPlay className="w-5 h-5 fill-current" />
                         Start Assignment
@@ -363,7 +363,7 @@ const AssignmentTest = () => {
             <div className="flex items-center gap-4">
               <div className="flex-1 bg-gray-200 rounded-full h-2 overflow-hidden">
                 <div
-                  className="bg-[#FD5A00] h-full transition-all duration-300"
+                  className="bg-[#115E59] h-full transition-all duration-300"
                   style={{ width: `${((currentQuestionIndex + 1) / assignment.totalQuestions) * 100}%` }}
                 ></div>
               </div>
@@ -380,7 +380,7 @@ const AssignmentTest = () => {
             <div className="bg-white rounded-lg shadow-md p-6 mb-6">
               <div className="mb-6">
                 <div className="flex items-center justify-between mb-4">
-                  <span className="inline-block bg-[#FD5A00]/10 text-[#FD5A00] px-3 py-1 rounded-full text-sm font-semibold">
+                  <span className="inline-block bg-[#115E59]/10 text-[#14B8A6] px-3 py-1 rounded-full text-sm font-semibold">
                     Question {currentQuestionIndex + 1}
                   </span>
                   <span className="text-gray-400 text-sm">
@@ -396,13 +396,13 @@ const AssignmentTest = () => {
                     {currentQuestion.options.map((option, idx) => (
                       <label key={idx} className="flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50 transition duration-200"
                         style={{
-                          borderColor: answers[currentQuestion._id] === option ? '#FD5A00' : '#e5e7eb',
-                          backgroundColor: answers[currentQuestion._id] === option ? '#FFF5F0' : 'transparent',
-                          boxShadow: answers[currentQuestion._id] === option ? '0 2px 4px rgba(253, 90, 0, 0.1)' : 'none'
+                          borderColor: answers[currentQuestion._id] === option ? '#14B8A6' : '#e5e7eb',
+                          backgroundColor: answers[currentQuestion._id] === option ? '#F0FDFA' : 'transparent',
+                          boxShadow: answers[currentQuestion._id] === option ? '0 2px 4px rgba(20, 184, 166, 0.1)' : 'none'
                         }}
                       >
                         <div className={`w-5 h-5 rounded-full border flex items-center justify-center flex-shrink-0 mr-3 ${
-                           answers[currentQuestion._id] === option ? 'border-[#FD5A00] bg-[#FD5A00]' : 'border-gray-300'
+                           answers[currentQuestion._id] === option ? 'border-[#14B8A6] bg-[#115E59]' : 'border-gray-300'
                         }`}>
                            {answers[currentQuestion._id] === option && <FiCheckCircle className="text-white w-3 h-3" />}
                         </div>
@@ -423,7 +423,7 @@ const AssignmentTest = () => {
                     value={answers[currentQuestion._id] || ''}
                     onChange={(e) => handleAnswerChange(currentQuestion._id, e.target.value)}
                     placeholder="Type your answer here..."
-                    className="w-full p-4 border border-gray-300 rounded-lg focus:border-[#FD5A00] focus:ring-1 focus:ring-[#FD5A00] outline-none min-h-32 text-gray-700"
+                    className="w-full p-4 border border-gray-300 rounded-lg focus:border-[#14B8A6] focus:ring-1 focus:ring-[#14B8A6] outline-none min-h-32 text-gray-700"
                   />
                 )}
               </div>
@@ -446,7 +446,7 @@ const AssignmentTest = () => {
                     onClick={() => setCurrentQuestionIndex(idx)}
                     className={`py-2 rounded-lg font-semibold transition ${
                       idx === currentQuestionIndex
-                        ? 'bg-[#FD5A00] text-white'
+                        ? 'bg-[#115E59] text-white'
                         : answers[q._id]
                         ? 'bg-green-200 text-green-800'
                         : 'bg-gray-200 text-gray-700'
@@ -470,13 +470,13 @@ const AssignmentTest = () => {
             <div className="bg-white rounded-lg shadow-lg p-6">
               <div className="mb-4 flex justify-between items-center">
                 <p className="text-gray-700">
-                  Answered: <span className="font-bold text-[#FD5A00]">{answeredCount}/{assignment.totalQuestions}</span>
+                  Answered: <span className="font-bold text-[#14B8A6]">{answeredCount}/{assignment.totalQuestions}</span>
                 </p>
               </div>
               <button
                 onClick={handleSubmit}
                 disabled={submitting}
-                className="w-full bg-[#FD5A00] text-white py-3 rounded-lg font-bold hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed transition text-base shadow-md hover:shadow-lg"
+                className="w-full bg-[#115E59] text-white py-3 rounded-lg font-bold hover:bg-[#0F766E] disabled:opacity-50 disabled:cursor-not-allowed transition text-base shadow-md hover:shadow-lg"
               >
                 {submitting ? 'Submitting...' : 'Submit Assignment'}
               </button>

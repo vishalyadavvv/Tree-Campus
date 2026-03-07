@@ -15,8 +15,8 @@ const PopupMessage = ({ isOpen, onClose, title, message }) => {
       
       <div className="relative bg-white rounded-lg shadow-xl max-w-md w-full p-6 animate-fade-in">
         <div className="flex items-start space-x-3">
-          <div className="flex-shrink-0 w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center">
-            <svg className="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="flex-shrink-0 w-10 h-10 rounded-full bg-teal-100 flex items-center justify-center">
+            <svg className="w-5 h-5 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.998-.833-2.732 0L4.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
             </svg>
           </div>
@@ -27,7 +27,7 @@ const PopupMessage = ({ isOpen, onClose, title, message }) => {
         </div>
         <button
           onClick={onClose}
-          className="mt-4 w-full py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg font-medium transition-colors"
+          className="mt-4 w-full py-2 bg-[#115E59] hover:bg-[#0F766E] text-white rounded-lg font-medium transition-colors"
         >
           Got it
         </button>
@@ -289,7 +289,7 @@ const LessonView = () => {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-500 mx-auto mb-4"></div>
           <p className="text-gray-600">Loading lesson...</p>
         </div>
       </div>
@@ -300,7 +300,7 @@ const LessonView = () => {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
         <div className="text-center max-w-md">
-          <svg className="h-12 w-12 text-orange-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="h-12 w-12 text-teal-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.998-.833-2.732 0L4.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
           </svg>
           <h1 className="text-xl font-bold text-gray-900 mb-2">Lesson Not Found</h1>
@@ -309,7 +309,7 @@ const LessonView = () => {
           </p>
           <Link
             to={`/courses/${courseId}`}
-            className="inline-flex items-center px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors font-medium"
+            className="inline-flex items-center px-4 py-2 bg-[#115E59] text-white rounded-lg hover:bg-[#0F766E] transition-colors font-medium"
           >
             <FiChevronLeft className="mr-2" />
             Back to Course
@@ -351,7 +351,7 @@ const LessonView = () => {
                 </button>
                 <Link 
                   to={`/courses/${courseId}`}
-                  className="inline-flex items-center text-sm text-orange-600 hover:text-orange-700 font-medium"
+                  className="inline-flex items-center text-sm text-teal-600 hover:text-teal-700 font-medium"
                 >
                   <FiChevronLeft className="mr-1" size={16} />
                   Back to Course
@@ -359,7 +359,7 @@ const LessonView = () => {
               </div>
               <div className="hidden lg:flex items-center space-x-2">
                 <span className="text-xs text-gray-500">Progress:</span>
-                <span className="text-sm font-bold text-orange-600">{progress?.progress || 0}%</span>
+                <span className="text-sm font-bold text-teal-600">{progress?.progress || 0}%</span>
               </div>
             </div>
           </div>
@@ -398,7 +398,7 @@ const LessonView = () => {
           <div className="flex-shrink-0 bg-white border-t border-gray-200">
             <div className="p-4 lg:p-6 max-w-4xl mx-auto">
               <div className="space-y-1">
-                <h2 className="text-base font-medium text-orange-600">
+                <h2 className="text-base font-medium text-teal-600">
                   {courseName}
                 </h2>
                 
@@ -420,14 +420,14 @@ const LessonView = () => {
                 <div className="bg-gray-50 rounded-lg p-3">
                   <div className="flex items-center justify-between mb-1.5">
                     <h3 className="font-semibold text-gray-900 text-sm">Course Progress</h3>
-                    <span className="text-xs font-bold text-orange-600">
+                    <span className="text-xs font-bold text-teal-600">
                       {progress?.progress || 0}%
                     </span>
                   </div>
                   
                   <div className="w-full bg-gray-200 rounded-full h-1.5 mb-1">
                     <div 
-                      className="bg-orange-500 h-1.5 rounded-full transition-all duration-500"
+                      className="bg-[#115E59] h-1.5 rounded-full transition-all duration-500"
                       style={{ width: `${progress?.progress || 0}%` }}
                     />
                   </div>
@@ -453,7 +453,7 @@ const LessonView = () => {
                       <button
                         onClick={markAsComplete}
                         disabled={completingLesson}
-                        className="w-full py-2 rounded-lg font-medium transition-all flex items-center justify-center bg-orange-500 hover:bg-orange-600 text-white shadow-sm hover:shadow-md cursor-pointer text-sm disabled:opacity-60 disabled:cursor-not-allowed"
+                        className="w-full py-2 rounded-lg font-medium transition-all flex items-center justify-center bg-[#115E59] hover:bg-[#0F766E] text-white shadow-sm hover:shadow-md cursor-pointer text-sm disabled:opacity-60 disabled:cursor-not-allowed"
                       >
                         {completingLesson ? (
                           <>
@@ -483,7 +483,7 @@ const LessonView = () => {
                     {prevLesson && (
                       <Link
                         to={`/courses/${courseId}/lesson/${prevLesson._id}`}
-                        className="flex-1 py-1.5 px-3 bg-white border border-gray-300 hover:border-orange-500 text-gray-700 hover:text-orange-600 rounded-lg font-medium transition-all flex items-center justify-center text-xs"
+                        className="flex-1 py-1.5 px-3 bg-white border border-gray-300 hover:border-teal-500 text-gray-700 hover:text-teal-600 rounded-lg font-medium transition-all flex items-center justify-center text-xs"
                       >
                         <FiChevronLeft className="mr-1" size={14} />
                         Previous
@@ -492,7 +492,7 @@ const LessonView = () => {
                     {nextLesson && (
                       <Link
                         to={`/courses/${courseId}/lesson/${nextLesson._id}`}
-                        className="flex-1 py-1.5 px-3 bg-orange-500 hover:bg-orange-600 text-white rounded-lg font-medium transition-all flex items-center justify-center text-xs"
+                        className="flex-1 py-1.5 px-3 bg-[#115E59] hover:bg-[#0F766E] text-white rounded-lg font-medium transition-all flex items-center justify-center text-xs"
                       >
                         Next
                         <FiChevronRight className="ml-1" size={14} />
@@ -521,7 +521,7 @@ const LessonView = () => {
               </div>
               <div className="w-full bg-gray-200 rounded-full h-1.5">
                 <div 
-                  className="bg-orange-500 h-1.5 rounded-full transition-all duration-500"
+                  className="bg-[#115E59] h-1.5 rounded-full transition-all duration-500"
                   style={{ width: `${progress?.progress || 0}%` }}
                 />
               </div>
@@ -562,7 +562,7 @@ const LessonView = () => {
                         <div className="flex items-center space-x-2 flex-shrink-0">
                           <div className="w-12 bg-gray-200 rounded-full h-1.5">
                             <div 
-                              className="bg-orange-500 h-1.5 rounded-full transition-all duration-300"
+                              className="bg-[#115E59] h-1.5 rounded-full transition-all duration-300"
                               style={{ width: `${sectionProgress}%` }}
                             />
                           </div>
@@ -583,7 +583,7 @@ const LessonView = () => {
                                 className={`
                                   block p-2.5 rounded-lg transition-all
                                   ${isCurrent 
-                                    ? 'bg-orange-50 border border-orange-200' 
+                                    ? 'bg-teal-50 border border-teal-200' 
                                     : 'hover:bg-gray-50 border border-transparent'
                                   }
                                 `}
@@ -594,7 +594,7 @@ const LessonView = () => {
                                     ${completed 
                                       ? 'bg-green-500 text-white' 
                                       : isCurrent
-                                      ? 'bg-orange-500 text-white'
+                                      ? 'bg-[#115E59] text-white'
                                       : 'bg-gray-100 text-gray-600'
                                     }
                                   `}>
@@ -602,7 +602,7 @@ const LessonView = () => {
                                   </div>
 
                                   <div className="flex-1 min-w-0">
-                                    <h5 className={`text-sm font-medium ${isCurrent ? 'text-orange-700' : 'text-gray-900'} truncate`}>
+                                    <h5 className={`text-sm font-medium ${isCurrent ? 'text-teal-700' : 'text-gray-900'} truncate`}>
                                       {l.title}
                                     </h5>
                                     <div className="flex items-center mt-0.5">
@@ -645,7 +645,7 @@ const LessonView = () => {
                                           href={l.pdfUrl} 
                                           target="_blank" 
                                           rel="noopener noreferrer"
-                                          className="flex items-center space-x-1 text-orange-600 hover:text-orange-700 text-xs font-medium"
+                                          className="flex items-center space-x-1 text-teal-600 hover:text-teal-700 text-xs font-medium"
                                         >
                                           <FiFileText size={12} />
                                           <span className="truncate">{l.pdfFileName || 'PDF'}</span>

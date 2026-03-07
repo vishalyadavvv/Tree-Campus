@@ -69,7 +69,7 @@ const CourseOverview= ({ course, index, isVisible }) => {
               opacity: isInView ? 1 : 0
             }}
           >
-            <span className="px-3 py-1 bg-[#FD5A00] text-white rounded-full text-sm font-semibold shadow-lg capitalize">
+            <span className="px-3 py-1 bg-[#115E59] text-white rounded-full text-sm font-semibold shadow-lg capitalize">
               {course.level}
             </span>
           </div>
@@ -93,7 +93,7 @@ const CourseOverview= ({ course, index, isVisible }) => {
       {/* Course Content */}
       <div className="p-6">
         <h3 
-          className="text-xl font-bold text-gray-900 mb-3 group-hover:text-[#FD5A00] transition-colors duration-300"
+          className="text-xl font-bold text-gray-900 mb-3 group-hover:text-[#14B8A6] transition-colors duration-300"
           style={{
             transitionDelay: `${index * 150 + 200}ms`,
             transform: isInView ? 'translateY(0)' : 'translateY(20px)',
@@ -127,7 +127,7 @@ const CourseOverview= ({ course, index, isVisible }) => {
             {course.features.slice(0, 4).map((feature, featureIndex) => (
               <span 
                 key={featureIndex}
-                className="px-2 py-1 bg-orange-50 text-[#FD5A00] rounded-lg text-xs font-medium border border-orange-100 transition-all duration-300 hover:scale-105"
+                className="px-2 py-1 bg-teal-50 text-[#14B8A6] rounded-lg text-xs font-medium border border-teal-100 transition-all duration-300 hover:scale-105"
                 style={{
                   transitionDelay: `${index * 150 + 400 + (featureIndex * 50)}ms`
                 }}
@@ -167,7 +167,7 @@ const CourseOverview= ({ course, index, isVisible }) => {
         {/* CTA Button */}
         <Link 
           to={`/courses/${course._id}`}
-          className="block w-full text-center px-6 py-3 bg-gradient-to-r from-[#FD5A00] to-orange-500 text-white rounded-xl hover:from-orange-600 hover:to-orange-600 transition-all duration-300 shadow-lg hover:shadow-xl font-semibold transform hover:scale-105"
+          className="block w-full text-center px-6 py-3 bg-gradient-to-r from-[#14B8A6] to-teal-500 text-white rounded-xl hover:from-teal-600 hover:to-teal-600 transition-all duration-300 shadow-lg hover:shadow-xl font-semibold transform hover:scale-105"
           style={{
             transitionDelay: `${index * 150 + 600}ms`,
             transform: isInView ? 'translateY(0) scale(1)' : 'translateY(20px) scale(0.9)',

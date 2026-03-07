@@ -101,20 +101,20 @@ const VocabularyBuilder = () => {
     return (
       <div className="w-full max-w-2xl mx-auto p-4">
         <div className="bg-white rounded-2xl shadow-xl overflow-hidden text-center p-12">
-            <div className="w-24 h-24 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
+            <div className="w-24 h-24 bg-gradient-to-br from-yellow-400 to-teal-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
                 <span className="text-6xl">🏆</span>
             </div>
             <h2 className="text-3xl font-bold text-gray-900 mb-2">Vocabulary Master!</h2>
             <p className="text-gray-600 mb-8">You've completed all {VOCAB_DATA.length} Hindi words!</p>
             
-            <div className="bg-gradient-to-br from-orange-50 to-red-50 rounded-xl p-6 max-w-xs mx-auto mb-8 border-2 border-orange-200">
+            <div className="bg-gradient-to-br from-teal-50 to-red-50 rounded-xl p-6 max-w-xs mx-auto mb-8 border-2 border-teal-200">
                 <p className="text-sm text-gray-500 uppercase tracking-wide font-semibold mb-1">Final Score</p>
-                <p className="text-5xl font-bold bg-gradient-to-r from-orange-500 to-red-500 bg-clip-text text-transparent">{score}</p>
+                <p className="text-5xl font-bold bg-gradient-to-r from-teal-500 to-red-500 bg-clip-text text-transparent">{score}</p>
             </div>
 
             <button 
                 onClick={restartGame}
-                className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-orange-500 to-red-500 text-white font-bold rounded-xl hover:from-orange-600 hover:to-red-600 transition shadow-lg"
+                className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-teal-500 to-red-500 text-white font-bold rounded-xl hover:from-teal-600 hover:to-red-600 transition shadow-lg"
             >
                 <ArrowPathIcon className="w-5 h-5" /> Play Again
             </button>
@@ -133,7 +133,7 @@ const VocabularyBuilder = () => {
         {/* Progress Bar */}
         <div className="w-full h-2 bg-gray-100">
             <div 
-                className="h-full bg-gradient-to-r from-orange-500 to-red-500 transition-all duration-500"
+                className="h-full bg-gradient-to-r from-teal-500 to-red-500 transition-all duration-500"
                 style={{ width: `${((currentIndex) / VOCAB_DATA.length) * 100}%` }}
             />
         </div>
@@ -152,8 +152,8 @@ const VocabularyBuilder = () => {
                    <div className="text-right">
                         <p className="text-xs text-gray-400 font-bold uppercase">Streak</p>
                         <div className="flex items-center gap-1">
-                            <span className="text-xl font-bold text-orange-500">{streak}</span>
-                            <span className="text-orange-500">🔥</span>
+                            <span className="text-xl font-bold text-teal-500">{streak}</span>
+                            <span className="text-teal-500">🔥</span>
                         </div>
                    </div>
                 </div>
@@ -180,7 +180,7 @@ const VocabularyBuilder = () => {
                     key={currentScramble}
                     initial={{ scale: 0.9, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
-                    className="text-3xl md:text-5xl font-black text-orange-600 tracking-wider mb-8 font-mono"
+                    className="text-3xl md:text-5xl font-black text-teal-600 tracking-wider mb-8 font-mono"
                 >
                     {currentScramble}
                 </motion.div>
@@ -226,7 +226,7 @@ const VocabularyBuilder = () => {
                     className={`
                         w-full px-6 py-4 text-center text-xl font-bold rounded-xl border-2 outline-none transition-all uppercase
                         ${showResult === 'correct' ? 'border-green-500 bg-green-50 text-green-700' : ''}
-                        ${showResult === 'wrong' ? 'border-red-500 bg-red-50 text-red-700' : 'border-gray-200 focus:border-orange-500 focus:ring-4 focus:ring-orange-50'}
+                        ${showResult === 'wrong' ? 'border-red-500 bg-red-50 text-red-700' : 'border-gray-200 focus:border-teal-500 focus:ring-4 focus:ring-teal-50'}
                     `}
                     autoFocus
                 />
@@ -260,7 +260,7 @@ const VocabularyBuilder = () => {
                 </button>
                 <button 
                     onClick={handleSubmit}
-                    className="px-8 py-2.5 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-lg font-bold hover:from-orange-600 hover:to-red-600 transition shadow-md flex items-center gap-2"
+                    className="px-8 py-2.5 bg-gradient-to-r from-teal-500 to-red-500 text-white rounded-lg font-bold hover:from-teal-600 hover:to-red-600 transition shadow-md flex items-center gap-2"
                 >
                     Submit <ArrowRightIcon className="w-4 h-4" />
                 </button>

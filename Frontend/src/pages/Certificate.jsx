@@ -136,7 +136,7 @@ const Certificate = () => {
     if (loading) {
         return (
             <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500"></div>
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-500"></div>
             </div>
         );
     }
@@ -152,7 +152,7 @@ const Certificate = () => {
                     <p className="text-gray-600 mb-6">{error}</p>
                     <button
                         onClick={fetchCertificates}
-                        className="bg-orange-500 text-white px-6 py-2 rounded-lg hover:bg-orange-600 transition-colors"
+                        className="bg-[#115E59] text-white px-6 py-2 rounded-lg hover:bg-[#0F766E] transition-colors"
                     >
                         Try Again
                     </button>
@@ -307,7 +307,7 @@ const Certificate = () => {
                                             handleDownloadCertificate(cert._id);
                                         }}
                                         disabled={downloading === cert._id}
-                                        className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-orange-400 to-orange-600 text-white font-bold rounded-full transform scale-90 group-hover:scale-100 transition-all duration-300 shadow-xl hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed"
+                                        className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-teal-400 to-teal-600 text-white font-bold rounded-full transform scale-90 group-hover:scale-100 transition-all duration-300 shadow-xl hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed"
                                     >
                                         {downloading === cert._id ? (
                                             <>
@@ -327,8 +327,8 @@ const Certificate = () => {
                     </div>
                 ) : (
                     <div className="bg-white rounded-2xl shadow-sm p-12 text-center max-w-2xl mx-auto border border-gray-100">
-                        <div className="w-24 h-24 bg-orange-50 rounded-full flex items-center justify-center mx-auto mb-6">
-                            <FiAward className="w-10 h-10 text-orange-500" />
+                        <div className="w-24 h-24 bg-teal-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                            <FiAward className="w-10 h-10 text-teal-500" />
                         </div>
                         <h2 className="text-2xl font-bold text-gray-900 mb-2">No Certificates Yet</h2>
                         <p className="text-gray-600 mb-8 max-w-md mx-auto">
@@ -336,7 +336,7 @@ const Certificate = () => {
                         </p>
                         <Link
                             to="/courses"
-                            className="inline-flex items-center px-8 py-3 bg-gradient-to-r from-orange-500 to-orange-600 text-white font-semibold rounded-xl hover:from-orange-600 hover:to-orange-700 transition-all transform hover:-translate-y-0.5 shadow-lg hover:shadow-xl"
+                            className="inline-flex items-center px-8 py-3 bg-gradient-to-r from-teal-500 to-teal-600 text-white font-semibold rounded-xl hover:from-teal-600 hover:to-teal-700 transition-all transform hover:-translate-y-0.5 shadow-lg hover:shadow-xl"
                         >
                             <FiBookOpen className="w-5 h-5 mr-2" />
                             Browse Courses

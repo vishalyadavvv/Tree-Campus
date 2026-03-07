@@ -34,7 +34,7 @@ const DownloadApp = () => {
   }, []);
 
   return (
-    <section ref={downloadRef} className="py-12 bg-[#FE8361] text-white overflow-hidden">
+    <section ref={downloadRef} className="py-12 bg-[#115E59] text-white overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className={`flex flex-col md:flex-row md:items-center md:justify-between gap-10 transition-all duration-1000 ease-out ${
           isVisible 

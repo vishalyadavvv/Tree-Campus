@@ -1,29 +1,52 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const AIFloatingButton = () => {
+  const [isHovered, setIsHovered] = useState(false);
+
   return (
-    <div className="fixed bottom-32 right-6 z-[100] flex items-center justify-end">
-      <Link
-        to="/ai-teacher"
-        className="peer w-10 h-10 md:w-14 md:h-14 bg-gradient-to-tr from-blue-600 via-purple-600 to-indigo-600 rounded-full flex items-center justify-center shadow-2xl hover:scale-110 active:scale-95 transition-all duration-300 cursor-pointer relative overflow-hidden"
-      >
-        {/* Glow effect */}
-        <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 animate-pulse"></div>
-        
-        {/* Icon/Avatar Placeholder - Using a friendly Robot/Teacher icon */}
-        <span className="text-xl md:text-3xl transform hover:rotate-12 transition-transform duration-300">👩‍🏫</span>
-        
-        {/* Badge */}
-        <div className="absolute top-0 right-0 w-4 h-4 bg-green-500 border-2 border-white rounded-full"></div>
+    <div className="fixed bottom-24 right-6 z-[100] flex items-center gap-3">
+
+      {/* Tooltip */}
+      <AnimatePresence>
+        {isHovered && (
+          <motion.div
+            initial={{ opacity: 0, x: 8 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 8 }}
+            transition={{ duration: 0.15 }}
+            className="hidden md:block bg-white rounded-xl px-4 py-2 shadow-lg border border-slate-100"
+          >
+            <p className="text-sm font-semibold text-slate-700 whitespace-nowrap">AI Teacher</p>
+            <p className="text-xs text-slate-400 whitespace-nowrap">Ask me anything</p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Button */}
+      <Link to="/ai-teacher">
+        <motion.button
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          className="w-13 h-13 rounded-2xl flex items-center justify-center relative"
+          style={{
+            width: '52px',
+            height: '52px',
+            background: 'linear-gradient(135deg, #115E59, #14B8A6)',
+            boxShadow: '0 4px 20px rgba(17, 94, 89, 0.4)',
+            cursor: 'pointer',
+          }}
+        >
+          <span style={{ fontSize: '26px', lineHeight: 1 }}>👩‍🏫</span>
+
+          {/* Online dot */}
+          <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-emerald-400 rounded-full border-2 border-white" />
+        </motion.button>
       </Link>
 
-      {/* Label - Absolute positioned to the left of the icon, only shows when icon (peer) is hovered */}
-      <div className="absolute right-full mr-5 bg-white/90 backdrop-blur-sm px-4 py-2 rounded-2xl shadow-xl border border-blue-100 opacity-0 peer-hover:opacity-100 transition-all duration-300 pointer-events-none whitespace-nowrap transform translate-x-4 peer-hover:translate-x-0">
-        <p className="text-sm font-semibold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-          Talk to AI Teacher
-        </p>
-      </div>
     </div>
   );
 };

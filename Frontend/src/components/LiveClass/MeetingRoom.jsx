@@ -115,7 +115,7 @@ const MeetingRoom = () => {
     <div className="fixed inset-0 z-[9999] bg-black flex flex-col meeting-room-wrapper">
       {/* Header */}
       <div className="p-4 bg-gray-900 flex justify-between items-center text-white">
-        <h2 className="text-lg font-semibold text-orange-500">Tree Campus Live Session</h2>
+        <h2 className="text-lg font-semibold text-teal-500">Tree Campus Live Session</h2>
         <button 
           onClick={() => navigate('/live-classes')}
           className="p-2 hover:bg-gray-800 rounded-full transition-colors"
@@ -129,7 +129,7 @@ const MeetingRoom = () => {
       <div className="flex-1 w-full bg-black relative meeting-room-container">
         {loading && (
           <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-900 z-[10000]">
-            <Loader2 className="w-12 h-12 text-orange-500 animate-spin mb-4" />
+            <Loader2 className="w-12 h-12 text-teal-500 animate-spin mb-4" />
             <p className="text-white text-lg">Initializing Secure Meeting Container...</p>
           </div>
         )}

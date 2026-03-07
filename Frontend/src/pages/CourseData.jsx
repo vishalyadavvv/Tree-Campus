@@ -123,12 +123,12 @@ const LessonItem = ({ lesson, isActive, onClick, isLocked }) => {
       onClick={!isLocked ? onClick : undefined}
       className={`p-3 rounded-lg transition-all ${
         isActive 
-          ? 'bg-orange-50 border-l-4 border-[#FD5A00]' 
+          ? 'bg-teal-50 border-l-4 border-[#14B8A6]' 
           : 'hover:bg-gray-50 border-l-4 border-transparent'
       } ${isLocked ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
     >
       <div className="flex items-start gap-3">
-        <div className={`mt-1 flex-shrink-0 ${isActive ? 'text-[#FD5A00]' : 'text-gray-400'}`}>
+        <div className={`mt-1 flex-shrink-0 ${isActive ? 'text-[#14B8A6]' : 'text-gray-400'}`}>
           {isLocked ? (
             <Lock className="w-4 h-4" />
           ) : lesson.type === 'quiz' ? (
@@ -138,7 +138,7 @@ const LessonItem = ({ lesson, isActive, onClick, isLocked }) => {
           )}
         </div>
         <div className="flex-1 min-w-0">
-          <div className={`text-sm font-medium ${isActive ? 'text-[#FD5A00]' : 'text-gray-900'}`}>
+          <div className={`text-sm font-medium ${isActive ? 'text-[#14B8A6]' : 'text-gray-900'}`}>
             {lesson.title}
           </div>
           <div className="flex items-center gap-2 mt-1">
@@ -163,7 +163,7 @@ const SectionAccordion = ({ section, expandedSections, toggleSection, activeLess
       >
         <div className="flex-1">
           <div className="flex items-center gap-2">
-            <span className="text-xs font-semibold text-[#FD5A00] bg-orange-50 px-2 py-1 rounded">
+            <span className="text-xs font-semibold text-[#14B8A6] bg-teal-50 px-2 py-1 rounded">
               Day {section.dayNumber}
             </span>
           </div>
@@ -244,7 +244,7 @@ export default function EnglishCoursePlatform() {
   if (!activeLesson) {
     return (
       <div className="flex items-center justify-center h-screen">
-        <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-[#FD5A00]"></div>
+        <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-[#14B8A6]"></div>
       </div>
     );
   }
@@ -252,7 +252,7 @@ export default function EnglishCoursePlatform() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-gradient-to-r from-[#FD5A00] to-orange-600 text-white px-4 sm:px-6 py-4 sticky top-0 z-30 shadow-lg">
+      <div className="bg-gradient-to-r from-[#14B8A6] to-teal-600 text-white px-4 sm:px-6 py-4 sticky top-0 z-30 shadow-lg">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-4">
             <button
@@ -264,7 +264,7 @@ export default function EnglishCoursePlatform() {
             </button>
             <div>
               <h1 className="text-lg sm:text-xl font-bold">{courseData.courseInfo.title}</h1>
-              <p className="text-xs sm:text-sm text-orange-100 mt-0.5">
+              <p className="text-xs sm:text-sm text-teal-100 mt-0.5">
                 {courseData.courseInfo.totalSections} Sections • {courseData.courseInfo.totalLessons} Lessons
               </p>
             </div>
@@ -286,7 +286,7 @@ export default function EnglishCoursePlatform() {
         fixed lg:sticky top-[73px] left-0 w-80 lg:w-96 bg-white border-r border-gray-200 
         h-[calc(100vh-73px)] overflow-y-auto z-20 shadow-xl lg:shadow-none`}>
           
-          <div className="p-4 border-b border-gray-200 bg-gradient-to-r from-orange-50 to-red-50 sticky top-0 z-10">
+          <div className="p-4 border-b border-gray-200 bg-gradient-to-r from-teal-50 to-red-50 sticky top-0 z-10">
             <h2 className="font-bold text-lg text-gray-900">Course Syllabus</h2>
             <p className="text-sm text-gray-600 mt-1">
               Track your progress through the course
@@ -368,16 +368,16 @@ export default function EnglishCoursePlatform() {
                 <button 
                   onClick={goToNextLesson}
                   disabled={!findAdjacentLesson('next')}
-                  className="flex-1 px-4 sm:px-6 py-3 bg-gradient-to-r from-[#FD5A00] to-orange-500 text-white rounded-lg hover:from-orange-600 hover:to-orange-600 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+                  className="flex-1 px-4 sm:px-6 py-3 bg-gradient-to-r from-[#14B8A6] to-teal-500 text-white rounded-lg hover:from-teal-600 hover:to-teal-600 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
                 >
                   Next →
                 </button>
               </div>
 
               {/* Lesson Info */}
-              <div className="mt-8 p-6 bg-gradient-to-r from-orange-50 to-red-50 rounded-xl border border-orange-100">
+              <div className="mt-8 p-6 bg-gradient-to-r from-teal-50 to-red-50 rounded-xl border border-teal-100">
                 <h3 className="font-bold text-lg text-gray-900 mb-3 flex items-center gap-2">
-                  <BookOpen className="w-5 h-5 text-[#FD5A00]" />
+                  <BookOpen className="w-5 h-5 text-[#14B8A6]" />
                   About this lesson
                 </h3>
                 <p className="text-gray-700 leading-relaxed">

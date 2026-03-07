@@ -61,7 +61,7 @@ const EnglishSpeaking = () => {
   // Loading animation
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-orange-50 to-orange-100 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-teal-50 to-teal-100 flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-xl font-semibold text-gray-700">Loading English Courses...</p>
@@ -71,7 +71,7 @@ const EnglishSpeaking = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-orange-100">
+    <div className="min-h-screen bg-gradient-to-br from-teal-50 to-teal-100">
       {/* Header with background image */}
       <header 
         className="relative bg-cover bg-center py-20 md:py-28 px-4 text-white
@@ -90,7 +90,7 @@ const EnglishSpeaking = () => {
             Master English conversation with our curated collection of free video lessons
           </p>
          <Link to="/courses">
-  <button className="bg-primary hover:bg-orange-600 text-white font-bold py-3 px-8 rounded-full text-lg transition-all duration-300 transform hover:scale-105 shadow-lg animate-pulse-slow">
+  <button className="bg-primary hover:bg-[#0F766E] text-white font-bold py-3 px-8 rounded-full text-lg transition-all duration-300 transform hover:scale-105 shadow-lg animate-pulse-slow">
     Start Learning Now
   </button>
 </Link>
@@ -113,7 +113,7 @@ const EnglishSpeaking = () => {
                 className={`px-4 py-2 rounded-full font-medium transition-all duration-300 ${
                   activeTab === index 
                     ? 'bg-primary text-white shadow-md transform scale-105' 
-                    : 'bg-white text-gray-700 hover:bg-orange-100'
+                    : 'bg-white text-gray-700 hover:bg-teal-100'
                 }`}
                 onClick={() => setActiveTab(index)}
               >
@@ -124,7 +124,7 @@ const EnglishSpeaking = () => {
 
           {/* Course Videos */}
           <div className="bg-white rounded-xl shadow-lg overflow-hidden transition-all duration-500 animate-fade-in">
-            <h2 className="text-2xl md:text-3xl font-bold p-6 bg-gradient-to-r from-primary to-orange-400 text-black">
+            <h2 className="text-2xl md:text-3xl font-bold p-6 bg-gradient-to-r from-teal-500 to-teal-400 text-black">
               {courses[activeTab].title}
             </h2>
             
@@ -146,7 +146,7 @@ const EnglishSpeaking = () => {
                   </div>
                   <div className="p-4">
                     <h3 className="font-semibold text-lg mb-2 text-gray-800">{video.title}</h3>
-                    <button className="text-primary font-medium hover:text-orange-700 transition-colors flex items-center">
+                    <button className="text-primary font-medium hover:text-teal-700 transition-colors flex items-center">
                       Watch Now
                       <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
@@ -197,7 +197,7 @@ const EnglishSpeaking = () => {
         </div>
 
         {/* CTA Section */}
-       <div className="bg-gradient-to-r from-primary to-orange rounded-2xl p-8 md:p-12 text-black text-center shadow-xl animate-pulse-slow">
+       <div className="bg-gradient-to-r from-teal-500 to-teal-500 rounded-2xl p-8 md:p-12 text-black text-center shadow-xl animate-pulse-slow">
   <h2 className="text-2xl md:text-4xl font-bold mb-4">
     Ready to Improve Your English?
   </h2>
@@ -220,19 +220,19 @@ const EnglishSpeaking = () => {
       {/* Custom CSS for animations */}
       <style>{`
         :root {
-          --primary-color: #FD5A00;
+          --primary-color: #14B8A6;
         }
         
         .bg-primary {
-          background-color: #FD5A00;
+          background-color: #14B8A6;
         }
         
         .text-primary {
-          color: #FD5A00;
+          color: #14B8A6;
         }
         
         .border-primary {
-          border-color: #FD5A00;
+          border-color: #14B8A6;
         }
         
         @keyframes fadeInDown {

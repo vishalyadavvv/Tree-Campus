@@ -36,7 +36,7 @@ const GamesSection = () => {
     <section className="py-20 bg-gradient-to-b from-white to-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6 bg-gradient-to-r from-[#FD5A00] to-orange-600 bg-clip-text text-transparent">
+          <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6 bg-gradient-to-r from-[#14B8A6] to-teal-600 bg-clip-text text-transparent">
             Learn with Fun Games
           </h2>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
@@ -54,7 +54,7 @@ const GamesSection = () => {
                 {game.icon}
               </div>
               
-              <h3 className="text-2xl font-bold text-gray-900 mb-4 text-center group-hover:text-[#FD5A00] transition-colors duration-300">
+              <h3 className="text-2xl font-bold text-gray-900 mb-4 text-center group-hover:text-[#14B8A6] transition-colors duration-300">
                 {game.name}
               </h3>
               
@@ -67,7 +67,7 @@ const GamesSection = () => {
                 {game.features.map((feature, featureIndex) => (
                   <span 
                     key={featureIndex}
-                    className="px-3 py-1 bg-orange-50 text-[#FD5A00] rounded-lg text-sm font-medium border border-orange-100"
+                    className="px-3 py-1 bg-teal-50 text-[#14B8A6] rounded-lg text-sm font-medium border border-teal-100"
                   >
                     {feature}
                   </span>
@@ -76,7 +76,7 @@ const GamesSection = () => {
 
              <Link
   to={game.path}
-  className="block w-full py-3 bg-gradient-to-r from-[#FD5A00] to-orange-500 text-white rounded-xl hover:from-orange-600 hover:to-orange-600 transition-all duration-300 shadow-lg hover:shadow-xl font-semibold text-center transform hover:scale-105"
+  className="block w-full py-3 bg-gradient-to-r from-[#14B8A6] to-teal-500 text-white rounded-xl hover:from-teal-600 hover:to-teal-600 transition-all duration-300 shadow-lg hover:shadow-xl font-semibold text-center transform hover:scale-105"
 >
   Play Now
 </Link>
@@ -87,7 +87,7 @@ const GamesSection = () => {
 
         {/* Bottom CTA */}
         <div className="text-center mt-12">
-          <div className="bg-gradient-to-r from-orange-50 to-orange-100 rounded-2xl p-8 border border-orange-200">
+          <div className="bg-gradient-to-r from-teal-50 to-teal-100 rounded-2xl p-8 border border-teal-200">
             <h3 className="text-2xl font-bold text-gray-900 mb-4">
               Ready to Make Learning Fun?
             </h3>
@@ -97,7 +97,7 @@ const GamesSection = () => {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link 
                 to="/games" 
-                className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-[#FD5A00] to-orange-500 text-white rounded-xl hover:from-orange-600 hover:to-orange-600 transition-all duration-300 shadow-lg hover:shadow-xl font-semibold text-lg"
+                className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-[#14B8A6] to-teal-500 text-white rounded-xl hover:from-teal-600 hover:to-teal-600 transition-all duration-300 shadow-lg hover:shadow-xl font-semibold text-lg"
               >
                 Explore All Games
                 <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">

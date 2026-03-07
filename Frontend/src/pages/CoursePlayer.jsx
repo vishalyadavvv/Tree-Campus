@@ -6,7 +6,7 @@ const SidebarLesson = ({ lesson, onClick, active }) => (
   <button
     onClick={onClick}
     className={`w-full text-left px-3 py-2 rounded-md transition-colors ${
-      active ? "bg-[#FFF2E8] border-l-4 border-[#FD5A00]" : "hover:bg-gray-50"
+      active ? "bg-[#FFF2E8] border-l-4 border-[#14B8A6]" : "hover:bg-gray-50"
     }`}
   >
     <div className="text-sm font-medium text-gray-800">{lesson.title}</div>
@@ -143,7 +143,7 @@ export default function CoursePlayer() {
                       setLessonIndex(0);
                     }
                   }}
-                  className="px-4 py-2 rounded-md bg-[#FD5A00] text-white hover:opacity-90"
+                  className="px-4 py-2 rounded-md bg-[#115E59] text-white hover:opacity-90"
                 >
                   Next
                 </button>

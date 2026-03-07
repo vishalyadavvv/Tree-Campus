@@ -145,7 +145,7 @@ const VerifyOTP = () => {
   if (!email) return null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-red-50 to-pink-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-teal-50 via-red-50 to-pink-50 flex items-center justify-center p-4">
       <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl p-8">
         <div className="text-center mb-8">
           <div className="flex justify-center mb-4">
@@ -176,7 +176,7 @@ const VerifyOTP = () => {
                       type="text"
                       value={tempPhone}
                       onChange={(e) => setTempPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
-                      className="w-40 px-3 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-orange-500 text-center font-medium text-gray-900"
+                      className="w-40 px-3 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#14B8A6] text-center font-medium text-gray-900"
                       placeholder="10 digit number"
                       maxLength="10"
                     />
@@ -184,7 +184,7 @@ const VerifyOTP = () => {
                       onClick={() => handleResendOTP(true)}
                       disabled={resending || tempPhone.length !== 10}
                       className="text-white px-3 py-1 rounded-md text-xs font-medium transition"
-                      style={{ backgroundColor: '#FD5B00' }}
+                      style={{ backgroundColor: '#14B8A6' }}
                     >
                       {resending ? 'Sending...' : 'Save & Resend'}
                     </button>
@@ -203,7 +203,7 @@ const VerifyOTP = () => {
                     <span className="font-medium text-gray-900">{currentPhone || email}</span>
                     <button 
                       onClick={() => setIsEditingPhone(true)}
-                      className="text-xs text-orange-600 hover:underline font-medium"
+                      className="text-xs text-teal-600 hover:underline font-medium"
                     >
                       Edit
                     </button>
@@ -248,9 +248,9 @@ const VerifyOTP = () => {
               type="submit"
               disabled={loading}
               className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white transition disabled:opacity-50 disabled:cursor-not-allowed transform hover:-translate-y-0.5"
-              style={{ backgroundColor: '#FD5B00' }}
-              onMouseEnter={(e) => !loading && (e.target.style.backgroundColor = '#E54F00')}
-              onMouseLeave={(e) => !loading && (e.target.style.backgroundColor = '#FD5B00')}
+              style={{ backgroundColor: '#115E59' }}
+              onMouseEnter={(e) => !loading && (e.target.style.backgroundColor = '#0F766E')}
+              onMouseLeave={(e) => !loading && (e.target.style.backgroundColor = '#115E59')}
             >
               {loading ? 'Verifying...' : 'Verify OTP'}
             </button>
@@ -261,7 +261,7 @@ const VerifyOTP = () => {
                 onClick={handleResendOTP}
                 disabled={resending || !canResend}
                 className="text-sm font-medium hover:opacity-80 transition disabled:opacity-50"
-                style={{ color: '#FD5B00' }}
+                style={{ color: '#14B8A6' }}
               >
                 {resending 
                   ? 'Sending...' 
@@ -272,7 +272,7 @@ const VerifyOTP = () => {
             </div>
 
             <p className="text-center text-sm text-gray-600 mt-6">
-              <Link to={mode === 'forgot-password' ? '/forgot-password' : '/login'} className="font-medium hover:opacity-80 transition" style={{ color: '#FD5B00' }}>
+              <Link to={mode === 'forgot-password' ? '/forgot-password' : '/login'} className="font-medium hover:opacity-80 transition" style={{ color: '#14B8A6' }}>
                 Back
               </Link>
             </p>

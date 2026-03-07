@@ -116,6 +116,25 @@ export default function AdminPanel() {
     }
   };
 
+  const handleDelete = async (examId) => {
+    if (!window.confirm("Are you sure you want to delete this contest? This action cannot be undone.")) return;
+    
+    try {
+        const token = localStorage.getItem("token");
+        const response = await fetch(`${API_URL}/admin/contest/exams/${examId}`, {
+            method: 'DELETE',
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        if (!response.ok) throw new Error("Failed to delete contest");
+        
+        alert("Contest deleted successfully.");
+        setExams(exams.filter(e => e._id !== examId));
+        if (selectedExam?._id === examId) setView("dashboard");
+    } catch (err) {
+        alert(err.message);
+    }
+  };
+
   const handleTogglePause = async (exam) => {
     const newStatus = exam.status === 'paused' ? 'active' : 'paused';
     try {
@@ -327,6 +346,12 @@ export default function AdminPanel() {
                         >
                           <FiMail size={16} /> Email
                         </button>
+                        <button 
+                          onClick={() => handleDelete(exam._id)}
+                          className="flex items-center gap-1.5 text-rose-500 hover:text-rose-700 font-bold text-sm transition-colors"
+                        >
+                          <FiTrash2 size={16} /> Delete
+                        </button>
                       </div>
                     </td>
                   </tr>
@@ -408,6 +433,12 @@ export default function AdminPanel() {
                             className="flex items-center gap-2 px-8 py-3.5 bg-[#334155] hover:bg-[#1E293B] text-white rounded-xl font-bold transition-all shadow-lg shadow-slate-100"
                         >
                             <FiEye /> View Response Table
+                        </button>
+                        <button 
+                            onClick={() => handleDelete(selectedExam._id)}
+                            className="flex items-center gap-2 px-8 py-3.5 bg-rose-500 hover:bg-rose-600 text-white rounded-xl font-bold transition-all shadow-lg shadow-rose-100"
+                        >
+                            <FiTrash2 /> Delete Contest
                         </button>
                     </div>
                 </div>

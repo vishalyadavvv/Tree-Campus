@@ -41,14 +41,14 @@ const ForgotPassword = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center bg-[#F0FDFA] px-4 sm:px-6 lg:px-8">
       <div className="w-full max-w-md">
         <div className="bg-white rounded-2xl shadow-xl p-6 sm:p-8 md:p-10">
           {/* Header */}
           <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-teal-100 rounded-full mb-4">
               <svg
-                className="w-8 h-8 text-green-600"
+                className="w-8 h-8 text-teal-600"
                 fill="currentColor"
                 viewBox="0 0 24 24"
               >
@@ -123,7 +123,7 @@ const ForgotPassword = () => {
             <button
               onClick={handleSubmit}
               disabled={isLoading || !phone || phone.length !== 10}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 shadow-lg hover:shadow-xl text-sm sm:text-base"
+              className="w-full bg-[#115E59] hover:bg-[#0F766E] text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 shadow-lg hover:shadow-xl text-sm sm:text-base"
             >
               {isLoading ? (
                 <span className="flex items-center justify-center">
@@ -193,7 +193,7 @@ const ForgotPassword = () => {
           <div className="mt-6 text-center">
             <a
               href="/login"
-              className="text-sm sm:text-base text-blue-600 hover:text-blue-700 font-medium transition-colors duration-200"
+              className="text-sm sm:text-base text-[#115E59] hover:text-[#0F766E] font-medium transition-colors duration-200"
             >
               ← Back to Login
             </a>
@@ -205,7 +205,7 @@ const ForgotPassword = () => {
           Remember your password?{" "}
           <a
             href="/login"
-            className="text-blue-600 hover:text-blue-700 font-medium"
+            className="text-teal-600 hover:text-teal-700 font-medium"
           >
             Sign in
           </a>

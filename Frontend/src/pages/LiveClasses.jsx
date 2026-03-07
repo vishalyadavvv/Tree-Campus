@@ -197,7 +197,7 @@ const LiveClasses = () => {
     return (
       <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white flex items-center justify-center">
         <div className="text-center">
-          <Loader2 className="w-12 h-12 animate-spin mx-auto text-[#FD5B00]" />
+          <Loader2 className="w-12 h-12 animate-spin mx-auto text-[#14B8A6]" />
           <p className="mt-4 text-gray-600 text-lg">Loading live classes...</p>
         </div>
       </div>
@@ -215,7 +215,7 @@ const LiveClasses = () => {
           <p className="text-gray-600 mb-6">{error}</p>
           <button
             onClick={fetchLiveClasses}
-            className="px-6 py-3 bg-[#FD5B00] text-white rounded-lg hover:bg-[#e55200] transition-colors"
+            className="px-6 py-3 bg-[#115E59] text-white rounded-lg hover:bg-[#0F766E] transition-colors"
           >
             Try Again
           </button>
@@ -228,9 +228,9 @@ const LiveClasses = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
-      <div className="bg-orange-200/50 py-12 mb-8 border-b border-orange-100">
+      <div className="bg-teal-200/50 py-12 mb-8 border-b border-teal-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h1 className="text-4xl md:text-5xl font-extrabold text-[#FD5A00] text-center drop-shadow-sm">
+          <h1 className="text-4xl md:text-5xl font-extrabold text-[#14B8A6] text-center drop-shadow-sm">
             Live Classes
           </h1>
         </div>
@@ -255,7 +255,7 @@ const LiveClasses = () => {
               onClick={() => setActiveTab('upcoming')}
               className={`px-4 py-2 rounded-md text-sm font-medium transition-colors cursor-pointer ${
                 activeTab === 'upcoming' 
-                  ? 'bg-white text-[#FD5B00] shadow-sm' 
+                  ? 'bg-white text-[#14B8A6] shadow-sm' 
                   : 'text-gray-600 hover:text-gray-900'
               }`}
             >
@@ -265,7 +265,7 @@ const LiveClasses = () => {
               onClick={() => setActiveTab('past')}
               className={`px-4 py-2 rounded-md text-sm font-medium transition-colors cursor-pointer ${
                 activeTab === 'past' 
-                  ? 'bg-white text-[#FD5B00] shadow-sm' 
+                  ? 'bg-white text-[#14B8A6] shadow-sm' 
                   : 'text-gray-600 hover:text-gray-900'
               }`}
             >
@@ -290,7 +290,7 @@ const LiveClasses = () => {
             {activeTab === 'upcoming' && (
               <button
                 onClick={fetchLiveClasses}
-                className="px-6 py-3 bg-[#FD5B00] text-white rounded-lg hover:bg-[#e55200] transition-colors cursor-pointer"
+                className="px-6 py-3 bg-[#115E59] text-white rounded-lg hover:bg-[#0F766E] transition-colors cursor-pointer"
               >
                 Check Again
               </button>
@@ -307,7 +307,7 @@ const LiveClasses = () => {
                 }`}
               >
                 {/* Card Header */}
-                <div className={`bg-gradient-to-r p-3 md:p-6 ${activeTab === 'upcoming' ? 'from-[#FD5B00] to-[#ff7a33]' : 'from-gray-600 to-gray-500'}`}>
+                <div className={`bg-gradient-to-r p-3 md:p-6 ${activeTab === 'upcoming' ? 'from-[#14B8A6] to-[#22D3EE]' : 'from-gray-600 to-gray-500'}`}>
                   <div className="flex items-center space-x-3 md:space-x-4">
                     <div className="w-10 h-10 md:w-16 md:h-16 rounded-full bg-white flex items-center justify-center border-2 md:border-4 border-white shadow-lg">
                       {classItem.instructorImage ? (
@@ -317,7 +317,7 @@ const LiveClasses = () => {
                           className="w-full h-full rounded-full object-cover"
                         />
                       ) : (
-                        <Users className={`w-5 h-5 md:w-8 md:h-8 ${activeTab === 'upcoming' ? 'text-[#FD5B00]' : 'text-gray-600'}`} />
+                        <Users className={`w-5 h-5 md:w-8 md:h-8 ${activeTab === 'upcoming' ? 'text-[#14B8A6]' : 'text-gray-600'}`} />
                       )}
                     </div>
                     <div className="text-white">
@@ -348,13 +348,13 @@ const LiveClasses = () => {
 
                   <div className="space-y-2 md:space-y-3 mb-3 md:mb-6">
                     <div className="flex items-center text-gray-600">
-                      <Calendar className={`w-4 h-4 md:w-5 md:h-5 mr-2 md:mr-3 ${activeTab === 'upcoming' ? 'text-[#FD5B00]' : 'text-gray-500'}`} />
+                      <Calendar className={`w-4 h-4 md:w-5 md:h-5 mr-2 md:mr-3 ${activeTab === 'upcoming' ? 'text-[#14B8A6]' : 'text-gray-500'}`} />
                       <span className="text-xs md:text-sm font-medium">
                         {formatDate(classItem.scheduledAt)}
                       </span>
                     </div>
                     <div className="flex items-center text-gray-600">
-                      <Clock className={`w-4 h-4 md:w-5 md:h-5 mr-2 md:mr-3 ${activeTab === 'upcoming' ? 'text-[#FD5B00]' : 'text-gray-500'}`} />
+                      <Clock className={`w-4 h-4 md:w-5 md:h-5 mr-2 md:mr-3 ${activeTab === 'upcoming' ? 'text-[#14B8A6]' : 'text-gray-500'}`} />
                       <span className="text-xs md:text-sm font-medium">
                         {getDurationText(classItem.duration || 60)}
                       </span>
@@ -362,8 +362,8 @@ const LiveClasses = () => {
 
                     {/* Password display: Only show for upcoming */}
                     {activeTab === 'upcoming' && classItem.platform === 'Zoom' && classItem.password && (
-                      <div className="flex items-center text-gray-600 bg-orange-50 p-1.5 md:p-2 rounded-lg border border-orange-100">
-                        <div className="w-4 h-4 md:w-5 md:h-5 mr-2 md:mr-3 flex items-center justify-center font-bold text-[10px] md:text-xs text-[#FD5B00] border border-[#FD5B00] rounded-sm">P</div>
+                      <div className="flex items-center text-gray-600 bg-teal-50 p-1.5 md:p-2 rounded-lg border border-teal-100">
+                        <div className="w-4 h-4 md:w-5 md:h-5 mr-2 md:mr-3 flex items-center justify-center font-bold text-[10px] md:text-xs text-[#14B8A6] border border-[#14B8A6] rounded-sm">P</div>
                         <span className="text-xs md:text-sm">
                           Password: <span className="font-mono font-bold text-gray-900">{classItem.password}</span>
                         </span>
@@ -396,7 +396,7 @@ const LiveClasses = () => {
                           className={`w-full py-2.5 md:py-3 text-white rounded-lg md:rounded-xl transition-all duration-300 font-bold text-sm md:text-lg shadow-md hover:shadow-xl transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer ${
                             isLive 
                               ? 'bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 animate-pulse ring-4 ring-green-100' 
-                              : 'bg-gradient-to-r from-[#FD5B00] to-[#ff7a33] hover:from-[#e55200] hover:to-[#ff6b1f]'
+                              : 'bg-gradient-to-r from-[#14B8A6] to-[#22D3EE] hover:from-[#0F766E] hover:to-[#22D3EE]'
                           }`}
                           disabled={!classItem.link && !classItem.meetingId}
                         >

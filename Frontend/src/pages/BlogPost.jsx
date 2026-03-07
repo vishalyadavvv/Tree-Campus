@@ -233,8 +233,8 @@ const BlogPost = () => {
       <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 flex items-center justify-center">
         <div className="text-center">
           <div className="relative">
-            <div className="w-20 h-20 border-4 border-orange-200 rounded-full"></div>
-            <div className="w-20 h-20 border-4 border-t-orange-500 border-r-orange-500 border-b-orange-500 border-l-transparent rounded-full absolute top-0 left-0 animate-spin"></div>
+            <div className="w-20 h-20 border-4 border-teal-200 rounded-full"></div>
+            <div className="w-20 h-20 border-4 border-t-teal-500 border-r-teal-500 border-b-teal-500 border-l-transparent rounded-full absolute top-0 left-0 animate-spin"></div>
           </div>
           <p className="mt-4 text-gray-600 font-medium animate-pulse">Loading amazing content...</p>
         </div>
@@ -246,14 +246,14 @@ const BlogPost = () => {
     return (
       <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 flex items-center justify-center p-4">
         <div className="max-w-md w-full bg-white rounded-3xl shadow-2xl p-8 text-center transform hover:scale-[1.02] transition-transform duration-300">
-          <div className="w-24 h-24 bg-gradient-to-r from-orange-100 to-orange-200 rounded-full flex items-center justify-center mx-auto mb-6">
-            <FiBookOpen className="w-12 h-12 text-orange-500" />
+          <div className="w-24 h-24 bg-gradient-to-r from-teal-100 to-teal-200 rounded-full flex items-center justify-center mx-auto mb-6">
+            <FiBookOpen className="w-12 h-12 text-teal-500" />
           </div>
           <h2 className="text-3xl font-bold text-gray-900 mb-3">Post Not Found</h2>
           <p className="text-gray-600 mb-6">The article you're looking for seems to have wandered off. Let's find you something else to read!</p>
           <button
             onClick={() => navigate('/blogs')}
-            className="bg-gradient-to-r from-orange-500 to-red-500 text-white font-bold py-3 px-8 rounded-full hover:shadow-lg hover:shadow-orange-200 transition-all duration-300 transform hover:-translate-y-1"
+            className="bg-gradient-to-r from-teal-500 to-red-500 text-white font-bold py-3 px-8 rounded-full hover:shadow-lg hover:shadow-teal-200 transition-all duration-300 transform hover:-translate-y-1"
           >
             Explore More Blogs
           </button>
@@ -267,7 +267,7 @@ const BlogPost = () => {
       {/* Floating Progress Bar */}
       <div className="fixed top-0 left-0 right-0 h-1 bg-gray-200 z-50">
         <div 
-          className="h-full bg-gradient-to-r from-orange-500 to-red-500 transition-all duration-300 ease-out"
+          className="h-full bg-gradient-to-r from-teal-500 to-red-500 transition-all duration-300 ease-out"
           style={{ width: `${scrollProgress}%` }}
         ></div>
       </div>
@@ -314,7 +314,7 @@ const BlogPost = () => {
           onClick={handleBookmark}
           className={`p-3 rounded-full shadow-lg transition-all duration-300 transform hover:scale-110 ${
             isBookmarked 
-              ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white' 
+              ? 'bg-gradient-to-r from-teal-500 to-red-500 text-white' 
               : 'bg-white text-gray-700 hover:bg-gray-50'
           }`}
         >
@@ -416,7 +416,7 @@ const BlogPost = () => {
           <div className="absolute bottom-0 left-0 right-0 p-8">
             <div className="max-w-4xl mx-auto">
               <div className="flex flex-wrap gap-2 mb-4">
-                <span className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-4 py-1 rounded-full text-sm font-bold">
+                <span className="bg-gradient-to-r from-teal-500 to-red-500 text-white px-4 py-1 rounded-full text-sm font-bold">
                   {blog.category}
                 </span>
                 {blog.tags?.slice(0, 3).map((tag, index) => (
@@ -435,7 +435,7 @@ const BlogPost = () => {
               
               <div className="flex flex-wrap items-center gap-6 text-white/90">
                 <div className="flex items-center gap-2">
-                  <div className="w-10 h-10 bg-gradient-to-r from-orange-400 to-red-400 rounded-full flex items-center justify-center font-bold">
+                  <div className="w-10 h-10 bg-gradient-to-r from-teal-400 to-red-400 rounded-full flex items-center justify-center font-bold">
                     {blog.author?.charAt(0)}
                   </div>
                   <span className="font-medium">{blog.author}</span>
@@ -490,7 +490,7 @@ const BlogPost = () => {
                     onClick={handleBookmark}
                     className={`flex items-center gap-2 px-4 py-2 rounded-full transition-all duration-300 ${
                       isBookmarked
-                        ? 'bg-gradient-to-r from-orange-50 to-red-50 text-orange-600 border border-orange-200'
+                        ? 'bg-gradient-to-r from-teal-50 to-red-50 text-teal-600 border border-teal-200'
                         : 'bg-gray-50 text-gray-600 hover:bg-gray-100'
                     }`}
                   >
@@ -551,9 +551,9 @@ const BlogPost = () => {
               </div>
 
               {/* Highlight Box */}
-              <div className="my-12 p-8 bg-gradient-to-r from-orange-50 to-red-50 rounded-2xl border-l-4 border-orange-500 transform hover:scale-[1.02] transition-transform duration-300">
+              <div className="my-12 p-8 bg-gradient-to-r from-teal-50 to-red-50 rounded-2xl border-l-4 border-teal-500 transform hover:scale-[1.02] transition-transform duration-300">
                 <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 bg-gradient-to-r from-orange-500 to-red-500 rounded-full flex items-center justify-center flex-shrink-0">
+                  <div className="w-12 h-12 bg-gradient-to-r from-teal-500 to-red-500 rounded-full flex items-center justify-center flex-shrink-0">
                     <FiBookOpen className="w-6 h-6 text-white" />
                   </div>
                   <div>
@@ -573,7 +573,7 @@ const BlogPost = () => {
                     {blog.tags.map((tag, index) => (
                       <span
                         key={index}
-                        className="px-4 py-2 bg-gradient-to-r from-orange-100 to-red-100 text-orange-700 rounded-full hover:from-orange-200 hover:to-red-200 transition-all duration-300 cursor-pointer transform hover:-translate-y-1"
+                        className="px-4 py-2 bg-gradient-to-r from-teal-100 to-red-100 text-teal-700 rounded-full hover:from-teal-200 hover:to-red-200 transition-all duration-300 cursor-pointer transform hover:-translate-y-1"
                       >
                         #{tag}
                       </span>
@@ -589,14 +589,14 @@ const BlogPost = () => {
             <div className="p-8 md:p-12">
               <div className="flex flex-col md:flex-row items-start gap-8">
                 <div className="flex-shrink-0">
-                  <div className="w-24 h-24 bg-gradient-to-r from-orange-500 to-red-500 rounded-full flex items-center justify-center text-white font-bold text-3xl shadow-lg">
+                  <div className="w-24 h-24 bg-gradient-to-r from-teal-500 to-red-500 rounded-full flex items-center justify-center text-white font-bold text-3xl shadow-lg">
                     {blog.author?.charAt(0)}
                   </div>
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center gap-4 mb-4">
                     <h2 className="text-2xl font-bold text-gray-900">About {blog.author}</h2>
-                    <span className="px-3 py-1 bg-gradient-to-r from-orange-500 to-red-500 text-white text-sm font-bold rounded-full">
+                    <span className="px-3 py-1 bg-gradient-to-r from-teal-500 to-red-500 text-white text-sm font-bold rounded-full">
                       Author
                     </span>
                   </div>
@@ -619,13 +619,13 @@ const BlogPost = () => {
                 >
                   <div className="flex items-center gap-4">
                     <div className="flex-shrink-0">
-                      <div className="w-16 h-16 bg-gradient-to-r from-orange-100 to-red-100 rounded-2xl flex items-center justify-center group-hover:from-orange-200 group-hover:to-red-200 transition-all duration-300">
-                        <FiArrowLeft className="w-8 h-8 text-orange-500 group-hover:scale-110 transition-transform" />
+                      <div className="w-16 h-16 bg-gradient-to-r from-teal-100 to-red-100 rounded-2xl flex items-center justify-center group-hover:from-teal-200 group-hover:to-red-200 transition-all duration-300">
+                        <FiArrowLeft className="w-8 h-8 text-teal-500 group-hover:scale-110 transition-transform" />
                       </div>
                     </div>
                     <div>
                       <span className="text-sm text-gray-500 font-medium mb-1 block">Previous Post</span>
-                      <h3 className="text-lg font-bold text-gray-900 group-hover:text-orange-600 transition-colors">
+                      <h3 className="text-lg font-bold text-gray-900 group-hover:text-teal-600 transition-colors">
                         {blog.previousBlogTitle || 'Previous Article'}
                       </h3>
                     </div>
@@ -641,13 +641,13 @@ const BlogPost = () => {
                   <div className="flex items-center gap-4 justify-end">
                     <div>
                       <span className="text-sm text-gray-500 font-medium mb-1 block">Next Post</span>
-                      <h3 className="text-lg font-bold text-gray-900 group-hover:text-orange-600 transition-colors">
+                      <h3 className="text-lg font-bold text-gray-900 group-hover:text-teal-600 transition-colors">
                         {blog.nextBlogTitle || 'Next Article'}
                       </h3>
                     </div>
                     <div className="flex-shrink-0">
-                      <div className="w-16 h-16 bg-gradient-to-r from-orange-100 to-red-100 rounded-2xl flex items-center justify-center group-hover:from-orange-200 group-hover:to-red-200 transition-all duration-300">
-                        <FiArrowRight className="w-8 h-8 text-orange-500 group-hover:scale-110 transition-transform" />
+                      <div className="w-16 h-16 bg-gradient-to-r from-teal-100 to-red-100 rounded-2xl flex items-center justify-center group-hover:from-teal-200 group-hover:to-red-200 transition-all duration-300">
+                        <FiArrowRight className="w-8 h-8 text-teal-500 group-hover:scale-110 transition-transform" />
                       </div>
                     </div>
                   </div>

@@ -114,9 +114,9 @@ const Courses = () => {
 
   return (
     <div className="min-h-screen ">
-      <div className="bg-orange-200/50 py-12 mb-8 border-b border-orange-100">
+      <div className="bg-teal-200/50 py-12 mb-8 border-b border-teal-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h1 className="text-4xl md:text-5xl font-extrabold text-[#FD5A00] text-center drop-shadow-sm">
+          <h1 className="text-4xl md:text-5xl font-extrabold text-[#14B8A6] text-center drop-shadow-sm">
             Explore Our Courses
           </h1>
         </div>

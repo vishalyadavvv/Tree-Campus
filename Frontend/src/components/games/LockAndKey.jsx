@@ -121,7 +121,7 @@ const LockAndKey = () => {
       }
       return 'bg-blue-50 border-blue-400 text-blue-700 ring-2 ring-blue-300 scale-105 transform shadow-lg';
     }
-    return 'bg-white border-gray-300 text-gray-700 hover:border-orange-400 hover:shadow-md cursor-pointer hover:scale-102';
+    return 'bg-white border-gray-300 text-gray-700 hover:border-teal-400 hover:shadow-md cursor-pointer hover:scale-102';
   };
 
   return (
@@ -129,21 +129,21 @@ const LockAndKey = () => {
       <div className="bg-white rounded-2xl shadow-xl border border-gray-200 min-h-[650px] flex flex-col overflow-hidden">
         
         {/* Header */}
-        <div className="bg-gradient-to-r from-orange-500 to-red-500 p-6 text-white flex justify-between items-center">
+        <div className="bg-gradient-to-r from-teal-500 to-red-500 p-6 text-white flex justify-between items-center">
           <div>
             <h2 className="text-2xl font-bold flex items-center gap-2">
               <LockClosedIcon className="w-7 h-7" />
               Lock & Key: Hindi ↔ English
             </h2>
-            <p className="text-orange-100 text-sm mt-1">Match Hindi words (🔒) with their English translations (🔑)</p>
+            <p className="text-teal-100 text-sm mt-1">Match Hindi words (🔒) with their English translations (🔑)</p>
           </div>
           <div className="flex items-center gap-6">
             <div className="text-center">
-              <p className="text-xs uppercase tracking-wider text-orange-200">Turns</p>
+              <p className="text-xs uppercase tracking-wider text-teal-200">Turns</p>
               <p className="font-mono text-2xl font-bold">{turns}</p>
             </div>
             <div className="text-center">
-              <p className="text-xs uppercase tracking-wider text-orange-200">Score</p>
+              <p className="text-xs uppercase tracking-wider text-teal-200">Score</p>
               <p className="font-mono text-2xl font-bold">{score}</p>
             </div>
             <button 
@@ -164,7 +164,7 @@ const LockAndKey = () => {
         </div>
 
         {/* Game Area */}
-        <div className="flex-1 bg-gradient-to-br from-orange-50 to-red-50 p-6">
+        <div className="flex-1 bg-gradient-to-br from-teal-50 to-red-50 p-6">
           {!isWon ? (
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
               {cards.map((card) => (
@@ -240,15 +240,15 @@ const LockAndKey = () => {
               </motion.div>
               <h2 className="text-4xl font-bold text-gray-900 mb-3">🎉 Excellent Work!</h2>
               <p className="text-gray-600 mb-2 text-lg">
-                You matched all {cards.length / 2} pairs in <span className="font-bold text-orange-600">{turns}</span> turns
+                You matched all {cards.length / 2} pairs in <span className="font-bold text-teal-600">{turns}</span> turns
               </p>
               <p className="text-gray-500 mb-8">
-                Final Score: <span className="font-bold text-2xl text-orange-600">{score}</span> points
+                Final Score: <span className="font-bold text-2xl text-teal-600">{score}</span> points
               </p>
               <div className="flex gap-4">
                 <button 
                   onClick={startNewGame}
-                  className="px-8 py-4 bg-gradient-to-r from-orange-500 to-red-500 text-white font-bold rounded-xl hover:from-orange-600 hover:to-red-600 transition shadow-lg text-lg"
+                  className="px-8 py-4 bg-gradient-to-r from-teal-500 to-red-500 text-white font-bold rounded-xl hover:from-teal-600 hover:to-red-600 transition shadow-lg text-lg"
                 >
                   Play Again 🎮
                 </button>

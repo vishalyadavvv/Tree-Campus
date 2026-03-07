@@ -124,7 +124,7 @@ const AssignmentResults = () => {
           </div>
 
           {/* Score Display */}
-          <div className="bg-gradient-to-r from-[#FD5A00] to-orange-600 rounded-lg p-6 text-white text-center mb-6">
+          <div className="bg-gradient-to-r from-[#14B8A6] to-teal-600 rounded-lg p-6 text-white text-center mb-6">
             <p className="text-sm mb-1 opacity-90">Your Score</p>
             <p className="text-4xl font-bold mb-1">{score}%</p>
             <p className="text-sm opacity-90">
@@ -154,15 +154,15 @@ const AssignmentResults = () => {
 
           {/* Certificate Section */}
           {passed && certificate && (
-            <div className="border border-[#FD5A00]/20 rounded-lg p-4 mb-6 bg-orange-50">
-              <h3 className="text-lg font-bold text-[#FD5A00] mb-2 flex items-center gap-2">🎓 Certificate Earned</h3>
+            <div className="border border-[#14B8A6]/20 rounded-lg p-4 mb-6 bg-teal-50">
+              <h3 className="text-lg font-bold text-[#14B8A6] mb-2 flex items-center gap-2">🎓 Certificate Earned</h3>
               <p className="text-gray-600 text-sm mb-4">
                 <strong>{certificate?.userName || user?.name || 'User'}</strong>, your certificate of completion is ready.
               </p>
               <button
                 onClick={handleDownloadCertificate}
                 disabled={loading}
-                className="w-full bg-[#FD5A00] text-white py-2.5 rounded-lg font-bold hover:bg-orange-600 disabled:opacity-50 transition text-sm flex items-center justify-center gap-2"
+                className="w-full bg-[#115E59] text-white py-2.5 rounded-lg font-bold hover:bg-[#0F766E] disabled:opacity-50 transition text-sm flex items-center justify-center gap-2"
               >
                 {loading ? 'Generating...' : '⬇️ Download Certificate'}
               </button>
@@ -184,7 +184,7 @@ const AssignmentResults = () => {
           <div className="flex gap-3">
             <button
               onClick={() => navigate(`/courses/${courseId}`)}
-              className="flex-1 bg-[#FD5A00] text-white py-2.5 rounded-lg font-bold hover:bg-orange-600 transition text-sm shadow"
+              className="flex-1 bg-[#115E59] text-white py-2.5 rounded-lg font-bold hover:bg-[#0F766E] transition text-sm shadow"
             >
               Back to Course
             </button>

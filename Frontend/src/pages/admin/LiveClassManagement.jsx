@@ -405,7 +405,7 @@
                       </button>
                       {status !== 'completed' && (
                         <button 
-                          className="p-2 text-gray-600 hover:text-orange-600 hover:bg-orange-50 rounded-lg transition-colors"
+                          className="p-2 text-gray-600 hover:text-teal-600 hover:bg-teal-50 rounded-lg transition-colors"
                           onClick={() => handleMarkCompleted(liveClass._id)}
                           title="Mark as Completed"
                         >

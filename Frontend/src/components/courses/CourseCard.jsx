@@ -34,14 +34,14 @@ const CourseCard = ({ course }) => {
           </div>
         )}
         <div className="absolute top-4 right-4">
-          <span className="px-3 py-1 bg-[#FD5A00] text-white rounded-full text-xs font-semibold">
+          <span className="px-3 py-1 bg-[#115E59] text-white rounded-full text-xs font-semibold">
             {course?.price || 'Free'}
           </span>
         </div>
       </div>
 
       <div className="p-5 flex flex-col flex-1">
-        <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-1 group-hover:text-[#FD5A00] transition-colors">
+        <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-1 group-hover:text-[#14B8A6] transition-colors">
           {course?.title || 'Untitled Course'}
         </h3>
         <p className="text-sm text-gray-600 mb-4 line-clamp-2 leading-relaxed flex-1">
@@ -50,13 +50,13 @@ const CourseCard = ({ course }) => {
 
         <div className="flex items-center justify-between mb-3 pt-3 border-t border-gray-50">
           <span className="text-xs font-medium text-gray-500 flex items-center">
-            <svg className="w-3.5 h-3.5 mr-1 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-3.5 h-3.5 mr-1 text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
             </svg>
             {(course?.enrollmentCount || course?.totalEnrollments || 0).toLocaleString()} students
           </span>
           <div className="flex items-center text-xs font-medium text-gray-500">
-             <svg className="w-3.5 h-3.5 mr-1 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+             <svg className="w-3.5 h-3.5 mr-1 text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             {course?.duration || 'N/A'}
@@ -67,7 +67,7 @@ const CourseCard = ({ course }) => {
 
         <Link
           to={`/courses/${course?._id}`}
-          className="block w-full py-2.5 bg-gradient-to-r from-[#FD5A00] to-orange-500 text-white text-center rounded-xl hover:from-orange-600 hover:to-orange-600 transition-all duration-300 shadow-md hover:shadow-lg font-bold text-sm transform hover:scale-[1.02] active:scale-[0.98]"
+          className="block w-full py-2.5 bg-[#115E59] text-white text-center rounded-xl hover:bg-[#0F766E] transition-all duration-300 shadow-md hover:shadow-lg font-bold text-sm transform hover:scale-[1.02] active:scale-[0.98]"
         >
           Start Learning Free
         </Link>

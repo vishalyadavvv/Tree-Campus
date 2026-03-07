@@ -266,6 +266,29 @@ export const getStudents = async (req, res) => {
       conditions.push({ _id: { $nin: activeUserIds } });
     }
 
+    // Enrollment filter (All / Enrolled / Not Enrolled)
+    const enrollment = req.query.enrollment;
+    if (enrollment === 'enrolled') {
+      // User is enrolled if they are in Enrollment collection OR have legacy enrolledCourses
+      conditions.push({
+        $or: [
+          { _id: { $in: activeUserIds } },
+          { enrolledCourses: { $exists: true, $not: { $size: 0 } } }
+        ]
+      });
+    } else if (enrollment === 'not_enrolled') {
+      // User is NOT enrolled if they are NOT in Enrollment collection AND have empty/no legacy enrolledCourses
+      conditions.push({
+        $and: [
+          { _id: { $nin: activeUserIds } },
+          { $or: [
+            { enrolledCourses: { $exists: false } },
+            { enrolledCourses: { $size: 0 } }
+          ]}
+        ]
+      });
+    }
+
     const query = conditions.length === 1 ? conditions[0] : { $and: conditions };
 
     const students = await User.find(query)
@@ -295,8 +318,15 @@ export const getStudents = async (req, res) => {
     // Attach real enrollment count and active status to each student
     const studentsWithRealEnrollments = students.map(student => {
       const s = student.toObject();
-      s.realEnrollmentCount = pageEnrollmentMap.get(String(s._id)) || 0;
+      const dbEnrollmentCount = pageEnrollmentMap.get(String(s._id)) || 0;
+      const userEnrollmentCount = s.enrolledCourses?.length || 0;
+      
+      // Use the higher count of the two (handles legacy and new enrollment systems)
+      s.realEnrollmentCount = Math.max(dbEnrollmentCount, userEnrollmentCount);
+      
+      // A student is active if they have at least one enrollment record
       s.isActive = s.realEnrollmentCount > 0;
+      
       return s;
     });
 

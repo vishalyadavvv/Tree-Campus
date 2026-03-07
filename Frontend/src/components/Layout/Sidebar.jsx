@@ -23,9 +23,9 @@ import {
 } from "react-icons/fi";
 
 // Primary color configuration
-const primaryColor = "#FD5A00";
-const primaryLight = "#FF8A3D";
-const primaryDark = "#D44A00";
+const primaryColor = "#14B8A6";
+const primaryLight = "#22D3EE";
+const primaryDark = "#0F766E";
 
 const adminMenuItems = [
   { path: "/admin", icon: FiHome, label: "Dashboard", section: "main" },
@@ -244,7 +244,7 @@ const Sidebar = () => {
                           <div className="relative">
                             <Icon size={20} style={isActive ? { color: primaryColor } : {}} />
                           </div>
-                          <span className={`ml-3 font-medium flex-1 text-left ${isActive ? 'text-[#FD5A00]' : ''}`}>{item.label}</span>
+                          <span className={`ml-3 font-medium flex-1 text-left ${isActive ? 'text-[#14B8A6]' : ''}`}>{item.label}</span>
                           <FiChevronRight 
                             size={16} 
                             className={`transition-transform duration-300 ${isSubMenuOpen ? 'rotate-90' : ''}`} 
@@ -354,7 +354,7 @@ const Sidebar = () => {
           width: 4px;
         }
         .custom-scrollbar::-webkit-scrollbar-track {
-          background: rgba(253, 90, 0, 0.1);
+          background: rgba(20, 184, 166, 0.1);
           border-radius: 10px;
         }
         .custom-scrollbar::-webkit-scrollbar-thumb {

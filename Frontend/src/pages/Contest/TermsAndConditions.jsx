@@ -1,5 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
+import { FiInfo } from "react-icons/fi";
 
 const TermsAndConditions = () => {
   const sections = [
@@ -25,40 +26,43 @@ const TermsAndConditions = () => {
 
   return (
     <div className="max-w-4xl mx-auto pt-4 pb-20">
-      <div className="bg-white border border-gray-100 rounded-2xl p-8 md:p-12 shadow-sm">
-        <div className="mb-12 border-b border-gray-50 pb-8">
-            <h1 className="text-3xl font-bold text-slate-900">Information & Terms</h1>
-            <p className="text-slate-400 text-sm mt-2">Official guidelines for participation and rewards.</p>
+      <div className="bg-white border border-gray-100 rounded-3xl p-8 md:p-14 shadow-[0_8px_30px_rgb(0,0,0,0.02)]">
+        <div className="mb-12 border-b border-gray-100 pb-10">
+            <h1 className="text-4xl font-black text-gray-900 tracking-tight">Information & Terms</h1>
+            <p className="text-gray-400 text-sm mt-3 font-semibold uppercase tracking-widest text-xs">Official guidelines for participation and rewards</p>
         </div>
 
-        <div className="space-y-12">
-          <div className="bg-slate-50 p-6 rounded-xl text-sm border border-slate-100">
-            <p className="text-slate-600 leading-relaxed">
-              These terms apply to the ongoing TreeCampus Contest, hosted on{" "}
-              <a href="https://contest.treecampus.in" className="text-blue-600 font-bold hover:underline">contest.treecampus.in</a>
-              {" "}in collaboration with{" "}
-              <a href="https://sastasundar.com" target="_blank" rel="noopener noreferrer" className="text-blue-600 font-bold hover:underline">SastaSundar.com</a>.
+        <div className="space-y-14">
+          <div className="bg-teal-50/50 p-8 rounded-2xl text-sm border border-teal-100 flex items-start gap-4">
+            <div className="w-10 h-10 bg-teal-600 text-white rounded-xl flex items-center justify-center shrink-0 shadow-lg shadow-teal-600/20">
+                <FiInfo size={20} />
+            </div>
+            <p className="text-teal-900 font-medium leading-relaxed">
+              These terms apply to the official TreeCampus Contest, hosted on{" "}
+              <a href="https://contest.treecampus.in" className="text-teal-600 font-black hover:underline underline-offset-4">contest.treecampus.in</a>
+              {" "}in exclusive collaboration with{" "}
+              <a href="https://sastasundar.com" target="_blank" rel="noopener noreferrer" className="text-teal-600 font-black hover:underline underline-offset-4">SastaSundar.com</a>.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
             {sections.map((section, idx) => (
-              <div key={idx} className="space-y-6">
-                <h2 className="text-lg font-bold text-slate-900 flex items-center gap-3">
-                  <span className="w-1.5 h-6 bg-slate-900 rounded-full"></span>
+              <div key={idx} className="space-y-8">
+                <h2 className="text-xl font-black text-gray-900 flex items-center gap-4">
+                  <span className="w-2 h-8 bg-[#115E59] rounded-full"></span>
                   {section.title}
                 </h2>
-                <ul className="space-y-4">
+                <ul className="space-y-5">
                   {section.items.map((item, i) => (
-                    <li key={i} className="flex gap-3 text-slate-600 text-sm leading-relaxed">
-                      <span className="mt-2 w-1 h-1 rounded-full bg-slate-300 shrink-0"></span>
-                      <span>
+                    <li key={i} className="flex gap-4 text-gray-600 text-sm leading-relaxed group">
+                      <span className="mt-2 w-1.5 h-1.5 rounded-full bg-teal-200 group-hover:bg-teal-500 transition-colors shrink-0"></span>
+                      <span className="font-medium">
                         {item.highlight ? (
                           <>
                             {item.text.split(item.highlight).map((part, index, array) => (
                               <React.Fragment key={index}>
                                 {part}
-                                {index < array.length - 1 && <span className="text-slate-900 font-bold">{item.highlight}</span>}
+                                {index < array.length - 1 && <span className="text-gray-900 font-black border-b-2 border-teal-100">{item.highlight}</span>}
                               </React.Fragment>
                             ))}
                           </>
@@ -71,11 +75,13 @@ const TermsAndConditions = () => {
             ))}
           </div>
 
-          <div className="pt-10 border-t border-gray-50 text-center">
-            <p className="text-slate-400 text-xs font-medium">
-              Support: <a href="mailto:contact@treecampus.in" className="text-blue-600 hover:underline">contact@treecampus.in</a>
+          <div className="pt-12 border-t border-gray-100 text-center space-y-4">
+            <p className="text-gray-400 text-xs font-bold uppercase tracking-widest">
+              Direct Support: <a href="mailto:contact@treecampus.in" className="text-teal-600 hover:text-[#0F766E] transition-colors underline underline-offset-4">contact@treecampus.in</a>
             </p>
-            <p className="text-[10px] text-slate-300 font-bold uppercase tracking-widest mt-4">Version 1.2 • April 2025</p>
+            <div className="inline-block px-4 py-1.5 bg-gray-50 rounded-full border border-gray-100">
+                <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest">Version 1.5 • March 2026 • Revised</p>
+            </div>
           </div>
         </div>
       </div>

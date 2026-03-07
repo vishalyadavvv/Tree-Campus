@@ -23,7 +23,7 @@ const HowItWorks = () => {
         'Choose your English level and goals',
         'Get immediate access to all courses'
       ],
-      color: 'from-[#FD5A00] to-orange-600'
+      color: 'from-[#14B8A6] to-teal-600'
     },
     {
       id: 2,
@@ -38,7 +38,7 @@ const HowItWorks = () => {
         'Earn points for correct matches',
         'Track your progress and improve vocabulary'
       ],
-      color: 'from-[#FD5A00] to-orange-500'
+      color: 'from-[#14B8A6] to-teal-500'
     },
     {
       id: 3,
@@ -53,7 +53,7 @@ const HowItWorks = () => {
         'Increase difficulty as you progress',
         'Fun way to practice daily English'
       ],
-      color: 'from-[#FD5A00] to-orange-400'
+      color: 'from-[#14B8A6] to-teal-400'
     },
     {
       id: 4,
@@ -68,7 +68,7 @@ const HowItWorks = () => {
         'Get instant feedback on your English',
         'Improve pronunciation and fluency'
       ],
-      color: 'from-[#FD5A00] to-orange-600'
+      color: 'from-[#14B8A6] to-teal-600'
     },
     {
       id: 5,
@@ -83,7 +83,7 @@ const HowItWorks = () => {
         'Complete word puzzles and challenges',
         'Build your vocabulary daily'
       ],
-      color: 'from-[#FD5A00] to-orange-500'
+      color: 'from-[#14B8A6] to-teal-500'
     },
     {
       id: 6,
@@ -98,7 +98,7 @@ const HowItWorks = () => {
         'Interact with teachers in real-time',
         'Access class recordings later'
       ],
-      color: 'from-[#FD5A00] to-orange-600'
+      color: 'from-[#14B8A6] to-teal-600'
     }
   ];
 
@@ -133,7 +133,7 @@ const HowItWorks = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-orange-100">
+    <div className="min-h-screen bg-gradient-to-br from-teal-50 to-teal-100">
       {/* Header Section with Background Image */}
       <div 
         className="relative bg-cover bg-center py-20 md:py-28 px-4 text-white"
@@ -207,7 +207,7 @@ const HowItWorks = () => {
           animatedIntro ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-10 scale-95'
         }`}>
           <div className="inline-block mb-4">
-            <div className="w-16 h-1 bg-gradient-to-r from-[#FD5A00] to-orange-500 rounded-full mx-auto"></div>
+            <div className="w-16 h-1 bg-gradient-to-r from-[#14B8A6] to-teal-500 rounded-full mx-auto"></div>
           </div>
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
             Master Treecampus in Simple Steps
@@ -275,7 +275,7 @@ const HowItWorks = () => {
                             }`}
                             style={{ transitionDelay: `${1000 + (index * 200) + (stepIndex * 100)}ms` }}
                           >
-                            <span className="flex-shrink-0 w-6 h-6 bg-[#FD5A00] text-white rounded-full text-sm flex items-center justify-center font-bold mt-0.5 transition-all duration-300 hover:scale-110">
+                            <span className="flex-shrink-0 w-6 h-6 bg-[#115E59] text-white rounded-full text-sm flex items-center justify-center font-bold mt-0.5 transition-all duration-300 hover:scale-110">
                               {stepIndex + 1}
                             </span>
                             <span className="transition-all duration-300 hover:text-gray-900">{step}</span>
@@ -303,7 +303,7 @@ const HowItWorks = () => {
                           }}
                         />
                         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300 flex items-center justify-center">
-                          <div className="w-16 h-16 bg-[#FD5A00] rounded-full flex items-center justify-center transform group-hover:scale-110 transition-all duration-300 shadow-lg">
+                          <div className="w-16 h-16 bg-[#115E59] rounded-full flex items-center justify-center transform group-hover:scale-110 transition-all duration-300 shadow-lg">
                             <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
                               <path d="M8 5v14l11-7z"/>
                             </svg>
@@ -322,14 +322,14 @@ const HowItWorks = () => {
         </div>
 
         {/* CTA Section with Enhanced Animation */}
-        <div className={`mt-16 bg-gradient-to-r from-[#FD5A00] to-orange-600 rounded-2xl p-8 text-center text-white shadow-2xl transition-all duration-1000 transform ${
+        <div className={`mt-16 bg-gradient-to-r from-[#14B8A6] to-teal-600 rounded-2xl p-8 text-center text-white shadow-2xl transition-all duration-1000 transform ${
           isVisible ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-95 translate-y-10'
         } hover:shadow-3xl hover:-translate-y-1`}>
           <div className="max-w-2xl mx-auto">
             <h3 className="text-3xl font-bold mb-4 transition-all duration-300 hover:scale-105">
               Ready to Start Learning?
             </h3>
-            <p className="text-lg text-orange-100 mb-6 transition-all duration-300 hover:text-orange-50">
+            <p className="text-lg text-teal-100 mb-6 transition-all duration-300 hover:text-teal-50">
               Download the Treecampus app now and begin your English learning journey with our interactive games and live classes
             </p>
   <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -338,7 +338,7 @@ const HowItWorks = () => {
     target="_blank"
     rel="noopener noreferrer"
   >
-    <button className="px-8 py-3 bg-white text-[#FD5A00] rounded-xl font-bold text-lg hover:bg-gray-100 transition-all duration-300 shadow-lg transform hover:scale-105 hover:shadow-xl cursor-pointer">
+    <button className="px-8 py-3 bg-white text-[#14B8A6] rounded-xl font-bold text-lg hover:bg-gray-100 transition-all duration-300 shadow-lg transform hover:scale-105 hover:shadow-xl cursor-pointer">
       Download App Now
     </button>
   </a>

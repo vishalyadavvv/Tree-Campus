@@ -502,7 +502,7 @@ const handleSaveQuiz = async (quizData) => {
       <DashboardLayout>
         <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center">
           <div className="flex flex-col items-center space-y-4">
-            <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-orange-500"></div>
+            <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-teal-500"></div>
             <p className="text-gray-600 animate-pulse">Loading course structure...</p>
           </div>
         </div>
@@ -712,8 +712,8 @@ const handleSaveQuiz = async (quizData) => {
                 <p className="text-sm text-gray-500 mb-1">Total Duration</p>
                 <p className="text-2xl font-bold text-gray-900">{stats.totalDuration} mins</p>
               </div>
-              <div className="p-3 bg-orange-100 rounded-xl">
-                <FiClock className="w-6 h-6 text-orange-600" />
+              <div className="p-3 bg-teal-100 rounded-xl">
+                <FiClock className="w-6 h-6 text-teal-600" />
               </div>
             </div>
           </div>
@@ -727,7 +727,7 @@ const handleSaveQuiz = async (quizData) => {
             <p className="text-gray-600">Create final assessments for certification</p>
           </div>
           <button 
-            className="flex items-center space-x-2 bg-gradient-to-r from-orange-500 to-orange-600 text-white px-6 py-3 rounded-xl hover:from-orange-600 hover:to-orange-700 transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl"
+            className="flex items-center space-x-2 bg-gradient-to-r from-teal-500 to-teal-600 text-white px-6 py-3 rounded-xl hover:from-teal-600 hover:to-teal-700 transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl"
             onClick={handleAddAssignment}
           >
             <FiPlus className="w-4 h-4" />
@@ -738,7 +738,7 @@ const handleSaveQuiz = async (quizData) => {
         {assignments.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {assignments.map((assignment) => (
-              <div key={assignment._id} className="bg-white rounded-xl border border-orange-200 shadow-lg p-6 hover:shadow-xl transition-all duration-300 relative overflow-hidden group">
+              <div key={assignment._id} className="bg-white rounded-xl border border-teal-200 shadow-lg p-6 hover:shadow-xl transition-all duration-300 relative overflow-hidden group">
                 <div className="absolute top-0 right-0 p-3 opacity-0 group-hover:opacity-100 transition-opacity flex space-x-2 bg-white/80 backdrop-blur-sm rounded-bl-xl">
                   <button 
                     onClick={() => handleEditAssignment(assignment)}
@@ -757,7 +757,7 @@ const handleSaveQuiz = async (quizData) => {
                 </div>
 
                 <div className="flex items-center space-x-3 mb-4">
-                  <div className="p-3 bg-orange-100 text-orange-600 rounded-xl">
+                  <div className="p-3 bg-teal-100 text-teal-600 rounded-xl">
                     <FiAward className="w-6 h-6" />
                   </div>
                   <div>
@@ -788,8 +788,8 @@ const handleSaveQuiz = async (quizData) => {
             ))}
           </div>
         ) : (
-          <div className="text-center py-12 bg-orange-50 rounded-xl border-2 border-dashed border-orange-200">
-            <FiAward className="w-12 h-12 text-orange-300 mx-auto mb-3" />
+          <div className="text-center py-12 bg-teal-50 rounded-xl border-2 border-dashed border-teal-200">
+            <FiAward className="w-12 h-12 text-teal-300 mx-auto mb-3" />
             <h3 className="text-lg font-semibold text-gray-900">No Assignments Yet</h3>
             <p className="text-gray-500">Create an assignment for students to earn their certificate.</p>
           </div>
@@ -2058,7 +2058,7 @@ const handleSubmit = async (e) => {
                 />
                 <button 
                   type="button" 
-                  className="flex items-center space-x-2 bg-orange-50 text-orange-600 px-3 py-1.5 rounded-lg hover:bg-orange-100 transition-colors border border-orange-100 text-sm font-medium"
+                  className="flex items-center space-x-2 bg-teal-50 text-teal-600 px-3 py-1.5 rounded-lg hover:bg-teal-100 transition-colors border border-teal-100 text-sm font-medium"
                   onClick={() => fileInputRef.current.click()}
                 >
                   <FiUpload className="w-4 h-4" />

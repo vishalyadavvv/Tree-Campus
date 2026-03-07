@@ -184,7 +184,7 @@ const Hero = () => {
     <section 
     
       ref={sectionRef}
-      className="relative bg-gradient-to-br from-gray-50 via-white to-orange-50/30 overflow-hidden min-h-screen lg:min-h-[90vh]"
+      className="relative bg-gradient-to-br from-gray-50 via-white to-teal-50/30 overflow-hidden min-h-screen lg:min-h-[90vh]"
     >
       {/* Subtle Background Pattern with Parallax */}
       <div 
@@ -194,7 +194,7 @@ const Hero = () => {
         <div 
           className="absolute inset-0" 
           style={{
-            backgroundImage: `radial-gradient(circle at 2px 2px, #FD5A00 1px, transparent 0)`,
+            backgroundImage: `radial-gradient(circle at 2px 2px, #14B8A6 1px, transparent 0)`,
             backgroundSize: '24px 24px'
           }}
         />
@@ -202,11 +202,11 @@ const Hero = () => {
 
       {/* Animated Background Orbs with Parallax */}
       <div 
-        className="hidden sm:block absolute top-10 right-5 lg:top-20 lg:right-10 w-32 sm:w-48 lg:w-64 xl:w-80 h-32 sm:h-48 lg:h-64 xl:h-80 bg-orange-200 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-float"
+        className="hidden sm:block absolute top-10 right-5 lg:top-20 lg:right-10 w-32 sm:w-48 lg:w-64 xl:w-80 h-32 sm:h-48 lg:h-64 xl:h-80 bg-teal-200 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-float"
         style={{ transform: `translateY(${scrollY * 0.15}px)` }}
       />
       <div 
-        className="hidden sm:block absolute bottom-10 left-5 lg:bottom-20 lg:left-10 w-40 sm:w-56 lg:w-72 xl:w-96 h-40 sm:h-56 lg:h-72 xl:h-96 bg-orange-300 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-float-delayed"
+        className="hidden sm:block absolute bottom-10 left-5 lg:bottom-20 lg:left-10 w-40 sm:w-56 lg:w-72 xl:w-96 h-40 sm:h-56 lg:h-72 xl:h-96 bg-teal-300 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-float-delayed"
         style={{ transform: `translateY(${scrollY * -0.1}px)` }}
       />
 
@@ -220,12 +220,12 @@ const Hero = () => {
             {/* Trust Badge */}
             <div 
               ref={trustBadgeRef}
-              className={`inline-flex items-center gap-2 px-3 sm:px-4 py-2 sm:py- bg-white rounded-full shadow-sm border border-orange-100/80 hover:shadow-md hover:scale-105 transition-all duration-300 ${getAnimationClass('trustBadge', 'down')}`}
+              className={`inline-flex items-center gap-2 px-3 sm:px-4 py-2 sm:py- bg-white rounded-full shadow-sm border border-teal-100/80 hover:shadow-md hover:scale-105 transition-all duration-300 ${getAnimationClass('trustBadge', 'down')}`}
             >
               <div className="flex items-center gap-2">
                 <span className="relative flex h-2 w-2 sm:h-2.5 sm:w-2.5">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75" />
-                  <span className="relative inline-flex rounded-full h-full w-full bg-orange-500" />
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75" />
+                  <span className="relative inline-flex rounded-full h-full w-full bg-[#115E59]" />
                 </span>
                 <span className="text-gray-700 font-medium text-xs sm:text-sm">
                   50,000+ Students Learning Now
@@ -241,19 +241,19 @@ const Hero = () => {
   <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-4xl xl:text-5xl font-bold text-gray-900 leading-[1.2] tracking-tight animate-text-shimmer py-1">
     इंग्लिश बोलना सीखे
   </h1>
-  <p className="text-lg sm:text-xl md:text-2xl lg:text-2xl xl:text-3xl font-semibold bg-gradient-to-r from-[#FD5A00] via-orange-500 to-orange-600 bg-clip-text text-transparent bg-size-200 animate-gradient leading-[1.2] py-1">
+  <p className="text-lg sm:text-xl md:text-2xl lg:text-2xl xl:text-3xl font-semibold bg-gradient-to-r from-[#14B8A6] via-teal-500 to-teal-600 bg-clip-text text-transparent bg-size-200 animate-gradient leading-[1.2] py-1">
     दुनिया का सबसे आसान तरीका
   </p>
-  <div className="w-16 sm:w-20 h-1 sm:h-1.5 bg-gradient-to-r from-[#FD5A00] to-orange-600 rounded-full animate-width-expand" />
+  <div className="w-16 sm:w-20 h-1 sm:h-1.5 bg-gradient-to-r from-[#14B8A6] to-teal-600 rounded-full animate-width-expand" />
 </div>
 
             {/* Active Section Content Card */}
             <div 
               ref={contentCardRef}
-              className={`bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl p-4 sm:p-5 lg:p-6 shadow-sm border border-gray-100/50 hover:shadow-lg hover:border-orange-200/50 transition-all duration-500 ${getAnimationClass('contentCard', 'left')}`}
+              className={`bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl p-4 sm:p-5 lg:p-6 shadow-sm border border-gray-100/50 hover:shadow-lg hover:border-teal-200/50 transition-all duration-500 ${getAnimationClass('contentCard', 'left')}`}
             >
               <div className="flex items-start gap-3 sm:gap-4 mb-4 sm:mb-5">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-[#FD5A00] to-orange-600 rounded-lg sm:rounded-xl flex items-center justify-center text-white shadow-md flex-shrink-0 transform hover:scale-110 hover:rotate-3 transition-all duration-300 animate-bounce-subtle">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-[#14B8A6] to-teal-600 rounded-lg sm:rounded-xl flex items-center justify-center text-white shadow-md flex-shrink-0 transform hover:scale-110 hover:rotate-3 transition-all duration-300 animate-bounce-subtle">
                   <span className="text-xl sm:text-2xl">{activeContent.icon}</span>
                 </div>
                 <div className="flex-1 min-w-0">
@@ -278,9 +278,9 @@ const Hero = () => {
                     }`}
                     style={{ transitionDelay: `${(index + 1) * 150}ms` }}
                   >
-                    <div className="w-4 h-4 sm:w-5 sm:h-5 mt-0.5 bg-orange-100 rounded-md flex items-center justify-center group-hover:bg-orange-200 group-hover:scale-110 transition-all duration-200 flex-shrink-0">
+                    <div className="w-4 h-4 sm:w-5 sm:h-5 mt-0.5 bg-teal-100 rounded-md flex items-center justify-center group-hover:bg-teal-200 group-hover:scale-110 transition-all duration-200 flex-shrink-0">
                       <svg
-                        className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-[#FD5A00]"
+                        className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-[#14B8A6]"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -293,7 +293,7 @@ const Hero = () => {
                         />
                       </svg>
                     </div>
-                    <span className="text-gray-700 text-xs sm:text-sm font-medium leading-relaxed group-hover:text-[#FD5A00] transition-colors duration-200">
+                    <span className="text-gray-700 text-xs sm:text-sm font-medium leading-relaxed group-hover:text-[#14B8A6] transition-colors duration-200">
                       {feature}
                     </span>
                   </div>
@@ -308,7 +308,7 @@ const Hero = () => {
             >
               <a
                 href="/courses"
-                className="group relative inline-flex items-center justify-center gap-2 px-5 sm:px-6 lg:px-8 py-3 sm:py-3.5 lg:py-4 bg-gradient-to-r from-[#FD5A00] to-orange-600 text-white rounded-lg sm:rounded-xl overflow-hidden transition-all duration-300 shadow-lg hover:shadow-2xl font-semibold text-sm sm:text-base transform hover:scale-[1.02] active:scale-[0.98]"
+                className="group relative inline-flex items-center justify-center gap-2 px-5 sm:px-6 lg:px-8 py-3 sm:py-3.5 lg:py-4 bg-[#115E59] text-white rounded-lg sm:rounded-xl overflow-hidden transition-all duration-300 shadow-lg hover:shadow-2xl font-semibold text-sm sm:text-base transform hover:scale-[1.02] active:scale-[0.98]"
               >
                 {/* Shine effect */}
                 <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
@@ -332,10 +332,10 @@ const Hero = () => {
                 href="https://play.google.com/store/apps/details?id=com.academy.tree_campus"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group relative inline-flex items-center justify-center gap-2 px-5 sm:px-6 lg:px-8 py-3 sm:py-3.5 lg:py-4 bg-white text-gray-700 rounded-lg sm:rounded-xl border-2 border-gray-200 overflow-hidden hover:border-[#FD5A00] hover:text-[#FD5A00] transition-all duration-300 shadow-sm hover:shadow-lg font-semibold text-sm sm:text-base"
+                className="group relative inline-flex items-center justify-center gap-2 px-5 sm:px-6 lg:px-8 py-3 sm:py-3.5 lg:py-4 bg-white text-gray-700 rounded-lg sm:rounded-xl border-2 border-gray-200 overflow-hidden hover:border-[#14B8A6] hover:text-[#14B8A6] transition-all duration-300 shadow-sm hover:shadow-lg font-semibold text-sm sm:text-base"
               >
                 {/* Border animation */}
-                <span className="absolute inset-0 border-2 border-transparent group-hover:border-[#FD5A00] rounded-lg sm:rounded-xl transition-all duration-300 scale-105 opacity-0 group-hover:scale-100 group-hover:opacity-100" />
+                <span className="absolute inset-0 border-2 border-transparent group-hover:border-[#14B8A6] rounded-lg sm:rounded-xl transition-all duration-300 scale-105 opacity-0 group-hover:scale-100 group-hover:opacity-100" />
                 <svg
                   className="w-4 h-4 sm:w-5 sm:h-5 group-hover:scale-110 transition-transform duration-200"
                   fill="currentColor"
@@ -362,7 +362,7 @@ const Hero = () => {
                   className={`text-center group cursor-default ${index === 1 ? 'border-x border-gray-200' : ''}`}
                   style={{ transitionDelay: `${index * 100}ms` }}
                 >
-                  <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 group-hover:text-[#FD5A00] transition-colors duration-300 group-hover:scale-110 transform">
+                  <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 group-hover:text-[#14B8A6] transition-colors duration-300 group-hover:scale-110 transform">
                     {stat.value}
                   </div>
                   <div className="text-[10px] sm:text-xs lg:text-sm text-gray-600 mt-0.5 group-hover:text-gray-900 transition-colors duration-300">
@@ -384,10 +384,10 @@ const Hero = () => {
               <div className="relative w-full max-w-sm sm:max-w-md lg:max-w-lg xl:max-w-xl mx-auto">
 
                 {/* Decorative Background Circle with Pulse */}
-                <div className="absolute inset-0 bg-gradient-to-br from-orange-100 to-orange-200 rounded-full opacity-20 blur-3xl transform scale-110 animate-pulse-slow" />
+                <div className="absolute inset-0 bg-gradient-to-br from-teal-100 to-teal-200 rounded-full opacity-20 blur-3xl transform scale-110 animate-pulse-slow" />
 
                 {/* Rotating Border Effect */}
-                <div className="absolute inset-0 rounded-full border-2 border-dashed border-orange-200/30 animate-spin-slow" />
+                <div className="absolute inset-0 rounded-full border-2 border-dashed border-teal-200/30 animate-spin-slow" />
 
                 {/* Image with transition */}
                 <div 
@@ -417,7 +417,7 @@ const Hero = () => {
                     }}
                   >
                     <div className="flex items-center gap-2 sm:gap-3">
-                      <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-[#FD5A00] to-orange-600 rounded-lg sm:rounded-xl flex items-center justify-center text-white shadow-lg flex-shrink-0 animate-bounce-subtle">
+                      <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-[#14B8A6] to-teal-600 rounded-lg sm:rounded-xl flex items-center justify-center text-white shadow-lg flex-shrink-0 animate-bounce-subtle">
                         <span className="text-sm sm:text-lg">{activeContent.icon}</span>
                       </div>
                       <div className="min-w-0">
@@ -431,7 +431,7 @@ const Hero = () => {
 
                   {/* Certificate Badge - Top Right */}
                   <div 
-                    className={`absolute top-2 sm:top-4 right-2 sm:right-4 bg-gradient-to-br from-[#FD5A00] to-orange-600 text-white px-2 sm:px-3 lg:px-4 py-1.5 sm:py-2 lg:py-3 rounded-lg sm:rounded-xl lg:rounded-2xl shadow-xl z-20 hover:scale-105 transition-transform duration-300 ${
+                    className={`absolute top-2 sm:top-4 right-2 sm:right-4 bg-gradient-to-br from-[#14B8A6] to-teal-600 text-white px-2 sm:px-3 lg:px-4 py-1.5 sm:py-2 lg:py-3 rounded-lg sm:rounded-xl lg:rounded-2xl shadow-xl z-20 hover:scale-105 transition-transform duration-300 ${
                       visibleElements.floatingBadges 
                         ? 'animate-slide-in-right' 
                         : 'opacity-0 translate-x-full'
@@ -485,7 +485,7 @@ const Hero = () => {
                         onClick={() => setActiveSection(index)}
                         className={`h-1.5 sm:h-2 rounded-full transition-all duration-500 transform hover:scale-110 ${
                           activeSection === index
-                            ? 'w-6 sm:w-8 bg-[#FD5A00] shadow-md'
+                            ? 'w-6 sm:w-8 bg-[#115E59] shadow-md'
                             : 'w-1.5 sm:w-2 bg-gray-300 hover:bg-gray-400'
                         }`}
                         aria-label={`Go to slide ${index + 1}`}
@@ -495,7 +495,7 @@ const Hero = () => {
                   <div className="w-px h-3 sm:h-4 bg-gray-300" />
                   <button
                     onClick={toggleAutoPlay}
-                    className="w-6 h-6 sm:w-8 sm:h-8 flex items-center justify-center text-gray-600 hover:text-[#FD5A00] transition-all duration-300 rounded-full hover:bg-orange-50 hover:scale-110"
+                    className="w-6 h-6 sm:w-8 sm:h-8 flex items-center justify-center text-gray-600 hover:text-[#14B8A6] transition-all duration-300 rounded-full hover:bg-teal-50 hover:scale-110"
                     title={isAutoPlaying ? "Pause" : "Play"}
                     aria-label={isAutoPlaying ? "Pause slideshow" : "Play slideshow"}
                   >
@@ -520,7 +520,7 @@ const Hero = () => {
       <div className="absolute bottom-8 left-1/2 -translate-x-1/2 hidden lg:flex flex-col items-center gap-2 animate-bounce-slow">
         <span className="text-xs text-gray-500 font-medium">Scroll Down</span>
         <div className="w-6 h-10 border-2 border-gray-300 rounded-full flex justify-center pt-2">
-          <div className="w-1.5 h-3 bg-[#FD5A00] rounded-full animate-scroll-indicator" />
+          <div className="w-1.5 h-3 bg-[#115E59] rounded-full animate-scroll-indicator" />
         </div>
       </div>
 
@@ -799,7 +799,7 @@ const Hero = () => {
         }
         
         .animate-text-shimmer {
-          background: linear-gradient(90deg, #1f2937 0%, #1f2937 40%, #FD5A00 50%, #1f2937 60%, #1f2937 100%);
+          background: linear-gradient(90deg, #1f2937 0%, #1f2937 40%, #14B8A6 50%, #1f2937 60%, #1f2937 100%);
           background-size: 200% auto;
           -webkit-background-clip: text;
           background-clip: text;

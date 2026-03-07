@@ -16,7 +16,7 @@ const CourseFilter = ({ filters, setFilters }) => {
             onClick={() => setFilters({ ...filters, lang: lang.id })}
             className={`px-6 py-2 rounded-full text-sm font-bold transition-all duration-300 transform hover:scale-105 ${
               filters.lang === lang.id
-                ? 'bg-[#FD5A00] text-white shadow-lg shadow-orange-200'
+                ? 'bg-[#115E59] text-white shadow-lg shadow-teal-200'
                 : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'
             }`}
           >

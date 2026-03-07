@@ -271,15 +271,6 @@
                             </div>
                           </div>
                           <div className="flex items-center space-x-4">
-                            {student.enrolledCourses?.length > 0 ? (
-                              <span className="px-3 py-1 bg-green-50 text-green-700 text-xs font-medium rounded-full border border-green-200">
-                                Active
-                              </span>
-                            ) : (
-                              <span className="px-3 py-1 bg-gray-50 text-gray-700 text-xs font-medium rounded-full border border-gray-200">
-                                Inactive
-                              </span>
-                            )}
                             <button onClick={() => handleViewStudent(student._id)} className="text-gray-400 hover:text-gray-600 transition-colors cursor-pointer">
                               <FiEye className="w-4 h-4" />
                             </button>
@@ -403,7 +394,7 @@
                     green: 'bg-green-50 text-green-600',
                     blue: 'bg-blue-50 text-blue-600',
                     purple: 'bg-purple-50 text-purple-600',
-                    orange: 'bg-orange-50 text-orange-600'
+                    orange: 'bg-teal-50 text-teal-600'
                   };
   
                   return (

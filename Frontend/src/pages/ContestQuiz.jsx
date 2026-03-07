@@ -444,7 +444,7 @@ const ContestQuiz = () => {
                   key={quiz.id} 
                   className={`relative bg-white rounded-xl shadow-md overflow-hidden transition-all duration-300 border-l-4 ${
                     isLocked ? 'border-gray-300 opacity-75' : 
-                    isCompleted ? 'border-green-500 shadow-md' : 'border-orange-500 hover:shadow-lg'
+                    isCompleted ? 'border-green-500 shadow-md' : 'border-teal-500 hover:shadow-lg'
                   }`}
                 >
                   <div className="p-6 md:p-8 flex flex-col md:flex-row md:items-center justify-between gap-6">
@@ -452,7 +452,7 @@ const ContestQuiz = () => {
                       <div className="flex items-center gap-3 mb-2">
                         <span className={`px-3 py-1 text-xs font-bold rounded-full uppercase tracking-wider ${
                           isLocked ? 'bg-gray-100 text-gray-500' :
-                          isCompleted ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'
+                          isCompleted ? 'bg-green-100 text-green-700' : 'bg-teal-100 text-teal-700'
                         }`}>
                           {isCompleted ? 'Completed' : isLocked ? 'Locked' : 'Active Set'}
                         </span>
@@ -479,7 +479,7 @@ const ContestQuiz = () => {
                           className={`inline-flex items-center px-6 py-3 border border-transparent text-sm font-medium rounded-lg transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 w-full md:w-auto justify-center ${
                             isLocked 
                               ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
-                              : 'bg-orange-600 text-white hover:bg-orange-700 focus:ring-orange-500'
+                              : 'bg-teal-600 text-white hover:bg-teal-700 focus:ring-[#14B8A6]'
                           }`}
                         >
                           {isLocked ? (
@@ -580,7 +580,7 @@ const ContestQuiz = () => {
                   onClick={() => {
                     handleStartQuiz(nextQuiz);
                   }}
-                  className="px-6 py-3 bg-orange-600 text-white font-medium rounded-lg hover:bg-orange-700 transition-colors shadow-md flex items-center justify-center"
+                  className="px-6 py-3 bg-teal-600 text-white font-medium rounded-lg hover:bg-teal-700 transition-colors shadow-md flex items-center justify-center"
                 >
                   Start Next Set <FiPlay className="ml-2" />
                 </button>
@@ -604,7 +604,7 @@ const ContestQuiz = () => {
             </div>
           </div>
           <div className={`flex items-center px-4 py-2 rounded-lg font-mono font-bold text-lg ${
-            timeLeft < 60 ? 'bg-red-100 text-red-600 animate-pulse' : 'bg-orange-100 text-orange-600'
+            timeLeft < 60 ? 'bg-red-100 text-red-600 animate-pulse' : 'bg-teal-100 text-teal-600'
           }`}>
             <FiClock className="mr-2" />
             {formatTime(timeLeft)}
@@ -624,13 +624,13 @@ const ContestQuiz = () => {
                   onClick={() => handleOptionSelect(option)}
                   className={`w-full text-left p-4 rounded-xl border-2 transition-all duration-200 flex items-center ${
                     selectedAnswers[currentQuestionIndex] === option
-                      ? 'border-orange-500 bg-orange-50 text-orange-900 shadow-sm'
-                      : 'border-gray-200 hover:border-orange-200 hover:bg-gray-50 text-gray-700'
+                      ? 'border-teal-500 bg-teal-50 text-teal-900 shadow-sm'
+                      : 'border-gray-200 hover:border-teal-200 hover:bg-gray-50 text-gray-700'
                   }`}
                 >
                   <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center mr-4 flex-shrink-0 ${
                     selectedAnswers[currentQuestionIndex] === option
-                      ? 'border-orange-500 bg-orange-500'
+                      ? 'border-teal-500 bg-[#115E59]'
                       : 'border-gray-300'
                   }`}>
                     {selectedAnswers[currentQuestionIndex] === option && (
@@ -666,7 +666,7 @@ const ContestQuiz = () => {
             ) : (
               <button
                 onClick={handleNextQuestion}
-                className="px-8 py-3 bg-orange-600 text-white font-bold rounded-lg shadow-md hover:bg-orange-700 transition-transform transform hover:-translate-y-0.5 active:translate-y-0"
+                className="px-8 py-3 bg-teal-600 text-white font-bold rounded-lg shadow-md hover:bg-teal-700 transition-transform transform hover:-translate-y-0.5 active:translate-y-0"
               >
                 Next Question
               </button>
@@ -677,7 +677,7 @@ const ContestQuiz = () => {
         <div className="mt-8">
           <div className="h-2 w-full bg-gray-200 rounded-full overflow-hidden">
             <div 
-              className="h-full bg-orange-500 transition-all duration-300 ease-out"
+              className="h-full bg-[#115E59] transition-all duration-300 ease-out"
               style={{ width: `${((currentQuestionIndex + 1) / activeQuiz.questions.length) * 100}%` }}
             />
           </div>

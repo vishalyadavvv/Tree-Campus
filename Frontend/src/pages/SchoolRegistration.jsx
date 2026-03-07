@@ -208,7 +208,7 @@ const SchoolRegistration = () => {
       <main className="container mx-auto py-12 px-4 -mt-10 relative z-10">
         <div className="max-w-4xl mx-auto">
           {/* Information Alert */}
-          <div className="bg-orange-50 border border-orange-200 rounded-2xl p-6 mb-8 shadow-lg">
+          <div className="bg-teal-50 border border-teal-200 rounded-2xl p-6 mb-8 shadow-lg">
             <div className="flex items-start">
               <div className="flex-shrink-0">
                 <svg className="w-6 h-6 text-primary mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -216,8 +216,8 @@ const SchoolRegistration = () => {
                 </svg>
               </div>
               <div className="ml-4">
-                <h3 className="text-lg font-semibold text-orange-800 mb-2">Registration Information</h3>
-                <ul className="text-orange-700 space-y-2 text-sm">
+                <h3 className="text-lg font-semibold text-teal-800 mb-2">Registration Information</h3>
+                <ul className="text-teal-700 space-y-2 text-sm">
                   <li className="flex items-start">
                     <span className="inline-block w-2 h-2 bg-primary rounded-full mt-1.5 mr-3 flex-shrink-0"></span>
                     <span>Please provide accurate school and contact information</span>
@@ -237,7 +237,7 @@ const SchoolRegistration = () => {
 
           {/* Form Card */}
           <div className="bg-white rounded-2xl shadow-2xl overflow-hidden border border-gray-200">
-            <div className="bg-gradient-to-r from-primary to-orange-500 px-8 py-6">
+            <div className="bg-gradient-to-r from-teal-500 to-teal-500 px-8 py-6">
               <h2 className="text-2xl font-bold text-black flex items-center">
                 <svg className="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
@@ -460,7 +460,7 @@ const SchoolRegistration = () => {
                 </div>
 
                 {/* Terms Acceptance */}
-                <div className="bg-orange-50 p-6 rounded-xl border-2 border-orange-200">
+                <div className="bg-teal-50 p-6 rounded-xl border-2 border-teal-200">
                   <div className="flex items-start">
                     <input
                       id="termsAccepted"
@@ -536,10 +536,10 @@ const SchoolRegistration = () => {
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className={`w-full py-4 px-6 border border-transparent rounded-xl shadow-lg text-lg font-bold text-white focus:outline-none focus:ring-4 focus:ring-orange-300 transition-all duration-300 transform hover:scale-105 ${
+                    className={`w-full py-4 px-6 border border-transparent rounded-xl shadow-lg text-lg font-bold text-white focus:outline-none focus:ring-4 focus:ring-teal-300 transition-all duration-300 transform hover:scale-105 ${
                       isSubmitting
                         ? 'bg-gray-400 cursor-not-allowed'
-                        : 'bg-gradient-to-r from-primary to-orange-500 hover:from-orange-600 hover:to-orange-700'
+                        : 'bg-gradient-to-r from-teal-500 to-teal-500 hover:from-teal-600 hover:to-teal-700'
                     }`}
                   >
                     {isSubmitting ? (
@@ -589,15 +589,15 @@ const SchoolRegistration = () => {
       {/* Custom styles for animations */}
       <style>{`
         .bg-primary {
-          background-color: #FC5A00;
+          background-color: #14B8A6;
         }
         
         .text-primary {
-          color: #FC5A00;
+          color: #14B8A6;
         }
         
         .border-primary {
-          border-color: #FC5A00;
+          border-color: #14B8A6;
         }
         
         @keyframes fadeInDown {

@@ -186,7 +186,7 @@ const CompleteProfile = () => {
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-blue-50 to-teal-50 flex items-center justify-center p-4">
       <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden">
         {/* Header */}
-        <div className="bg-[#FD5B00] p-6 text-white text-center">
+        <div className="bg-[#115E59] p-6 text-white text-center">
           <div className="flex justify-center mb-3">
             {user.profilePicture ? (
               <img 
@@ -203,7 +203,7 @@ const CompleteProfile = () => {
             )}
           </div>
           <h2 className="text-xl font-bold">{t.welcomeBack}, {user.name?.split(' ')[0]}!</h2>
-          <p className="text-orange-100 text-sm mt-1 flex items-center justify-center gap-2">
+          <p className="text-teal-100 text-sm mt-1 flex items-center justify-center gap-2">
             <img className="h-4 w-4" src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" />
             {t.googleUser}
           </p>
@@ -216,9 +216,9 @@ const CompleteProfile = () => {
 
           {/* Progress Steps */}
           <div className="flex items-center mb-6">
-            <div className={`flex-1 h-2 rounded-full ${step >= 1 ? 'bg-[#FD5B00]' : 'bg-gray-200'}`}></div>
+            <div className={`flex-1 h-2 rounded-full ${step >= 1 ? 'bg-[#115E59]' : 'bg-gray-200'}`}></div>
             <div className="w-2"></div>
-            <div className={`flex-1 h-2 rounded-full ${step >= 2 ? 'bg-[#FD5B00]' : 'bg-gray-200'}`}></div>
+            <div className={`flex-1 h-2 rounded-full ${step >= 2 ? 'bg-[#115E59]' : 'bg-gray-200'}`}></div>
           </div>
 
           {error && (
@@ -230,7 +230,7 @@ const CompleteProfile = () => {
           <form onSubmit={handleSubmit} className="space-y-4">
             {step === 1 && (
               <>
-                <p className="text-sm font-medium text-[#FD5B00] mb-2">{t.step1}</p>
+                <p className="text-sm font-medium text-[#14B8A6] mb-2">{t.step1}</p>
                 <div>
                   <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
                     {t.phoneLabel}
@@ -249,7 +249,7 @@ const CompleteProfile = () => {
                         setFormData({ ...formData, phone: value });
                         setError('');
                       }}
-                      className="flex-1 px-4 py-3 border border-gray-300 rounded-r-lg focus:outline-none focus:ring-2 focus:ring-[#FD5B00] focus:border-transparent"
+                      className="flex-1 px-4 py-3 border border-gray-300 rounded-r-lg focus:outline-none focus:ring-2 focus:ring-[#14B8A6] focus:border-transparent"
                       placeholder={t.phonePlaceholder}
                       maxLength="10"
                     />
@@ -260,7 +260,7 @@ const CompleteProfile = () => {
 
             {step === 2 && (
               <>
-                <p className="text-sm font-medium text-[#FD5B00] mb-2">{t.step2}</p>
+                <p className="text-sm font-medium text-[#14B8A6] mb-2">{t.step2}</p>
                 <div>
                   <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
                     {t.passwordLabel}
@@ -271,7 +271,7 @@ const CompleteProfile = () => {
                     type="password"
                     value={formData.password}
                     onChange={handleChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FD5B00] focus:border-transparent"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#14B8A6] focus:border-transparent"
                     placeholder={t.passwordPlaceholder}
                   />
                 </div>
@@ -285,7 +285,7 @@ const CompleteProfile = () => {
                     type="password"
                     value={formData.confirmPassword}
                     onChange={handleChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FD5B00] focus:border-transparent"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#14B8A6] focus:border-transparent"
                     placeholder={t.confirmPasswordPlaceholder}
                   />
                 </div>
@@ -305,7 +305,7 @@ const CompleteProfile = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="flex-1 py-3 px-4 bg-[#FD5B00] text-white rounded-lg font-medium hover:bg-black transition disabled:opacity-50 disabled:cursor-not-allowed transform hover:-translate-y-0.5"
+                className="flex-1 py-3 px-4 bg-[#115E59] text-white rounded-lg font-medium hover:bg-black transition disabled:opacity-50 disabled:cursor-not-allowed transform hover:-translate-y-0.5"
               >
                 {loading ? t.processing : t.continueButton}
               </button>

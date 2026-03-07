@@ -468,14 +468,14 @@ const Login = () => {
                 <button
                   key={lang.code}
                   onClick={() => changeLanguage(lang.code)}
-                  className={`w-full flex items-center space-x-3 px-4 py-3 text-left hover:bg-orange-50 text-orange-700 transition-colors first:rounded-t-lg last:rounded-b-lg ${
-                    currentLanguage === lang.code ? "bg-orange-100 text-orange-700" : "text-gray-700"
+                  className={`w-full flex items-center space-x-3 px-4 py-3 text-left hover:bg-teal-50 text-teal-700 transition-colors first:rounded-t-lg last:rounded-b-lg ${
+                    currentLanguage === lang.code ? "bg-teal-100 text-teal-700" : "text-gray-700"
                   }`}
                 >
                   <span className="text-lg">{lang.flag}</span>
                   <span className="font-medium">{lang.name}</span>
                   {currentLanguage === lang.code && (
-                    <svg className="w-4 h-4 ml-auto text-[#FD5B00]" fill="currentColor" viewBox="0 0 20 20">
+                    <svg className="w-4 h-4 ml-auto text-[#14B8A6]" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                     </svg>
                   )}
@@ -491,11 +491,11 @@ const Login = () => {
           <div className="p-8 lg:p-12 flex flex-col justify-center order-2 md:order-1">
             <div className="text-center mb-8">
               <div className="flex justify-center mb-4">
-                <svg className="w-16 h-16 text-[#FD5B00]" fill="currentColor" viewBox="0 0 24 24">
+                <svg className="w-16 h-16 text-[#14B8A6]" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M12 3L1 9l4 2.18v6L12 21l7-3.82v-6l2-1.09V17h2V9L12 3zm6.82 6L12 12.72 5.18 9 12 5.28 18.82 9zM17 15.99l-5 2.73-5-2.73v-3.72L12 15l5-2.73v3.72z"/>
                 </svg>
               </div>
-              <h2 className="text-3xl font-bold text-[#FD5B00]">
+              <h2 className="text-3xl font-bold text-[#14B8A6]">
                 {t.title}
               </h2>
               <p className="mt-2 text-sm text-gray-600">
@@ -527,13 +527,13 @@ const Login = () => {
             <div className="flex bg-gray-100 p-1 rounded-xl mb-6">
               <button 
                 onClick={() => { setLoginMode('email'); setError(''); setOtpMessage(''); }}
-                className={`flex-1 py-2 text-sm font-medium rounded-lg transition ${loginMode === 'email' ? 'bg-white shadow-sm text-[#FD5B00]' : 'text-gray-500 hover:text-gray-700'}`}
+                className={`flex-1 py-2 text-sm font-medium rounded-lg transition ${loginMode === 'email' ? 'bg-white shadow-sm text-[#14B8A6]' : 'text-gray-500 hover:text-gray-700'}`}
               >
                 {t.loginModeEmail}
               </button>
               <button 
                 onClick={() => { setLoginMode('phone'); setError(''); setOtpMessage(''); }}
-                className={`flex-1 py-2 text-sm font-medium rounded-lg transition ${loginMode === 'phone' ? 'bg-white shadow-sm text-[#FD5B00]' : 'text-gray-500 hover:text-gray-700'}`}
+                className={`flex-1 py-2 text-sm font-medium rounded-lg transition ${loginMode === 'phone' ? 'bg-white shadow-sm text-[#14B8A6]' : 'text-gray-500 hover:text-gray-700'}`}
               >
                 {t.loginModePhone}
               </button>
@@ -575,7 +575,7 @@ const Login = () => {
                       required
                       value={formData.email}
                       onChange={handleChange}
-                      className="appearance-none w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FD5A00] focus:border-transparent transition"
+                      className="appearance-none w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#14B8A6] focus:border-transparent transition"
                       placeholder={t.emailPlaceholder}
                     />
                   </div>
@@ -592,14 +592,14 @@ const Login = () => {
                         required
                         value={formData.password}
                         onChange={handleChange}
-                        className="appearance-none w-full px-4 py-3 pr-16 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FD5A00] focus:border-transparent transition"
+                        className="appearance-none w-full px-4 py-3 pr-16 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#14B8A6] focus:border-transparent transition"
                         placeholder={t.passwordPlaceholder}
                       />
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
                         className="absolute right-3 top-3.5 text-sm font-medium hover:opacity-80 transition"
-                        style={{ color: '#FD5B00' }}
+                        style={{ color: '#14B8A6' }}
                       >
                         {showPassword ? t.hidePassword : t.showPassword}
                       </button>
@@ -608,7 +608,7 @@ const Login = () => {
 
                   <div className="flex items-center justify-between">
                     <div className="text-sm">
-                      <Link to="/forgot-password" className="font-medium text-[#FD5B00] hover:text-black transition">
+                      <Link to="/forgot-password" className="font-medium text-[#14B8A6] hover:text-black transition">
                         {t.forgotPassword}
                       </Link>
                     </div>
@@ -617,14 +617,14 @@ const Login = () => {
               ) : (
                  <>
                   {showClaimAccount && (
-                    <div className="p-4 bg-orange-50 border border-orange-200 rounded-xl mb-4 animate-fade-in text-left">
-                      <h4 className="flex items-center text-orange-800 font-bold mb-1">
+                    <div className="p-4 bg-teal-50 border border-teal-200 rounded-xl mb-4 animate-fade-in text-left">
+                      <h4 className="flex items-center text-teal-800 font-bold mb-1">
                         <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                         {t.claimAccountTitle}
                       </h4>
-                      <p className="text-sm text-orange-700 mb-3 leading-relaxed">{t.claimAccountMsg}</p>
+                      <p className="text-sm text-teal-700 mb-3 leading-relaxed">{t.claimAccountMsg}</p>
                       
                       <div className="space-y-3">
                         <input
@@ -632,7 +632,7 @@ const Login = () => {
                           value={claimEmail}
                           onChange={(e) => setClaimEmail(e.target.value)}
                           placeholder={t.claimEmailPlaceholder}
-                          className="w-full px-4 py-2 border border-orange-300 rounded-lg focus:ring-2 focus:ring-[#FD5A00] outline-none"
+                          className="w-full px-4 py-2 border border-teal-300 rounded-lg focus:ring-2 focus:ring-[#14B8A6] outline-none"
                         />
                         
                         {/* ✅ Password field for Smart Linking */}
@@ -642,12 +642,12 @@ const Login = () => {
                             value={claimPassword}
                             onChange={(e) => setClaimPassword(e.target.value)}
                             placeholder="Create a new password"
-                            className="w-full px-4 py-2 border border-orange-300 rounded-lg focus:ring-2 focus:ring-[#FD5A00] outline-none pr-10"
+                            className="w-full px-4 py-2 border border-teal-300 rounded-lg focus:ring-2 focus:ring-[#14B8A6] outline-none pr-10"
                           />
                           <button
                             type="button"
                             onClick={() => setShowPassword(!showPassword)}
-                            className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-[#FD5B00] transition-colors"
+                            className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-[#14B8A6] transition-colors"
                           >
                             {showPassword ? (
                               <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -661,7 +661,7 @@ const Login = () => {
                             )}
                           </button>
                         </div>
-                        <p className="text-xs text-orange-600 font-medium">This will be your new password to login with Email + Password</p>
+                        <p className="text-xs text-teal-600 font-medium">This will be your new password to login with Email + Password</p>
                       </div>
                     </div>
                   )}
@@ -678,14 +678,14 @@ const Login = () => {
                         required
                         value={formData.phone}
                         onChange={handleChange}
-                        className="appearance-none flex-1 px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FD5A00] focus:border-transparent transition"
+                        className="appearance-none flex-1 px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#14B8A6] focus:border-transparent transition"
                         placeholder={t.phonePlaceholder}
                       />
                       <button
                         type="button"
                         onClick={handleSendOTP}
                         disabled={otpLoading || formData.phone.length !== 10}
-                        className="px-4 py-2 bg-orange-100 text-[#FD5B00] font-medium rounded-lg hover:bg-orange-200 transition disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+                        className="px-4 py-2 bg-teal-100 text-[#14B8A6] font-medium rounded-lg hover:bg-teal-200 transition disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
                       >
                         {otpLoading ? t.sendingOTP : (showClaimAccount ? t.verifyAndLink : t.sendOTP)}
                       </button>
@@ -706,7 +706,7 @@ const Login = () => {
                           maxLength="6"
                           value={formData.otp}
                           onChange={handleChange}
-                          className="appearance-none w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FD5A00] focus:border-transparent transition text-center tracking-widest font-bold text-xl"
+                          className="appearance-none w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#14B8A6] focus:border-transparent transition text-center tracking-widest font-bold text-xl"
                           placeholder={t.otpPlaceholder}
                         />
                       </div>
@@ -721,10 +721,10 @@ const Login = () => {
                             type="button"
                             onClick={handleSendOTP}
                             disabled={otpLoading}
-                            className="text-sm font-bold text-[#FD5B00] hover:text-black transition-colors flex items-center gap-1"
+                            className="text-sm font-bold text-[#14B8A6] hover:text-black transition-colors flex items-center gap-1"
                           >
                             {otpLoading ? (
-                              <div className="w-3 h-3 border-2 border-[#FD5B00] border-t-transparent rounded-full animate-spin"></div>
+                              <div className="w-3 h-3 border-2 border-[#14B8A6] border-t-transparent rounded-full animate-spin"></div>
                             ) : null}
                             {t.resendOTP}
                           </button>
@@ -738,7 +738,7 @@ const Login = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-[#FD5B00] hover:bg-black focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FD5A00] transition disabled:opacity-50 disabled:cursor-not-allowed transform hover:-translate-y-0.5"
+                className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-[#115E59] hover:bg-black focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#14B8A6] transition disabled:opacity-50 disabled:cursor-not-allowed transform hover:-translate-y-0.5"
               >
                 {loading ? (
                   <>
@@ -755,7 +755,7 @@ const Login = () => {
 
               <p className="text-center text-sm text-gray-600 mt-6">
                 {t.noAccount}{' '}
-                <Link to="/register" className="font-medium text-[#FD5B00] hover:text-black transition">
+                <Link to="/register" className="font-medium text-[#14B8A6] hover:text-black transition">
                   {t.registerNow}
                 </Link>
               </p>
@@ -765,12 +765,12 @@ const Login = () => {
           </div>
 
           {/* Right Panel - Welcome Section - ✅ Fixed order for mobile */}
-          <div className="bg-[#FD5B00] p-8 lg:p-12 text-white flex flex-col justify-center order-1 md:order-2">
+          <div className="bg-[#115E59] p-8 lg:p-12 text-white flex flex-col justify-center order-1 md:order-2">
             <div className="text-center">
               <h2 className="text-3xl font-bold mb-4">
                 {t.rightPanelTitle}
               </h2>
-              <p className="text-orange-100 mb-8 text-lg">
+              <p className="text-teal-100 mb-8 text-lg">
                 {t.rightPanelSubtitle}
               </p>
               <ul className="space-y-4 text-left max-w-md mx-auto">
@@ -841,8 +841,8 @@ const Login = () => {
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
             <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 transform animate-slide-up">
               <div className="text-center">
-                <div className="w-20 h-20 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <svg className="w-10 h-10 text-[#FD5B00]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="w-20 h-20 bg-teal-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <svg className="w-10 h-10 text-[#14B8A6]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m0 0v2m0-2h2m-2 0H10m4-11a4 4 0 11-8 0 4 4 0 018 0zM7 10v4a5 5 0 0010 0v-4" />
                   </svg>
                 </div>
@@ -855,7 +855,7 @@ const Login = () => {
                       setShowExpiryModal(false);
                       navigate('/forgot-password', { state: { email: formData.email } });
                     }}
-                    className="w-full py-3 bg-[#FD5B00] text-white font-bold rounded-xl hover:bg-black transition transform hover:-translate-y-1 cursor-pointer"
+                    className="w-full py-3 bg-[#115E59] text-white font-bold rounded-xl hover:bg-black transition transform hover:-translate-y-1 cursor-pointer"
                   >
                     {t.changePassword}
                   </button>
@@ -864,7 +864,7 @@ const Login = () => {
                       setShowExpiryModal(false);
                       setLoginMode('phone');
                     }}
-                    className="w-full py-3 bg-white border-2 border-[#FD5B00] text-[#FD5B00] font-bold rounded-xl hover:bg-orange-50 transition cursor-pointer"
+                    className="w-full py-3 bg-white border-2 border-[#14B8A6] text-[#14B8A6] font-bold rounded-xl hover:bg-teal-50 transition cursor-pointer"
                   >
                     {t.switchToPhone}
                   </button>

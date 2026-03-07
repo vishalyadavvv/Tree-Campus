@@ -110,7 +110,7 @@
           <div className="flex justify-between items-center">
             <div>
               <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2">
-                <FiSettings className="text-[#FC5A00]" />
+                <FiSettings className="text-[#14B8A6]" />
                 School Registrations
               </h1>
               <p className="text-gray-600 mt-1">Manage school registration applications</p>
@@ -122,7 +122,7 @@
               <button
                 onClick={fetchSchools}
                 disabled={loading}
-                className="px-4 py-2 bg-[#FC5A00] hover:bg-[#FF6B1A] text-white rounded-lg font-bold flex items-center gap-2 disabled:opacity-50"
+                className="px-4 py-2 bg-[#115E59] hover:bg-[#0F766E] text-white rounded-lg font-bold flex items-center gap-2 disabled:opacity-50"
               >
                 <FiRefreshCw className={loading ? 'animate-spin' : ''} />
                 Refresh
@@ -132,9 +132,9 @@
 
           {/* Stats Cards */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-[#FC5A00]">
+            <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-[#14B8A6]">
               <p className="text-sm text-gray-600 mb-1">Total</p>
-              <p className="text-3xl font-bold text-[#FC5A00]">{stats.total}</p>
+              <p className="text-3xl font-bold text-[#14B8A6]">{stats.total}</p>
             </div>
             <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-yellow-500">
               <p className="text-sm text-gray-600 mb-1">Pending</p>
@@ -159,13 +159,13 @@
                 placeholder="Search by school name or email..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FC5A00] focus:border-[#FC5A00]"
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#14B8A6] focus:border-[#14B8A6]"
               />
             </div>
             <select
               value={filter}
               onChange={(e) => setFilter(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#FC5A00] focus:border-[#FC5A00]"
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#14B8A6] focus:border-[#14B8A6]"
             >
               <option value="all">All Status</option>
               <option value="pending">Pending</option>

@@ -454,7 +454,7 @@ export default function Navbar() {
     return (
       <nav className="w-full bg-white fixed top-0 left-0 right-0 z-[9999] shadow-sm">
         {/* Top Contact Bar Skeleton */}
-        <div className="bg-gradient-to-r from-orange-500 to-orange-600 px-6 py-2 border-b border-orange-400">
+        <div className="bg-gradient-to-r from-teal-500 to-teal-600 px-6 py-2 border-b border-teal-400">
           <div className="max-w-7xl mx-auto flex items-center justify-between">
             <div className="h-4 bg-white/20 rounded w-32 animate-pulse"></div>
             <div className="h-4 bg-white/20 rounded w-24 animate-pulse"></div>
@@ -492,7 +492,7 @@ export default function Navbar() {
 
       
       {/* Top Contact Bar */}
-      <div className="bg-gradient-to-r from-orange-500 to-orange-600 px-6 py-2 border-b border-orange-400">
+      <div className="bg-gradient-to-r from-teal-500 to-teal-600 px-6 py-2 border-b border-teal-400">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <a
             href="mailto:info@treecampus.in"
@@ -536,7 +536,7 @@ export default function Navbar() {
             {/* Home */}
             <NavLink 
               href={navigation.home}
-              className="px-6 py-2.5 rounded-full flex items-center group relative overflow-hidden bg-orange-500 text-white font-bold tracking-wide text-sm shadow-sm hover:bg-orange-600 hover:shadow-md transition-all duration-300 active:scale-95"
+              className="px-6 py-2.5 rounded-full flex items-center group relative overflow-hidden bg-[#115E59] text-white font-bold tracking-wide text-sm shadow-sm hover:bg-[#0F766E] hover:shadow-md transition-all duration-300 active:scale-95"
             >
               <div className="flex items-center gap-2">
                 <FiHome className="text-lg" />
@@ -551,7 +551,7 @@ export default function Navbar() {
                 <NavLink
                   href="/verify-otp"
                   state={{ email: userData?.email, phone: userData?.phone, mode: 'register' }}
-                  className="px-3 py-1 bg-orange-500 text-white text-xs font-bold rounded-lg hover:bg-orange-600 transition shadow-sm ml-2"
+                  className="px-3 py-1 bg-[#115E59] text-white text-xs font-bold rounded-lg hover:bg-[#0F766E] transition shadow-sm ml-2"
                 >
                   Verify Now
                 </NavLink>
@@ -568,19 +568,19 @@ export default function Navbar() {
             >
               <button 
                 className={`px-6 py-2.5 rounded-full flex items-center gap-2 font-bold tracking-wide text-sm transition-all duration-300 cursor-pointer select-none active:scale-95 ${
-                  activeDropdown === 'englishCourse' ? 'text-orange-600 bg-orange-50 shadow-inner' : 'text-gray-700 hover:text-orange-600 hover:bg-orange-50'
+                  activeDropdown === 'englishCourse' ? 'text-teal-600 bg-teal-50 shadow-inner' : 'text-gray-700 hover:text-teal-600 hover:bg-teal-50'
                 }`}
                 onClick={(e) => handleDropdownTriggerClick(e, 'englishCourse')}
               >
                 ENGLISH COURSE
                 <FiChevronDown 
-                  className={`w-4 h-4 transition-transform duration-300 ${activeDropdown === 'englishCourse' ? 'rotate-180 text-orange-600' : 'text-gray-400'}`} 
+                  className={`w-4 h-4 transition-transform duration-300 ${activeDropdown === 'englishCourse' ? 'rotate-180 text-teal-600' : 'text-gray-400'}`} 
                 />
               </button>
 
               {activeDropdown === 'englishCourse' && (
                 <div 
-                  className="absolute top-full left-0 w-80 bg-white shadow-xl border-t-2 border-orange-500 rounded-b-lg z-[1001]"
+                  className="absolute top-full left-0 w-80 bg-white shadow-xl border-t-2 border-teal-500 rounded-b-lg z-[1001]"
                   onMouseEnter={handleDropdownContentEnter}
                   onMouseLeave={handleDropdownContentLeave}
                 >
@@ -588,10 +588,10 @@ export default function Navbar() {
                     <NavLink
                       key={index}
                       href={item.href}
-                      className="block px-6 py-4 text-gray-700 hover:text-orange-600 hover:bg-orange-50 transition-all text-sm border-b border-gray-100 last:border-b-0 last:rounded-b-lg group/item"
+                      className="block px-6 py-4 text-gray-700 hover:text-teal-600 hover:bg-teal-50 transition-all text-sm border-b border-gray-100 last:border-b-0 last:rounded-b-lg group/item"
                     >
                       <div className="flex items-center gap-3">
-                        <div className="w-1.5 h-1.5 bg-orange-500 rounded-full opacity-0 group-hover/item:opacity-100 transition-opacity"></div>
+                        <div className="w-1.5 h-1.5 bg-[#115E59] rounded-full opacity-0 group-hover/item:opacity-100 transition-opacity"></div>
                         <span>{item.label}</span>
                       </div>
                     </NavLink>
@@ -603,7 +603,7 @@ export default function Navbar() {
             {/* Live Classes Button */}
             <NavLink 
               href={navigation.liveClasses}
-              className="px-6 py-2.5 rounded-full flex items-center bg-orange-500 text-white font-bold tracking-wide text-sm shadow-sm hover:bg-orange-600 hover:shadow-md transition-all duration-300 active:scale-95 mx-1"
+              className="px-6 py-2.5 rounded-full flex items-center bg-[#115E59] text-white font-bold tracking-wide text-sm shadow-sm hover:bg-[#0F766E] hover:shadow-md transition-all duration-300 active:scale-95 mx-1"
             >
               <div className="flex items-center gap-2">
                 <FiVideo className="text-lg" />
@@ -614,7 +614,7 @@ export default function Navbar() {
             {/* AI Teacher Link */}
             <NavLink 
               href={navigation.aiTeacher}
-              className="px-6 py-2.5 rounded-full flex items-center bg-orange-500 text-white font-bold tracking-wide text-sm shadow-sm hover:bg-orange-600 hover:shadow-md transition-all duration-300 active:scale-95 mx-1"
+              className="px-6 py-2.5 rounded-full flex items-center bg-[#115E59] text-white font-bold tracking-wide text-sm shadow-sm hover:bg-[#0F766E] hover:shadow-md transition-all duration-300 active:scale-95 mx-1"
             >
               <div className="flex items-center gap-2">
                 <span className="text-lg">👩‍🏫</span>
@@ -630,19 +630,19 @@ export default function Navbar() {
             >
               <button 
                 className={`px-6 py-2.5 rounded-full flex items-center gap-2 font-bold tracking-wide text-sm transition-all duration-300 cursor-pointer select-none active:scale-95 ${
-                  activeDropdown === 'more' ? 'text-orange-600 bg-orange-50 shadow-inner' : 'text-gray-700 hover:text-orange-600 hover:bg-orange-50'
+                  activeDropdown === 'more' ? 'text-teal-600 bg-teal-50 shadow-inner' : 'text-gray-700 hover:text-teal-600 hover:bg-teal-50'
                 }`}
                 onClick={(e) => handleDropdownTriggerClick(e, 'more')}
               >
                 MORE
                 <FiChevronDown 
-                  className={`w-4 h-4 transition-transform duration-300 ${activeDropdown === 'more' ? 'rotate-180 text-orange-600' : 'text-gray-400'}`} 
+                  className={`w-4 h-4 transition-transform duration-300 ${activeDropdown === 'more' ? 'rotate-180 text-teal-600' : 'text-gray-400'}`} 
                 />
               </button>
 
               {activeDropdown === 'more' && (
                 <div 
-                  className="absolute top-full right-0 w-80 bg-white shadow-xl border-t-2 border-orange-500 rounded-b-lg z-[1001]"
+                  className="absolute top-full right-0 w-80 bg-white shadow-xl border-t-2 border-teal-500 rounded-b-lg z-[1001]"
                   onMouseEnter={handleDropdownContentEnter}
                   onMouseLeave={handleDropdownContentLeave}
                 >
@@ -651,17 +651,17 @@ export default function Navbar() {
                       {item.type === 'link' ? (
                         <NavLink
                           href={item.href}
-                          className="block px-6 py-4 text-gray-700 hover:text-orange-600 hover:bg-orange-50 transition-all text-sm border-b border-gray-100 group/item"
+                          className="block px-6 py-4 text-gray-700 hover:text-teal-600 hover:bg-teal-50 transition-all text-sm border-b border-gray-100 group/item"
                         >
                           <div className="flex items-center gap-3">
-                            <div className="w-1.5 h-1.5 bg-orange-500 rounded-full opacity-0 group-hover/item:opacity-100 transition-opacity"></div>
+                            <div className="w-1.5 h-1.5 bg-[#115E59] rounded-full opacity-0 group-hover/item:opacity-100 transition-opacity"></div>
                             <span>{item.label}</span>
                           </div>
                         </NavLink>
                       ) : (
                         <div
                           className={`flex items-center justify-between px-6 py-4 transition-all cursor-pointer text-sm border-b border-gray-100 group/item ${
-                            activeSubmenu === item.label ? 'text-orange-600 bg-orange-50' : 'text-gray-700 hover:text-orange-600 hover:bg-orange-50'
+                            activeSubmenu === item.label ? 'text-teal-600 bg-teal-50' : 'text-gray-700 hover:text-teal-600 hover:bg-teal-50'
                           }`}
                           onMouseEnter={() => handleSubmenuEnter(item.label)}
                           onMouseLeave={handleSubmenuLeave}
@@ -672,10 +672,10 @@ export default function Navbar() {
                           }}
                         >
                           <div className="flex items-center gap-3">
-                            <div className="w-1.5 h-1.5 bg-orange-500 rounded-full opacity-0 group-hover/item:opacity-100 transition-opacity"></div>
+                            <div className="w-1.5 h-1.5 bg-[#115E59] rounded-full opacity-0 group-hover/item:opacity-100 transition-opacity"></div>
                             <span>{item.label}</span>
                           </div>
-                          <svg className="w-4 h-4 text-gray-400 group-hover/item:text-orange-600 transition-colors" fill="currentColor" viewBox="0 0 24 24">
+                          <svg className="w-4 h-4 text-gray-400 group-hover/item:text-teal-600 transition-colors" fill="currentColor" viewBox="0 0 24 24">
                             <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
                           </svg>
                         </div>
@@ -683,7 +683,7 @@ export default function Navbar() {
 
                       {item.type === 'submenu' && activeSubmenu === item.label && (
                         <div 
-                          className="absolute top-0 right-full w-96 bg-white shadow-xl border-r-2 border-orange-500 max-h-96 overflow-y-auto rounded-l-lg z-[1001] custom-scrollbar"
+                          className="absolute top-0 right-full w-96 bg-white shadow-xl border-r-2 border-teal-500 max-h-96 overflow-y-auto rounded-l-lg z-[1001] custom-scrollbar"
                           onMouseEnter={() => handleSubmenuEnter(item.label)}
                           onMouseLeave={handleSubmenuLeave}
                         >
@@ -691,10 +691,10 @@ export default function Navbar() {
                             <NavLink
                               key={subIndex}
                               href={subItem.href}
-                              className="block px-6 py-3 text-gray-700 hover:text-orange-600 hover:bg-orange-50 transition-all text-sm border-b border-gray-100 last:border-b-0 group/subitem"
+                              className="block px-6 py-3 text-gray-700 hover:text-teal-600 hover:bg-teal-50 transition-all text-sm border-b border-gray-100 last:border-b-0 group/subitem"
                             >
                               <div className="flex items-center gap-3">
-                                <div className="w-1.5 h-1.5 bg-orange-400 rounded-full opacity-0 group-hover/subitem:opacity-100 transition-opacity flex-shrink-0"></div>
+                                <div className="w-1.5 h-1.5 bg-teal-400 rounded-full opacity-0 group-hover/subitem:opacity-100 transition-opacity flex-shrink-0"></div>
                                 <span className="leading-relaxed">{subItem.label}</span>
                               </div>
                             </NavLink>
@@ -732,29 +732,29 @@ export default function Navbar() {
                 onMouseLeave={handleMouseLeave}
               >
                 <button 
-                  className="px-5 py-2 rounded-full border border-gray-200 bg-white flex items-center gap-3 text-gray-700 font-bold tracking-wide text-xs shadow-sm hover:shadow-md hover:border-orange-200 transition-all duration-300 active:scale-95 cursor-pointer"
+                  className="px-5 py-2 rounded-full border border-gray-200 bg-white flex items-center gap-3 text-gray-700 font-bold tracking-wide text-xs shadow-sm hover:shadow-md hover:border-teal-200 transition-all duration-300 active:scale-95 cursor-pointer"
                   onClick={toggleProfileDropdown}
                 >
-                  <div className="w-7 h-7 rounded-full bg-orange-500 text-white flex items-center justify-center font-bold text-xs ring-2 ring-orange-100">
+                  <div className="w-7 h-7 rounded-full bg-[#115E59] text-white flex items-center justify-center font-bold text-xs ring-2 ring-teal-100">
                     {getUserInitials(userData?.name)}
                   </div>
                   <span className="max-w-[80px] truncate">
                     {userData?.name || 'User'}
                   </span>
                   <FiChevronDown 
-                    className={`w-3.5 h-3.5 transition-transform duration-300 ${profileDropdownOpen ? 'rotate-180 text-orange-500' : 'text-gray-400'}`} 
+                    className={`w-3.5 h-3.5 transition-transform duration-300 ${profileDropdownOpen ? 'rotate-180 text-teal-500' : 'text-gray-400'}`} 
                   />
                 </button>
 
                 {(profileDropdownOpen || activeDropdown === 'profile') && (
                   <div 
-                    className="absolute top-full right-0 w-64 bg-white shadow-xl border-t-2 border-orange-500 rounded-b-lg z-[1001]"
+                    className="absolute top-full right-0 w-64 bg-white shadow-xl border-t-2 border-teal-500 rounded-b-lg z-[1001]"
                     onMouseEnter={handleDropdownContentEnter}
                     onMouseLeave={handleDropdownContentLeave}
                   >
-                    <div className="px-4 py-3 border-b border-gray-100 bg-orange-50">
+                    <div className="px-4 py-3 border-b border-gray-100 bg-teal-50">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full border-2 border-orange-200 bg-white text-orange-600 flex items-center justify-center font-bold">
+                        <div className="w-10 h-10 rounded-full border-2 border-teal-200 bg-white text-teal-600 flex items-center justify-center font-bold">
                           {getUserInitials(userData?.name)}
                         </div>
                         <div className="flex-1 min-w-0">
@@ -771,7 +771,7 @@ export default function Navbar() {
                         <button
                           key={index}
                           onClick={() => handleMobileMenuItemClick(item)}
-                          className="w-full text-left px-4 py-3 text-gray-700 hover:text-orange-600 hover:bg-orange-50 transition-all text-sm border-b border-gray-100 last:border-b-0 last:rounded-b-lg flex items-center gap-3 cursor-pointer"
+                          className="w-full text-left px-4 py-3 text-gray-700 hover:text-teal-600 hover:bg-teal-50 transition-all text-sm border-b border-gray-100 last:border-b-0 last:rounded-b-lg flex items-center gap-3 cursor-pointer"
                         >
                           <span className="text-base">{item.icon}</span>
                           <span>{item.label}</span>
@@ -781,7 +781,7 @@ export default function Navbar() {
                           key={index}
                           href={item.href}
                           onClick={() => handleMobileMenuItemClick(item)}
-                          className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:text-orange-600 hover:bg-orange-50 transition-all text-sm border-b border-gray-100 last:border-b-0 last:rounded-b-lg cursor-pointer"
+                          className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:text-teal-600 hover:bg-teal-50 transition-all text-sm border-b border-gray-100 last:border-b-0 last:rounded-b-lg cursor-pointer"
                         >
                           <span className="text-base">{item.icon}</span>
                           <span>{item.label}</span>
@@ -794,7 +794,7 @@ export default function Navbar() {
             ) : (
               <NavLink 
                 href={navigation.login}
-                className="px-8 py-2.5 rounded-full flex items-center bg-gradient-to-r from-orange-500 to-orange-600 text-white font-bold tracking-wide text-sm shadow-md hover:shadow-orange-500/30 hover:scale-105 transition-all duration-300 active:scale-95 ml-2"
+                className="px-8 py-2.5 rounded-full flex items-center bg-[#115E59] text-white font-bold tracking-wide text-sm shadow-md hover:bg-[#0F766E] hover:scale-105 transition-all duration-300 active:scale-95 ml-2"
               >
                 <div className="flex items-center gap-2">
                   <FiUser className="w-4 h-4" />
@@ -812,20 +812,20 @@ export default function Navbar() {
                 className="relative"
               >
                 <button 
-                  className="flex items-center gap-2 p-2 rounded-lg hover:bg-orange-50 transition-colors"
+                  className="flex items-center gap-2 p-2 rounded-lg hover:bg-teal-50 transition-colors"
                   onClick={toggleProfileDropdown}
                 >
                   {/* FIXED: Use initials instead of default image */}
-                  <div className="w-8 h-8 rounded-full border-2 border-orange-500 bg-white text-orange-600 flex items-center justify-center font-bold">
+                  <div className="w-8 h-8 rounded-full border-2 border-teal-500 bg-white text-teal-600 flex items-center justify-center font-bold">
                     {getUserInitials(userData?.name)}
                   </div>
                 </button>
 
                 {profileDropdownOpen && (
                   <div className="absolute top-full right-0 mt-2 w-56 bg-white shadow-xl rounded-lg border border-gray-200 z-50">
-                    <div className="px-4 py-3 border-b border-gray-100 bg-orange-50 rounded-t-lg">
+                    <div className="px-4 py-3 border-b border-gray-100 bg-teal-50 rounded-t-lg">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full border-2 border-orange-200 bg-white text-orange-600 flex items-center justify-center font-bold">
+                        <div className="w-10 h-10 rounded-full border-2 border-teal-200 bg-white text-teal-600 flex items-center justify-center font-bold">
                           {getUserInitials(userData?.name)}
                         </div>
                         <div className="flex-1 min-w-0">
@@ -842,7 +842,7 @@ export default function Navbar() {
                         <button
                           key={index}
                           onClick={() => handleMobileMenuItemClick(item)}
-                          className="w-full text-left px-4 py-3 text-gray-700 hover:text-orange-600 hover:bg-orange-50 transition-all text-sm border-b border-gray-100 last:border-b-0 last:rounded-b-lg flex items-center gap-3"
+                          className="w-full text-left px-4 py-3 text-gray-700 hover:text-teal-600 hover:bg-teal-50 transition-all text-sm border-b border-gray-100 last:border-b-0 last:rounded-b-lg flex items-center gap-3"
                         >
                           <span className="text-base">{item.icon}</span>
                           <span>{item.label}</span>
@@ -852,7 +852,7 @@ export default function Navbar() {
                           key={index}
                           href={item.href}
                           onClick={() => handleMobileMenuItemClick(item)}
-                          className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:text-orange-600 hover:bg-orange-50 transition-all text-sm border-b border-gray-100 last:border-b-0 last:rounded-b-lg"
+                          className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:text-teal-600 hover:bg-teal-50 transition-all text-sm border-b border-gray-100 last:border-b-0 last:rounded-b-lg"
                         >
                           <span className="text-base">{item.icon}</span>
                           <span>{item.label}</span>
@@ -866,7 +866,7 @@ export default function Navbar() {
               <NavLink 
                 href={navigation.login}
                 onClick={handleLinkClick}
-                className="bg-gradient-to-r from-orange-500 to-orange-600 text-white font-semibold px-5 py-2.5 rounded-lg text-sm shadow-sm hover:shadow-md transition-all hover:scale-105"
+                className="bg-gradient-to-r from-teal-500 to-teal-600 text-white font-semibold px-5 py-2.5 rounded-lg text-sm shadow-sm hover:shadow-md transition-all hover:scale-105"
               >
                 LOGIN
               </NavLink>
@@ -874,7 +874,7 @@ export default function Navbar() {
             
             <button 
               onClick={toggleMobileMenu}
-              className="mobile-menu-button p-2 text-gray-700 hover:text-orange-600 hover:bg-orange-50 rounded-lg transition-colors"
+              className="mobile-menu-button p-2 text-gray-700 hover:text-teal-600 hover:bg-teal-50 rounded-lg transition-colors"
             >
               {isMobileMenuOpen ? (
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -925,7 +925,7 @@ export default function Navbar() {
                   </div>
                   <button
                     onClick={toggleMobileMenu}
-                    className="p-2 text-gray-400 hover:text-orange-600 hover:bg-orange-50 rounded-full transition-colors"
+                    className="p-2 text-gray-400 hover:text-teal-600 hover:bg-teal-50 rounded-full transition-colors"
                   >
                     <FiX size={24} />
                   </button>
@@ -941,8 +941,8 @@ export default function Navbar() {
                         onClick={handleLinkClick}
                         className={`flex items-center gap-4 px-4 py-3 rounded-xl transition-all group ${
                           isActive(navigation.home) 
-                            ? 'bg-orange-50 text-orange-600' 
-                            : 'text-gray-700 hover:text-orange-600 hover:bg-orange-50'
+                            ? 'bg-teal-50 text-teal-600' 
+                            : 'text-gray-700 hover:text-teal-600 hover:bg-teal-50'
                         }`}
                       >
                         <FiHome className="text-xl group-hover:scale-110 transition-transform" />
@@ -958,7 +958,7 @@ export default function Navbar() {
                             href="/verify-otp"
                             state={{ email: userData?.email, phone: userData?.phone, mode: 'register' }}
                             onClick={handleLinkClick}
-                            className="block text-center px-4 py-2 bg-orange-500 text-white text-sm font-bold rounded-lg hover:bg-orange-600 transition"
+                            className="block text-center px-4 py-2 bg-[#115E59] text-white text-sm font-bold rounded-lg hover:bg-[#0F766E] transition"
                           >
                             Verify Now
                           </NavLink>
@@ -972,8 +972,8 @@ export default function Navbar() {
                         onClick={handleLinkClick}
                         className={`flex items-center gap-4 px-4 py-3 rounded-xl transition-all group ${
                           isActive(navigation.liveClasses) 
-                            ? 'bg-orange-50 text-orange-600' 
-                            : 'text-gray-700 hover:text-orange-600 hover:bg-orange-50'
+                            ? 'bg-teal-50 text-teal-600' 
+                            : 'text-gray-700 hover:text-teal-600 hover:bg-teal-50'
                         }`}
                       >
                         <FiVideo className="text-xl group-hover:scale-110 transition-transform" />
@@ -985,8 +985,8 @@ export default function Navbar() {
                         onClick={handleLinkClick}
                         className={`flex items-center gap-4 px-4 py-3 rounded-xl transition-all group ${
                           isActive(navigation.aiTeacher) 
-                            ? 'bg-orange-50 text-orange-600' 
-                            : 'text-gray-700 hover:text-orange-600 hover:bg-orange-50'
+                            ? 'bg-teal-50 text-teal-600' 
+                            : 'text-gray-700 hover:text-teal-600 hover:bg-teal-50'
                         }`}
                       >
                         <span className="text-xl group-hover:scale-110 transition-transform">👩‍🏫</span>
@@ -1005,7 +1005,7 @@ export default function Navbar() {
                         <button
                           onClick={() => setMobileEnglishOpen(!mobileEnglishOpen)}
                           className={`w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all ${
-                            mobileEnglishOpen ? 'bg-orange-50 text-orange-600' : 'text-gray-700 hover:bg-gray-50'
+                            mobileEnglishOpen ? 'bg-teal-50 text-teal-600' : 'text-gray-700 hover:bg-gray-50'
                           }`}
                         >
                           <div className="flex items-center gap-4">
@@ -1026,8 +1026,8 @@ export default function Navbar() {
                               onClick={handleLinkClick}
                               className={`flex items-center gap-3 py-3 px-6 transition-colors text-sm border-l-2 ${
                                 isActive(item.href)
-                                  ? 'bg-white text-orange-600 border-orange-500'
-                                  : 'text-gray-600 hover:text-orange-600 hover:bg-white border-transparent hover:border-orange-500'
+                                  ? 'bg-white text-teal-600 border-teal-500'
+                                  : 'text-gray-600 hover:text-teal-600 hover:bg-white border-transparent hover:border-teal-500'
                               }`}
                             >
                               <FiChevronRight className="text-xs" />
@@ -1042,7 +1042,7 @@ export default function Navbar() {
                         <button
                           onClick={() => setMobileMoreOpen(!mobileMoreOpen)}
                           className={`w-full flex items-center justify-between px-4 py-3 rounded-xl ${
-                            mobileMoreOpen ? 'bg-orange-50 text-orange-600' : 'text-gray-700 hover:bg-gray-50'
+                            mobileMoreOpen ? 'bg-teal-50 text-teal-600' : 'text-gray-700 hover:bg-gray-50'
                           }`}
                         >
                           <div className="flex items-center gap-4">
@@ -1063,8 +1063,8 @@ export default function Navbar() {
                               onClick={handleLinkClick}
                               className={`flex items-center gap-3 py-3 px-6 transition-colors text-sm border-l-2 ${
                                 isActive(item.href)
-                                  ? 'bg-white text-orange-600 border-orange-500'
-                                  : 'text-gray-600 hover:text-orange-600 hover:bg-white border-transparent hover:border-orange-500'
+                                  ? 'bg-white text-teal-600 border-teal-500'
+                                  : 'text-gray-600 hover:text-teal-600 hover:bg-white border-transparent hover:border-teal-500'
                               }`}
                             >
                               <FiChevronRight className="text-xs" />
@@ -1080,11 +1080,11 @@ export default function Navbar() {
                           <button
                             onClick={() => setMobileProfileOpen(!mobileProfileOpen)}
                             className={`w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all ${
-                              mobileProfileOpen ? 'bg-orange-50 text-orange-600' : 'text-gray-700 hover:bg-gray-50'
+                              mobileProfileOpen ? 'bg-teal-50 text-teal-600' : 'text-gray-700 hover:bg-gray-50'
                             }`}
                           >
                             <div className="flex items-center gap-4">
-                              <div className="w-6 h-6 rounded-full bg-orange-500 text-white flex items-center justify-center text-[10px] font-bold">
+                              <div className="w-6 h-6 rounded-full bg-[#115E59] text-white flex items-center justify-center text-[10px] font-bold">
                                 {getUserInitials(userData?.name)}
                               </div>
                               <span className="font-bold text-sm uppercase">My Account</span>
@@ -1102,8 +1102,8 @@ export default function Navbar() {
                                 onClick={() => handleMobileMenuItemClick(item)}
                                 className={`w-full flex items-center gap-4 py-3 px-6 transition-colors text-sm border-l-2 ${
                                   isActive(item.href)
-                                    ? 'bg-white text-orange-600 border-orange-500'
-                                    : 'text-gray-600 hover:text-orange-600 hover:bg-white border-transparent hover:border-orange-500'
+                                    ? 'bg-white text-teal-600 border-teal-500'
+                                    : 'text-gray-600 hover:text-teal-600 hover:bg-white border-transparent hover:border-teal-500'
                                 }`}
                               >
                                 <span className="text-lg">{item.icon}</span>
@@ -1122,7 +1122,7 @@ export default function Navbar() {
                   <div className="mt-4 px-6 py-6 border-t border-gray-100 bg-gray-50/30">
                     <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-4">Contact Support</p>
                     <div className="space-y-4">
-                      <a href="mailto:info@treecampus.in" className="flex items-center gap-3 text-gray-600 hover:text-orange-600 transition-colors">
+                      <a href="mailto:info@treecampus.in" className="flex items-center gap-3 text-gray-600 hover:text-teal-600 transition-colors">
                         <FiMail className="text-lg" />
                         <span className="text-xs font-medium">info@treecampus.in</span>
                       </a>
@@ -1144,7 +1144,7 @@ export default function Navbar() {
                     <NavLink
                       href={navigation.login}
                       onClick={handleLinkClick}
-                      className="w-full flex items-center justify-center gap-3 bg-gradient-to-r from-orange-500 to-orange-600 text-white font-bold py-4 rounded-2xl hover:shadow-lg hover:shadow-orange-200 transition-all group"
+                      className="w-full flex items-center justify-center gap-3 bg-[#115E59] text-white font-bold py-4 rounded-2xl hover:bg-[#0F766E] hover:shadow-lg hover:shadow-teal-200 transition-all group"
                     >
                       <FiLogIn className="text-xl group-hover:translate-x-1 transition-transform" />
                       LOGIN / REGISTER

@@ -17,8 +17,8 @@ const NoteModal = ({ isOpen, onClose, note }) => {
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-100 flex-shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-orange-100 flex items-center justify-center">
-              <FiFileText className="text-orange-600" size={20} />
+            <div className="w-10 h-10 rounded-xl bg-teal-100 flex items-center justify-center">
+              <FiFileText className="text-teal-600" size={20} />
             </div>
             <div>
               <h3 className="text-xl font-bold text-gray-900">{note.heading || 'Study Note'}</h3>
@@ -46,7 +46,7 @@ const NoteModal = ({ isOpen, onClose, note }) => {
         <div className="p-4 border-t border-gray-100 bg-white text-center flex-shrink-0">
           <button
             onClick={onClose}
-            className="px-8 py-3 bg-orange-500 hover:bg-orange-600 text-white rounded-xl font-bold transition-all shadow-lg hover:shadow-orange-500/20 active:scale-95"
+            className="px-8 py-3 bg-[#115E59] hover:bg-[#0F766E] text-white rounded-xl font-bold transition-all shadow-lg hover:shadow-teal-500/20 active:scale-95"
           >
             Close Note
           </button>

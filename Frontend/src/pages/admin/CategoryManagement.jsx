@@ -76,7 +76,7 @@ const CategoryManager = ({ onUpdate }) => {
         <div className="lg:col-span-1">
           <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
             <div className="flex items-center gap-2 mb-6">
-              <div className="p-2 bg-orange-100 text-[#FD5A00] rounded-lg">
+              <div className="p-2 bg-teal-100 text-[#14B8A6] rounded-lg">
                 <FiPlus className="w-5 h-5" />
               </div>
               <h2 className="text-lg font-bold text-gray-900">Add New Category</h2>
@@ -89,7 +89,7 @@ const CategoryManager = ({ onUpdate }) => {
                   type="text"
                   required
                   placeholder="e.g. Grammar, Vocabulary"
-                  className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 transition-all"
+                  className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#14B8A6] transition-all"
                   value={newCategory.name}
                   onChange={(e) => setNewCategory({ ...newCategory, name: e.target.value })}
                 />
@@ -99,7 +99,7 @@ const CategoryManager = ({ onUpdate }) => {
                 <textarea
                   rows="3"
                   placeholder="What courses belong here?"
-                  className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 transition-all resize-none"
+                  className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#14B8A6] transition-all resize-none"
                   value={newCategory.description}
                   onChange={(e) => setNewCategory({ ...newCategory, description: e.target.value })}
                 />
@@ -107,7 +107,7 @@ const CategoryManager = ({ onUpdate }) => {
               <button
                 type="submit"
                 disabled={isSubmitting || !newCategory.name.trim()}
-                className="w-full py-3 bg-[#FD5A00] text-white font-bold rounded-xl hover:bg-[#e55100] transition-all flex items-center justify-center gap-2 disabled:opacity-50 shadow-lg shadow-orange-100"
+                className="w-full py-3 bg-[#115E59] text-white font-bold rounded-xl hover:bg-[#0F766E] transition-all flex items-center justify-center gap-2 disabled:opacity-50 shadow-lg shadow-teal-100"
               >
                 {isSubmitting ? (
                   <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -129,7 +129,7 @@ const CategoryManager = ({ onUpdate }) => {
             <input
               type="text"
               placeholder="Search categories..."
-              className="w-full pl-11 pr-4 py-3 bg-white border border-gray-200 rounded-2xl shadow-sm focus:ring-2 focus:ring-orange-500 transition-all"
+              className="w-full pl-11 pr-4 py-3 bg-white border border-gray-200 rounded-2xl shadow-sm focus:ring-2 focus:ring-[#14B8A6] transition-all"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -137,7 +137,7 @@ const CategoryManager = ({ onUpdate }) => {
 
           {loading ? (
             <div className="flex flex-col items-center justify-center py-10">
-              <div className="w-10 h-10 border-4 border-orange-200 border-t-[#FD5A00] rounded-full animate-spin mb-4" />
+              <div className="w-10 h-10 border-4 border-teal-200 border-t-[#14B8A6] rounded-full animate-spin mb-4" />
               <p className="text-gray-500 text-sm">Loading...</p>
             </div>
           ) : filteredCategories.length > 0 ? (
@@ -155,7 +155,7 @@ const CategoryManager = ({ onUpdate }) => {
                   </div>
                   
                   <div className="flex items-start gap-3">
-                    <div className="p-3 bg-orange-50 text-[#FD5A00] rounded-xl">
+                    <div className="p-3 bg-teal-50 text-[#14B8A6] rounded-xl">
                       <FiTag className="w-5 h-5" />
                     </div>
                     <div className="flex-1 min-w-0">

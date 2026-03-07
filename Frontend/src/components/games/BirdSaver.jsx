@@ -177,7 +177,7 @@ const BirdSaver = () => {
       <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-200 min-h-[600px] relative flex flex-col">
         
         {/* Header */}
-        <div className="bg-gradient-to-r from-orange-500 to-red-500 text-white p-4 flex justify-between items-center z-10 shadow-md">
+        <div className="bg-gradient-to-r from-teal-500 to-red-500 text-white p-4 flex justify-between items-center z-10 shadow-md">
           <div className="flex items-center gap-4">
             <h2 className="text-xl font-bold flex items-center gap-2">
               <span>🐦</span> Bird Saver
@@ -243,7 +243,7 @@ const BirdSaver = () => {
                 className="absolute transform -translate-x-1/2 z-10"
               >
                 <div className="flex flex-col items-center">
-                  <div className="w-14 h-14 bg-gradient-to-br from-yellow-300 to-orange-400 rounded-full shadow-xl flex items-center justify-center text-3xl relative border-2 border-white">
+                  <div className="w-14 h-14 bg-gradient-to-br from-yellow-300 to-teal-400 rounded-full shadow-xl flex items-center justify-center text-3xl relative border-2 border-white">
                     🐦
                     <span className="absolute -top-1 -right-1 flex h-3 w-3">
                       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
@@ -265,16 +265,16 @@ const BirdSaver = () => {
           {gameState === 'start' && (
             <div className="absolute inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-20">
               <div className="bg-white p-8 rounded-2xl shadow-2xl text-center max-w-md">
-                <div className="w-24 h-24 bg-gradient-to-br from-orange-400 to-red-500 rounded-full flex items-center justify-center mx-auto mb-6 text-5xl shadow-lg">
+                <div className="w-24 h-24 bg-gradient-to-br from-teal-400 to-red-500 rounded-full flex items-center justify-center mx-auto mb-6 text-5xl shadow-lg">
                   🐦
                 </div>
                 <h3 className="text-3xl font-bold text-gray-900 mb-3">Save the Birds!</h3>
                 <p className="text-gray-600 mb-6 leading-relaxed">
-                  Type the <strong className="text-orange-600">English translation</strong> of falling Hindi words before birds hit the ground. Use the hints to help you!
+                  Type the <strong className="text-teal-600">English translation</strong> of falling Hindi words before birds hit the ground. Use the hints to help you!
                 </p>
                 <button 
                   onClick={startGame}
-                  className="w-full py-4 bg-gradient-to-r from-orange-500 to-red-500 text-white font-bold rounded-xl hover:from-orange-600 hover:to-red-600 transition shadow-lg shadow-orange-500/30 text-lg"
+                  className="w-full py-4 bg-gradient-to-r from-teal-500 to-red-500 text-white font-bold rounded-xl hover:from-teal-600 hover:to-red-600 transition shadow-lg shadow-teal-500/30 text-lg"
                 >
                   Start Game 🎮
                 </button>
@@ -290,7 +290,7 @@ const BirdSaver = () => {
                 <p className="text-gray-600 mb-6">Take a break! Click play to continue.</p>
                 <button 
                   onClick={togglePause}
-                  className="w-full py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white font-bold rounded-xl hover:from-orange-600 hover:to-red-600 transition shadow-lg"
+                  className="w-full py-3 bg-gradient-to-r from-teal-500 to-red-500 text-white font-bold rounded-xl hover:from-teal-600 hover:to-red-600 transition shadow-lg"
                 >
                   Continue Playing
                 </button>
@@ -304,14 +304,14 @@ const BirdSaver = () => {
               <div className="bg-white p-8 rounded-2xl shadow-2xl text-center max-w-md">
                 <div className="text-6xl mb-4">💔</div>
                 <h3 className="text-3xl font-bold text-gray-900 mb-4">Game Over!</h3>
-                <div className="text-6xl font-bold bg-gradient-to-r from-orange-500 to-red-500 bg-clip-text text-transparent mb-2">
+                <div className="text-6xl font-bold bg-gradient-to-r from-teal-500 to-red-500 bg-clip-text text-transparent mb-2">
                   {score}
                 </div>
                 <p className="text-gray-500 mb-2">Final Score</p>
                 <p className="text-sm text-gray-400 mb-8">Reached Level {level}</p>
                 <button 
                   onClick={startGame}
-                  className="flex items-center justify-center gap-2 w-full py-4 bg-gradient-to-r from-orange-500 to-red-500 text-white font-bold rounded-xl hover:from-orange-600 hover:to-red-600 transition shadow-lg text-lg"
+                  className="flex items-center justify-center gap-2 w-full py-4 bg-gradient-to-r from-teal-500 to-red-500 text-white font-bold rounded-xl hover:from-teal-600 hover:to-red-600 transition shadow-lg text-lg"
                 >
                   <ArrowPathIcon className="w-6 h-6" /> Play Again
                 </button>
@@ -329,7 +329,7 @@ const BirdSaver = () => {
             placeholder="Type English translation here..." 
             autoFocus
             disabled={gameState !== 'playing'}
-            className="w-full px-6 py-4 text-xl border-2 border-gray-300 rounded-xl focus:border-orange-500 focus:ring-2 focus:ring-orange-200 transition outline-none text-center font-bold disabled:bg-gray-100 disabled:text-gray-400"
+            className="w-full px-6 py-4 text-xl border-2 border-gray-300 rounded-xl focus:border-teal-500 focus:ring-2 focus:ring-teal-200 transition outline-none text-center font-bold disabled:bg-gray-100 disabled:text-gray-400"
           />
           <div className="text-center mt-3 text-sm text-gray-500">
             ⌨️ Type the answer and it will match automatically • Case insensitive

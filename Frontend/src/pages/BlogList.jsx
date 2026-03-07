@@ -67,8 +67,8 @@ const BlogList = () => {
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center">
         <div className="text-center">
           <div className="relative">
-            <div className="w-24 h-24 border-4 border-orange-200 rounded-full"></div>
-            <div className="w-24 h-24 border-4 border-t-orange-500 border-r-orange-500 border-b-orange-500 border-l-transparent rounded-full absolute top-0 left-0 animate-spin"></div>
+            <div className="w-24 h-24 border-4 border-teal-200 rounded-full"></div>
+            <div className="w-24 h-24 border-4 border-t-teal-500 border-r-teal-500 border-b-teal-500 border-l-transparent rounded-full absolute top-0 left-0 animate-spin"></div>
           </div>
           <p className="mt-6 text-lg text-gray-600 font-medium animate-pulse">Loading amazing content...</p>
         </div>
@@ -136,7 +136,7 @@ const BlogList = () => {
                     onClick={() => setSelectedCategory(category)}
                     className={`px-3 py-1.5 md:px-4 md:py-2 rounded-full text-xs md:text-sm font-medium transition-all duration-300 transform hover:scale-105 ${
                       selectedCategory === category
-                        ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-lg'
+                        ? 'bg-gradient-to-r from-teal-500 to-red-500 text-white shadow-lg'
                         : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                     }`}
                   >
@@ -152,7 +152,7 @@ const BlogList = () => {
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
-                className="bg-gray-100 border border-gray-200 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                className="bg-gray-100 border border-gray-200 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#14B8A6] focus:border-transparent"
               >
                 <option value="latest">Latest</option>
                 <option value="views">Most Viewed</option>
@@ -170,7 +170,7 @@ const BlogList = () => {
                 {searchTerm && ` for "${searchTerm}"`}
               </p>
               {filteredAndSortedBlogs.length > 0 && (
-                <div className="flex items-center gap-2 text-orange-600">
+                <div className="flex items-center gap-2 text-teal-600">
                   <FiTrendingUp className="w-5 h-5" />
                   <span className="font-semibold">
                     {sortBy === 'views' ? 'Trending Now' : 
@@ -202,7 +202,7 @@ const BlogList = () => {
                 
                 {/* Category Badge */}
                 <div className="absolute top-4 left-4">
-                  <span className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-3 py-1 rounded-full text-xs font-bold">
+                  <span className="bg-gradient-to-r from-teal-500 to-red-500 text-white px-3 py-1 rounded-full text-xs font-bold">
                     {blog.category}
                   </span>
                 </div>
@@ -223,7 +223,7 @@ const BlogList = () => {
                   {blog.tags?.slice(0, 3).map((tag, index) => (
                     <span
                       key={index}
-                      className="px-3 py-1 bg-gradient-to-r from-orange-100 to-red-100 text-orange-700 rounded-full text-xs font-medium hover:from-orange-200 hover:to-red-200 transition-colors"
+                      className="px-3 py-1 bg-gradient-to-r from-teal-100 to-red-100 text-teal-700 rounded-full text-xs font-medium hover:from-teal-200 hover:to-red-200 transition-colors"
                     >
                       #{tag}
                     </span>
@@ -231,7 +231,7 @@ const BlogList = () => {
                 </div>
 
                 {/* Title */}
-                <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-orange-600 transition-colors line-clamp-2">
+                <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-teal-600 transition-colors line-clamp-2">
                   {blog.title}
                 </h3>
                 
@@ -243,7 +243,7 @@ const BlogList = () => {
                 {/* Meta Info */}
                 <div className="flex items-center justify-between pt-4 border-t border-gray-100">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-gradient-to-r from-orange-400 to-red-400 rounded-full flex items-center justify-center text-white font-bold text-sm">
+                    <div className="w-10 h-10 bg-gradient-to-r from-teal-400 to-red-400 rounded-full flex items-center justify-center text-white font-bold text-sm">
                       {blog.author?.charAt(0) || 'A'}
                     </div>
                     <div>
@@ -256,7 +256,7 @@ const BlogList = () => {
                   
                   <div className="flex items-center gap-4">
                     <div className="flex items-center gap-1 text-gray-500 group/views">
-                      <FiEye className="w-4 h-4 group-hover/views:text-orange-500 transition-colors" />
+                      <FiEye className="w-4 h-4 group-hover/views:text-teal-500 transition-colors" />
                       <span className="text-sm font-medium">{blog.views}</span>
                     </div>
                     <div className="flex items-center gap-1 text-gray-500 group/likes">
@@ -273,8 +273,8 @@ const BlogList = () => {
         {/* Empty State */}
         {filteredAndSortedBlogs.length === 0 && (
           <div className="text-center py-16 animate-fadeIn">
-            <div className="w-32 h-32 bg-gradient-to-r from-orange-100 to-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
-              <FiSearch className="w-16 h-16 text-orange-400" />
+            <div className="w-32 h-32 bg-gradient-to-r from-teal-100 to-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
+              <FiSearch className="w-16 h-16 text-teal-400" />
             </div>
             <h3 className="text-2xl font-bold text-gray-900 mb-3">No articles found</h3>
             <p className="text-gray-600 max-w-md mx-auto mb-8">
@@ -288,7 +288,7 @@ const BlogList = () => {
                   setSearchTerm('');
                   setSelectedCategory('all');
                 }}
-                className="bg-gradient-to-r from-orange-500 to-red-500 text-white font-bold py-3 px-8 rounded-full hover:shadow-lg hover:shadow-orange-200 transition-all duration-300 transform hover:-translate-y-1"
+                className="bg-gradient-to-r from-teal-500 to-red-500 text-white font-bold py-3 px-8 rounded-full hover:shadow-lg hover:shadow-teal-200 transition-all duration-300 transform hover:-translate-y-1"
               >
                 Clear Filters
               </button>
@@ -300,9 +300,9 @@ const BlogList = () => {
         <div className="text-center mb-8">
           <Link
             to="/courses"
-            className="inline-flex items-center gap-2 text-orange-600 hover:text-orange-700 font-semibold group transition-all duration-300"
+            className="inline-flex items-center gap-2 text-teal-600 hover:text-teal-700 font-semibold group transition-all duration-300"
           >
-            <div className="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center group-hover:bg-orange-200 transition-colors">
+            <div className="w-10 h-10 rounded-full bg-teal-100 flex items-center justify-center group-hover:bg-teal-200 transition-colors">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
               </svg>

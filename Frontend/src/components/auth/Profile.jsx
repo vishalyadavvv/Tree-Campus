@@ -98,29 +98,29 @@ const handleSubmit = async (e) => {
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
           {/* Header */}
-          <div className="bg-gradient-to-r from-orange-500 to-orange-600 px-8 py-12" style={{ background: 'linear-gradient(135deg, #FD5A00 0%, #ff7a3d 100%)' }}>
+          <div className="bg-[#14B8A6] px-8 py-12">
             <div className="flex items-center space-x-6">
-              <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center text-4xl font-bold text-orange-500" style={{ color: '#FD5A00' }}>
+              <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center text-4xl font-bold text-teal-500" style={{ color: '#14B8A6' }}>
                 {user?.name?.charAt(0).toUpperCase()}
               </div>
               <div className="text-white">
                 <h1 className="text-3xl font-bold">{user?.name}</h1>
-                <p className="text-orange-100">{user?.email}</p>
-                <p className="text-orange-200 text-sm mt-1">
+                <p className="text-teal-100">{user?.email}</p>
+                <p className="text-teal-200 text-sm mt-1">
                   🎓 Member since {user?.createdAt ? new Date(user.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : 'N/A'}
                 </p>
                 {user?.phone && (
-                  <p className="text-orange-200 text-sm">
+                  <p className="text-teal-200 text-sm">
                     📱 {user.phone}
                   </p>
                 )}
                 {user?.age && (
-                  <p className="text-orange-200 text-sm">
+                  <p className="text-teal-200 text-sm">
                     🎂 Age: {user.age}
                   </p>
                 )}
                 {user?.isVerified && (
-                  <p className="text-orange-200 text-sm mt-1">
+                  <p className="text-teal-200 text-sm mt-1">
                     ✅ Email Verified
                   </p>
                 )}
@@ -133,7 +133,7 @@ const handleSubmit = async (e) => {
             {message && (
               <div className={`mb-6 p-4 rounded-lg ${
                 message.includes('success') 
-                  ? 'bg-orange-50 text-orange-700 border border-orange-200' 
+                  ? 'bg-teal-50 text-teal-700 border border-teal-200' 
                   : 'bg-red-50 text-red-700 border border-red-200'
               }`}>
                 {message}
@@ -211,7 +211,7 @@ const handleSubmit = async (e) => {
                               } 
                             })}
                             className="text-white text-xs px-3 py-1 rounded-full hover:opacity-90 transition font-medium"
-                            style={{ backgroundColor: '#FD5A00' }}
+                            style={{ backgroundColor: '#14B8A6' }}
                           >
                             Verify Now
                           </button>
@@ -222,9 +222,9 @@ const handleSubmit = async (e) => {
                 </div>
 
                 {user?.enrolledCourses && user.enrolledCourses.length > 0 && (
-                  <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
+                  <div className="bg-teal-50 border border-teal-200 rounded-lg p-4">
                     <h3 className="font-semibold text-gray-900 mb-2">📚 Enrolled Courses</h3>
-                    <p className="text-lg font-bold" style={{ color: '#FD5A00' }}>{user.enrolledCourses.length} courses</p>
+                    <p className="text-lg font-bold" style={{ color: '#14B8A6' }}>{user.enrolledCourses.length} courses</p>
                   </div>
                 )}
 
@@ -238,7 +238,7 @@ const handleSubmit = async (e) => {
                 <button
                   onClick={() => setEditing(true)}
                   className="w-full py-3 text-white rounded-lg hover:opacity-90 transition font-semibold"
-                  style={{ backgroundColor: '#FD5A00' }}
+                  style={{ backgroundColor: '#14B8A6' }}
                 >
                   Edit Profile
                 </button>
@@ -256,7 +256,7 @@ const handleSubmit = async (e) => {
                       value={formData.name}
                       onChange={handleChange}
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent transition"
-                      style={{ '--tw-ring-color': '#FD5A00' }}
+                      style={{ '--tw-ring-color': '#14B8A6' }}
                       required
                     />
                   </div>
@@ -270,7 +270,7 @@ const handleSubmit = async (e) => {
                       value={formData.email}
                       onChange={handleChange}
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent transition"
-                      style={{ '--tw-ring-color': '#FD5A00' }}
+                      style={{ '--tw-ring-color': '#14B8A6' }}
                       required
                     />
                   </div>
@@ -284,7 +284,7 @@ const handleSubmit = async (e) => {
                       value={formData.phone}
                       onChange={handleChange}
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent transition"
-                      style={{ '--tw-ring-color': '#FD5A00' }}
+                      style={{ '--tw-ring-color': '#14B8A6' }}
                       placeholder="+1 234 567 8900"
                     />
                   </div>
@@ -298,7 +298,7 @@ const handleSubmit = async (e) => {
                       value={formData.age}
                       onChange={handleChange}
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent transition"
-                      style={{ '--tw-ring-color': '#FD5A00' }}
+                      style={{ '--tw-ring-color': '#14B8A6' }}
                       placeholder="e.g. 25"
                     />
                   </div>
@@ -312,7 +312,7 @@ const handleSubmit = async (e) => {
                       value={formData.education}
                       onChange={handleChange}
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent transition"
-                      style={{ '--tw-ring-color': '#FD5A00' }}
+                      style={{ '--tw-ring-color': '#14B8A6' }}
                       placeholder="e.g. Undergraduate"
                     />
                   </div>
@@ -325,7 +325,7 @@ const handleSubmit = async (e) => {
                       value={formData.preferredLanguage}
                       onChange={handleChange}
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent transition"
-                      style={{ '--tw-ring-color': '#FD5A00' }}
+                      style={{ '--tw-ring-color': '#14B8A6' }}
                     >
                       <option value="english">English</option>
                       <option value="hindi">Hindi</option>
@@ -338,7 +338,7 @@ const handleSubmit = async (e) => {
                     type="submit"
                     disabled={loading}
                     className="flex-1 py-3 text-white rounded-lg hover:opacity-90 transition font-semibold disabled:opacity-50"
-                    style={{ backgroundColor: '#FD5A00' }}
+                    style={{ backgroundColor: '#14B8A6' }}
                   >
                     {loading ? 'Saving...' : 'Save Changes'}
                   </button>

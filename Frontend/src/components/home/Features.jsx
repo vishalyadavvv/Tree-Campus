@@ -44,14 +44,14 @@ const FeatureCard = ({ feature, index, isVisible }) => {
       }}
     >
       {/* Gradient Background Effect */}
-      <div className="absolute inset-0 bg-gradient-to-br from-orange-50 to-orange-100 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+      <div className="absolute inset-0 bg-gradient-to-br from-teal-50 to-teal-100 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
       
       {/* Animated Border */}
-      <div className="absolute inset-0 rounded-2xl border-2 border-transparent group-hover:border-orange-500 opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
+      <div className="absolute inset-0 rounded-2xl border-2 border-transparent group-hover:border-teal-500 opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
       
       {/* Icon Container */}
       <div 
-        className="relative inline-flex p-2.5 sm:p-3 lg:p-4 rounded-xl bg-gradient-to-br from-[#FC5A00] to-orange-600 text-white mb-3 sm:mb-4 lg:mb-6 transition-transform duration-300 shadow-lg"
+        className="relative inline-flex p-2.5 sm:p-3 lg:p-4 rounded-xl bg-gradient-to-br from-[#14B8A6] to-teal-600 text-white mb-3 sm:mb-4 lg:mb-6 transition-transform duration-300 shadow-lg"
         style={{
           transform: isInView ? 'scale(1)' : 'scale(0.8)',
           transitionDelay: `${index * 100 + 200}ms`
@@ -84,7 +84,7 @@ const FeatureCard = ({ feature, index, isVisible }) => {
       </p>
       
       {/* Hover Indicator */}
-      <div className="absolute bottom-0 left-0 w-0 h-1 bg-gradient-to-r from-[#FC5A00] to-orange-600 group-hover:w-full transition-all duration-500"></div>
+      <div className="absolute bottom-0 left-0 w-0 h-1 bg-gradient-to-r from-[#14B8A6] to-teal-600 group-hover:w-full transition-all duration-500"></div>
     </div>
   );
 };
@@ -133,7 +133,7 @@ const EnglishFeatureCard = ({ feature, index, isVisible }) => {
       }}
     >
       {/* Background overlay on hover */}
-      <div className="absolute inset-0 bg-gradient-to-br from-orange-50 to-orange-100 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+      <div className="absolute inset-0 bg-gradient-to-br from-teal-50 to-teal-100 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
       
       {/* Content Container */}
       <div className="relative z-10">
@@ -157,7 +157,7 @@ const EnglishFeatureCard = ({ feature, index, isVisible }) => {
         
         {/* Title */}
         <h3 
-          className="text-base sm:text-lg lg:text-xl font-bold text-gray-900 text-center mb-3 sm:mb-4 group-hover:text-[#FC5A00] transition-colors duration-300 leading-snug px-1 sm:px-2"
+          className="text-base sm:text-lg lg:text-xl font-bold text-gray-900 text-center mb-3 sm:mb-4 group-hover:text-[#14B8A6] transition-colors duration-300 leading-snug px-1 sm:px-2"
           style={{
             transform: isInView ? 'translateY(0)' : 'translateY(20px)',
             opacity: isInView ? 1 : 0,
@@ -169,7 +169,7 @@ const EnglishFeatureCard = ({ feature, index, isVisible }) => {
         
         {/* Underline */}
         <div 
-          className="w-12 sm:w-14 h-1 bg-gradient-to-r from-[#FC5A00] to-orange-600 mx-auto mb-3 sm:mb-4 transition-all duration-300"
+          className="w-12 sm:w-14 h-1 bg-gradient-to-r from-[#14B8A6] to-teal-600 mx-auto mb-3 sm:mb-4 transition-all duration-300"
           style={{
             transform: isInView ? 'scaleX(1)' : 'scaleX(0)',
             transitionDelay: `${index * 150 + 400}ms`
@@ -361,7 +361,7 @@ const Features = () => {
             transform: headerVisible ? 'translateY(0)' : 'translateY(30px)'
           }}
         >
-          <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-gray-900 mb-3 sm:mb-4 lg:mb-6 bg-gradient-to-r from-[#FC5A00] to-orange-600 bg-clip-text text-transparent leading-tight px-2 sm:px-4">
+          <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-gray-900 mb-3 sm:mb-4 lg:mb-6 bg-gradient-to-r from-[#14B8A6] to-teal-600 bg-clip-text text-transparent leading-tight px-2 sm:px-4">
             {features.title}
           </h2>
           <p className="text-sm sm:text-base md:text-lg lg:text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed px-2 sm:px-4">
@@ -391,7 +391,7 @@ const Features = () => {
               transform: englishHeaderVisible ? 'scale(1)' : 'scale(0.9)'
             }}
           >
-            <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-gray-900 mb-2 sm:mb-3 lg:mb-4 bg-gradient-to-r from-[#FC5A00] to-orange-600 bg-clip-text text-transparent leading-tight px-2 sm:px-4">
+            <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-gray-900 mb-2 sm:mb-3 lg:mb-4 bg-gradient-to-r from-[#14B8A6] to-teal-600 bg-clip-text text-transparent leading-tight px-2 sm:px-4">
               English Speaking Course Online Free
             </h2>
             <p className="text-sm sm:text-base md:text-lg lg:text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed px-2 sm:px-4">
@@ -426,13 +426,13 @@ const Features = () => {
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center px-3 sm:px-4 max-w-lg mx-auto sm:max-w-none">
             <a
               href="/courses"
-              className="inline-block px-5 sm:px-6 lg:px-8 py-2.5 sm:py-3 lg:py-4 bg-gradient-to-r from-[#FC5A00] to-orange-600 text-white rounded-xl hover:from-orange-600 hover:to-orange-700 transition-all duration-300 shadow-lg hover:shadow-xl font-semibold text-sm sm:text-base lg:text-lg transform hover:scale-105 active:scale-95"
+              className="inline-block px-5 sm:px-6 lg:px-8 py-2.5 sm:py-3 lg:py-4 bg-gradient-to-r from-[#14B8A6] to-teal-600 text-white rounded-xl hover:from-teal-600 hover:to-teal-700 transition-all duration-300 shadow-lg hover:shadow-xl font-semibold text-sm sm:text-base lg:text-lg transform hover:scale-105 active:scale-95"
             >
               Start Free Trial →
             </a>
             <a
               href="/courses"
-              className="inline-block px-5 sm:px-6 lg:px-8 py-2.5 sm:py-3 lg:py-4 border-2 border-gray-300 text-gray-700 rounded-xl hover:border-[#FC5A00] hover:text-[#FC5A00] transition-all duration-300 font-semibold text-sm sm:text-base lg:text-lg active:scale-95"
+              className="inline-block px-5 sm:px-6 lg:px-8 py-2.5 sm:py-3 lg:py-4 border-2 border-gray-300 text-gray-700 rounded-xl hover:border-[#14B8A6] hover:text-[#14B8A6] transition-all duration-300 font-semibold text-sm sm:text-base lg:text-lg active:scale-95"
             >
               Watch Demo
             </a>

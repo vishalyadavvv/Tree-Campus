@@ -63,7 +63,7 @@ const Games = () => {
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6 }}
             >
-              <span className="inline-flex items-center gap-2 px-3 py-1 bg-[#FD5B00]/10 text-[#FD5B00] text-sm font-medium rounded-full mb-4">
+              <span className="inline-flex items-center gap-2 px-3 py-1 bg-[#115E59]/10 text-[#14B8A6] text-sm font-medium rounded-full mb-4">
                 <FireIcon className="w-4 h-4" />
                 Learn While Playing
               </span>
@@ -78,8 +78,8 @@ const Games = () => {
               {/* Quick Stats */}
               <div className="flex flex-wrap gap-6">
                 <div className="flex items-center gap-2">
-                  <div className="w-10 h-10 bg-[#FD5B00]/10 rounded-lg flex items-center justify-center">
-                    <TrophyIcon className="w-5 h-5 text-[#FD5B00]" />
+                  <div className="w-10 h-10 bg-[#115E59]/10 rounded-lg flex items-center justify-center">
+                    <TrophyIcon className="w-5 h-5 text-[#14B8A6]" />
                   </div>
                   <div>
                     <p className="text-xl font-bold text-gray-900">4</p>
@@ -126,7 +126,7 @@ const Games = () => {
                     }}
                   />
                   <div className="absolute top-4 left-4">
-                    <span className="px-3 py-1 bg-[#FD5B00] text-white text-sm font-medium rounded-full">
+                    <span className="px-3 py-1 bg-[#115E59] text-white text-sm font-medium rounded-full">
                       Featured
                     </span>
                   </div>
@@ -140,7 +140,7 @@ const Games = () => {
                     <motion.button
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
-                      className="w-full py-3 bg-[#FD5B00] text-white font-semibold rounded-xl hover:bg-orange-600 transition-colors flex items-center justify-center gap-2"
+                      className="w-full py-3 bg-[#115E59] text-white font-semibold rounded-xl hover:bg-[#0F766E] transition-colors flex items-center justify-center gap-2"
                     >
                       <PlayIcon className="w-5 h-5" />
                       Play Now
@@ -150,7 +150,7 @@ const Games = () => {
               </div>
               
               {/* Decorative Elements */}
-              <div className="absolute -z-10 -top-4 -right-4 w-full h-full bg-[#FD5B00]/10 rounded-2xl" />
+              <div className="absolute -z-10 -top-4 -right-4 w-full h-full bg-[#115E59]/10 rounded-2xl" />
             </motion.div>
           </div>
         </div>
@@ -172,7 +172,7 @@ const Games = () => {
                 onClick={() => setActiveFilter(filter.id)}
                 className={`px-4 py-2 text-sm font-medium rounded-lg transition-all ${
                   activeFilter === filter.id
-                    ? 'bg-[#FD5B00] text-white'
+                    ? 'bg-[#115E59] text-white'
                     : 'text-gray-600 hover:bg-gray-50'
                 }`}
               >
@@ -183,7 +183,7 @@ const Games = () => {
           
           {/* <Link 
             to="/leaderboard"
-            className="flex items-center gap-2 text-[#FD5B00] font-medium hover:text-orange-700 transition-colors"
+            className="flex items-center gap-2 text-[#14B8A6] font-medium hover:text-teal-700 transition-colors"
           >
             <TrophyIcon className="w-5 h-5" />
             View Full Leaderboard
@@ -298,7 +298,7 @@ const GameCard = ({ game, index }) => {
           </div>
           <div className="text-center">
             <p className="text-xs text-gray-500">Your Best</p>
-            <p className="font-bold text-[#FD5B00]">{game.userHighScore?.toLocaleString() || '-'}</p>
+            <p className="font-bold text-[#14B8A6]">{game.userHighScore?.toLocaleString() || '-'}</p>
           </div>
           <div className="text-center">
             <p className="text-xs text-gray-500">XP Reward</p>
@@ -312,7 +312,7 @@ const GameCard = ({ game, index }) => {
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              className="w-full py-2.5 bg-[#FD5B00] text-white font-semibold rounded-xl hover:bg-orange-600 transition-colors flex items-center justify-center gap-2"
+              className="w-full py-2.5 bg-[#115E59] text-white font-semibold rounded-xl hover:bg-[#0F766E] transition-colors flex items-center justify-center gap-2"
             >
               <PlayIcon className="w-5 h-5" />
               Play Now
@@ -342,7 +342,7 @@ const LeaderboardSection = ({ leaderboard }) => {
       case 2:
         return { bg: 'bg-gray-50', border: 'border-gray-200', icon: '🥈' };
       case 3:
-        return { bg: 'bg-orange-50', border: 'border-orange-200', icon: '🥉' };
+        return { bg: 'bg-teal-50', border: 'border-teal-200', icon: '🥉' };
       default:
         return { bg: 'bg-white', border: 'border-gray-100', icon: rank };
     }
@@ -369,7 +369,7 @@ const LeaderboardSection = ({ leaderboard }) => {
           </div>
           {/* <Link 
             to="/leaderboard"
-            className="text-sm text-[#FD5B00] font-medium hover:text-orange-700 transition-colors"
+            className="text-sm text-[#14B8A6] font-medium hover:text-teal-700 transition-colors"
           >
             View All
           </Link> */}
@@ -416,7 +416,7 @@ const LeaderboardSection = ({ leaderboard }) => {
                             className="w-full h-full object-cover"
                           />
                         ) : (
-                          <div className="w-full h-full bg-[#FD5B00]/10 flex items-center justify-center text-[#FD5B00] font-semibold">
+                          <div className="w-full h-full bg-[#115E59]/10 flex items-center justify-center text-[#14B8A6] font-semibold">
                             {entry.player?.charAt(0).toUpperCase()}
                           </div>
                         )}
@@ -508,7 +508,7 @@ const HowToPlaySection = () => {
               )}
               
               {/* Step Number */}
-              <div className="relative z-10 w-16 h-16 bg-[#FD5B00]/10 rounded-2xl flex items-center justify-center text-3xl mx-auto mb-4">
+              <div className="relative z-10 w-16 h-16 bg-[#115E59]/10 rounded-2xl flex items-center justify-center text-3xl mx-auto mb-4">
                 {step.icon}
               </div>
               
@@ -529,7 +529,7 @@ const GamesLoadingScreen = () => (
       <motion.div
         animate={{ rotate: 360 }}
         transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-        className="w-12 h-12 border-3 border-gray-200 border-t-[#FD5B00] rounded-full mx-auto mb-4"
+        className="w-12 h-12 border-3 border-gray-200 border-t-[#14B8A6] rounded-full mx-auto mb-4"
       />
       <p className="text-gray-600">Loading games...</p>
     </div>

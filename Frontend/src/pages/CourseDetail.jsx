@@ -228,7 +228,7 @@ const CourseOverview = () => {
   if (loading || authLoading) {
     return (
       <div className="flex justify-center items-center min-h-screen bg-gray-50">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#FC5A00]"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#14B8A6]"></div>
       </div>
     );
   }
@@ -244,8 +244,8 @@ const CourseOverview = () => {
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl p-6 max-w-md w-full shadow-2xl animate-fadeIn">
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 rounded-full bg-[#FC5A00]/10 flex items-center justify-center">
-                <FiCheckCircle className="text-[#FC5A00]" size={24} />
+              <div className="w-12 h-12 rounded-full bg-[#115E59]/10 flex items-center justify-center">
+                <FiCheckCircle className="text-[#14B8A6]" size={24} />
               </div>
               <div>
                 <h3 className="text-2xl font-bold text-gray-900">Confirm Enrollment</h3>
@@ -254,7 +254,7 @@ const CourseOverview = () => {
             </div>
             
             <p className="text-gray-600 mb-6">
-              You are about to enroll in <span className="font-bold text-[#FC5A00]">{course?.title}</span>. 
+              You are about to enroll in <span className="font-bold text-[#14B8A6]">{course?.title}</span>. 
               This will give you lifetime access to all course materials.
             </p>
             
@@ -289,7 +289,7 @@ const CourseOverview = () => {
               </button>
               <button
                 onClick={handleEnrollConfirm}
-                className="flex-1 py-3 px-4 bg-[#FC5A00] hover:bg-[#FF6B1A] text-white font-bold rounded-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="flex-1 py-3 px-4 bg-[#115E59] hover:bg-[#0F766E] text-white font-bold rounded-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 disabled={enrollLoading}
               >
                 {enrollLoading ? (
@@ -320,7 +320,7 @@ const CourseOverview = () => {
         <div className="max-w-7xl mx-auto">
           <Link 
             to="/courses" 
-            className="inline-flex items-center text-white hover:text-[#FC5A00] transition-colors duration-200 mb-6 font-bold"
+            className="inline-flex items-center text-white hover:text-[#14B8A6] transition-colors duration-200 mb-6 font-bold"
           >
             <FiChevronRight className="rotate-180 mr-2" />
             Back to Courses
@@ -333,7 +333,7 @@ const CourseOverview = () => {
                 <span className="px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full text-white font-bold text-sm border border-white/30">
                   {course?.category}
                 </span>
-                <span className="px-4 py-2 bg-[#FC5A00]/30 backdrop-blur-sm rounded-full text-white font-bold text-sm border border-[#FC5A00]/50">
+                <span className="px-4 py-2 bg-[#115E59]/30 backdrop-blur-sm rounded-full text-white font-bold text-sm border border-[#14B8A6]/50">
                   {course?.level}
                 </span>
                 {isAuthenticated && isEnrolled && (
@@ -360,19 +360,19 @@ const CourseOverview = () => {
               
               <div className="flex flex-wrap gap-6 mb-8">
                 <div className="flex items-center gap-3 text-white font-bold">
-                  <FiBook size={22} className="text-[#FC5A00]" />
+                  <FiBook size={22} className="text-[#14B8A6]" />
                   <span>{sections?.length || 0} Sections</span>
                 </div>
                 <div className="flex items-center gap-3 text-white font-bold">
-                  <FiPlay size={22} className="text-[#FC5A00]" />
+                  <FiPlay size={22} className="text-[#14B8A6]" />
                   <span>{totalLessons} Lessons</span>
                 </div>
                 <div className="flex items-center gap-3 text-white font-bold">
-                  <FiAward size={22} className="text-[#FC5A00]" />
+                  <FiAward size={22} className="text-[#14B8A6]" />
                   <span>{totalQuizzes} Quizzes</span>
                 </div>
                 <div className="flex items-center gap-3 text-white font-bold">
-                  <FiClock size={22} className="text-[#FC5A00]" />
+                  <FiClock size={22} className="text-[#14B8A6]" />
                   <span>{course?.duration}</span>
                 </div>
               </div>
@@ -389,7 +389,7 @@ const CourseOverview = () => {
               ) : (
                 <div className="flex flex-col sm:flex-row gap-4">
                   <button 
-                    className="bg-[#FC5A00] hover:bg-[#FF6B1A] text-white px-8 py-4 rounded-xl font-bold text-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl shadow-[#FC5A00]/20 hover:shadow-[#FC5A00]/30 flex items-center gap-3"
+                    className="bg-[#115E59] hover:bg-[#0F766E] text-white px-8 py-4 rounded-xl font-bold text-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl shadow-[#14B8A6]/20 hover:shadow-[#14B8A6]/30 flex items-center gap-3"
                     onClick={handleEnrollClick}
                     disabled={checkingEnrollment}
                   >
@@ -427,15 +427,15 @@ const CourseOverview = () => {
                   </p>
                   <ul className="space-y-1 text-white/90 text-sm">
                     <li className="flex items-center gap-2">
-                      <div className="w-1.5 h-1.5 bg-[#FC5A00] rounded-full"></div>
+                      <div className="w-1.5 h-1.5 bg-[#115E59] rounded-full"></div>
                       Full course access with lifetime updates
                     </li>
                     <li className="flex items-center gap-2">
-                      <div className="w-1.5 h-1.5 bg-[#FC5A00] rounded-full"></div>
+                      <div className="w-1.5 h-1.5 bg-[#115E59] rounded-full"></div>
                       Certificate of completion
                     </li>
                     <li className="flex items-center gap-2">
-                      <div className="w-1.5 h-1.5 bg-[#FC5A00] rounded-full"></div>
+                      <div className="w-1.5 h-1.5 bg-[#115E59] rounded-full"></div>
                       Downloadable resources and exercises
                     </li>
                   </ul>
@@ -453,7 +453,7 @@ const CourseOverview = () => {
                   </p>
                   <button
                     onClick={handleLoginRedirect}
-                    className="text-white hover:text-[#FC5A00] font-bold text-sm flex items-center gap-1 transition-colors duration-200"
+                    className="text-white hover:text-[#14B8A6] font-bold text-sm flex items-center gap-1 transition-colors duration-200"
                   >
                     Click here to login <FiChevronRight size={14} />
                   </button>
@@ -524,7 +524,7 @@ const CourseOverview = () => {
             <p className="text-gray-600 font-bold text-lg">
               {sections?.length} sections • {totalLessons} lessons • {totalQuizzes} quizzes
               {isAuthenticated && !isEnrolled && (
-                <span className="ml-3 text-sm bg-[#FC5A00]/10 text-[#FC5A00] px-3 py-1 rounded-full font-bold">
+                <span className="ml-3 text-sm bg-[#115E59]/10 text-[#14B8A6] px-3 py-1 rounded-full font-bold">
                   Enroll to access content
                 </span>
               )}
@@ -538,7 +538,7 @@ const CourseOverview = () => {
           
           <div className="space-y-4">
             {sections?.map((section, sectionIndex) => (
-              <div key={section._id} className="bg-white border border-gray-200 rounded-2xl overflow-hidden hover:border-[#FC5A00]/50 transition-all duration-300 shadow-lg hover:shadow-xl">
+              <div key={section._id} className="bg-white border border-gray-200 rounded-2xl overflow-hidden hover:border-[#14B8A6]/50 transition-all duration-300 shadow-lg hover:shadow-xl">
                 {/* Section Header */}
                 <div 
                   className={`flex justify-between items-center p-5 lg:p-6 cursor-pointer transition-all duration-300 ${
@@ -548,7 +548,7 @@ const CourseOverview = () => {
                 >
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-3 mb-2">
-                      <span className="px-3 py-1 bg-[#FC5A00]/10 text-[#FC5A00] font-bold text-sm rounded-lg">
+                      <span className="px-3 py-1 bg-[#115E59]/10 text-[#14B8A6] font-bold text-sm rounded-lg">
                         Section {sectionIndex + 1}
                       </span>
                       {isAuthenticated && !isEnrolled && (
@@ -574,8 +574,8 @@ const CourseOverview = () => {
                   </div>
                   <button className="flex-shrink-0 ml-4 p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors duration-200">
                     {expandedSections[section._id] ? 
-                      <FiChevronUp size={24} className="text-[#FC5A00]" /> : 
-                      <FiChevronDown size={24} className="text-[#FC5A00]" />
+                      <FiChevronUp size={24} className="text-[#14B8A6]" /> : 
+                      <FiChevronDown size={24} className="text-[#14B8A6]" />
                     }
                   </button>
                 </div>
@@ -593,7 +593,7 @@ const CourseOverview = () => {
                               isAuthenticated && isEnrolled 
                                 ? lesson.isCompleted 
                                   ? 'bg-green-50/50 hover:bg-green-50 border-green-200 hover:border-green-400 cursor-pointer hover:translate-x-2'
-                                  : 'bg-gray-50 hover:bg-[#FC5A00]/5 border-gray-200 hover:border-[#FC5A00] cursor-pointer hover:translate-x-2'
+                                  : 'bg-gray-50 hover:bg-[#115E59]/5 border-gray-200 hover:border-[#14B8A6] cursor-pointer hover:translate-x-2'
                                 : 'bg-gray-50/50 border-gray-200 cursor-not-allowed'
                             } ${(!isAuthenticated || !isEnrolled) && 'opacity-75'}`}
                             onClick={() => {
@@ -609,7 +609,7 @@ const CourseOverview = () => {
                                 isAuthenticated && isEnrolled 
                                   ? lesson.isCompleted
                                     ? 'bg-green-100 group-hover:bg-green-500'
-                                    : 'bg-[#FC5A00]/10 group-hover:bg-[#FC5A00]'
+                                    : 'bg-[#115E59]/10 group-hover:bg-[#115E59]'
                                   : 'bg-gray-300'
                               }`}>
                                 {isAuthenticated && isEnrolled ? (
@@ -620,7 +620,7 @@ const CourseOverview = () => {
                                       <span className="text-gray-900 font-bold text-sm group-hover:text-white">
                                         {lessonIndex + 1}
                                       </span>
-                                      <FiPlay className="text-[#FC5A00] group-hover:text-white ml-1" size={16} />
+                                      <FiPlay className="text-[#14B8A6] group-hover:text-white ml-1" size={16} />
                                     </>
                                   )
                                 ) : (
@@ -630,13 +630,13 @@ const CourseOverview = () => {
                               <div className="min-w-0">
                                 <p className={`font-bold text-lg mb-1 truncate ${
                                   isAuthenticated && isEnrolled 
-                                    ? lesson.isCompleted ? 'text-green-700' : 'text-gray-900 group-hover:text-[#FC5A00]' 
+                                    ? lesson.isCompleted ? 'text-green-700' : 'text-gray-900 group-hover:text-[#14B8A6]' 
                                     : 'text-gray-500'
                                 }`}>
                                   {lesson.title}
                                 </p>
                                 <div className="flex items-center gap-2 font-bold">
-                                  <FiClock size={16} className={isAuthenticated && isEnrolled ? lesson.isCompleted ? "text-green-500" : "text-[#FC5A00]" : "text-gray-400"} />
+                                  <FiClock size={16} className={isAuthenticated && isEnrolled ? lesson.isCompleted ? "text-green-500" : "text-[#14B8A6]" : "text-gray-400"} />
                                   <span className={isAuthenticated && isEnrolled ? lesson.isCompleted ? "text-green-600" : "text-gray-600" : "text-gray-400"}>{lesson.duration}</span>
                                 </div>
                               </div>
@@ -649,7 +649,7 @@ const CourseOverview = () => {
                               )}
                               <FiChevronRight className={
                                 isAuthenticated && isEnrolled 
-                                  ? "text-gray-400 group-hover:text-[#FC5A00] transform group-hover:translate-x-1 transition-all duration-300"
+                                  ? "text-gray-400 group-hover:text-[#14B8A6] transform group-hover:translate-x-1 transition-all duration-300"
                                   : "text-gray-300"
                               } size={20} />
                             </div>
@@ -759,7 +759,7 @@ const CourseOverview = () => {
                       <div
                         className={`flex flex-col sm:flex-row sm:items-center justify-between p-5 rounded-xl border transition-all duration-300 group mt-4 ${
                           isAuthenticated && isEnrolled 
-                            ? 'bg-gradient-to-r from-[#FC5A00]/5 to-orange-50 hover:from-[#FC5A00]/10 hover:to-orange-100 border-[#FC5A00]/30 hover:border-[#FC5A00] cursor-pointer hover:translate-x-2'
+                            ? 'bg-gradient-to-r from-[#14B8A6]/5 to-teal-50 hover:from-[#14B8A6]/10 hover:to-teal-100 border-[#14B8A6]/30 hover:border-[#14B8A6] cursor-pointer hover:translate-x-2'
                             : 'bg-gradient-to-r from-gray-100 to-gray-50 border-gray-300 cursor-not-allowed'
                         } ${(!isAuthenticated || !isEnrolled) && 'opacity-75'}`}
                         onClick={() => {
@@ -773,14 +773,14 @@ const CourseOverview = () => {
                         <div className="flex items-center gap-4 mb-3 sm:mb-0">
                           <div className={`flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center transition-colors duration-300 ${
                             isAuthenticated && isEnrolled 
-                              ? 'bg-[#FC5A00]/10 group-hover:bg-[#FC5A00]'
+                              ? 'bg-[#115E59]/10 group-hover:bg-[#115E59]'
                               : 'bg-gray-300'
                           }`}>
-                            <FiAward className={isAuthenticated && isEnrolled ? "text-[#FC5A00] group-hover:text-white" : "text-gray-500"} size={20} />
+                            <FiAward className={isAuthenticated && isEnrolled ? "text-[#14B8A6] group-hover:text-white" : "text-gray-500"} size={20} />
                           </div>
                           <div className="min-w-0">
                             <p className={`font-bold text-lg mb-1 ${
-                              isAuthenticated && isEnrolled ? 'text-gray-900 group-hover:text-[#FC5A00]' : 'text-gray-500'
+                              isAuthenticated && isEnrolled ? 'text-gray-900 group-hover:text-[#14B8A6]' : 'text-gray-500'
                             }`}>
                               Section Quiz: {section.quiz.title}
                             </p>
@@ -788,14 +788,14 @@ const CourseOverview = () => {
                               <span className={`flex items-center gap-2 ${
                                 isAuthenticated && isEnrolled ? "text-gray-600" : "text-gray-400"
                               }`}>
-                                <FiAward size={16} className={isAuthenticated && isEnrolled ? "text-[#FC5A00]" : "text-gray-400"} />
+                                <FiAward size={16} className={isAuthenticated && isEnrolled ? "text-[#14B8A6]" : "text-gray-400"} />
                                 {section.quiz.questions?.length || 0} questions
                               </span>
                               <span className={isAuthenticated && isEnrolled ? "text-gray-600" : "text-gray-400"}>•</span>
                               <span className={`flex items-center gap-2 ${
                                 isAuthenticated && isEnrolled ? "text-gray-600" : "text-gray-400"
                               }`}>
-                                <FiCheckCircle size={16} className={isAuthenticated && isEnrolled ? "text-[#FC5A00]" : "text-gray-400"} />
+                                <FiCheckCircle size={16} className={isAuthenticated && isEnrolled ? "text-[#14B8A6]" : "text-gray-400"} />
                                 Passing score: {section.quiz.passingScore}%
                               </span>
                             </div>
@@ -809,7 +809,7 @@ const CourseOverview = () => {
                           )}
                           <FiChevronRight className={
                             isAuthenticated && isEnrolled 
-                              ? "text-gray-400 group-hover:text-[#FC5A00] transform group-hover:translate-x-1 transition-all duration-300"
+                              ? "text-gray-400 group-hover:text-[#14B8A6] transform group-hover:translate-x-1 transition-all duration-300"
                               : "text-gray-300"
                           } size={20} />
                         </div>
@@ -827,7 +827,7 @@ const CourseOverview = () => {
             <div className="mt-12">
               <div className="mb-6">
                 <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-                  <FiAward className="text-[#FC5A00]" />
+                  <FiAward className="text-[#14B8A6]" />
                   Final Assessment & Certification
                 </h2>
                 <p className="text-gray-600 mt-1">Complete these assessments to earn your certificate.</p>
@@ -881,7 +881,7 @@ const CourseOverview = () => {
                                       certificateId: assignmentEligibility[assignment._id].certificateId
                                     }
                                   })}
-                                  className="mt-2 text-[#FC5A00] hover:text-[#FF6B1A] font-bold text-sm flex items-center gap-1 bg-orange-50 px-3 py-1.5 rounded-lg transition-colors border border-orange-100"
+                                  className="mt-2 text-[#14B8A6] hover:text-[#0D9488] font-bold text-sm flex items-center gap-1 bg-teal-50 px-3 py-1.5 rounded-lg transition-colors border border-teal-100"
                                 >
                                   View Result & Certificate
                                   <FiChevronRight size={14} />
@@ -890,7 +890,7 @@ const CourseOverview = () => {
                             ) : assignmentEligibility[assignment._id]?.canTake ? (
                               <button
                                 onClick={() => navigate(`/courses/${id}/assignment/${assignment._id}`)}
-                                className="bg-[#FC5A00] hover:bg-[#FF6B1A] text-white px-6 py-2.5 rounded-lg font-bold transition-colors flex items-center gap-2"
+                                className="bg-[#115E59] hover:bg-[#0F766E] text-white px-6 py-2.5 rounded-lg font-bold transition-colors flex items-center gap-2"
                               >
                                 Start Assessment
                                 <FiChevronRight />
@@ -909,7 +909,7 @@ const CourseOverview = () => {
                                         </p>
                                     </div>
                                 ) : (
-                                    <p className="text-xs text-orange-600 font-semibold mt-1">
+                                    <p className="text-xs text-teal-600 font-semibold mt-1">
                                         Current Progress: {Math.round(courseProgress)}% <br/>
                                         Complete {Math.max(0, Math.ceil(90 - courseProgress))}% more to unlock
                                     </p>
@@ -930,11 +930,11 @@ const CourseOverview = () => {
                         <div className="mt-4 pt-4 border-t border-gray-100">
                           <div className="flex items-center justify-between text-xs mb-1">
                             <span className="font-bold text-gray-500">Unlock Progress</span>
-                            <span className="font-bold text-[#FC5A00]">{Math.round(courseProgress)}% / 90%</span>
+                            <span className="font-bold text-[#14B8A6]">{Math.round(courseProgress)}% / 90%</span>
                           </div>
                           <div className="w-full bg-gray-100 rounded-full h-2">
                             <div 
-                              className="bg-[#FC5A00] h-2 rounded-full transition-all duration-500"
+                              className="bg-[#115E59] h-2 rounded-full transition-all duration-500"
                               style={{ width: `${Math.min(courseProgress, 90)}%` }}
                             ></div>
                           </div>
@@ -950,8 +950,8 @@ const CourseOverview = () => {
 
           {sections?.length === 0 && (
             <div className="text-center py-16 lg:py-24">
-              <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gray-50 mb-6 border-2 border-[#FC5A00]/30">
-                <FiBook className="text-[#FC5A00]" size={32} />
+              <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gray-50 mb-6 border-2 border-[#14B8A6]/30">
+                <FiBook className="text-[#14B8A6]" size={32} />
               </div>
               <h3 className="text-2xl font-bold text-gray-900 mb-3">Content Coming Soon</h3>
               <p className="text-gray-600 font-bold max-w-md mx-auto">
@@ -962,7 +962,7 @@ const CourseOverview = () => {
 
           {/* Enrollment CTA at Bottom */}
           {(!isAuthenticated || !isEnrolled) && (
-            <div className="mt-12 bg-gradient-to-r from-[#FC5A00]/10 to-orange-50 border border-[#FC5A00]/30 rounded-2xl p-8 text-center">
+            <div className="mt-12 bg-gradient-to-r from-[#14B8A6]/10 to-teal-50 border border-[#14B8A6]/30 rounded-2xl p-8 text-center">
               <h3 className="text-2xl font-bold text-gray-900 mb-3">
                 {!isAuthenticated ? 'Login to Start Learning' : 'Ready to Start Learning?'}
               </h3>
@@ -976,7 +976,7 @@ const CourseOverview = () => {
                 {!isAuthenticated ? (
                   <>
                     <button 
-                      className="bg-[#FC5A00] hover:bg-[#FF6B1A] text-white px-8 py-4 rounded-xl font-bold text-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl shadow-[#FC5A00]/20 hover:shadow-[#FC5A00]/30"
+                      className="bg-[#115E59] hover:bg-[#0F766E] text-white px-8 py-4 rounded-xl font-bold text-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl shadow-[#14B8A6]/20 hover:shadow-[#14B8A6]/30"
                       onClick={handleLoginRedirect}
                     >
                       Login Now
@@ -990,7 +990,7 @@ const CourseOverview = () => {
                   </>
                 ) : (
                   <button 
-                    className="bg-[#FC5A00] hover:bg-[#FF6B1A] text-white px-8 py-4 rounded-xl font-bold text-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl shadow-[#FC5A00]/20 hover:shadow-[#FC5A00]/30"
+                    className="bg-[#115E59] hover:bg-[#0F766E] text-white px-8 py-4 rounded-xl font-bold text-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl shadow-[#14B8A6]/20 hover:shadow-[#14B8A6]/30"
                     onClick={handleEnrollClick}
                   >
                     Enroll Now

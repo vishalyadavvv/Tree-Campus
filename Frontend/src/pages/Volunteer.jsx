@@ -124,7 +124,7 @@ export default function Volunteer() {
             }}
           >
             {/* Dark Overlay for better text readability */}
-            {/* <div className="absolute inset-0 bg-gradient-to-r from-[#FD5A00]/10 to-orange-600/50"></div> */}
+            {/* <div className="absolute inset-0 bg-gradient-to-r from-[#14B8A6]/10 to-teal-600/50"></div> */}
           </div>
 
           <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -228,7 +228,7 @@ export default function Volunteer() {
                         name="name"
                         value={formData.name}
                         onChange={handleChange}
-                        className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#FD5A00] focus:border-[#FD5A00] transition-all duration-300 text-sm sm:text-base ${errors.name ? 'border-red-500 bg-red-50' : 'border-gray-300 bg-white'}`}
+                        className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#14B8A6] focus:border-[#14B8A6] transition-all duration-300 text-sm sm:text-base ${errors.name ? 'border-red-500 bg-red-50' : 'border-gray-300 bg-white'}`}
                         placeholder="Enter your full name"
                       />
                       <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
@@ -252,7 +252,7 @@ export default function Volunteer() {
                         name="email"
                         value={formData.email}
                         onChange={handleChange}
-                        className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#FD5A00] focus:border-[#FD5A00] transition-all duration-300 text-sm sm:text-base ${errors.email ? 'border-red-500 bg-red-50' : 'border-gray-300 bg-white'}`}
+                        className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#14B8A6] focus:border-[#14B8A6] transition-all duration-300 text-sm sm:text-base ${errors.email ? 'border-red-500 bg-red-50' : 'border-gray-300 bg-white'}`}
                         placeholder="Enter your email address"
                       />
                       <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
@@ -279,7 +279,7 @@ export default function Volunteer() {
                         name="phone"
                         value={formData.phone}
                         onChange={handleChange}
-                        className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#FD5A00] focus:border-[#FD5A00] transition-all duration-300 text-sm sm:text-base ${errors.phone ? 'border-red-500 bg-red-50' : 'border-gray-300 bg-white'}`}
+                        className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#14B8A6] focus:border-[#14B8A6] transition-all duration-300 text-sm sm:text-base ${errors.phone ? 'border-red-500 bg-red-50' : 'border-gray-300 bg-white'}`}
                         placeholder="Enter your phone number"
                       />
                       <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
@@ -303,7 +303,7 @@ export default function Volunteer() {
                         name="address"
                         value={formData.address}
                         onChange={handleChange}
-                        className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#FD5A00] focus:border-[#FD5A00] transition-all duration-300 text-sm sm:text-base ${errors.address ? 'border-red-500 bg-red-50' : 'border-gray-300 bg-white'}`}
+                        className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#14B8A6] focus:border-[#14B8A6] transition-all duration-300 text-sm sm:text-base ${errors.address ? 'border-red-500 bg-red-50' : 'border-gray-300 bg-white'}`}
                         placeholder="Enter your complete address"
                       />
                       <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
@@ -328,7 +328,7 @@ export default function Volunteer() {
                       rows={5}
                       value={formData.motivation}
                       onChange={handleChange}
-                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#FD5A00] focus:border-[#FD5A00] transition-all duration-300 resize-none text-sm sm:text-base ${errors.motivation ? 'border-red-500 bg-red-50' : 'border-gray-300 bg-white'}`}
+                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#14B8A6] focus:border-[#14B8A6] transition-all duration-300 resize-none text-sm sm:text-base ${errors.motivation ? 'border-red-500 bg-red-50' : 'border-gray-300 bg-white'}`}
                       placeholder="Share your motivation, relevant experience, and how you can contribute to our mission..."
                     />
                     <div className="absolute top-3 right-3 flex items-center pointer-events-none">
@@ -348,10 +348,10 @@ export default function Volunteer() {
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className={`w-full py-3 sm:py-4 px-6 border border-transparent rounded-lg text-base sm:text-lg font-semibold text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FD5A00] transition-all duration-300 transform hover:scale-105 ${
+                    className={`w-full py-3 sm:py-4 px-6 border border-transparent rounded-lg text-base sm:text-lg font-semibold text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#14B8A6] transition-all duration-300 transform hover:scale-105 ${
                       isSubmitting
                         ? 'bg-gray-400 cursor-not-allowed'
-                        : 'bg-gradient-to-r from-[#FD5A00] to-[#E04E00] hover:from-[#E04E00] hover:to-[#C84300] shadow-lg hover:shadow-xl'
+                        : 'bg-gradient-to-r from-[#14B8A6] to-[#0F766E] hover:from-[#0F766E] hover:to-[#0F766E] shadow-lg hover:shadow-xl'
                     }`}
                   >
                     {isSubmitting ? (

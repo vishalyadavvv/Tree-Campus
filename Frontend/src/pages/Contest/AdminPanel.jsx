@@ -92,7 +92,26 @@ const AdminPanel = () => {
     const handleJsonParse = () => {
         try {
             const parsed = JSON.parse(jsonInput);
-            dispatch({ type: "SET_QUESTIONS", questions: parsed });
+            
+            // Normalize questions if needed
+            const questions = Array.isArray(parsed) ? parsed : (parsed.questions || []);
+            const formatted = questions.map(q => {
+                const options = q.options || [];
+                let answer = q.answer !== undefined ? q.answer : q.correctAnswer;
+                if (typeof answer === 'string' && isNaN(answer)) {
+                    const idx = options.findIndex(opt => opt.trim() === answer.trim());
+                    if (idx !== -1) answer = idx;
+                } else if (typeof answer === 'string' && !isNaN(answer)) {
+                    answer = Number(answer);
+                }
+                return {
+                    question: q.question || q.questionText || "",
+                    options,
+                    answer
+                };
+            });
+
+            dispatch({ type: "SET_QUESTIONS", questions: formatted });
             setStep(2);
         } catch (err) {
             alert("Invalid JSON: " + err.message);
@@ -118,12 +137,25 @@ const AdminPanel = () => {
                     return;
                 }
 
-                // Map format if necessary
-                const formattedQuestions = questions.map(q => ({
-                    question: q.question || q.questionText || "",
-                    options: q.options || [],
-                    answer: q.answer !== undefined ? q.answer : q.correctAnswer
-                }));
+                // Map format and normalize answers
+                const formattedQuestions = questions.map(q => {
+                    const options = q.options || [];
+                    let answer = q.answer !== undefined ? q.answer : q.correctAnswer;
+                    
+                    // If answer is a string and matches an option text, convert to index
+                    if (typeof answer === 'string' && isNaN(answer)) {
+                        const idx = options.findIndex(opt => opt.trim() === answer.trim());
+                        if (idx !== -1) answer = idx;
+                    } else if (typeof answer === 'string' && !isNaN(answer)) {
+                        answer = Number(answer);
+                    }
+                    
+                    return {
+                        question: q.question || q.questionText || "",
+                        options,
+                        answer
+                    };
+                });
 
                 dispatch({ type: "SET_QUESTIONS", questions: formattedQuestions });
                 

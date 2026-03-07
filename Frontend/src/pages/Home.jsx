@@ -40,6 +40,10 @@ const Home = () => {
     <div className="home-page">
       <Hero />
       <Stats />
+      {/* Visual Divider */}
+      <div className="bg-[#115E59] py-0">
+        <div className="max-w-100% mx-auto border-t-2 border-white/100"></div>
+      </div>
       <DownloadApp />
       <Features />
 
@@ -48,7 +52,7 @@ const Home = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-10">
             <h2 className="text-3xl font-bold text-gray-900 mb-4">Our Courses</h2>
-            <div className="w-20 h-1.5 bg-[#FD5A00] mx-auto rounded-full" />
+            <div className="w-20 h-1.5 bg-[#115E59] mx-auto rounded-full" />
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 mb-12">
@@ -64,7 +68,7 @@ const Home = () => {
           <div className="text-center">
             <a
               href="/courses"
-              className="inline-flex items-center justify-center px-8 py-3.5 bg-[#FD5A00] text-white font-bold rounded-xl hover:bg-[#e55100] transition-all duration-300 shadow-lg hover:shadow-orange-200 transform hover:-translate-y-0.5"
+              className="inline-flex items-center justify-center px-8 py-3.5 bg-[#115E59] text-white font-bold rounded-xl hover:bg-[#0F766E] transition-all duration-300 shadow-lg hover:shadow-teal-200 transform hover:-translate-y-0.5"
             >
               View All Courses
               <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">

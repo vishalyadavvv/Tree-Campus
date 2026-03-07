@@ -13,6 +13,7 @@
     const [totalPages, setTotalPages] = useState(1);
     const [totalStudents, setTotalStudents] = useState(0);
     const [filterStatus, setFilterStatus] = useState('all');
+    const [filterEnrollment, setFilterEnrollment] = useState('all');
     const [editModalOpen, setEditModalOpen] = useState(false);
     const [selectedStudent, setSelectedStudent] = useState(null);
     const [editFormData, setEditFormData] = useState({});
@@ -43,7 +44,7 @@
       } else {
         fetchStudents(1);
       }
-    }, [filterStatus]);
+    }, [filterStatus, filterEnrollment]);
 
     const fetchStudents = async (page = 1, isBackground = false) => {
       try {
@@ -53,7 +54,7 @@
           setLoading(true);
         }
         
-        const response = await api.get(`/students?page=${page}&limit=10&search=${searchTerm}&status=${filterStatus}`);
+        const response = await api.get(`/students?page=${page}&limit=10&search=${searchTerm}&status=${filterStatus}&enrollment=${filterEnrollment}`);
         setStudents(response.data.data || []);
         setTotalPages(response.data.totalPages || 1);
         setTotalStudents(response.data.totalStudents || 0);
@@ -242,9 +243,19 @@
                   value={filterStatus}
                   onChange={(e) => setFilterStatus(e.target.value)}
                 >
-                  <option value="all">All Students</option>
+                  <option value="all">All Status</option>
                   <option value="active">Active</option>
                   <option value="inactive">Inactive</option>
+                </select>
+
+                <select
+                  className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  value={filterEnrollment}
+                  onChange={(e) => setFilterEnrollment(e.target.value)}
+                >
+                  <option value="all">Enrollment: All</option>
+                  <option value="enrolled">Enrolled</option>
+                  <option value="not_enrolled">Not Enrolled</option>
                 </select>
               </div>
             </div>
@@ -295,11 +306,20 @@
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center space-x-2">
-                          <FiBook className="w-4 h-4 text-blue-500" />
-                          <span className="text-sm font-medium text-gray-900">
-                            {student.realEnrollmentCount || student.enrolledCourses?.length || 0}
-                          </span>
+                        <div className="flex flex-col space-y-1">
+                          <div className="flex items-center space-x-2 text-sm font-medium text-gray-900">
+                            <FiBook className="w-4 h-4 text-blue-500" />
+                            <span>{student.realEnrollmentCount || student.enrolledCourses?.length || 0}</span>
+                          </div>
+                          {student.enrolledCourses?.length > 0 ? (
+                            <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-100 uppercase tracking-tighter">
+                              Enrolled
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-gray-50 text-gray-500 border border-gray-100 uppercase tracking-tighter">
+                              Not Enrolled
+                            </span>
+                          )}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
@@ -368,21 +388,32 @@
                           <span>{student.phone || 'No phone'}</span>
                       </div>
                       <div className="flex flex-wrap gap-2">
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                          student.isActive
-                            ? 'bg-green-100 text-green-800' 
-                            : 'bg-gray-100 text-gray-800'
-                        }`}>
-                          {student.isActive ? 'Active' : 'Inactive'}
-                        </span>
-                        <span className="flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                          <FiBook className="w-3 h-3" />
-                          <span>{student.realEnrollmentCount || student.enrolledCourses?.length || 0}</span>
-                        </span>
-                        <span className="flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
-                          <FiAward className="w-3 h-3" />
-                          <span>{student.certificates?.length || 0}</span>
-                        </span>
+                        <div className="flex flex-col gap-1.5">
+                          <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider text-center ${
+                            student.isActive
+                              ? 'bg-teal-50 text-teal-700 border border-teal-100' 
+                              : 'bg-red-50 text-red-700 border border-red-100'
+                          }`}>
+                            Account: {student.isActive ? 'Active' : 'Inactive'}
+                          </span>
+                          <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider text-center ${
+                            student.enrolledCourses?.length > 0
+                              ? 'bg-blue-50 text-blue-700 border border-blue-100' 
+                              : 'bg-gray-50 text-gray-500 border border-gray-100'
+                          }`}>
+                            Activity: {student.enrolledCourses?.length > 0 ? 'Enrolled' : 'Not Enrolled'}
+                          </span>
+                        </div>
+                        <div className="flex gap-2 mt-1">
+                          <span className="flex items-center space-x-1 px-2 py-0.5 rounded-md text-xs font-semibold bg-blue-100/50 text-blue-800">
+                            <FiBook className="w-3 h-3" />
+                            <span>{student.realEnrollmentCount || student.enrolledCourses?.length || 0}</span>
+                          </span>
+                          <span className="flex items-center space-x-1 px-2 py-0.5 rounded-md text-xs font-semibold bg-amber-100/50 text-amber-800">
+                            <FiAward className="w-3 h-3" />
+                            <span>{student.certificates?.length || 0}</span>
+                          </span>
+                        </div>
                       </div>
                     </div>
                   </div>

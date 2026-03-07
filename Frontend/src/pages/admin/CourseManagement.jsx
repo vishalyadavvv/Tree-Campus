@@ -239,7 +239,7 @@
             </button>
             <button 
               onClick={() => setFilterStatus('draft')}
-              className={`px-4 py-2 rounded-md transition-colors ${filterStatus === 'draft' ? 'bg-orange-600 text-white' : 'hover:bg-gray-100 text-gray-600'}`}
+              className={`px-4 py-2 rounded-md transition-colors ${filterStatus === 'draft' ? 'bg-teal-600 text-white' : 'hover:bg-gray-100 text-gray-600'}`}
             >
               Drafts ({courses.filter(c => !c.isPublished).length})
             </button>
@@ -305,7 +305,7 @@
                     <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs font-medium">
                       {course.category}
                     </span>
-                    <span className={`px-2 py-1 rounded text-xs font-bold ${course.isPublished ? 'bg-green-100 text-green-800' : 'bg-orange-100 text-orange-800 border border-orange-200'}`}>
+                    <span className={`px-2 py-1 rounded text-xs font-bold ${course.isPublished ? 'bg-green-100 text-green-800' : 'bg-teal-100 text-teal-800 border border-teal-200'}`}>
                       {course.isPublished ? 'PUBLISHED' : 'DRAFT'}
                     </span>
                   </div>
@@ -320,7 +320,7 @@
                       <span>Manage</span>
                     </button>
                     <button 
-                      className={`p-2 rounded-lg transition-colors ${course.isPublished ? 'text-gray-600 hover:text-orange-600 hover:bg-orange-50' : 'text-gray-600 hover:text-green-600 hover:bg-green-50'}`}
+                      className={`p-2 rounded-lg transition-colors ${course.isPublished ? 'text-gray-600 hover:text-teal-600 hover:bg-teal-50' : 'text-gray-600 hover:text-green-600 hover:bg-green-50'}`}
                       onClick={async () => {
                         try {
                           await api.put(`/courses/${course._id}`, { isPublished: !course.isPublished });

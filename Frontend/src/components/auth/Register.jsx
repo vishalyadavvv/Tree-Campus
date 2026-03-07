@@ -184,7 +184,7 @@ const Register = () => {
 
   return (
     <>
-      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-red-50 to-pink-50 flex items-center justify-center p-4 relative">
+      <div className="min-h-screen bg-gradient-to-br from-teal-50 via-red-50 to-pink-50 flex items-center justify-center p-4 relative">
         <div className="absolute top-4 right-4 z-40">
           <div className="relative language-selector">
             <button 
@@ -214,14 +214,14 @@ const Register = () => {
                 <button
                   key={lang.code}
                   onClick={() => changeLanguage(lang.code)}
-                  className={`w-full flex items-center space-x-3 px-4 py-3 text-left hover:bg-orange-50 text-orange-700 transition-colors first:rounded-t-lg last:rounded-b-lg ${
-                    currentLanguage === lang.code ? "bg-orange-100 text-orange-700" : "text-gray-700"
+                  className={`w-full flex items-center space-x-3 px-4 py-3 text-left hover:bg-teal-50 text-teal-700 transition-colors first:rounded-t-lg last:rounded-b-lg ${
+                    currentLanguage === lang.code ? "bg-teal-100 text-teal-700" : "text-gray-700"
                   }`}
                 >
                   <span className="text-lg">{lang.flag}</span>
                   <span className="font-medium">{lang.name}</span>
                   {currentLanguage === lang.code && (
-                    <svg className="w-4 h-4 ml-auto" style={{ color: '#FD5B00' }} fill="currentColor" viewBox="0 0 20 20">
+                    <svg className="w-4 h-4 ml-auto" style={{ color: '#14B8A6' }} fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                     </svg>
                   )}
@@ -237,7 +237,7 @@ const Register = () => {
           <div className="p-8 lg:p-12 flex flex-col justify-center order-2 md:order-1">
             <div className="text-center mb-8">
               <div className="flex justify-center mb-4">
-                <svg className="w-16 h-16" style={{ color: '#FD5B00' }} fill="currentColor" viewBox="0 0 24 24">
+                <svg className="w-16 h-16" style={{ color: '#14B8A6' }} fill="currentColor" viewBox="0 0 24 24">
                   <path d="M12 3L1 9l4 2.18v6L12 21l7-3.82v-6l2-1.09V17h2V9L12 3zm6.82 6L12 12.72 5.18 9 12 5.28 18.82 9zM17 15.99l-5 2.73-5-2.73v-3.72L12 15l5-2.73v3.72z"/>
                 </svg>
               </div>
@@ -344,7 +344,7 @@ const Register = () => {
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-3 top-3.5 text-sm font-medium hover:opacity-80 transition"
-                    style={{ color: '#FD5B00' }}
+                    style={{ color: '#14B8A6' }}
                   >
                     {showPassword ? t.hidePassword : t.showPassword}
                   </button>
@@ -370,7 +370,7 @@ const Register = () => {
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                     className="absolute right-3 top-3.5 text-sm font-medium hover:opacity-80 transition"
-                    style={{ color: '#FD5B00' }}
+                    style={{ color: '#14B8A6' }}
                   >
                     {showConfirmPassword ? t.hidePassword : t.showPassword}
                   </button>
@@ -381,9 +381,9 @@ const Register = () => {
                 type="submit"
                 disabled={loading}
                 className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white transition disabled:opacity-50 disabled:cursor-not-allowed transform hover:-translate-y-0.5"
-                style={{ backgroundColor: '#FD5B00' }}
-                onMouseEnter={(e) => e.target.style.backgroundColor = '#E54F00'}
-                onMouseLeave={(e) => e.target.style.backgroundColor = '#FD5B00'}
+                style={{ backgroundColor: '#115E59' }}
+                onMouseEnter={(e) => e.target.style.backgroundColor = '#0F766E'}
+                onMouseLeave={(e) => e.target.style.backgroundColor = '#115E59'}
               >
                 {loading ? (
                   <svg className="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
@@ -397,7 +397,7 @@ const Register = () => {
 
               <p className="text-center text-sm text-gray-600 mt-6">
                 {t.haveAccount}{' '}
-                <Link to="/login" className="font-medium hover:opacity-80 transition" style={{ color: '#FD5B00' }}>
+                <Link to="/login" className="font-medium hover:opacity-80 transition" style={{ color: '#14B8A6' }}>
                   {t.loginNow}
                 </Link>
               </p>
@@ -405,12 +405,12 @@ const Register = () => {
           </div>
 
           {/* Right Panel - Welcome Section (appears second on mobile) */}
-          <div className="p-8 lg:p-12 text-white flex flex-col justify-center order-1 md:order-2" style={{ background: 'linear-gradient(135deg, #FD5B00 0%, #E54F00 100%)' }}>
+          <div className="p-8 lg:p-12 text-white flex flex-col justify-center order-1 md:order-2" style={{ background: 'linear-gradient(135deg, #14B8A6 0%, #0F766E 100%)' }}>
             <div className="text-center">
               <h2 className="text-3xl font-bold mb-4">
                 {t.welcomeTitle}
               </h2>
-              <p className="text-orange-100 mb-8 text-lg">
+              <p className="text-teal-100 mb-8 text-lg">
                 {t.welcomeSubtitle}
               </p>
               <ul className="space-y-4 text-left max-w-md mx-auto">
@@ -483,7 +483,7 @@ const Register = () => {
 
           input:focus {
             ring: 2px;
-            ring-color: #FD5B00;
+            ring-color: #14B8A6;
             border-color: transparent;
           }
         `}</style>

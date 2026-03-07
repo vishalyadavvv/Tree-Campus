@@ -2,7 +2,7 @@
 import React from 'react';
 
 const Loader = () => {
-  const primaryColor = '#FD5A00';
+  const primaryColor = '#14B8A6';
   const logoUrl = 'https://res.cloudinary.com/dbbll23jz/image/upload/v1765170258/tree_logo_ek4uw3.png';
 
   return (

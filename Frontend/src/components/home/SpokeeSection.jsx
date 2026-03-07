@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 
 const SpokeeSection = () => {
   return (
-    <section className="py-6 bg-[#FD5B00] text-white relative overflow-hidden"> 
+    <section className="py-6 bg-[#115E59] text-white relative overflow-hidden"> 
       {/* Root reduced from py-20 → py-6 */}
 
       {/* Faded Background */}
@@ -19,15 +19,15 @@ const SpokeeSection = () => {
 
           {/* LEFT SECTION */}
           <div className="space-y-3">
-            <h2 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-white to-orange-100 bg-clip-text text-transparent">
+            <h2 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-white to-teal-100 bg-clip-text text-transparent">
               Meet Spokee AI
             </h2>
 
-            <p className="text-base text-orange-100 font-semibold">
+            <p className="text-base text-teal-100 font-semibold">
               Your Personal English Speaking Partner
             </p>
 
-            <p className="text-sm text-orange-50 leading-relaxed">
+            <p className="text-sm text-teal-50 leading-relaxed">
               Practice English with instant feedback and pronunciation correction.
             </p>
 
@@ -41,10 +41,10 @@ const SpokeeSection = () => {
                 "Progress Tracking"
               ].map((item, i) => (
                 <li key={i} className="flex items-center space-x-2">
-                  <div className="w-4 h-4 bg-white rounded-full flex items-center justify-center text-[#FD5A00] text-[10px]">
+                  <div className="w-4 h-4 bg-white rounded-full flex items-center justify-center text-[#14B8A6] text-[10px]">
                     ✓
                   </div>
-                  <span className="text-orange-50 text-xs">{item}</span>
+                  <span className="text-teal-50 text-xs">{item}</span>
                 </li>
               ))}
             </ul>
@@ -52,7 +52,7 @@ const SpokeeSection = () => {
             <div className="flex flex-col sm:flex-row gap-2 pt-1">
               <Link 
                 to="/spokee"
-                className="px-4 py-2 bg-white text-[#FD5A00] rounded-lg hover:bg-orange-50 transition text-sm font-semibold"
+                className="px-4 py-2 bg-white text-[#14B8A6] rounded-lg hover:bg-teal-50 transition text-sm font-semibold"
               >
                 Start Conversation
               </Link>
@@ -71,14 +71,14 @@ const SpokeeSection = () => {
 
               {/* Header */}
               <div className="flex items-center space-x-3 mb-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-white to-orange-200 rounded-lg flex items-center justify-center text-xl">
+                <div className="w-10 h-10 bg-gradient-to-br from-white to-teal-200 rounded-lg flex items-center justify-center text-xl">
                   🤖
                 </div>
                 <div>
                   <h3 className="text-base font-bold">Spokee AI</h3>
                   <div className="flex items-center space-x-1">
                     <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                    <p className="text-orange-200 text-[10px]">Online</p>
+                    <p className="text-teal-200 text-[10px]">Online</p>
                   </div>
                 </div>
               </div>
@@ -113,7 +113,7 @@ const SpokeeSection = () => {
             </div>
 
             {/* Floating Icons */}
-            <div className="absolute -top-2 -right-2 w-5 h-5 bg-yellow-300 rounded-full text-[8px] flex items-center justify-center text-[#FD5A00] shadow">
+            <div className="absolute -top-2 -right-2 w-5 h-5 bg-yellow-300 rounded-full text-[8px] flex items-center justify-center text-[#14B8A6] shadow">
               AI
             </div>
             <div className="absolute -bottom-2 -left-2 w-4 h-4 bg-green-400 rounded-full shadow flex items-center justify-center">

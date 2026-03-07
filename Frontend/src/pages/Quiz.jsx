@@ -147,7 +147,7 @@ const Quiz = () => {
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen bg-gray-50">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#FC5A00]"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#14B8A6]"></div>
       </div>
     );
   }
@@ -161,7 +161,7 @@ const Quiz = () => {
           <p className="text-gray-600 mb-6">This section doesn't have a quiz yet.</p>
           <button
             onClick={() => navigate(`/courses/${courseId}`)}
-            className="bg-[#FC5A00] hover:bg-[#FF6B1A] text-white px-6 py-3 rounded-xl font-bold transition-all duration-300"
+            className="bg-[#115E59] hover:bg-[#0F766E] text-white px-6 py-3 rounded-xl font-bold transition-all duration-300"
           >
             Back to Course
           </button>
@@ -173,18 +173,18 @@ const Quiz = () => {
   // Quiz Start Screen
   if (!quizStarted) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#FC5A00]/10 via-orange-50 to-white p-4 md:p-8">
+      <div className="min-h-screen bg-gradient-to-br from-[#14B8A6]/10 via-teal-50 to-white p-4 md:p-8">
         <div className="max-w-2xl mx-auto">
           <button
             onClick={() => navigate(`/courses/${courseId}`)}
-            className="flex items-center gap-2 text-gray-600 hover:text-[#FC5A00] font-medium mb-6 transition-colors duration-200"
+            className="flex items-center gap-2 text-gray-600 hover:text-[#14B8A6] font-medium mb-6 transition-colors duration-200"
           >
             <FiArrowLeft size={20} />
             Back to Course
           </button>
 
           <div className="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100">
-            <div className="bg-gradient-to-r from-[#FC5A00] to-orange-600 p-6 md:p-8 text-white">
+            <div className="bg-gradient-to-r from-[#14B8A6] to-teal-600 p-6 md:p-8 text-white">
               <div className="flex items-center gap-4 mb-2">
                 <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
                   <FiAward size={24} />
@@ -250,7 +250,7 @@ const Quiz = () => {
 
               <button
                 onClick={handleStartQuiz}
-                className="w-full bg-gradient-to-r from-[#FC5A00] to-orange-600 hover:from-[#FF6B1A] hover:to-orange-700 text-white py-4 rounded-xl font-bold text-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center justify-center gap-3"
+                className="w-full bg-gradient-to-r from-[#14B8A6] to-teal-600 hover:from-[#0D9488] hover:to-teal-700 text-white py-4 rounded-xl font-bold text-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center justify-center gap-3"
               >
                 <FiCheckCircle size={24} />
                 Start Quiz
@@ -390,7 +390,7 @@ const Quiz = () => {
               <div className="flex gap-3">
                 <button
                   onClick={handleRetry}
-                  className="flex-1 bg-gradient-to-r from-[#FC5A00] to-orange-600 hover:from-[#FF6B1A] hover:to-orange-700 text-white py-3 rounded-xl font-bold text-base transition-all duration-300 shadow-md flex items-center justify-center gap-2"
+                  className="flex-1 bg-gradient-to-r from-[#14B8A6] to-teal-600 hover:from-[#0D9488] hover:to-teal-700 text-white py-3 rounded-xl font-bold text-base transition-all duration-300 shadow-md flex items-center justify-center gap-2"
                 >
                   <FiRefreshCw size={18} />
                   Retry
@@ -421,7 +421,7 @@ const Quiz = () => {
           <p className="text-gray-600 mb-6">Unable to load quiz questions. Please try again.</p>
           <button
             onClick={() => navigate(`/courses/${courseId}`)}
-            className="bg-[#FC5A00] hover:bg-[#FF6B1A] text-white px-6 py-3 rounded-xl font-bold transition-all duration-300"
+            className="bg-[#115E59] hover:bg-[#0F766E] text-white px-6 py-3 rounded-xl font-bold transition-all duration-300"
           >
             Back to Course
           </button>
@@ -440,7 +440,7 @@ const Quiz = () => {
         {/* Back Button */}
         <button
           onClick={() => navigate(`/courses/${courseId}`)}
-          className="flex items-center gap-2 text-gray-600 hover:text-[#FC5A00] font-medium mb-6 transition-colors duration-200"
+          className="flex items-center gap-2 text-gray-600 hover:text-[#14B8A6] font-medium mb-6 transition-colors duration-200"
         >
           <FiArrowLeft size={20} />
           Back to Course
@@ -450,7 +450,7 @@ const Quiz = () => {
         <div className="bg-white rounded-2xl shadow-lg p-6 mb-6">
           <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
             <div className="flex items-center gap-3">
-              <FiAward className="text-[#FC5A00]" size={28} />
+              <FiAward className="text-[#14B8A6]" size={28} />
               <div>
                 <h2 className="text-xl font-bold text-gray-900">{quiz.title}</h2>
                 <p className="text-gray-600">Question {currentQuestion + 1} of {quiz.questions.length}</p>
@@ -470,7 +470,7 @@ const Quiz = () => {
           <div className="mt-4">
             <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
               <div
-                className="bg-gradient-to-r from-[#FC5A00] to-orange-600 h-full transition-all duration-300 rounded-full"
+                className="bg-gradient-to-r from-[#14B8A6] to-teal-600 h-full transition-all duration-300 rounded-full"
                 style={{ width: `${progress}%` }}
               />
             </div>
@@ -481,7 +481,7 @@ const Quiz = () => {
         <div className="bg-white rounded-2xl shadow-lg p-6 md:p-10 mb-6 border border-gray-100">
           <div className="mb-8">
             <div className="flex items-center justify-between mb-4">
-              <span className="inline-block bg-[#FC5A00]/10 text-[#FC5A00] px-3 py-1 rounded-full text-sm font-semibold">
+              <span className="inline-block bg-[#115E59]/10 text-[#14B8A6] px-3 py-1 rounded-full text-sm font-semibold">
                 Question {currentQuestion + 1}
               </span>
               <span className="text-gray-400 text-sm">
@@ -502,14 +502,14 @@ const Quiz = () => {
                   onClick={() => handleAnswerSelect(index)}
                   className={`w-full text-left p-4 rounded-xl border transition-all duration-200 ${
                     selectedAnswers[currentQuestion] === index
-                      ? 'border-[#FC5A00] bg-[#FC5A00]/5 shadow-md'
-                      : 'border-gray-200 hover:border-[#FC5A00]/30 hover:bg-gray-50'
+                      ? 'border-[#14B8A6] bg-[#115E59]/5 shadow-md'
+                      : 'border-gray-200 hover:border-[#14B8A6]/30 hover:bg-gray-50'
                   }`}
                 >
                   <div className="flex items-center gap-4">
                     <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-colors ${
                       selectedAnswers[currentQuestion] === index
-                        ? 'border-[#FC5A00] bg-[#FC5A00]'
+                        ? 'border-[#14B8A6] bg-[#115E59]'
                         : 'border-gray-300'
                     }`}>
                       {selectedAnswers[currentQuestion] === index && (
@@ -559,7 +559,7 @@ const Quiz = () => {
             ) : (
               <button
                 onClick={handleNextQuestion}
-                className="flex-1 bg-gradient-to-r from-[#FC5A00] to-orange-600 hover:from-[#FF6B1A] hover:to-orange-700 text-white py-3 rounded-lg font-bold text-base transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center gap-2"
+                className="flex-1 bg-gradient-to-r from-[#14B8A6] to-teal-600 hover:from-[#0D9488] hover:to-teal-700 text-white py-3 rounded-lg font-bold text-base transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center justify-center gap-2"
               >
                 Next
                 <FiCheckCircle size={18} />
@@ -577,7 +577,7 @@ const Quiz = () => {
                   onClick={() => setCurrentQuestion(index)}
                   className={`w-12 h-12 rounded-lg font-bold transition-all duration-300 ${
                     index === currentQuestion
-                      ? 'bg-[#FC5A00] text-white shadow-lg scale-110'
+                      ? 'bg-[#115E59] text-white shadow-lg scale-110'
                       : selectedAnswers[index] !== null
                       ? 'bg-green-100 text-green-600 border-2 border-green-300'
                       : 'bg-gray-100 text-gray-600 hover:bg-gray-200'

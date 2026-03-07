@@ -158,13 +158,13 @@ const Testimonials = () => {
           {testimonials.map((testimonial, index) => (
             <div
               key={index}
-              className="bg-white rounded-2xl p-6 md:p-8 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-t-4 border-[#FD5A00]"
+              className="bg-white rounded-2xl p-6 md:p-8 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-t-4 border-[#14B8A6]"
             >
               <div className="flex items-center gap-1 mb-4">
                 {[...Array(testimonial.rating)].map((_, i) => (
                   <svg
                     key={i}
-                    className="w-4 h-4 md:w-5 md:h-5 fill-[#FD5A00]"
+                    className="w-4 h-4 md:w-5 md:h-5 fill-[#14B8A6]"
                     viewBox="0 0 20 20"
                   >
                     <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
@@ -180,7 +180,7 @@ const Testimonials = () => {
                 <img
                   src={testimonial.image}
                   alt={testimonial.name}
-                  className="w-12 h-12 md:w-14 md:h-14 rounded-full object-cover ring-2 ring-[#FD5A00]/20"
+                  className="w-12 h-12 md:w-14 md:h-14 rounded-full object-cover ring-2 ring-[#14B8A6]/20"
                 />
                 <div>
                   <div className="font-semibold text-sm md:text-base text-gray-900">
@@ -193,7 +193,7 @@ const Testimonials = () => {
               </div>
 
               <div className="flex items-center justify-between text-xs md:text-sm">
-                <span className="text-[#FD5A00] font-medium">
+                <span className="text-[#14B8A6] font-medium">
                   {testimonial.course}
                 </span>
                 <span className="bg-green-100 text-green-700 px-2 md:px-3 py-1 rounded-full text-xs font-medium">
@@ -206,37 +206,37 @@ const Testimonials = () => {
 
         <div
           ref={statsRef}
-          className="bg-gradient-to-r from-[#FD5A00] to-[#FF7A33] rounded-2xl md:rounded-3xl p-6 md:p-12 mb-12 md:mb-16 shadow-2xl"
+          className="bg-gradient-to-r from-[#14B8A6] to-[#22D3EE] rounded-2xl md:rounded-3xl p-6 md:p-12 mb-12 md:mb-16 shadow-2xl"
         >
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8 text-white">
             <div className="text-center">
               <div className="text-3xl md:text-5xl font-bold mb-1 md:mb-2">
                 {formatNumber(stats.students)}
               </div>
-              <div className="text-orange-100 font-medium text-xs md:text-base">Students Learning Free</div>
+              <div className="text-teal-100 font-medium text-xs md:text-base">Students Learning Free</div>
             </div>
             <div className="text-center">
               <div className="text-3xl md:text-5xl font-bold mb-1 md:mb-2">
                 {stats.rating}/5
               </div>
-              <div className="text-orange-100 font-medium text-xs md:text-base">Course Rating</div>
+              <div className="text-teal-100 font-medium text-xs md:text-base">Course Rating</div>
             </div>
             <div className="text-center">
               <div className="text-3xl md:text-5xl font-bold mb-1 md:mb-2">
                 {formatNumber(stats.certificates)}
               </div>
-              <div className="text-orange-100 font-medium text-xs md:text-base">Free Certificates</div>
+              <div className="text-teal-100 font-medium text-xs md:text-base">Free Certificates</div>
             </div>
             <div className="text-center">
               <div className="text-3xl md:text-5xl font-bold mb-1 md:mb-2">
                 {stats.successRate}%
               </div>
-              <div className="text-orange-100 font-medium text-xs md:text-base">Job Success Rate</div>
+              <div className="text-teal-100 font-medium text-xs md:text-base">Job Success Rate</div>
             </div>
           </div>
         </div>
 
-        <div className="bg-gradient-to-r from-orange-50 to-red-50 rounded-2xl md:rounded-3xl p-8 md:p-12 text-center border-2 border-[#FD5A00]/20">
+        <div className="bg-gradient-to-r from-teal-50 to-red-50 rounded-2xl md:rounded-3xl p-8 md:p-12 text-center border-2 border-[#14B8A6]/20">
           <h3 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-3 md:mb-4">
             Ready to Start Your Success Story?
           </h3>
@@ -244,7 +244,7 @@ const Testimonials = () => {
             Join {formatNumber(targetStats.students)}+ students who learned English speaking completely free and transformed their careers
           </p>
           <Link to="/courses">
-            <button className="bg-[#FD5A00] hover:bg-[#E55000] text-white font-semibold px-8 md:px-10 py-3 md:py-4 rounded-full text-base md:text-lg transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl">
+            <button className="bg-[#115E59] hover:bg-[#E55000] text-white font-semibold px-8 md:px-10 py-3 md:py-4 rounded-full text-base md:text-lg transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl">
               Start Learning Free →
             </button>
           </Link>
