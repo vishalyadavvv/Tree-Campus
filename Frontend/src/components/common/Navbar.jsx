@@ -41,7 +41,7 @@ export default function Navbar() {
 
   // Navigation links data - FIXED: Removed settings from navigation
   const navigation = {
-    home: "/",
+    home: "/home",
     login: "/login",
     register: "/register",
     profile: "/profile",
@@ -56,6 +56,9 @@ export default function Navbar() {
     volunteer: "/volunteer",
     AccountDeletionForm: "/accountdeletion",
     howItWorks: "/howitworks",
+    termsAndConditions: "/terms-and-conditions",
+    aboutUs: "/about-us",
+    privacyPolicy: "/privacy",
     myblogs: "/myblogs",
     blogs: {
       main: "/blogs"
@@ -103,6 +106,21 @@ export default function Navbar() {
           type: "link",
           label: "How It Works",
           href: navigation.howItWorks
+        },
+        {
+          type: "link",
+          label: "Terms and Conditions",
+          href: navigation.termsAndConditions
+        },
+        {
+          type: "link",
+          label: "About Us",
+          href: navigation.aboutUs
+        },
+        {
+          type: "link",
+          label: "Privacy Policy",
+          href: navigation.privacyPolicy
         }
       ]
     }

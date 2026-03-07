@@ -169,13 +169,13 @@ const Footer = () => {
             </h4>
             <ul className="space-y-3">
               <li>
-                <Link to="/about" className="text-gray-400 hover:text-white transition-colors duration-300 text-sm flex items-center">
+                <Link to="/about-us" className="text-gray-400 hover:text-white transition-colors duration-300 text-sm flex items-center">
                   <span style={{ width: '6px', height: '6px', backgroundColor: primaryColor, borderRadius: '50%', marginRight: '10px' }}></span>
                   About Us
                 </Link>
               </li>
               <li>
-                <Link to="/" className="text-gray-400 hover:text-white transition-colors duration-300 text-sm flex items-center">
+                <Link to="/home" className="text-gray-400 hover:text-white transition-colors duration-300 text-sm flex items-center">
                   <span style={{ width: '6px', height: '6px', backgroundColor: primaryColor, borderRadius: '50%', marginRight: '10px' }}></span>
                   Contact Us
                 </Link>

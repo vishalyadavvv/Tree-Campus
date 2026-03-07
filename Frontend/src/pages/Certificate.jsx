@@ -66,44 +66,28 @@ const Certificate = () => {
             doc.addImage(img, 'JPEG', 0, 0, width, height);
 
             // ─── NAME ────────────────────────────────────────────────────────────────
-            // Based on the template, the name area should be between two lines
-            // Top line at approximately 47% of height, bottom line at 57% of height
-            const nameY = height * 0.52; // Midpoint between the two lines (centered)
+            const nameY = height * 0.58; // Center it exactly on the empty line
+            const nameX = width * 0.495; // Horizontally center on the line
             
-            // White out the area where name goes
-            doc.setFillColor(255, 255, 255);
-            doc.rect(width * 0.25, nameY - 25, width * 0.5, 50, 'F');
+            // Add horizontal lines (matching template) - REMOVED AS PER USER REQUEST
 
-            // Add horizontal lines (matching template)
-            doc.setDrawColor(170, 170, 170);
-            doc.setLineWidth(0.8);
-            doc.line(width * 0.25, nameY - 12, width * 0.75, nameY - 12); // top line
-            doc.line(width * 0.25, nameY + 12, width * 0.75, nameY + 12); // bottom line
+            // Add horizontal lines (matching template) - REMOVED AS PER USER REQUEST
 
             // Name text
             const name = cert.userName || user?.name || '';
             doc.setFontSize(28);
             doc.setFont('helvetica', 'bold');
             doc.setTextColor(26, 37, 47);
-            doc.text(name, width / 2, nameY, { align: 'center', baseline: 'middle' });
+            doc.text(name, nameX, nameY, { align: 'center', baseline: 'middle' });
 
             // ─── COURSE NAME ────────────────────────────────────────────────────────
-            // Course name appears at approximately 63% of height
-            const courseY = height * 0.63;
-            
-            const courseTitle = cert.courseId?.title || cert.courseTitle || 'Online English Speaking Course';
-            doc.setFontSize(16);
-            doc.setFont('helvetica', 'bold');
-            doc.setTextColor(26, 37, 47);
-            doc.text(courseTitle, width / 2, courseY, { align: 'center', baseline: 'middle' });
+            // Course Name section removed as per user request
+
 
             // ─── DATE ────────────────────────────────────────────────────────────────
-            // Date appears above the "DATE" label at approximately 14.5% from bottom
-            const dateY = height * 0.855; // 100% - 14.5% = 85.5% from top
-            
-            // Clear area for date
-            doc.setFillColor(255, 255, 255);
-            doc.rect(width * 0.15, dateY - 10, width * 0.2, 20, 'F');
+            // Date appears above the "DATE" line
+            const dateY = height * 0.81; // Positioned directly over the line
+            const dateX = width * 0.49; // Shift left closer to DATE line center
 
             const date = new Date(cert.issuedAt).toLocaleDateString('en-US', {
                 year: 'numeric',
@@ -113,7 +97,7 @@ const Certificate = () => {
             doc.setFontSize(11);
             doc.setFont('helvetica', 'normal');
             doc.setTextColor(26, 37, 47);
-            doc.text(date, width * 0.25, dateY, { align: 'center', baseline: 'middle' });
+            doc.text(date, dateX, dateY, { align: 'center', baseline: 'middle' });
 
             // ─── CERTIFICATE ID ───────────────────────────────────────────────────────
             doc.setFontSize(8);
@@ -195,29 +179,18 @@ const Certificate = () => {
                                         crossOrigin="anonymous"
                                     />
 
-                                    {/* Name - centered between two lines */}
+                                    {/* Name - centered on the template line */}
                                     <div
-                                        className="absolute left-1/2 transform -translate-x-1/2"
+                                        className="absolute"
                                         style={{
-                                            top: '52%', // Centered between the two lines
+                                            top: '58%', // Vertically on the template line
+                                            left: '49.5%', // Horizontally on the template line
+                                            transform: 'translate(-50%, -50%)',
                                             width: '50%',
                                         }}
                                     >
-                                        {/* White background to cover template text */}
-                                        <div className="absolute inset-0 bg-white" style={{ 
-                                            top: '-25px', 
-                                            bottom: '-25px',
-                                            left: '-10px',
-                                            right: '-10px'
-                                        }}></div>
-                                        
-                                        {/* Lines */}
-                                        <div className="absolute w-full" style={{ top: '-12px' }}>
-                                            <div className="h-[1.5px] bg-gray-300 w-full"></div>
-                                        </div>
-                                        <div className="absolute w-full" style={{ bottom: '-12px' }}>
-                                            <div className="h-[1.5px] bg-gray-300 w-full"></div>
-                                        </div>
+                                        {/* Lines REMOVED AS PER USER REQUEST */}
+
                                         
                                         {/* Name text */}
                                         <p
@@ -232,42 +205,19 @@ const Certificate = () => {
                                         </p>
                                     </div>
 
-                                    {/* Course Name */}
-                                    <div
-                                        className="absolute left-1/2 transform -translate-x-1/2"
-                                        style={{
-                                            top: '63%',
-                                            width: '70%',
-                                        }}
-                                    >
-                                        <p
-                                            className="relative font-bold text-[#1a252f] text-center"
-                                            style={{
-                                                fontFamily: "'Montserrat', sans-serif",
-                                                fontSize: 'clamp(12px, 2vw, 18px)',
-                                            }}
-                                        >
-                                            {cert.courseId?.title || cert.courseTitle || 'Online English Speaking Course'}
-                                        </p>
-                                    </div>
+                                    {/* Course Name REMOVED AS PER USER REQUEST */}
+
 
                                     {/* Date */}
                                     <div
                                         className="absolute"
                                         style={{
-                                            left: '25%',
-                                            top: '85.5%',
-                                            transform: 'translateX(-50%)',
+                                            left: '49%', // Align above DATE label horizontally
+                                            top: '81%', // Immediately above the line vertically
+                                            transform: 'translate(-50%, -50%)',
                                             width: '20%',
                                         }}
                                     >
-                                        {/* White background for date */}
-                                        <div className="absolute inset-0 bg-white" style={{ 
-                                            top: '-10px', 
-                                            bottom: '-10px',
-                                            left: '-5px',
-                                            right: '-5px'
-                                        }}></div>
                                         
                                         <p
                                             className="relative text-[#1a252f] text-center"

@@ -23,9 +23,12 @@ const Home = () => {
         
         if (Array.isArray(coursesData)) {
             coursesData = coursesData.sort((a, b) => a.title.localeCompare(b.title));
+        } else {
+            coursesData = [];
         }
 
         setCourses(coursesData);
+
 
       } catch (err) {
         console.log("Error fetching courses:", err);
@@ -56,7 +59,7 @@ const Home = () => {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 mb-12">
-            {courses?.length > 0 ? (
+            {Array.isArray(courses) && courses.length > 0 ? (
               courses.slice(0, 3).map((course) => (
                 <CourseCard key={course._id} course={course} />
               ))

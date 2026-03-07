@@ -288,7 +288,7 @@ const Certificate = () => {
                                         </div>
                                         
                                         {/* Recipient Name */}
-                                        <div className="w-96 border-b-2 border-gray-300 pb-2 mb-6">
+                                        <div className="w-96 pb-2 mb-6">
                                             <h2 className="text-4xl font-bold text-[#1a252f] text-center"
                                                 style={{ fontFamily: "'Montserrat', sans-serif" }}>
                                                 {cert.userName || 'Student Name'}
@@ -296,13 +296,9 @@ const Certificate = () => {
                                         </div>
                                         
                                         {/* Course Description */}
-                                        <p className="text-lg font-bold text-[#1a252f] mb-2 text-center max-w-2xl"
+                                        <p className="text-lg font-bold text-[#1a252f] mb-8 text-center max-w-2xl"
                                            style={{ fontFamily: "'Montserrat', sans-serif" }}>
-                                            has successfully completed 3 months
-                                        </p>
-                                        <p className="text-xl font-bold text-[#1a252f] mb-12 text-center max-w-2xl"
-                                           style={{ fontFamily: "'Montserrat', sans-serif" }}>
-                                            {cert.courseId?.title || cert.courseTitle || 'Online English Speaking Course'}
+                                            has successfully completed 3 months Online English Speaking Course
                                         </p>
                                         
                                         {/* Footer: Date and Signature */}

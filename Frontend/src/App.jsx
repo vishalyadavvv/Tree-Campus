@@ -2,7 +2,7 @@
 import React from 'react';
 import { Toaster } from 'react-hot-toast';
 import { useEffect } from 'react';
-import { Routes, Route, useLocation } from 'react-router-dom';
+import { Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { CourseProvider } from './context/CourseContext';
 import ScrollToTop from './components/ScrollToTop';
@@ -32,6 +32,9 @@ import AITeacherPage from './pages/AITeacherPage';
 import AIFloatingButton from './components/common/AIFloatingButton';
 import MeetingRoom from './components/LiveClass/MeetingRoom';
 import UserAccountDeletionNew from './pages/UserAccountDeletionNew';
+import TermsAndConditions from './pages/TermsAndConditions';
+import AboutUs from './pages/AboutUs';
+import PrivacyPolicy from './pages/PrivacyPolicy';
 
 import ForgotPassword from './components/auth/ForgotPassword';
 import ResetPassword from './components/auth/ResetPassword';
@@ -129,7 +132,8 @@ function App() {
           <Routes>
 
   {/* ================= PUBLIC ROUTES ================= */}
-  <Route path="/" element={<Home />} />
+  <Route path="/" element={<Navigate to="/courses" replace />} />
+  <Route path="/home" element={<Home />} />
   <Route path="/courses" element={<Courses />} />
   <Route path="/courses/:id" element={<CourseDetail />} />
   <Route path="/games" element={<Games />} />
@@ -146,6 +150,9 @@ function App() {
   <Route path="/englishspeaking" element={<EnglishSpeaking />} />
   <Route path="/accountdeletion" element={<AccountDeletionForm />} />
   <Route path="/user-account-deletion" element={<UserAccountDeletionNew />} />
+  <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
+  <Route path="/about-us" element={<AboutUs />} />
+  <Route path="/privacy" element={<PrivacyPolicy />} />
   <Route path="/contest/schoolregistration" element={<SchoolRegistration />} />
   <Route path="/courses/:courseId/lesson/:lessonId" element={<LessonView />} />
   <Route path="/forgot-password" element={<ForgotPassword />} />
