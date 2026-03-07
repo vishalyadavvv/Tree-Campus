@@ -21,9 +21,7 @@ const Home = () => {
 
         let coursesData = res.data.courses || res.data.data || res.data || [];
         
-        if (Array.isArray(coursesData)) {
-            coursesData = coursesData.sort((a, b) => a.title.localeCompare(b.title));
-        } else {
+        if (!Array.isArray(coursesData)) {
             coursesData = [];
         }
 

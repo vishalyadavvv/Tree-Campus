@@ -33,25 +33,44 @@ import fs from 'fs';
 // @access  Public
 export const getCourses = async (req, res) => {
   try {
-    fs.appendFileSync('debug_hit.txt', `HIT AT ${new Date().toISOString()} query: ${JSON.stringify(req.query)}\n`);
-    console.log('GET /api/courses - Query:', req.query);
-    console.log('DB URI Length:', process.env.MONGODB_URI ? process.env.MONGODB_URI.length : 'MISSING');
-    
     let query = {};
     if (req.query.adminView !== 'true') {
       query.isPublished = true;
     }
 
-    const courses = await Course.find(query).sort('-createdAt');
-    console.log(`Found ${courses.length} courses in DB with query:`, JSON.stringify(query));
-    courses.forEach(c => console.log(`- ${c.title} (isPublished: ${c.isPublished})`));
+    const courses = await Course.find(query);
     
+    // Custom sort: Featured -> English -> Hindi -> Bengali -> Title
+    const langOrder = { 'En': 0, 'Hn': 1, 'Bn': 2 };
+    
+    courses.sort((a, b) => {
+      // 1. Featured first
+      const featuredA = Boolean(a.featured);
+      const featuredB = Boolean(b.featured);
+      if (featuredA && !featuredB) return -1;
+      if (!featuredA && featuredB) return 1;
+
+      // 2. Language order (En -> Hn -> Bn)
+      const langA = langOrder[a.lang] ?? 3;
+      const langB = langOrder[b.lang] ?? 3;
+      if (langA !== langB) return langA - langB;
+
+      // 3. Title alphabetical (so Part-1 comes before Part-2)
+      return (a.title || "").localeCompare(b.title || "");
+    });
+
+    console.log(`[GET /api/courses] Sorted ${courses.length} courses:`);
+    courses.slice(0, 10).forEach((c, i) => {
+      console.log(`${i+1}. [${c.lang}] featured: ${!!c.featured} - ${c.title}`);
+    });
+
     res.status(200).json({
       success: true,
       count: courses.length,
       data: courses
     });
   } catch (error) {
+    console.error('Error in getCourses:', error);
     res.status(500).json({
       success: false,
       message: error.message

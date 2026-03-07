@@ -65,6 +65,10 @@ const courseSchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
+  featured: {
+    type: Boolean,
+    default: false
+  },
   isPublished: {
     type: Boolean,
     default: true

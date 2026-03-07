@@ -49,12 +49,11 @@ const Courses = () => {
       
       console.log('API Response:', response.data);
       
-      // Handle the response based on your API structure
+      // Use the order from API (already sorted: featured → English → Bengali → newest)
       let coursesData = response.data.data || response.data.courses || response.data;
       
-      // Sort courses alphabetically by title (so Part-1 comes before Part-2)
-      if (Array.isArray(coursesData)) {
-          coursesData = coursesData.sort((a, b) => a.title.localeCompare(b.title));
+      if (!Array.isArray(coursesData)) {
+        coursesData = [];
       }
 
       setCourses(coursesData);

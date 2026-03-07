@@ -209,13 +209,22 @@ const StudentDashboard = () => {
           icon={<FiBook className="w-6 h-6" />}
           title="Enrolled Courses"
           value={safeStats.totalEnrolledCourses}
+          subtext={hasCourses ? (() => {
+            const earliest = validCourses.reduce((min, c) => {
+              const d = new Date(c.enrolledAt);
+              return d < min ? d : min;
+            }, new Date());
+            const days = Math.max(1, Math.ceil((new Date() - earliest) / (1000 * 60 * 60 * 24)));
+            return `Learning for ${days} day${days > 1 ? 's' : ''} 🔥`;
+          })() : null}
           color="indigo"
           delay="100"
         />
         <StatCard
           icon={<FiCheckCircle className="w-6 h-6" />}
           title="Completed Lessons"
-          value={stats.totalCompletedLessons}
+          value={`${safeStats.totalCompletedLessons} / ${validCourses.reduce((sum, c) => sum + (c.totalLessons || 0), 0)}`}
+          subtext={safeStats.totalCompletedLessons > 0 ? 'Lessons completed' : null}
           color="emerald"
           delay="200"
         />
@@ -599,7 +608,7 @@ const StudentDashboard = () => {
 };
 
 // Stat Card Component
-const StatCard = ({ icon, title, value, color, delay }) => {
+const StatCard = ({ icon, title, value, subtext, color, delay }) => {
   const colorClasses = {
     indigo: 'from-indigo-500 to-indigo-600',
     emerald: 'from-emerald-500 to-emerald-600',
@@ -621,6 +630,19 @@ const StatCard = ({ icon, title, value, color, delay }) => {
     purple: 'text-purple-600',
   };
 
+  // Convert fraction value "X / Y" to percentage, or handle string with %
+  let widthPercentage = '100%';
+  if (typeof value === 'string') {
+    if (value.includes('%')) {
+      widthPercentage = value.replace('%', '') + '%';
+    } else if (value.includes('/')) {
+      const [num, den] = value.split('/').map(s => parseInt(s.trim()));
+      widthPercentage = (den > 0) ? `${Math.round((num / den) * 100)}%` : '0%';
+    }
+  } else if (typeof value === 'number') {
+    widthPercentage = value > 0 ? '100%' : '0%';
+  }
+
   return (
     <div 
       className={`bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 animate-fadeInUp`}
@@ -635,17 +657,14 @@ const StatCard = ({ icon, title, value, color, delay }) => {
           <h3 className={`text-3xl font-bold bg-gradient-to-r ${colorClasses[color]} bg-clip-text text-transparent mt-1`}>
             {value}
           </h3>
+          {subtext && <p className="text-xs text-gray-500 mt-1 truncate">{subtext}</p>}
         </div>
       </div>
       <div className="mt-4">
         <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
           <div 
             className={`h-full bg-gradient-to-r ${colorClasses[color]} rounded-full transition-all duration-1000`}
-            style={{ 
-              width: typeof value === 'string' && value.includes('%') 
-                ? value.replace('%', '') + '%' 
-                : '100%' 
-            }}
+            style={{ width: widthPercentage }}
           />
         </div>
       </div>
@@ -656,8 +675,12 @@ const StatCard = ({ icon, title, value, color, delay }) => {
 // Course Progress Card Component
 const CourseProgressCard = ({ course, index }) => {
   const progress = course.progress || 0;
-  // Safely access nested course details
-  const courseDetails = course.courseId || {};
+  
+  // Handle both flattened shape (from studentController) and populated object shape
+  const courseDetails = typeof course.courseId === 'object' && course.courseId !== null ? course.courseId : course;
+  const courseId = typeof course.courseId === 'object' ? course.courseId._id : (course.courseId || course._id);
+  const title = courseDetails.title || course.title || 'Course Title';
+  const thumbnail = courseDetails.thumbnail || course.thumbnail || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80';
   
   const getProgressColor = (progress) => {
     if (progress < 30) return 'from-red-500 to-red-600';
@@ -667,7 +690,7 @@ const CourseProgressCard = ({ course, index }) => {
 
   return (
     <Link
-      to={`/courses/${courseDetails._id || course._id}`}
+      to={`/courses/${courseId}`}
       className="block group"
     >
       <div 
@@ -676,15 +699,22 @@ const CourseProgressCard = ({ course, index }) => {
       >
         <div className="flex-shrink-0">
           <img
-            src={courseDetails.thumbnail || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'}
-            alt={courseDetails.title || 'Course Thumbnail'}
+            src={thumbnail}
+            alt={title}
             className="w-20 h-20 sm:w-16 sm:h-16 rounded-lg object-cover group-hover:scale-105 transition-transform duration-300"
           />
         </div>
         <div className="flex-1 min-w-0 w-full">
-          <h3 className="font-semibold text-gray-900 truncate group-hover:text-indigo-600 transition-colors duration-300">
-            {courseDetails.title || 'Course Title'}
-          </h3>
+          <div className="flex items-center gap-2 flex-wrap">
+            <h3 className="font-semibold text-gray-900 truncate group-hover:text-indigo-600 transition-colors duration-300">
+              {title}
+            </h3>
+            {course.currentDay && (
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-indigo-100 text-indigo-700 whitespace-nowrap">
+                📅 {course.currentDayTitle || `Day ${course.currentDay}`}{course.totalDays ? ` / ${course.totalDays}` : ''}
+              </span>
+            )}
+          </div>
           <p className="text-gray-600 text-sm mt-1">
             {course.completedLessons || 0} / {course.totalLessons || 10} lessons completed
           </p>

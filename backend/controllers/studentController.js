@@ -1,6 +1,7 @@
 import User from '../models/User.js';
 import Course from '../models/Course.js';
 import Lesson from '../models/Lesson.js';
+import Section from '../models/Section.js';
 import Certificate from '../models/Certificate.js';
 import LiveClass from '../models/LiveClass.js';
 import Enrollment from '../models/Enrollment.js';
@@ -59,18 +60,56 @@ export const getStudentDashboard = async (req, res) => {
           
           let completedCount = 0;
           let realProgress = 0;
+          let currentDay = null;
+          let currentDayTitle = null;
+          let totalDays = 0;
+
+          // Get all sections (days) for this course, ordered
+          const sections = await Section.find({ courseId }).sort({ order: 1 });
+          totalDays = sections.length;
 
           if (progressDoc) {
              completedCount = progressDoc.completedLessons.length;
-             // Calculate percentage based on total lessons (consistency check)
              realProgress = totalLessons > 0 ? Math.round((completedCount / totalLessons) * 100) : 0;
+
+             // Figure out which day (section) the student is currently on
+             const completedLessonIds = new Set(
+               progressDoc.completedLessons.map(cl => cl.lesson.toString())
+             );
+
+             for (let i = 0; i < sections.length; i++) {
+               const sectionLessons = await Lesson.find({ sectionId: sections[i]._id }).select('_id');
+               const allCompleted = sectionLessons.length > 0 && 
+                 sectionLessons.every(l => completedLessonIds.has(l._id.toString()));
+               
+               if (!allCompleted) {
+                 currentDay = i + 1; // 1-indexed day number
+                 currentDayTitle = sections[i].title;
+                 break;
+               }
+             }
+
+             // If all sections completed, mark as last day
+             if (currentDay === null && sections.length > 0) {
+               currentDay = sections.length;
+               currentDayTitle = sections[sections.length - 1].title;
+             }
+          } else {
+            // No progress yet, they are on Day 1
+            if (sections.length > 0) {
+              currentDay = 1;
+              currentDayTitle = sections[0].title;
+            }
           }
 
           return {
             ...enrollment.toObject(),
             progress: realProgress,
             totalLessons,
-            completedLessons: completedCount
+            completedLessons: completedCount,
+            currentDay,
+            currentDayTitle,
+            totalDays
           };
         } catch (err) {
           console.error('Error processing enrollment:', err);
@@ -146,6 +185,9 @@ export const getStudentDashboard = async (req, res) => {
       progress: enrollment.progress,
       totalLessons: enrollment.totalLessons,
       completedLessons: enrollment.completedLessons,
+      currentDay: enrollment.currentDay,
+      currentDayTitle: enrollment.currentDayTitle,
+      totalDays: enrollment.totalDays,
       enrolledAt: enrollment.enrolledAt
     }));
 

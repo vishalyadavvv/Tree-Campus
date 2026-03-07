@@ -36,40 +36,69 @@ const PopupMessage = ({ isOpen, onClose, title, message }) => {
   );
 };
 
-const SidebarNote = ({ content, title = "Note" }) => {
-  const [isExpanded, setIsExpanded] = useState(false);
-  const shouldTruncate = content && content.length > 100;
+// Fullscreen Note Modal
+const NoteModal = ({ isOpen, onClose, title, content }) => {
+  if (!isOpen) return null;
 
   return (
-    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 transition-all duration-300">
-      <h5 className="text-xs font-bold text-yellow-800 uppercase tracking-wide mb-1 flex items-center">
-        <FiFileText className="mr-1" size={12} />
-        {title}
-      </h5>
-      <div className={`text-sm text-gray-700 whitespace-pre-wrap leading-relaxed break-words ${!isExpanded && shouldTruncate ? 'line-clamp-3' : ''}`}>
-        {content}
+    <div 
+      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+      onClick={onClose}
+    >
+      <div 
+        className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col animate-fadeInUp overflow-hidden"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-yellow-50 to-amber-50 flex-shrink-0">
+          <div className="flex items-center space-x-2">
+            <FiFileText className="text-amber-600" size={20} />
+            <h2 className="text-lg font-bold text-gray-900">{title || 'Note'}</h2>
+          </div>
+          <button
+            onClick={onClose}
+            className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-200 transition-colors"
+          >
+            <FiX size={18} className="text-gray-600" />
+          </button>
+        </div>
+
+        {/* Content */}
+        <div className="flex-1 overflow-y-auto px-6 py-5">
+          <div className="text-gray-700 text-base leading-relaxed whitespace-pre-wrap break-words">
+            {content}
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="px-6 py-3 border-t border-gray-100 bg-gray-50 flex-shrink-0">
+          <button
+            onClick={onClose}
+            className="w-full py-2.5 bg-[#115E59] hover:bg-[#0F766E] text-white font-medium rounded-lg transition-colors"
+          >
+            Close
+          </button>
+        </div>
       </div>
-      {shouldTruncate && (
-        <button
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            setIsExpanded(!isExpanded);
-          }}
-          className="text-yellow-700 hover:text-yellow-800 text-xs font-semibold mt-2 flex items-center focus:outline-none"
-        >
-          {isExpanded ? (
-            <>
-              Show Less <FiChevronDown className="ml-1 rotate-180 transition-transform" />
-            </>
-          ) : (
-            <>
-              View More <FiChevronDown className="ml-1 transition-transform" />
-            </>
-          )}
-        </button>
-      )}
     </div>
+  );
+};
+
+// Note Button (opens the modal)
+const NoteButton = ({ title, content, onOpen }) => {
+  return (
+    <button
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        onOpen(title, content);
+      }}
+      className="w-full flex items-center space-x-2 bg-yellow-50 hover:bg-yellow-100 border border-yellow-200 rounded-lg p-2.5 transition-all group"
+    >
+      <FiFileText className="text-yellow-700 flex-shrink-0" size={14} />
+      <span className="text-sm font-semibold text-yellow-800 truncate flex-1 text-left">{title || 'Note'}</span>
+      <span className="text-xs text-yellow-600 font-medium group-hover:text-yellow-800 whitespace-nowrap">View →</span>
+    </button>
   );
 };
 
@@ -85,6 +114,7 @@ const LessonView = () => {
   const [courseName, setCourseName] = useState('');
   const [expandedText, setExpandedText] = useState({});
   const [completingLesson, setCompletingLesson] = useState(false);
+  const [noteModal, setNoteModal] = useState({ isOpen: false, title: '', content: '' });
   const [popupMessage, setPopupMessage] = useState({
     isOpen: false,
     title: '',
@@ -525,6 +555,7 @@ const LessonView = () => {
                   const sectionProgress = section.totalLessons > 0 
                     ? Math.round((section.completedLessons / section.totalLessons) * 100)
                     : 0;
+                  const isSectionCompleted = sectionProgress === 100 && section.totalLessons > 0;
                   
                   return (
                     <div key={section._id} className="mb-2">
@@ -533,27 +564,31 @@ const LessonView = () => {
                           ...prev,
                           [section._id]: !prev[section._id]
                         }))}
-                        className="w-full flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg transition-colors group"
+                        className={`w-full flex items-center justify-between p-3 rounded-lg transition-colors group ${isSectionCompleted ? 'bg-green-50 hover:bg-green-100' : 'hover:bg-gray-50'}`}
                       >
                         <div className="flex items-center space-x-2 flex-1 min-w-0">
-                          {isExpanded ? (
+                          {isSectionCompleted ? (
+                            <div className="flex-shrink-0 w-5 h-5 rounded-full bg-green-500 flex items-center justify-center">
+                              <FiCheck size={12} className="text-white" />
+                            </div>
+                          ) : isExpanded ? (
                             <FiChevronDown size={16} className="flex-shrink-0 text-gray-500" />
                           ) : (
                             <FiChevronRight size={16} className="flex-shrink-0 text-gray-500" />
                           )}
                           <div className="text-left flex-1">
-                            <h4 className="text-sm font-semibold text-gray-900 truncate">
+                            <h4 className={`text-sm font-semibold truncate ${isSectionCompleted ? 'text-green-700' : 'text-gray-900'}`}>
                               {section.title}
                             </h4>
-                            <p className="text-xs text-gray-500 mt-0.5">
-                              {section.completedLessons}/{section.totalLessons} lessons
+                            <p className={`text-xs mt-0.5 ${isSectionCompleted ? 'text-green-600' : 'text-gray-500'}`}>
+                              {section.completedLessons}/{section.totalLessons} lessons {isSectionCompleted ? '✓ Completed' : ''}
                             </p>
                           </div>
                         </div>
                         <div className="flex items-center space-x-2 flex-shrink-0">
                           <div className="w-12 bg-gray-200 rounded-full h-1.5">
                             <div 
-                              className="bg-[#115E59] h-1.5 rounded-full transition-all duration-300"
+                              className={`${isSectionCompleted ? 'bg-green-500' : 'bg-[#115E59]'} h-1.5 rounded-full transition-all duration-300`}
                               style={{ width: `${sectionProgress}%` }}
                             />
                           </div>
@@ -609,25 +644,17 @@ const LessonView = () => {
                                     </div>
 
                                     {isCurrent && l.textContent && (
-                                      <div className="mt-2 bg-blue-50 border border-blue-200 rounded p-2">
-                                        <p className="text-xs text-gray-700 leading-relaxed">
-                                          📖 {expandedText[l._id] ? l.textContent : l.textContent.substring(0, 100)}
-                                        </p>
-                                        {l.textContent.length > 100 && (
-                                          <button
-                                            onClick={(e) => {
-                                              e.preventDefault();
-                                              setExpandedText(prev => ({
-                                                ...prev,
-                                                [l._id]: !prev[l._id]
-                                              }));
-                                            }}
-                                            className="text-blue-600 hover:text-blue-700 text-xs font-medium mt-1"
-                                          >
-                                            {expandedText[l._id] ? 'Show Less' : 'View Full'}
-                                          </button>
-                                        )}
-                                      </div>
+                                      <button
+                                        onClick={(e) => {
+                                          e.preventDefault();
+                                          e.stopPropagation();
+                                          setNoteModal({ isOpen: true, title: l.title + ' - Notes', content: l.textContent });
+                                        }}
+                                        className="mt-2 flex items-center space-x-1 text-blue-600 hover:text-blue-700 text-xs font-medium bg-blue-50 border border-blue-200 rounded px-2 py-1 hover:bg-blue-100 transition-all"
+                                      >
+                                        <FiFileText size={11} />
+                                        <span>📖 View Notes</span>
+                                      </button>
                                     )}
 
                                     {isCurrent && l.pdfUrl && (
@@ -652,14 +679,23 @@ const LessonView = () => {
                           
                           {/* Section Notes Loop */}
                           {(section.notes && section.notes.length > 0) ? (
-                            <div className="mt-3 pt-3 border-t border-gray-200 space-y-3">
+                            <div className="mt-3 pt-3 border-t border-gray-200 space-y-2">
                               {section.notes.map((note, idx) => (
-                                <SidebarNote key={idx} content={note.content} title={note.heading} />
+                                <NoteButton 
+                                  key={idx} 
+                                  title={note.heading} 
+                                  content={note.content}
+                                  onOpen={(t, c) => setNoteModal({ isOpen: true, title: t, content: c })}
+                                />
                               ))}
                             </div>
                           ) : section.note && (
                             <div className="mt-3 pt-3 border-t border-gray-200">
-                              <SidebarNote content={section.note} />
+                              <NoteButton 
+                                title="Note" 
+                                content={section.note}
+                                onOpen={(t, c) => setNoteModal({ isOpen: true, title: t, content: c })}
+                              />
                             </div>
                           )}
 
@@ -712,6 +748,13 @@ const LessonView = () => {
           </div>
         </aside>
       </div>
+      {/* Note Modal */}
+      <NoteModal 
+        isOpen={noteModal.isOpen} 
+        onClose={() => setNoteModal({ isOpen: false, title: '', content: '' })}
+        title={noteModal.title}
+        content={noteModal.content}
+      />
     </div>
   );
 };
